@@ -4,7 +4,13 @@ pydantic
 pydantic-settings
 motor
 pymongo<4.10
+python-dotenv
 email-validator
-httpx
+python-multipart
+python-jose
 pytest
 pytest-asyncio
+groq
+google-generativeai
+apscheduler
+httpx
