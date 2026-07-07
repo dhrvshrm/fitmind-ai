@@ -35,17 +35,7 @@ uvicorn app.main:app --reload
 
 # Open http://localhost:5173
 ```
-
-## Documentation
-
-- [Getting Started](docs/GETTING_STARTED.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [20-Day Plan](docs/20_DAY_PLAN.md)
-
 ## License
 
 MIT - Portfolio Project
 
----
-
-Built in 20 days for portfolio impact
