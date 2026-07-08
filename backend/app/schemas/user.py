@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import List
+from typing import List, Optional
 
 
 class UserRegister(BaseModel):
@@ -36,3 +36,15 @@ class UserOnboarding(BaseModel):
     fitness_goal: str
     experience_level: str
     available_equipment: List[str]
+
+
+class UserProfileUpdate(BaseModel):
+    """Partial profile update — every field is optional."""
+
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    weight_kg: Optional[float] = None
+    height_cm: Optional[float] = None
+    fitness_goal: Optional[str] = None
+    experience_level: Optional[str] = None
+    available_equipment: Optional[List[str]] = None
