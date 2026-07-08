@@ -49,4 +49,14 @@ export const STRINGS = {
     label: 'Password strength',
     levels: ['Too weak', 'Weak', 'Fair', 'Good', 'Strong'],
   },
+  placeholder: {
+    signedInAs: 'Signed in as',
+    logout: 'Log out',
+  },
+  pages: {
+    dashboard: {
+      title: 'Dashboard',
+      description: 'Your workouts and recovery insights will live here.',
+    },
+  },
 } as const;

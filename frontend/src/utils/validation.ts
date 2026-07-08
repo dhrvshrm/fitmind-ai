@@ -29,14 +29,14 @@ export function validateConfirmPassword(
   return null;
 }
 
-export interface PasswordStrength {
+export type PasswordStrength = {
   /** 0 (empty) to 4 (strong). */
   score: number;
   /** Human label from `STRINGS.passwordStrength.levels`. */
   label: string;
   /** Progress bar fill, 0–100. */
   percent: number;
-}
+};
 
 /**
  * Cheap heuristic strength meter: one point each for length >= 8, length >= 12,

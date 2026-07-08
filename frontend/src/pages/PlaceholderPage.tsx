@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { STRINGS } from '../constants/strings';
 import { ROUTES } from '../constants/routes';
+import { placeholderPageStyles as styles } from './PlaceholderPage.styles';
 
-interface PlaceholderPageProps {
+type PlaceholderPageProps = {
   title: string;
   description: string;
-}
+};
 
 /**
  * Temporary landing page for protected routes (onboarding/dashboard) until their
@@ -23,22 +24,14 @@ export function PlaceholderPage({ title, description }: PlaceholderPageProps) {
   }
 
   return (
-    <Box
-      sx={{
-        minHeight: '100svh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: 2,
-      }}
-    >
-      <Card elevation={4} sx={{ width: '100%', maxWidth: 480, borderRadius: 3 }}>
-        <CardContent sx={{ p: 4 }}>
-          <Stack spacing={2} sx={{ textAlign: 'center' }}>
-            <Typography variant="overline" color="primary" sx={{ fontWeight: 700 }}>
+    <Box sx={styles.root}>
+      <Card elevation={4} sx={styles.card}>
+        <CardContent sx={styles.content}>
+          <Stack spacing={2} sx={styles.stack}>
+            <Typography variant="overline" color="primary" sx={styles.brand}>
               {STRINGS.app.name}
             </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 700 }}>
+            <Typography variant="h5" sx={styles.title}>
               {title}
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -46,11 +39,11 @@ export function PlaceholderPage({ title, description }: PlaceholderPageProps) {
             </Typography>
             {user?.email && (
               <Typography variant="body2">
-                Signed in as <strong>{user.email}</strong>
+                {STRINGS.placeholder.signedInAs} <strong>{user.email}</strong>
               </Typography>
             )}
             <Button variant="outlined" color="primary" onClick={handleLogout}>
-              Log out
+              {STRINGS.placeholder.logout}
             </Button>
           </Stack>
         </CardContent>
