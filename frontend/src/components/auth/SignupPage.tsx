@@ -21,12 +21,13 @@ import {
   validateEmail,
   validatePassword,
 } from '../../utils/validation';
+import { signupPageStyles as styles } from './SignupPage.styles';
 
-interface FieldErrors {
+type FieldErrors = {
   email?: string;
   password?: string;
   confirmPassword?: string;
-}
+};
 
 export function SignupPage() {
   const { signup } = useAuth();
@@ -73,7 +74,7 @@ export function SignupPage() {
       footer={
         <Typography variant="body2" color="text.secondary">
           {STRINGS.signup.switchPrompt}{' '}
-          <MuiLink component={RouterLink} to={ROUTES.LOGIN} sx={{ fontWeight: 600 }}>
+          <MuiLink component={RouterLink} to={ROUTES.LOGIN} sx={styles.switchLink}>
             {STRINGS.signup.switchAction}
           </MuiLink>
         </Typography>

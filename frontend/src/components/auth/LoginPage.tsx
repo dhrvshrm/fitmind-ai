@@ -16,11 +16,12 @@ import { resolveApiError } from '../../lib/apiClient';
 import { STRINGS } from '../../constants/strings';
 import { POST_AUTH_REDIRECT, ROUTES } from '../../constants/routes';
 import { validateEmail, validatePassword } from '../../utils/validation';
+import { loginPageStyles as styles } from './LoginPage.styles';
 
-interface FieldErrors {
+type FieldErrors = {
   email?: string;
   password?: string;
-}
+};
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -70,7 +71,7 @@ export function LoginPage() {
       footer={
         <Typography variant="body2" color="text.secondary">
           {STRINGS.login.switchPrompt}{' '}
-          <MuiLink component={RouterLink} to={ROUTES.SIGNUP} sx={{ fontWeight: 600 }}>
+          <MuiLink component={RouterLink} to={ROUTES.SIGNUP} sx={styles.switchLink}>
             {STRINGS.login.switchAction}
           </MuiLink>
         </Typography>

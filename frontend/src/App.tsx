@@ -4,9 +4,11 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { theme } from './theme';
 import { useAuthBootstrap } from './hooks/useAuth';
 import { ROUTES } from './constants/routes';
+import { STRINGS } from './constants/strings';
 import { LoginPage } from './components/auth/LoginPage';
 import { SignupPage } from './components/auth/SignupPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
 import { PlaceholderPage } from './pages/PlaceholderPage';
 
 /** Declares the route tree. Runs the auth bootstrap once on mount. */
@@ -21,21 +23,13 @@ function AppRoutes() {
 
       {/* Everything below requires authentication. */}
       <Route element={<ProtectedRoute />}>
-        <Route
-          path={ROUTES.ONBOARDING}
-          element={
-            <PlaceholderPage
-              title="Onboarding"
-              description="Tell us about your goals so we can tailor your training."
-            />
-          }
-        />
+        <Route path={ROUTES.ONBOARDING} element={<OnboardingFlow />} />
         <Route
           path={ROUTES.DASHBOARD}
           element={
             <PlaceholderPage
-              title="Dashboard"
-              description="Your workouts and recovery insights will live here."
+              title={STRINGS.pages.dashboard.title}
+              description={STRINGS.pages.dashboard.description}
             />
           }
         />

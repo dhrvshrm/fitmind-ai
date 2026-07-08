@@ -2,18 +2,12 @@ import { Box, CircularProgress } from '@mui/material';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { ROUTES } from '../../constants/routes';
+import { protectedRouteStyles as styles } from './ProtectedRoute.styles';
 
 /** Full-screen centered spinner used while auth state is resolving. */
 function FullScreenLoader() {
   return (
-    <Box
-      sx={{
-        minHeight: '100svh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
+    <Box sx={styles.loader}>
       <CircularProgress />
     </Box>
   );

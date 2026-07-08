@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import { AUTH_STORAGE_KEY } from '../constants/api';
 import type { User } from '../types/auth';
 
-interface AuthState {
+type AuthState = {
   user: User | null;
   token: string | null;
   /** True until the initial "am I still logged in?" check completes on app load. */
@@ -13,7 +13,7 @@ interface AuthState {
   setUser: (user: User | null) => void;
   clearAuth: () => void;
   setBootstrapping: (value: boolean) => void;
-}
+};
 
 /**
  * Single source of truth for auth. The `persist` middleware mirrors `token` and
