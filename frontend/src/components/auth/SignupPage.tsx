@@ -4,13 +4,16 @@ import {
   Box,
   Button,
   CircularProgress,
+  InputAdornment,
   Link as MuiLink,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
+import { ArrowForwardRounded, EmailOutlined } from '@mui/icons-material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { AuthLayout } from './AuthLayout';
+import { PasswordField } from './PasswordField';
 import { PasswordStrengthMeter } from './PasswordStrengthMeter';
 import { useAuth } from '../../hooks/useAuth';
 import { resolveApiError } from '../../lib/apiClient';
@@ -94,16 +97,23 @@ export function SignupPage() {
             error={Boolean(fieldErrors.email)}
             helperText={fieldErrors.email}
             disabled={isSubmitting}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailOutlined fontSize="small" />
+                  </InputAdornment>
+                ),
+              },
+            }}
           />
 
           <Box>
-            <TextField
+            <PasswordField
               label={STRINGS.fields.password}
-              type="password"
-              autoComplete="new-password"
-              fullWidth
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={setPassword}
+              autoComplete="new-password"
               error={Boolean(fieldErrors.password)}
               helperText={fieldErrors.password}
               disabled={isSubmitting}
@@ -111,13 +121,11 @@ export function SignupPage() {
             <PasswordStrengthMeter password={password} />
           </Box>
 
-          <TextField
+          <PasswordField
             label={STRINGS.fields.confirmPassword}
-            type="password"
-            autoComplete="new-password"
-            fullWidth
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={setConfirmPassword}
+            autoComplete="new-password"
             error={Boolean(fieldErrors.confirmPassword)}
             helperText={fieldErrors.confirmPassword}
             disabled={isSubmitting}
@@ -132,6 +140,7 @@ export function SignupPage() {
             startIcon={
               isSubmitting ? <CircularProgress size={18} color="inherit" /> : null
             }
+            endIcon={isSubmitting ? null : <ArrowForwardRounded />}
           >
             {isSubmitting ? STRINGS.signup.submitting : STRINGS.signup.submit}
           </Button>

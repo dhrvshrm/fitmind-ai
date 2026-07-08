@@ -3,6 +3,16 @@ export const STRINGS = {
   app: {
     name: 'FitMind AI',
     tagline: 'Your AI-powered fitness coach',
+    heroTitle: 'Train smarter, not just harder',
+    features: [
+      'AI workout plans built around you',
+      'Recovery-aware coaching that adapts',
+      'Earn XP and level up as you train',
+    ],
+  },
+  aria: {
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
   },
   login: {
     title: 'Welcome back',
