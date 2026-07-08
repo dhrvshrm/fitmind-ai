@@ -4,13 +4,16 @@ import {
   Box,
   Button,
   CircularProgress,
+  InputAdornment,
   Link as MuiLink,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
+import { ArrowForwardRounded, EmailOutlined } from '@mui/icons-material';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import { AuthLayout } from './AuthLayout';
+import { PasswordField } from './PasswordField';
 import { useAuth } from '../../hooks/useAuth';
 import { resolveApiError } from '../../lib/apiClient';
 import { STRINGS } from '../../constants/strings';
@@ -91,15 +94,22 @@ export function LoginPage() {
             error={Boolean(fieldErrors.email)}
             helperText={fieldErrors.email}
             disabled={isSubmitting}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailOutlined fontSize="small" />
+                  </InputAdornment>
+                ),
+              },
+            }}
           />
 
-          <TextField
+          <PasswordField
             label={STRINGS.fields.password}
-            type="password"
-            autoComplete="current-password"
-            fullWidth
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={setPassword}
+            autoComplete="current-password"
             error={Boolean(fieldErrors.password)}
             helperText={fieldErrors.password}
             disabled={isSubmitting}
@@ -114,6 +124,7 @@ export function LoginPage() {
             startIcon={
               isSubmitting ? <CircularProgress size={18} color="inherit" /> : null
             }
+            endIcon={isSubmitting ? null : <ArrowForwardRounded />}
           >
             {isSubmitting ? STRINGS.login.submitting : STRINGS.login.submit}
           </Button>
