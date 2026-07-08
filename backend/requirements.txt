@@ -8,6 +8,8 @@ python-dotenv
 email-validator
 python-multipart
 python-jose
+bcrypt
+supabase
 pytest
 pytest-asyncio
 groq
