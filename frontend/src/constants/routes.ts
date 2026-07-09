@@ -4,6 +4,14 @@ export const ROUTES = {
   SIGNUP: '/signup',
   ONBOARDING: '/onboarding',
   DASHBOARD: '/dashboard',
+  WORKOUTS: '/workouts',
+  RECOVERY: '/recovery',
+  VOICE_CHECKIN: '/voice-checkin',
+  NUTRITION: '/nutrition',
+  GAMIFICATION: '/gamification',
+  FRIENDS: '/friends',
+  PROFILE: '/profile',
+  SETTINGS: '/settings',
 } as const;
 
 /** Where a freshly authenticated user lands. */

@@ -14,5 +14,9 @@ export const USER_ENDPOINTS = {
   PROFILE: '/users/profile',
 } as const;
 
+export const DASHBOARD_ENDPOINTS = {
+  SUMMARY: '/dashboard/summary',
+} as const;
+
 /** localStorage key under which the Zustand auth store is persisted. */
 export const AUTH_STORAGE_KEY = 'fitmind-auth';
