@@ -1,4 +1,14 @@
 import { CssBaseline, ThemeProvider } from '@mui/material';
+import {
+  EmojiEventsRounded,
+  FitnessCenterRounded,
+  GroupRounded,
+  MicRounded,
+  MonitorHeartRounded,
+  PersonRounded,
+  RestaurantRounded,
+  SettingsRounded,
+} from '@mui/icons-material';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { theme } from './theme';
@@ -9,7 +19,9 @@ import { LoginPage } from './components/auth/LoginPage';
 import { SignupPage } from './components/auth/SignupPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
-import { PlaceholderPage } from './pages/PlaceholderPage';
+import { AppLayout } from './components/shared/AppLayout';
+import { ComingSoonPage } from './components/shared/ComingSoonPage';
+import { Dashboard } from './components/dashboard/Dashboard';
 
 /** Declares the route tree. Runs the auth bootstrap once on mount. */
 function AppRoutes() {
@@ -23,16 +35,53 @@ function AppRoutes() {
 
       {/* Everything below requires authentication. */}
       <Route element={<ProtectedRoute />}>
+        {/* Onboarding is a full-screen flow outside the app shell. */}
         <Route path={ROUTES.ONBOARDING} element={<OnboardingFlow />} />
-        <Route
-          path={ROUTES.DASHBOARD}
-          element={
-            <PlaceholderPage
-              title={STRINGS.pages.dashboard.title}
-              description={STRINGS.pages.dashboard.description}
-            />
-          }
-        />
+
+        {/* Feature pages render inside the navbar + sidebar shell. */}
+        <Route element={<AppLayout />}>
+          <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
+          <Route
+            path={ROUTES.WORKOUTS}
+            element={
+              <ComingSoonPage title={STRINGS.nav.workouts} icon={FitnessCenterRounded} />
+            }
+          />
+          <Route
+            path={ROUTES.RECOVERY}
+            element={
+              <ComingSoonPage title={STRINGS.nav.recovery} icon={MonitorHeartRounded} />
+            }
+          />
+          <Route
+            path={ROUTES.VOICE_CHECKIN}
+            element={<ComingSoonPage title={STRINGS.nav.voiceCheckin} icon={MicRounded} />}
+          />
+          <Route
+            path={ROUTES.NUTRITION}
+            element={
+              <ComingSoonPage title={STRINGS.nav.nutrition} icon={RestaurantRounded} />
+            }
+          />
+          <Route
+            path={ROUTES.GAMIFICATION}
+            element={
+              <ComingSoonPage title={STRINGS.nav.gamification} icon={EmojiEventsRounded} />
+            }
+          />
+          <Route
+            path={ROUTES.FRIENDS}
+            element={<ComingSoonPage title={STRINGS.nav.friends} icon={GroupRounded} />}
+          />
+          <Route
+            path={ROUTES.PROFILE}
+            element={<ComingSoonPage title={STRINGS.nav.profile} icon={PersonRounded} />}
+          />
+          <Route
+            path={ROUTES.SETTINGS}
+            element={<ComingSoonPage title={STRINGS.nav.settings} icon={SettingsRounded} />}
+          />
+        </Route>
       </Route>
 
       {/* Default + unknown paths go to the dashboard (which will bounce to login if needed). */}

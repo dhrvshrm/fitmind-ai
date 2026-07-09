@@ -1,28 +1,28 @@
 import type { SxProps, Theme } from '@mui/material';
 
-export const placeholderPageStyles = {
+export const comingSoonStyles = {
   root: {
-    minHeight: '100svh',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    p: 2,
+    minHeight: '60vh',
   },
   card: {
-    width: '100%',
-    maxWidth: 480,
+    p: { xs: 3, sm: 5 },
+    maxWidth: 440,
+    textAlign: 'center',
     borderRadius: 3,
   },
-  content: {
-    p: 4,
-  },
-  stack: {
-    textAlign: 'center',
-  },
-  brand: {
-    fontWeight: 700,
+  icon: {
+    fontSize: 48,
+    color: 'primary.main',
+    mb: 1,
   },
   title: {
     fontWeight: 700,
+  },
+  badge: {
+    mt: 2,
+    fontWeight: 600,
   },
 } satisfies Record<string, SxProps<Theme>>;
