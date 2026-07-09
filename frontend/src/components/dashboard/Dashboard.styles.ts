@@ -17,16 +17,24 @@ export const dashboardStyles = {
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: 1,
+    background: 'linear-gradient(155deg, #ffffff 0%, #faf7ff 100%)',
+    borderColor: 'rgba(170, 59, 255, 0.14)',
+    transition: 'transform 0.18s ease, box-shadow 0.18s ease',
+    '&:hover': {
+      transform: 'translateY(-3px)',
+      boxShadow: 6,
+    },
   },
   statIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 2,
+    width: 44,
+    height: 44,
+    borderRadius: 2.5,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    bgcolor: 'primary.light',
-    color: 'primary.contrastText',
+    color: '#fff',
+    background: 'linear-gradient(150deg, #aa3bff 0%, #7a1fd0 100%)',
+    boxShadow: '0px 6px 14px rgba(170, 59, 255, 0.32)',
   },
   statValue: {
     fontWeight: 700,
@@ -49,5 +57,12 @@ export const dashboardStyles = {
   actionButton: {
     py: 1.5,
     justifyContent: 'flex-start',
+    borderColor: 'rgba(170, 59, 255, 0.28)',
+    transition: 'transform 0.15s ease, background-color 0.15s ease',
+    '&:hover': {
+      bgcolor: 'rgba(170, 59, 255, 0.06)',
+      borderColor: 'primary.main',
+      transform: 'translateY(-2px)',
+    },
   },
 } satisfies Record<string, SxProps<Theme>>;

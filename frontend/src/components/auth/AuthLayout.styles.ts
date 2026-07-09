@@ -7,7 +7,8 @@ export const authLayoutStyles = {
     alignItems: 'center',
     justifyContent: 'center',
     p: 2,
-    background: 'linear-gradient(160deg, #f7f6fb 0%, #efe6fb 100%)',
+    background:
+      'radial-gradient(1200px 560px at 85% -10%, #efe0ff 0%, rgba(239,224,255,0) 58%), linear-gradient(160deg, #f7f6fb 0%, #efe6fb 100%)',
   },
   card: {
     width: '100%',
