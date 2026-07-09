@@ -7,7 +7,8 @@ export const onboardingFlowStyles = {
     alignItems: 'center',
     justifyContent: 'center',
     p: 2,
-    background: 'linear-gradient(160deg, #f7f6fb 0%, #efe6fb 100%)',
+    background:
+      'radial-gradient(1100px 520px at 15% -10%, #f0e2ff 0%, rgba(240,226,255,0) 60%), linear-gradient(160deg, #f7f6fb 0%, #efe6fb 100%)',
   },
   card: {
     width: '100%',

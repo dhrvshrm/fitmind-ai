@@ -1,8 +1,9 @@
 :root {
   color-scheme: light;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 html,
@@ -10,4 +11,27 @@ body,
 #root {
   margin: 0;
   min-height: 100svh;
+}
+
+body {
+  background: #f6f5fb;
+}
+
+/* Subtle, branded scrollbar to match the app chrome. */
+* {
+  scrollbar-color: #d9d2ec transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #d9d2ec;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #c3b8e0;
+  background-clip: padding-box;
 }

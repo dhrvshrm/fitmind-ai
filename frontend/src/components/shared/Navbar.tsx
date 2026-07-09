@@ -1,4 +1,4 @@
-import { useState, type MouseEvent } from 'react';
+import { useState, type MouseEvent } from "react";
 import {
   AppBar,
   Avatar,
@@ -12,19 +12,19 @@ import {
   Stack,
   Toolbar,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 import {
   FitnessCenterRounded,
   LogoutRounded,
   MenuRounded,
   NotificationsRounded,
-} from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { STRINGS } from '../../constants/strings';
-import { ROUTES } from '../../constants/routes';
-import { UNREAD_NOTIFICATIONS_PLACEHOLDER } from '../../constants/navigation';
-import { navbarStyles as styles } from './Navbar.styles';
+} from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { STRINGS } from "../../constants/strings";
+import { ROUTES } from "../../constants/routes";
+import { UNREAD_NOTIFICATIONS_PLACEHOLDER } from "../../constants/navigation";
+import { navbarStyles as styles } from "./Navbar.styles";
 
 type NavbarProps = {
   /** Opens the mobile sidebar drawer. */
@@ -37,7 +37,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   const navigate = useNavigate();
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
 
-  const initial = (user?.email?.[0] ?? '?').toUpperCase();
+  const initial = (user?.email?.[0] ?? "?").toUpperCase();
 
   function handleOpenMenu(event: MouseEvent<HTMLElement>) {
     setMenuAnchor(event.currentTarget);
@@ -80,7 +80,10 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           </Badge>
         </IconButton>
 
-        <IconButton aria-label={STRINGS.navbar.accountAria} onClick={handleOpenMenu}>
+        <IconButton
+          aria-label={STRINGS.navbar.accountAria}
+          onClick={handleOpenMenu}
+        >
           <Avatar sx={styles.avatar}>{initial}</Avatar>
         </IconButton>
 
