@@ -4,6 +4,7 @@ pydantic
 pydantic-settings
 motor
 pymongo<4.10
+certifi
 python-dotenv
 email-validator
 python-multipart
