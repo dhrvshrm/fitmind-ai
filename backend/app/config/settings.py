@@ -22,7 +22,10 @@ class Settings(BaseSettings):
         "http://localhost:5173",
         "http://127.0.0.1:5173",
     ]
-    
+    # Regex allowing any localhost/127.0.0.1 port in development so Vite's
+    # auto-incremented dev ports (5173/5174/5175/...) all work without edits.
+    ALLOWED_ORIGIN_REGEX: str = r"https?://(localhost|127\.0\.0\.1)(:\d+)?"
+
     class Config:
         env_file = ".env.local"
         case_sensitive = True
