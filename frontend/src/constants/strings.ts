@@ -100,4 +100,33 @@ export const STRINGS = {
     description: (feature: string) =>
       `${feature} is under construction — it will arrive in a future update.`,
   },
+  recovery: {
+    title: "Recovery",
+    subtitle: "Log how you feel and get today's training guidance.",
+    form: {
+      title: "Today's check-in",
+      sleepHours: "Sleep hours",
+      sleepQuality: "Sleep quality",
+      stressLevel: "Stress level",
+      muscleSoreness: "Muscle soreness",
+      qualityHint: "1 = terrible · 5 = excellent",
+      stressHint: "1 = calm · 5 = very stressed",
+      sorenessHint: "1 = none · 5 = very sore",
+      submit: "Log recovery",
+      submitting: "Scoring…",
+      success: "Recovery logged!",
+      error: "Could not log your recovery. Please try again.",
+    },
+    score: {
+      title: "Today's recovery",
+      outOf: "/ 100",
+      error: "Could not load your recovery score.",
+    },
+    history: {
+      title: "Last 14 days",
+      empty: "Log a few check-ins to see your trend here.",
+      error: "Could not load recovery history.",
+      tooltipLabel: "Score",
+    },
+  },
 } as const;

@@ -4,7 +4,6 @@ import {
   FitnessCenterRounded,
   GroupRounded,
   MicRounded,
-  MonitorHeartRounded,
   PersonRounded,
   RestaurantRounded,
   SettingsRounded,
@@ -22,6 +21,7 @@ import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
 import { AppLayout } from './components/shared/AppLayout';
 import { ComingSoonPage } from './components/shared/ComingSoonPage';
 import { Dashboard } from './components/dashboard/Dashboard';
+import { RecoveryPage } from './components/recovery/RecoveryPage';
 
 /** Declares the route tree. Runs the auth bootstrap once on mount. */
 function AppRoutes() {
@@ -47,12 +47,7 @@ function AppRoutes() {
               <ComingSoonPage title={STRINGS.nav.workouts} icon={FitnessCenterRounded} />
             }
           />
-          <Route
-            path={ROUTES.RECOVERY}
-            element={
-              <ComingSoonPage title={STRINGS.nav.recovery} icon={MonitorHeartRounded} />
-            }
-          />
+          <Route path={ROUTES.RECOVERY} element={<RecoveryPage />} />
           <Route
             path={ROUTES.VOICE_CHECKIN}
             element={<ComingSoonPage title={STRINGS.nav.voiceCheckin} icon={MicRounded} />}
