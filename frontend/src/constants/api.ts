@@ -18,5 +18,11 @@ export const DASHBOARD_ENDPOINTS = {
   SUMMARY: '/dashboard/summary',
 } as const;
 
+export const RECOVERY_ENDPOINTS = {
+  LOG: '/recovery/log',
+  SCORE_TODAY: '/recovery/score/today',
+  HISTORY: '/recovery/history',
+} as const;
+
 /** localStorage key under which the Zustand auth store is persisted. */
 export const AUTH_STORAGE_KEY = 'fitmind-auth';
