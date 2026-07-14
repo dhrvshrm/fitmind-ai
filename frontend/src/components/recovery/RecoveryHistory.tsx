@@ -10,7 +10,7 @@ import {
   YAxis,
 } from 'recharts';
 import { STRINGS } from '../../constants/strings';
-import { formatDateLabel } from '../../utils/recovery';
+import { formatDateLabel } from '../../utils/date';
 import type { RecoveryHistoryItem } from '../../types/recovery';
 import {
   recoveryChartTheme as chart,

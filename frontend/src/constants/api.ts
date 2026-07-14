@@ -24,5 +24,10 @@ export const RECOVERY_ENDPOINTS = {
   HISTORY: '/recovery/history',
 } as const;
 
+export const CHECKIN_ENDPOINTS = {
+  VOICE: '/checkin/voice',
+  HISTORY: '/checkin/history',
+} as const;
+
 /** localStorage key under which the Zustand auth store is persisted. */
 export const AUTH_STORAGE_KEY = 'fitmind-auth';
