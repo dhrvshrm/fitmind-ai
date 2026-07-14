@@ -10,10 +10,3 @@ export function getScoreColorToken(score: number): 'success.main' | 'warning.mai
   if (score >= 40) return 'warning.main';
   return 'error.main';
 }
-
-/** Short axis/tooltip label for an ISO-ish date string, e.g. "Jul 5". */
-export function formatDateLabel(date: string): string {
-  const parsed = new Date(date);
-  if (Number.isNaN(parsed.getTime())) return date;
-  return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-}

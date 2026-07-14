@@ -3,7 +3,6 @@ import {
   EmojiEventsRounded,
   FitnessCenterRounded,
   GroupRounded,
-  MicRounded,
   PersonRounded,
   RestaurantRounded,
   SettingsRounded,
@@ -22,6 +21,7 @@ import { AppLayout } from './components/shared/AppLayout';
 import { ComingSoonPage } from './components/shared/ComingSoonPage';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { RecoveryPage } from './components/recovery/RecoveryPage';
+import { VoiceCheckinPage } from './components/voicecheckin/VoiceCheckinPage';
 
 /** Declares the route tree. Runs the auth bootstrap once on mount. */
 function AppRoutes() {
@@ -48,10 +48,7 @@ function AppRoutes() {
             }
           />
           <Route path={ROUTES.RECOVERY} element={<RecoveryPage />} />
-          <Route
-            path={ROUTES.VOICE_CHECKIN}
-            element={<ComingSoonPage title={STRINGS.nav.voiceCheckin} icon={MicRounded} />}
-          />
+          <Route path={ROUTES.VOICE_CHECKIN} element={<VoiceCheckinPage />} />
           <Route
             path={ROUTES.NUTRITION}
             element={
