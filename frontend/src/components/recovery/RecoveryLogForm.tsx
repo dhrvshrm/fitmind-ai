@@ -8,6 +8,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import { CheckCircleRounded } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import { recoveryService } from '../../services/recoveryService';
 import { resolveApiError } from '../../lib/apiClient';
@@ -86,11 +87,13 @@ function SliderField({
 }
 
 type RecoveryLogFormProps = {
+  /** True when today's check-in already exists — locks the form. */
+  alreadyLogged: boolean;
   /** Called with the fresh result after a successful log. */
   onLogged: (result: RecoveryLogResult) => void;
 };
 
-export function RecoveryLogForm({ onLogged }: RecoveryLogFormProps) {
+export function RecoveryLogForm({ alreadyLogged, onLogged }: RecoveryLogFormProps) {
   const [form, setForm] = useState<RecoveryLogPayload>(DEFAULTS);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -109,6 +112,25 @@ export function RecoveryLogForm({ onLogged }: RecoveryLogFormProps) {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  if (alreadyLogged) {
+    return (
+      <Paper variant="outlined" sx={styles.card}>
+        <Typography variant="h6" sx={styles.title}>
+          {S.title}
+        </Typography>
+        <Box sx={styles.donePanel}>
+          <CheckCircleRounded sx={styles.doneIcon} />
+          <Typography variant="h6" sx={styles.doneTitle}>
+            {S.alreadyDoneTitle}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {S.alreadyDoneBody}
+          </Typography>
+        </Box>
+      </Paper>
+    );
   }
 
   return (

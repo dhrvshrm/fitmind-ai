@@ -31,4 +31,16 @@ export const recoveryLogFormStyles = {
   submit: {
     mt: 2,
   },
+  donePanel: {
+    py: 6,
+    textAlign: 'center',
+  },
+  doneIcon: {
+    fontSize: 48,
+    color: 'success.main',
+    mb: 1,
+  },
+  doneTitle: {
+    fontWeight: 700,
+  },
 } satisfies Record<string, SxProps<Theme>>;

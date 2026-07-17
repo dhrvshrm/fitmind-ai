@@ -1,5 +1,13 @@
 /** Shared date/time formatting helpers. */
 
+/** Local date as `YYYY-MM-DD` (avoids UTC off-by-one from toISOString). */
+export function toIsoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 /** Short axis/tooltip label for an ISO-ish date string, e.g. "Jul 5". */
 export function formatDateLabel(date: string): string {
   const parsed = new Date(date);

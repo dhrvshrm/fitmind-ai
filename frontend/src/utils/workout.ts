@@ -1,4 +1,5 @@
 import { WORKOUT_COMPLETIONS_KEY } from '../constants/api';
+import { toIsoDate } from './date';
 
 /**
  * Difficulty is a free-form string from the AI ("easy", "medium", "advanced"…),
@@ -22,14 +23,6 @@ export const DIFFICULTY_CHIP_COLOR: Record<DifficultyBucket, 'success' | 'warnin
   medium: 'warning',
   hard: 'error',
 };
-
-/** Local date as `YYYY-MM-DD` (avoids UTC off-by-one from toISOString). */
-export function toIsoDate(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
 
 /**
  * Completed-workout dates tracked locally until Day 8 syncs with the backend.

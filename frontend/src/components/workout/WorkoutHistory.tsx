@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
 import { LocalFireDepartmentRounded } from '@mui/icons-material';
 import { STRINGS } from '../../constants/strings';
-import { getStreak, toIsoDate } from '../../utils/workout';
+import { getStreak } from '../../utils/workout';
+import { toIsoDate } from '../../utils/date';
 import { workoutHistoryStyles as styles } from './WorkoutHistory.styles';
 
 const S = STRINGS.workout.history;
