@@ -1,7 +1,6 @@
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import {
   EmojiEventsRounded,
-  FitnessCenterRounded,
   GroupRounded,
   PersonRounded,
   RestaurantRounded,
@@ -22,6 +21,7 @@ import { ComingSoonPage } from './components/shared/ComingSoonPage';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { RecoveryPage } from './components/recovery/RecoveryPage';
 import { VoiceCheckinPage } from './components/voicecheckin/VoiceCheckinPage';
+import { WorkoutPage } from './components/workout/WorkoutPage';
 
 /** Declares the route tree. Runs the auth bootstrap once on mount. */
 function AppRoutes() {
@@ -41,12 +41,7 @@ function AppRoutes() {
         {/* Feature pages render inside the navbar + sidebar shell. */}
         <Route element={<AppLayout />}>
           <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
-          <Route
-            path={ROUTES.WORKOUTS}
-            element={
-              <ComingSoonPage title={STRINGS.nav.workouts} icon={FitnessCenterRounded} />
-            }
-          />
+          <Route path={ROUTES.WORKOUTS} element={<WorkoutPage />} />
           <Route path={ROUTES.RECOVERY} element={<RecoveryPage />} />
           <Route path={ROUTES.VOICE_CHECKIN} element={<VoiceCheckinPage />} />
           <Route
