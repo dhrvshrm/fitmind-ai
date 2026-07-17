@@ -116,6 +116,8 @@ export const STRINGS = {
       submitting: "Scoring…",
       success: "Recovery logged!",
       error: "Could not log your recovery. Please try again.",
+      alreadyDoneTitle: "Today's check-in is done ✅",
+      alreadyDoneBody: "Your recovery score is in — come back tomorrow morning.",
     },
     score: {
       title: "Today's recovery",

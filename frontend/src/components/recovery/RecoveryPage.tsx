@@ -6,6 +6,7 @@ import { RecoveryHistory } from './RecoveryHistory';
 import { recoveryService } from '../../services/recoveryService';
 import { resolveApiError } from '../../lib/apiClient';
 import { STRINGS } from '../../constants/strings';
+import { toIsoDate } from '../../utils/date';
 import type { RecoveryHistoryItem, RecoveryScoreData } from '../../types/recovery';
 import { recoveryPageStyles as styles } from './RecoveryPage.styles';
 
@@ -43,8 +44,15 @@ export function RecoveryPage() {
   }, []);
 
   useEffect(() => {
-    refresh();
+    // Deferred a microtask so the effect body itself schedules no state updates.
+    queueMicrotask(() => {
+      refresh();
+    });
   }, [refresh]);
+
+  // History is newest-first; today's entry at the top means already checked in.
+  const alreadyLoggedToday =
+    !historyLoading && history[0]?.date === toIsoDate(new Date());
 
   return (
     <Box>
@@ -56,7 +64,7 @@ export function RecoveryPage() {
       </Typography>
 
       <Box sx={styles.grid}>
-        <RecoveryLogForm onLogged={refresh} />
+        <RecoveryLogForm alreadyLogged={alreadyLoggedToday} onLogged={refresh} />
         <Box sx={styles.rightColumn}>
           <RecoveryScoreCard data={score} loading={scoreLoading} error={scoreError} />
           <RecoveryHistory items={history} loading={historyLoading} error={historyError} />

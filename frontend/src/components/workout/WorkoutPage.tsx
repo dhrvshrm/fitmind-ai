@@ -17,7 +17,8 @@ import { WorkoutHistory } from './WorkoutHistory';
 import { workoutService } from '../../services/workoutService';
 import { resolveApiError } from '../../lib/apiClient';
 import { STRINGS } from '../../constants/strings';
-import { getCompletedDates, markDateCompleted, toIsoDate } from '../../utils/workout';
+import { getCompletedDates, markDateCompleted } from '../../utils/workout';
+import { toIsoDate } from '../../utils/date';
 import type { Exercise, WeeklyPlan } from '../../types/workout';
 import { workoutPageStyles as styles } from './WorkoutPage.styles';
 
