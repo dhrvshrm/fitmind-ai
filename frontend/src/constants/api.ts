@@ -29,5 +29,15 @@ export const CHECKIN_ENDPOINTS = {
   HISTORY: '/checkin/history',
 } as const;
 
+export const WORKOUT_ENDPOINTS = {
+  GENERATE: '/workouts/generate',
+  WEEKLY_PLAN: '/workouts/plan/week',
+  TODAY: '/workouts/plan/today',
+  LOG: '/workouts/log',
+} as const;
+
+/** localStorage key for locally-tracked workout completions (until Day 8 sync). */
+export const WORKOUT_COMPLETIONS_KEY = 'fitmind-workout-completions';
+
 /** localStorage key under which the Zustand auth store is persisted. */
 export const AUTH_STORAGE_KEY = 'fitmind-auth';
