@@ -1,9 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from app.api.v1.endpoints.auth import get_current_user
 from app.models.user import User
 from app.schemas.general import SuccessResponse
-from app.schemas.workout import WorkoutLogRequest, WorkoutPlanRequest
+from app.schemas.workout import (
+    ExerciseCompleteRequest,
+    WorkoutLogRequest,
+    WorkoutPlanRequest,
+)
 from app.services import recovery_service, voice_service, workout_service
 
 router = APIRouter(prefix="/workouts", tags=["Workouts"])
@@ -76,9 +80,66 @@ async def get_today_workout(current_user: User = Depends(get_current_user)) -> d
 async def log_workout(
     log_data: WorkoutLogRequest, current_user: User = Depends(get_current_user)
 ) -> dict:
-    """Log a completed workout (XP handling arrives with gamification)."""
+    """Log a completed workout: award XP, recompute level, and check badges."""
+    await workout_service.log_workout(
+        current_user.id,
+        exercises=log_data.exercises,
+        duration=log_data.duration_minutes,
+        intensity=log_data.intensity,
+    )
+    xp = await workout_service.award_xp_for_workout(
+        current_user.id, duration=log_data.duration_minutes
+    )
+    new_badges = await workout_service.check_and_award_badges(current_user.id)
     return {
         "success": True,
         "message": "Workout logged",
-        "data": {"xp_earned": 50},
+        "data": {
+            "xp_earned": xp["xp_earned"],
+            "total_xp": xp["total_xp"],
+            "new_level": xp["new_level"],
+            "leveled_up": xp["leveled_up"],
+            "new_badges": new_badges,
+        },
+    }
+
+
+@router.get("/history", response_model=SuccessResponse)
+async def get_workout_history(
+    days: int = Query(30, ge=1, le=365),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    """Return the user's completed-workout history (newest first)."""
+    logs = await workout_service.get_workout_history(current_user.id, days=days)
+    return {
+        "success": True,
+        "message": "Workout history retrieved",
+        "data": {
+            "workouts": [
+                {
+                    "date": log.log_date,
+                    "duration_minutes": log.duration_minutes,
+                    "intensity": log.intensity,
+                    "xp_earned": log.xp_earned,
+                    "exercises": log.exercises,
+                }
+                for log in logs
+            ],
+        },
+    }
+
+
+@router.put("/exercise/complete", response_model=SuccessResponse)
+async def complete_exercise(
+    payload: ExerciseCompleteRequest,
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    """Mark a single exercise as completed for today."""
+    progress = await workout_service.mark_exercise_complete(
+        current_user.id, payload.exercise_name, day=payload.day
+    )
+    return {
+        "success": True,
+        "message": "Exercise marked complete",
+        "data": progress,
     }

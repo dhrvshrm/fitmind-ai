@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel
@@ -44,6 +43,23 @@ class WorkoutPlanResponse(BaseModel):
 class WorkoutLogRequest(BaseModel):
     """Payload for logging a completed workout."""
 
-    date: datetime
-    duration_minutes: int
-    exercises: List[dict]
+    exercises: List[dict] = []
+    duration_minutes: int = 0
+    intensity: str = "medium"
+
+
+class WorkoutLogResponse(BaseModel):
+    """Response returned after logging a completed workout."""
+
+    xp_earned: int
+    total_xp: int
+    new_level: int
+    leveled_up: bool
+    new_badges: List[str] = []
+
+
+class ExerciseCompleteRequest(BaseModel):
+    """Payload for marking a single exercise as completed."""
+
+    exercise_name: str
+    day: Optional[str] = None
