@@ -175,4 +175,48 @@ export const STRINGS = {
       low: "Low",
     },
   },
+  workout: {
+    title: "Workouts",
+    subtitle: "Your AI-generated weekly training plan.",
+    generate: "Generate new plan",
+    generating: "Generating your plan…",
+    generateHint: "Built from your goal, equipment, recovery and mood.",
+    generated: "New weekly plan ready!",
+    generateError: "Could not generate a plan. Please try again.",
+    planError: "Could not load your weekly plan.",
+    noPlanTitle: "No plan yet",
+    noPlanBody: "Generate your first AI workout plan to get started.",
+    today: {
+      title: "Today's workout",
+      restDay: "Rest day — no exercises today. Recover well!",
+      error: "Could not load today's workout.",
+      progress: (done: number, total: number) => `${done}/${total} done`,
+    },
+    week: {
+      title: "This week",
+      exercisesCount: (count: number) =>
+        count === 1 ? "1 exercise" : `${count} exercises`,
+    },
+    exercise: {
+      setsReps: (sets: number, reps: string) => `${sets} × ${reps}`,
+      restLabel: "Rest",
+      videoAria: "Watch exercise video",
+      doneAria: (name: string) => `Mark ${name} as done`,
+    },
+    history: {
+      title: "History",
+      streak: (days: number) => (days === 1 ? "1-day streak" : `${days}-day streak`),
+      completedOn: "Workout completed 💪",
+      nothingOn: "Nothing logged on this day.",
+      hint: "Completed workouts light up here once you start logging (Day 8).",
+      weekdays: ["M", "T", "W", "T", "F", "S", "S"],
+    },
+    types: {
+      strength: "Strength",
+      cardio: "Cardio",
+      flexibility: "Flexibility",
+      rest: "Rest",
+      other: "Training",
+    },
+  },
 } as const;
