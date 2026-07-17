@@ -57,6 +57,7 @@ class User:
         bmi: Optional[float] = None,
         tdee: Optional[int] = None,
         onboarding_completed: bool = False,
+        badges: Optional[List[str]] = None,
     ) -> None:
         """Initialise a user, generating an id and username when omitted."""
         self.id: str = id or str(uuid4())
@@ -79,6 +80,7 @@ class User:
         self.bmi: Optional[float] = bmi
         self.tdee: Optional[int] = tdee
         self.onboarding_completed: bool = onboarding_completed
+        self.badges: List[str] = badges or []
 
     def to_dict(self) -> dict:
         """Serialise the full user (including profile) for storage."""
@@ -101,6 +103,7 @@ class User:
             "bmi": self.bmi,
             "tdee": self.tdee,
             "onboarding_completed": self.onboarding_completed,
+            "badges": self.badges,
         }
 
     def public_dict(self) -> dict:
@@ -131,6 +134,7 @@ class User:
             bmi=data.get("bmi"),
             tdee=data.get("tdee"),
             onboarding_completed=data.get("onboarding_completed", False),
+            badges=data.get("badges"),
         )
 
     async def save(self) -> "User":

@@ -1,10 +1,12 @@
 import json
 import logging
 import re
-from datetime import date
+from datetime import date, timedelta
 from typing import Any, Dict, List, Optional
 
-from app.models.workout import Exercise, WorkoutPlan
+from app.config.database import get_database
+from app.models.user import User
+from app.models.workout import Exercise, WorkoutLog, WorkoutPlan
 from app.services import ai_service
 from app.services.ai_service import AIServiceError
 
@@ -12,6 +14,20 @@ logger = logging.getLogger(__name__)
 
 # Ordered days of the week used for plan structure and "today" lookups.
 DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+# Gamification constants.
+XP_PER_WORKOUT = 50
+XP_PER_LEVEL = 100
+BADGE_7_DAY_WARRIOR = "7_day_warrior"
+STREAK_FOR_WARRIOR = 7
+
+# Collection + in-memory fallback for per-day exercise completion tracking.
+_PROGRESS_COLLECTION = "workout_progress"
+_PROGRESS_MEMORY: Dict[str, set] = {}
+
+
+class WorkoutServiceError(Exception):
+    """Raised when a workout-service operation fails (e.g. user not found)."""
 
 
 def _build_prompt(
@@ -160,3 +176,122 @@ async def get_today_workout(user_id: str) -> List[Dict[str, Any]]:
         if str(entry.get("day", "")).strip().lower() == today_name.lower():
             return entry.get("exercises", [])
     return []
+
+
+# ---------------------------------------------------------------------------
+# Completed-workout logging, XP and badges
+# ---------------------------------------------------------------------------
+def _level_for_xp(xp: int) -> int:
+    """Return the level for a given XP total (100 XP per level, starting at 1)."""
+    return xp // XP_PER_LEVEL + 1
+
+
+def _current_streak(workout_dates: set) -> int:
+    """Count consecutive days with a workout ending today.
+
+    Returns 0 if there is no workout logged today (the streak is broken).
+    """
+    streak = 0
+    day = date.today()
+    while day.isoformat() in workout_dates:
+        streak += 1
+        day -= timedelta(days=1)
+    return streak
+
+
+async def log_workout(
+    user_id: str,
+    exercises: List[Dict[str, Any]],
+    duration: int,
+    intensity: str = "medium",
+) -> WorkoutLog:
+    """Persist a completed workout for the user and return the saved log."""
+    log = WorkoutLog(
+        user_id=user_id,
+        exercises=exercises,
+        duration_minutes=duration,
+        intensity=intensity,
+        xp_earned=XP_PER_WORKOUT,
+    )
+    await log.save()
+    logger.info("Logged workout for user %s (%s min, %s)", user_id, duration, intensity)
+    return log
+
+
+async def award_xp_for_workout(user_id: str, duration: int = 0) -> Dict[str, Any]:
+    """Award +50 XP for a completed workout and recompute the user's level.
+
+    Returns the XP awarded, new totals and whether the user levelled up.
+
+    Raises:
+        WorkoutServiceError: if the user does not exist.
+    """
+    user = await User.get_by_id(user_id)
+    if user is None:
+        raise WorkoutServiceError("User not found")
+
+    old_level = user.level
+    new_xp = user.xp + XP_PER_WORKOUT
+    new_level = _level_for_xp(new_xp)
+    await user.update({"xp": new_xp, "level": new_level})
+    return {
+        "xp_earned": XP_PER_WORKOUT,
+        "total_xp": new_xp,
+        "new_level": new_level,
+        "leveled_up": new_level > old_level,
+    }
+
+
+async def check_and_award_badges(user_id: str) -> List[str]:
+    """Award any newly-earned badges (currently the 7-day warrior streak)."""
+    user = await User.get_by_id(user_id)
+    if user is None:
+        return []
+
+    new_badges: List[str] = []
+    workout_dates = set(await WorkoutLog.get_workout_dates(user_id))
+    if (
+        _current_streak(workout_dates) >= STREAK_FOR_WARRIOR
+        and BADGE_7_DAY_WARRIOR not in user.badges
+    ):
+        new_badges.append(BADGE_7_DAY_WARRIOR)
+
+    if new_badges:
+        await user.update({"badges": user.badges + new_badges})
+        logger.info("Awarded badges to user %s: %s", user_id, new_badges)
+    return new_badges
+
+
+async def get_workout_history(user_id: str, days: int = 30) -> List[WorkoutLog]:
+    """Return the user's completed-workout history, newest first."""
+    return await WorkoutLog.get_history(user_id, days=days)
+
+
+async def mark_exercise_complete(
+    user_id: str, exercise_name: str, day: Optional[str] = None
+) -> Dict[str, Any]:
+    """Mark a single exercise complete for today and return today's progress."""
+    today = date.today().isoformat()
+    db = get_database()
+    if db is not None:
+        await db[_PROGRESS_COLLECTION].update_one(
+            {"user_id": user_id, "log_date": today},
+            {"$addToSet": {"completed_exercises": exercise_name}},
+            upsert=True,
+        )
+        doc = await db[_PROGRESS_COLLECTION].find_one(
+            {"user_id": user_id, "log_date": today}
+        )
+        completed = doc.get("completed_exercises", []) if doc else []
+    else:
+        key = f"{user_id}:{today}"
+        completed_set = _PROGRESS_MEMORY.setdefault(key, set())
+        completed_set.add(exercise_name)
+        completed = list(completed_set)
+
+    logger.info("User %s completed exercise '%s'", user_id, exercise_name)
+    return {
+        "exercise_name": exercise_name,
+        "completed_today": completed,
+        "completed_count": len(completed),
+    }
