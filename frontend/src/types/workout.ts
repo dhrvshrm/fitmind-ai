@@ -30,14 +30,43 @@ export type GeneratePlanPayload = {
   available_equipment?: string[];
 };
 
-/** `POST /workouts/log` body (used from Day 8). */
+export type Intensity = 'low' | 'medium' | 'high';
+
+/** One exercise's completion summary sent in the workout log. */
+export type LoggedExercise = {
+  name: string;
+  sets_completed: number;
+  sets_total: number;
+};
+
+/** `POST /workouts/log` body. */
 export type WorkoutLogPayload = {
+  exercises: LoggedExercise[];
+  duration_minutes: number;
+  intensity: Intensity;
+};
+
+/** `POST /workouts/log` -> data: XP award, level change, and any new badges. */
+export type WorkoutLogResult = {
+  xp_earned: number;
+  total_xp: number;
+  new_level: number;
+  leveled_up: boolean;
+  new_badges: string[];
+};
+
+/** One item in `GET /workouts/history` -> data.workouts. */
+export type WorkoutHistoryItem = {
   date: string;
   duration_minutes: number;
+  intensity: string;
+  xp_earned: number;
   exercises: Record<string, unknown>[];
 };
 
-/** `POST /workouts/log` -> data. */
-export type WorkoutLogResult = {
-  xp_earned: number;
+/** `PUT /workouts/exercise/complete` -> data. */
+export type ExerciseCompleteResult = {
+  exercise_name: string;
+  completed_today: string[];
+  completed_count: number;
 };

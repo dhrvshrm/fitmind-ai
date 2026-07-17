@@ -17,7 +17,7 @@ import { WorkoutHistory } from './WorkoutHistory';
 import { workoutService } from '../../services/workoutService';
 import { resolveApiError } from '../../lib/apiClient';
 import { STRINGS } from '../../constants/strings';
-import { getCompletedDates } from '../../utils/workout';
+import { getCompletedDates, markDateCompleted, toIsoDate } from '../../utils/workout';
 import type { Exercise, WeeklyPlan } from '../../types/workout';
 import { workoutPageStyles as styles } from './WorkoutPage.styles';
 
@@ -34,8 +34,8 @@ export function WorkoutPage() {
 
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Local until Day 8 syncs completions with the backend.
-  const [completedDates] = useState<string[]>(() => getCompletedDates());
+  // Local mirror of completions; updated the moment a workout is logged.
+  const [completedDates, setCompletedDates] = useState<string[]>(() => getCompletedDates());
 
   const loadToday = useCallback(async () => {
     setTodayLoading(true);
@@ -80,6 +80,11 @@ export function WorkoutPage() {
     } finally {
       setIsGenerating(false);
     }
+  }
+
+  /** After a save: light up today on the calendar (streak updates with it). */
+  function handleWorkoutLogged() {
+    setCompletedDates(markDateCompleted(toIsoDate(new Date())));
   }
 
   const showEmptyState = !planLoading && !planError && !plan;
@@ -139,6 +144,8 @@ export function WorkoutPage() {
             exercises={todayExercises}
             loading={todayLoading}
             error={todayError}
+            alreadyLogged={completedDates.includes(toIsoDate(new Date()))}
+            onLogged={handleWorkoutLogged}
           />
           <WorkoutHistory completedDates={completedDates} />
         </Box>

@@ -34,6 +34,8 @@ export const WORKOUT_ENDPOINTS = {
   WEEKLY_PLAN: '/workouts/plan/week',
   TODAY: '/workouts/plan/today',
   LOG: '/workouts/log',
+  HISTORY: '/workouts/history',
+  EXERCISE_COMPLETE: '/workouts/exercise/complete',
 } as const;
 
 /** localStorage key for locally-tracked workout completions (until Day 8 sync). */
