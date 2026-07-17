@@ -3,8 +3,10 @@ import { WORKOUT_ENDPOINTS } from '../constants/api';
 import type { ApiEnvelope } from '../types/auth';
 import type {
   Exercise,
+  ExerciseCompleteResult,
   GeneratePlanPayload,
   WeeklyPlan,
+  WorkoutHistoryItem,
   WorkoutLogPayload,
   WorkoutLogResult,
 } from '../types/workout';
@@ -35,11 +37,29 @@ export const workoutService = {
     return data.data.exercises;
   },
 
-  /** Logs a completed workout (fully wired on Day 8). */
+  /** Logs a completed workout; awards XP, recomputes level, checks badges. */
   async logWorkout(payload: WorkoutLogPayload): Promise<WorkoutLogResult> {
     const { data } = await apiClient.post<ApiEnvelope<WorkoutLogResult>>(
       WORKOUT_ENDPOINTS.LOG,
       payload,
+    );
+    return data.data;
+  },
+
+  /** History comes back newest-first from the API. */
+  async getWorkoutHistory(days = 30): Promise<WorkoutHistoryItem[]> {
+    const { data } = await apiClient.get<ApiEnvelope<{ workouts: WorkoutHistoryItem[] }>>(
+      WORKOUT_ENDPOINTS.HISTORY,
+      { params: { days } },
+    );
+    return data.data.workouts;
+  },
+
+  /** Marks a single exercise complete for today (real-time tracking). */
+  async completeExercise(exerciseName: string): Promise<ExerciseCompleteResult> {
+    const { data } = await apiClient.put<ApiEnvelope<ExerciseCompleteResult>>(
+      WORKOUT_ENDPOINTS.EXERCISE_COMPLETE,
+      { exercise_name: exerciseName },
     );
     return data.data;
   },
