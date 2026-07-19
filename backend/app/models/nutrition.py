@@ -120,10 +120,18 @@ async def add_water(user_id: str, amount_ml: int, log_date: Optional[str] = None
             upsert=True,
         )
         doc = await db[WATER_COLLECTION].find_one({"user_id": user_id, "log_date": day})
-        return int(doc.get("total_ml", 0)) if doc else amount_ml
+        total = int(doc.get("total_ml", 0)) if doc else amount_ml
+        # Negative adjustments must never drive the daily total below zero.
+        if total < 0:
+            await db[WATER_COLLECTION].update_one(
+                {"user_id": user_id, "log_date": day},
+                {"$set": {"total_ml": 0}},
+            )
+            total = 0
+        return total
     key = f"{user_id}:{day}"
     entry = _WATER_MEMORY.setdefault(key, {"total_ml": 0})
-    entry["total_ml"] += amount_ml
+    entry["total_ml"] = max(0, entry["total_ml"] + amount_ml)
     return entry["total_ml"]
 
 
