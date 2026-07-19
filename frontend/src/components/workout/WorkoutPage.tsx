@@ -35,8 +35,23 @@ export function WorkoutPage() {
 
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Local mirror of completions; updated the moment a workout is logged.
+  /**
+   * Completed-workout dates. Backend (`GET /workouts/history`) is the source
+   * of truth so the lock/calendar work across devices; localStorage seeds the
+   * initial render and serves as the offline fallback.
+   */
   const [completedDates, setCompletedDates] = useState<string[]>(() => getCompletedDates());
+
+  const loadCompletions = useCallback(async () => {
+    try {
+      const history = await workoutService.getWorkoutHistory(365);
+      const dates = [...new Set(history.map((log) => log.date))].sort();
+      setCompletedDates(dates);
+    } catch {
+      // Offline/unauthenticated: keep the local mirror.
+      setCompletedDates(getCompletedDates());
+    }
+  }, []);
 
   const loadToday = useCallback(async () => {
     setTodayLoading(true);
@@ -63,9 +78,13 @@ export function WorkoutPage() {
   }, []);
 
   useEffect(() => {
-    loadPlan();
-    loadToday();
-  }, [loadPlan, loadToday]);
+    // Deferred a microtask so the effect body itself schedules no state updates.
+    queueMicrotask(() => {
+      loadPlan();
+      loadToday();
+      loadCompletions();
+    });
+  }, [loadPlan, loadToday, loadCompletions]);
 
   /** Plan generation can take several seconds (AI call server-side). */
   async function handleGenerate() {
@@ -83,9 +102,13 @@ export function WorkoutPage() {
     }
   }
 
-  /** After a save: light up today on the calendar (streak updates with it). */
+  /**
+   * After a save: light up today immediately (optimistic + local fallback
+   * mirror), then re-sync the real dates from the backend.
+   */
   function handleWorkoutLogged() {
     setCompletedDates(markDateCompleted(toIsoDate(new Date())));
+    loadCompletions();
   }
 
   const showEmptyState = !planLoading && !planError && !plan;
