@@ -35,9 +35,13 @@ class MacroTotals(BaseModel):
 
 
 class WaterLogRequest(BaseModel):
-    """Payload for logging water intake."""
+    """Payload for logging water intake.
 
-    amount_ml: int = Field(..., gt=0, le=5000)
+    Negative amounts undo an earlier log (e.g. a mistaken glass); the daily
+    total is clamped at zero server-side.
+    """
+
+    amount_ml: int = Field(..., ge=-5000, le=5000)
 
 
 class NutritionSummaryResponse(BaseModel):
