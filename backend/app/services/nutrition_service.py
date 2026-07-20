@@ -2,14 +2,12 @@ import logging
 from datetime import date as date_cls
 from typing import Any, Dict, List, Optional
 
+from app.models.gamification import XP_REWARDS
 from app.models.nutrition import Meal, add_water, get_water
 from app.models.user import User
+from app.services import gamification_service
 
 logger = logging.getLogger(__name__)
-
-# XP awarded per logged meal, and XP required per level (matches workouts).
-XP_PER_MEAL = 10
-XP_PER_LEVEL = 100
 
 # Default macro split (fraction of daily calories) and a TDEE fallback for
 # users who have not completed onboarding.
@@ -22,11 +20,6 @@ CALS_PER_GRAM = {"protein": 4, "carbs": 4, "fats": 9}
 
 class NutritionServiceError(Exception):
     """Raised when a nutrition-service operation fails (e.g. user not found)."""
-
-
-def _level_for_xp(xp: int) -> int:
-    """Return the level for a given XP total (100 XP per level, starting at 1)."""
-    return xp // XP_PER_LEVEL + 1
 
 
 def calculate_macro_percentages(
@@ -74,23 +67,14 @@ async def log_meal(
 
 
 async def award_xp_for_meal(user_id: str) -> Dict[str, Any]:
-    """Award +10 XP for logging a meal and recompute the user's level.
-
-    Raises:
-        NutritionServiceError: if the user does not exist.
-    """
-    user = await User.get_by_id(user_id)
-    if user is None:
-        raise NutritionServiceError("User not found")
-    old_level = user.level
-    new_xp = user.xp + XP_PER_MEAL
-    new_level = _level_for_xp(new_xp)
-    await user.update({"xp": new_xp, "level": new_level})
+    """Award meal XP via the gamification engine and return level info."""
+    result = await gamification_service.award_xp(user_id, XP_REWARDS["meal"])
     return {
-        "xp_earned": XP_PER_MEAL,
-        "total_xp": new_xp,
-        "new_level": new_level,
-        "leveled_up": new_level > old_level,
+        "xp_earned": result["xp_earned"],
+        "total_xp": result["total_xp"],
+        "new_level": result["level"],
+        "title": result["title"],
+        "leveled_up": result["leveled_up"],
     }
 
 

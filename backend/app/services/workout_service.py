@@ -1,25 +1,19 @@
 import json
 import logging
 import re
-from datetime import date, timedelta
+from datetime import date
 from typing import Any, Dict, List, Optional
 
 from app.config.database import get_database
-from app.models.user import User
+from app.models.gamification import XP_REWARDS
 from app.models.workout import Exercise, WorkoutLog, WorkoutPlan
-from app.services import ai_service
+from app.services import ai_service, gamification_service
 from app.services.ai_service import AIServiceError
 
 logger = logging.getLogger(__name__)
 
 # Ordered days of the week used for plan structure and "today" lookups.
 DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-
-# Gamification constants.
-XP_PER_WORKOUT = 50
-XP_PER_LEVEL = 100
-BADGE_7_DAY_WARRIOR = "7_day_warrior"
-STREAK_FOR_WARRIOR = 7
 
 # Collection + in-memory fallback for per-day exercise completion tracking.
 _PROGRESS_COLLECTION = "workout_progress"
@@ -179,26 +173,8 @@ async def get_today_workout(user_id: str) -> List[Dict[str, Any]]:
 
 
 # ---------------------------------------------------------------------------
-# Completed-workout logging, XP and badges
+# Completed-workout logging, XP and badges (delegated to gamification_service)
 # ---------------------------------------------------------------------------
-def _level_for_xp(xp: int) -> int:
-    """Return the level for a given XP total (100 XP per level, starting at 1)."""
-    return xp // XP_PER_LEVEL + 1
-
-
-def _current_streak(workout_dates: set) -> int:
-    """Count consecutive days with a workout ending today.
-
-    Returns 0 if there is no workout logged today (the streak is broken).
-    """
-    streak = 0
-    day = date.today()
-    while day.isoformat() in workout_dates:
-        streak += 1
-        day -= timedelta(days=1)
-    return streak
-
-
 async def log_workout(
     user_id: str,
     exercises: List[Dict[str, Any]],
@@ -211,7 +187,7 @@ async def log_workout(
         exercises=exercises,
         duration_minutes=duration,
         intensity=intensity,
-        xp_earned=XP_PER_WORKOUT,
+        xp_earned=XP_REWARDS["workout"],
     )
     await log.save()
     logger.info("Logged workout for user %s (%s min, %s)", user_id, duration, intensity)
@@ -219,47 +195,20 @@ async def log_workout(
 
 
 async def award_xp_for_workout(user_id: str, duration: int = 0) -> Dict[str, Any]:
-    """Award +50 XP for a completed workout and recompute the user's level.
-
-    Returns the XP awarded, new totals and whether the user levelled up.
-
-    Raises:
-        WorkoutServiceError: if the user does not exist.
-    """
-    user = await User.get_by_id(user_id)
-    if user is None:
-        raise WorkoutServiceError("User not found")
-
-    old_level = user.level
-    new_xp = user.xp + XP_PER_WORKOUT
-    new_level = _level_for_xp(new_xp)
-    await user.update({"xp": new_xp, "level": new_level})
+    """Award workout XP via the gamification engine and return level info."""
+    result = await gamification_service.award_xp(user_id, XP_REWARDS["workout"])
     return {
-        "xp_earned": XP_PER_WORKOUT,
-        "total_xp": new_xp,
-        "new_level": new_level,
-        "leveled_up": new_level > old_level,
+        "xp_earned": result["xp_earned"],
+        "total_xp": result["total_xp"],
+        "new_level": result["level"],
+        "title": result["title"],
+        "leveled_up": result["leveled_up"],
     }
 
 
 async def check_and_award_badges(user_id: str) -> List[str]:
-    """Award any newly-earned badges (currently the 7-day warrior streak)."""
-    user = await User.get_by_id(user_id)
-    if user is None:
-        return []
-
-    new_badges: List[str] = []
-    workout_dates = set(await WorkoutLog.get_workout_dates(user_id))
-    if (
-        _current_streak(workout_dates) >= STREAK_FOR_WARRIOR
-        and BADGE_7_DAY_WARRIOR not in user.badges
-    ):
-        new_badges.append(BADGE_7_DAY_WARRIOR)
-
-    if new_badges:
-        await user.update({"badges": user.badges + new_badges})
-        logger.info("Awarded badges to user %s: %s", user_id, new_badges)
-    return new_badges
+    """Evaluate and award any newly-earned badges (via gamification engine)."""
+    return await gamification_service.check_badge_conditions(user_id)
 
 
 async def get_workout_history(user_id: str, days: int = 30) -> List[WorkoutLog]:
