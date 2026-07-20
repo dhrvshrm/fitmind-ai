@@ -3,7 +3,6 @@ import {
   EmojiEventsRounded,
   GroupRounded,
   PersonRounded,
-  RestaurantRounded,
   SettingsRounded,
 } from '@mui/icons-material';
 import { Toaster } from 'react-hot-toast';
@@ -22,6 +21,7 @@ import { Dashboard } from './components/dashboard/Dashboard';
 import { RecoveryPage } from './components/recovery/RecoveryPage';
 import { VoiceCheckinPage } from './components/voicecheckin/VoiceCheckinPage';
 import { WorkoutPage } from './components/workout/WorkoutPage';
+import { NutritionPage } from './components/nutrition/NutritionPage';
 
 /** Declares the route tree. Runs the auth bootstrap once on mount. */
 function AppRoutes() {
@@ -44,12 +44,7 @@ function AppRoutes() {
           <Route path={ROUTES.WORKOUTS} element={<WorkoutPage />} />
           <Route path={ROUTES.RECOVERY} element={<RecoveryPage />} />
           <Route path={ROUTES.VOICE_CHECKIN} element={<VoiceCheckinPage />} />
-          <Route
-            path={ROUTES.NUTRITION}
-            element={
-              <ComingSoonPage title={STRINGS.nav.nutrition} icon={RestaurantRounded} />
-            }
-          />
+          <Route path={ROUTES.NUTRITION} element={<NutritionPage />} />
           <Route
             path={ROUTES.GAMIFICATION}
             element={

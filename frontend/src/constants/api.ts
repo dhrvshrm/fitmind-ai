@@ -41,5 +41,12 @@ export const WORKOUT_ENDPOINTS = {
 /** localStorage key for locally-tracked workout completions (until Day 8 sync). */
 export const WORKOUT_COMPLETIONS_KEY = 'fitmind-workout-completions';
 
+export const NUTRITION_ENDPOINTS = {
+  MEAL: '/nutrition/meal',
+  TODAY: '/nutrition/today',
+  HISTORY: '/nutrition/history',
+  WATER: '/nutrition/water',
+} as const;
+
 /** localStorage key under which the Zustand auth store is persisted. */
 export const AUTH_STORAGE_KEY = 'fitmind-auth';
