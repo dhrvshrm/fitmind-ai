@@ -143,3 +143,18 @@ async def get_water(user_id: str, log_date: Optional[str] = None) -> int:
         doc = await db[WATER_COLLECTION].find_one({"user_id": user_id, "log_date": day})
         return int(doc.get("total_ml", 0)) if doc else 0
     return _WATER_MEMORY.get(f"{user_id}:{day}", {}).get("total_ml", 0)
+
+
+async def count_days_hydration_goal_met(user_id: str, goal_ml: int) -> int:
+    """Count the days on which the user's total water intake reached ``goal_ml``."""
+    db = get_database()
+    if db is not None:
+        cursor = db[WATER_COLLECTION].find(
+            {"user_id": user_id, "total_ml": {"$gte": goal_ml}}
+        )
+        return len([doc async for doc in cursor])
+    return sum(
+        1
+        for key, entry in _WATER_MEMORY.items()
+        if key.startswith(f"{user_id}:") and entry.get("total_ml", 0) >= goal_ml
+    )

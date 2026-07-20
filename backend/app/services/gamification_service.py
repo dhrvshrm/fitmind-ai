@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from typing import Any, Dict, List
 
 from app.models.gamification import BADGE_CATALOG, LEVEL_TIERS, XP_REWARDS
-from app.models.nutrition import Meal
+from app.models.nutrition import Meal, count_days_hydration_goal_met
 from app.models.recovery import RecoveryLog
 from app.models.user import User
 from app.models.voice_checkin import VoiceCheckin
@@ -20,6 +20,8 @@ CENTURY_COUNT = 100
 CLEAN_EATER_DAYS = 7
 CLEAN_EATER_TOLERANCE = 0.15
 DEFAULT_TDEE = 2000
+HYDRATION_GOAL_ML = 2000
+HYDRATION_HERO_DAYS = 7
 
 # Badge ids (kept aligned with app.models.gamification.BADGE_CATALOG).
 BADGE_SEVEN_DAY_WARRIOR = "seven_day_warrior"
@@ -27,6 +29,7 @@ BADGE_RECOVERY_KING = "recovery_king"
 BADGE_CLEAN_EATER = "clean_eater"
 BADGE_VOICE_NATIVE = "voice_native"
 BADGE_CENTURY_CLUB = "century_club"
+BADGE_HYDRATION_HERO = "hydration_hero"
 
 
 class GamificationError(Exception):
@@ -187,6 +190,10 @@ async def check_badge_conditions(user_id: str) -> List[str]:
     if BADGE_CLEAN_EATER not in earned:
         if await _count_clean_eating_days(user_id, user) >= CLEAN_EATER_DAYS:
             new.append(BADGE_CLEAN_EATER)
+    if BADGE_HYDRATION_HERO not in earned:
+        hydrated_days = await count_days_hydration_goal_met(user_id, HYDRATION_GOAL_ML)
+        if hydrated_days >= HYDRATION_HERO_DAYS:
+            new.append(BADGE_HYDRATION_HERO)
 
     # Single write covers streak refresh + any newly earned badges.
     await user.update(

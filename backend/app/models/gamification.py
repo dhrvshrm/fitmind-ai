@@ -50,4 +50,8 @@ BADGE_CATALOG: Dict[str, Dict[str, str]] = {
         "name": "Century Club",
         "description": "Complete 100 workouts.",
     },
+    "hydration_hero": {
+        "name": "Hydration Hero",
+        "description": "Hit your water goal on 7 days.",
+    },
 }
