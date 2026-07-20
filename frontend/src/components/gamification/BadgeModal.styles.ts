@@ -36,4 +36,4 @@ export const badgeModalStyles = {
     mt: 2.5,
     mb: 0.5,
   },
-} satisfies Record<string, SxProps<Theme>>;
+};
