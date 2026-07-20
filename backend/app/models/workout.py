@@ -244,3 +244,11 @@ class WorkoutLog:
         return list(
             {d["log_date"] for d in _WORKOUT_LOG_MEMORY.values() if d["user_id"] == user_id}
         )
+
+    @classmethod
+    async def count_for_user(cls, user_id: str) -> int:
+        """Return the total number of workouts the user has logged."""
+        db = get_database()
+        if db is not None:
+            return await db[WORKOUT_LOG_COLLECTION].count_documents({"user_id": user_id})
+        return sum(1 for d in _WORKOUT_LOG_MEMORY.values() if d["user_id"] == user_id)

@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, File, Query, UploadFile
 
 from app.api.v1.endpoints.auth import get_current_user
+from app.models.gamification import XP_REWARDS
 from app.models.user import User
 from app.schemas.general import SuccessResponse
-from app.services import voice_service
+from app.services import gamification_service, voice_service
 
 router = APIRouter(prefix="/checkin", tags=["Voice Check-in"])
 
@@ -15,8 +16,8 @@ async def record_voice_checkin(
 ) -> dict:
     """Record and analyse a voice check-in.
 
-    Accepts a multipart audio file, transcribes it, detects mood/energy and
-    stores the check-in.
+    Accepts a multipart audio file, transcribes it, detects mood/energy,
+    stores the check-in, and awards XP.
     """
     audio_bytes = await audio.read()
     checkin = await voice_service.process_voice(
@@ -25,6 +26,8 @@ async def record_voice_checkin(
         filename=audio.filename or "audio.webm",
         content_type=audio.content_type or "audio/webm",
     )
+    xp = await gamification_service.award_xp(current_user.id, XP_REWARDS["voice_checkin"])
+    new_badges = await gamification_service.check_badge_conditions(current_user.id)
     return {
         "success": True,
         "message": "Voice check-in processed",
@@ -33,6 +36,8 @@ async def record_voice_checkin(
             "mood": checkin.mood,
             "energy_level": checkin.energy_level,
             "timestamp": checkin.created_at.isoformat(),
+            "xp_earned": xp["xp_earned"],
+            "new_badges": new_badges,
         },
     }
 

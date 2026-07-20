@@ -58,6 +58,8 @@ class User:
         tdee: Optional[int] = None,
         onboarding_completed: bool = False,
         badges: Optional[List[str]] = None,
+        current_streak: int = 0,
+        longest_streak: int = 0,
     ) -> None:
         """Initialise a user, generating an id and username when omitted."""
         self.id: str = id or str(uuid4())
@@ -81,6 +83,8 @@ class User:
         self.tdee: Optional[int] = tdee
         self.onboarding_completed: bool = onboarding_completed
         self.badges: List[str] = badges or []
+        self.current_streak: int = current_streak
+        self.longest_streak: int = longest_streak
 
     def to_dict(self) -> dict:
         """Serialise the full user (including profile) for storage."""
@@ -104,6 +108,8 @@ class User:
             "tdee": self.tdee,
             "onboarding_completed": self.onboarding_completed,
             "badges": self.badges,
+            "current_streak": self.current_streak,
+            "longest_streak": self.longest_streak,
         }
 
     def public_dict(self) -> dict:
@@ -135,6 +141,8 @@ class User:
             tdee=data.get("tdee"),
             onboarding_completed=data.get("onboarding_completed", False),
             badges=data.get("badges"),
+            current_streak=data.get("current_streak", 0),
+            longest_streak=data.get("longest_streak", 0),
         )
 
     async def save(self) -> "User":
