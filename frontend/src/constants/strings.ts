@@ -322,4 +322,34 @@ export const STRINGS = {
       kcal: (kcal: number) => `${kcal} kcal`,
     },
   },
+  gamification: {
+    title: "Gamification",
+    subtitle: "Your XP, streaks and badges — keep the momentum going.",
+    loadError: "Could not load your gamification profile.",
+    level: {
+      title: (level: number) => `Level ${level}`,
+      maxTitle: "Max level reached!",
+      xpToNext: (xp: number) => `${xp} XP to next level`,
+      totalXp: (xp: number) => `${xp} total XP`,
+    },
+    xpBar: {
+      ariaLabel: "XP progress to next level",
+    },
+    streak: {
+      title: "Streaks",
+      current: "Current streak",
+      longest: "Longest streak",
+      days: (n: number) => (n === 1 ? "1 day" : `${n} days`),
+    },
+    badges: {
+      title: "Badges",
+      earnedCount: (earned: number, total: number) => `${earned}/${total} earned`,
+      locked: "Locked",
+      earnedOn: (date: string) => `Earned ${date}`,
+      newBadgeToast: (name: string) => `New badge unlocked: ${name}! 🎉`,
+      newBadgeChip: "New!",
+      howToUnlock: "How to unlock",
+      close: "Close",
+    },
+  },
 } as const;

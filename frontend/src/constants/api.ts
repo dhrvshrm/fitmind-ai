@@ -48,5 +48,14 @@ export const NUTRITION_ENDPOINTS = {
   WATER: '/nutrition/water',
 } as const;
 
+export const GAMIFICATION_ENDPOINTS = {
+  PROFILE: '/gamification/profile',
+  XP: '/gamification/xp',
+  BADGES: '/gamification/badges',
+} as const;
+
+/** localStorage key mapping badge id -> ISO date first observed as earned. */
+export const BADGE_EARNED_DATES_KEY = 'fitmind-badge-earned-dates';
+
 /** localStorage key under which the Zustand auth store is persisted. */
 export const AUTH_STORAGE_KEY = 'fitmind-auth';

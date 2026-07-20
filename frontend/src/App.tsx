@@ -1,10 +1,5 @@
 import { CssBaseline, ThemeProvider } from '@mui/material';
-import {
-  EmojiEventsRounded,
-  GroupRounded,
-  PersonRounded,
-  SettingsRounded,
-} from '@mui/icons-material';
+import { GroupRounded, PersonRounded, SettingsRounded } from '@mui/icons-material';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { theme } from './theme';
@@ -22,6 +17,7 @@ import { RecoveryPage } from './components/recovery/RecoveryPage';
 import { VoiceCheckinPage } from './components/voicecheckin/VoiceCheckinPage';
 import { WorkoutPage } from './components/workout/WorkoutPage';
 import { NutritionPage } from './components/nutrition/NutritionPage';
+import { GamificationPage } from './components/gamification/GamificationPage';
 
 /** Declares the route tree. Runs the auth bootstrap once on mount. */
 function AppRoutes() {
@@ -45,12 +41,7 @@ function AppRoutes() {
           <Route path={ROUTES.RECOVERY} element={<RecoveryPage />} />
           <Route path={ROUTES.VOICE_CHECKIN} element={<VoiceCheckinPage />} />
           <Route path={ROUTES.NUTRITION} element={<NutritionPage />} />
-          <Route
-            path={ROUTES.GAMIFICATION}
-            element={
-              <ComingSoonPage title={STRINGS.nav.gamification} icon={EmojiEventsRounded} />
-            }
-          />
+          <Route path={ROUTES.GAMIFICATION} element={<GamificationPage />} />
           <Route
             path={ROUTES.FRIENDS}
             element={<ComingSoonPage title={STRINGS.nav.friends} icon={GroupRounded} />}
