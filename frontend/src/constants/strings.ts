@@ -256,4 +256,70 @@ export const STRINGS = {
       other: "Training",
     },
   },
+  nutrition: {
+    title: "Nutrition",
+    subtitle: "Track your meals, macros and hydration for today.",
+    summaryError: "Could not load today's nutrition.",
+    form: {
+      title: "Add a meal",
+      name: "Meal name",
+      calories: "Calories (kcal)",
+      protein: "Protein (g)",
+      carbs: "Carbs (g)",
+      fats: "Fats (g)",
+      mealType: "Meal type",
+      estimate: (kcal: number) => `≈ ${kcal} kcal from macros`,
+      useEstimate: "Use estimate",
+      submit: "Log meal",
+      submitting: "Logging…",
+      success: "Meal logged!",
+      xpToast: (xp: number) => `+${xp} XP`,
+      levelUpToast: (level: number) => `Level up! You're now level ${level} 🎉`,
+      error: "Could not log your meal. Please try again.",
+      validation: {
+        nameRequired: "Enter a meal name",
+        caloriesRequired: "Enter calories (0 or more)",
+        macroInvalid: "Must be 0 or more",
+      },
+    },
+    mealTypes: {
+      breakfast: "Breakfast",
+      lunch: "Lunch",
+      dinner: "Dinner",
+      snack: "Snack",
+    },
+    calories: {
+      title: "Daily calories",
+      progress: (eaten: number, goal: number) => `${eaten} / ${goal} kcal`,
+      remaining: (kcal: number) => `${kcal} kcal remaining`,
+      over: (kcal: number) => `${kcal} kcal over goal`,
+    },
+    macros: {
+      title: "Macro split",
+      empty: "Log a meal to see your macro breakdown.",
+      labels: {
+        protein: "Protein",
+        carbs: "Carbs",
+        fats: "Fats",
+      },
+      legendItem: (label: string, percent: number, grams: number) =>
+        `${label} ${percent}% · ${grams}g`,
+    },
+    water: {
+      title: "Water intake",
+      goal: (glasses: number, goalGlasses: number, ml: number) =>
+        `${glasses}/${goalGlasses} glasses · ${ml} ml`,
+      addAria: "Add a glass of water",
+      removeAria: "Remove a glass of water",
+      goalReached: "Hydration goal reached! 💧",
+      error: "Could not update water intake.",
+    },
+    history: {
+      title: "Today's meals",
+      empty: "No meals logged yet today.",
+      macros: (protein: number, carbs: number, fats: number) =>
+        `P ${protein}g · C ${carbs}g · F ${fats}g`,
+      kcal: (kcal: number) => `${kcal} kcal`,
+    },
+  },
 } as const;
