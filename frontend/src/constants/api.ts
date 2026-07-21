@@ -59,3 +59,17 @@ export const BADGE_EARNED_DATES_KEY = 'fitmind-badge-earned-dates';
 
 /** localStorage key under which the Zustand auth store is persisted. */
 export const AUTH_STORAGE_KEY = 'fitmind-auth';
+
+/**
+ * The chat WebSocket (`/ws/{user_id}`) is mounted at the app root, not under
+ * `API_PREFIX`, so its URL is derived from `API_BASE_URL` directly and the
+ * http(s) scheme is swapped for ws(s).
+ */
+export function getChatSocketUrl(userId: string): string {
+  const wsProtocol = API_BASE_URL.startsWith('https') ? 'wss' : 'ws';
+  const host = API_BASE_URL.replace(/^https?:\/\//, '');
+  return `${wsProtocol}://${host}/ws/${encodeURIComponent(userId)}`;
+}
+
+/** localStorage key prefix for a user's persisted coach chat history. */
+export const CHAT_HISTORY_KEY_PREFIX = 'fitmind-chat-history-';

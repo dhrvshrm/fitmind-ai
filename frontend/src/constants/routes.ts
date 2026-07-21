@@ -4,6 +4,7 @@ export const ROUTES = {
   SIGNUP: '/signup',
   ONBOARDING: '/onboarding',
   DASHBOARD: '/dashboard',
+  COACH: '/coach',
   WORKOUTS: '/workouts',
   RECOVERY: '/recovery',
   VOICE_CHECKIN: '/voice-checkin',

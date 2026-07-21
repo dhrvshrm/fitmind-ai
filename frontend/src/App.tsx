@@ -18,6 +18,7 @@ import { VoiceCheckinPage } from './components/voicecheckin/VoiceCheckinPage';
 import { WorkoutPage } from './components/workout/WorkoutPage';
 import { NutritionPage } from './components/nutrition/NutritionPage';
 import { GamificationPage } from './components/gamification/GamificationPage';
+import { CoachPage } from './components/coach/CoachPage';
 
 /** Declares the route tree. Runs the auth bootstrap once on mount. */
 function AppRoutes() {
@@ -37,6 +38,7 @@ function AppRoutes() {
         {/* Feature pages render inside the navbar + sidebar shell. */}
         <Route element={<AppLayout />}>
           <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
+          <Route path={ROUTES.COACH} element={<CoachPage />} />
           <Route path={ROUTES.WORKOUTS} element={<WorkoutPage />} />
           <Route path={ROUTES.RECOVERY} element={<RecoveryPage />} />
           <Route path={ROUTES.VOICE_CHECKIN} element={<VoiceCheckinPage />} />

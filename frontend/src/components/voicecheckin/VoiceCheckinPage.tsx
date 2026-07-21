@@ -31,7 +31,10 @@ export function VoiceCheckinPage() {
   }, []);
 
   useEffect(() => {
-    loadHistory();
+    // Deferred so the effect body itself schedules no state updates synchronously.
+    queueMicrotask(() => {
+      loadHistory();
+    });
   }, [loadHistory]);
 
   /** Show the fresh analysis and pull the updated history behind it. */
