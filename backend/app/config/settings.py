@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     CLOUDFLARE_R2_PUBLIC_URL: str = os.getenv("CLOUDFLARE_R2_PUBLIC_URL", "")
     GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
     GROQ_WHISPER_MODEL: str = os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3")
+    GROQ_CHAT_MODEL: str = os.getenv("GROQ_CHAT_MODEL", "llama-3.3-70b-versatile")
     JWT_SECRET: str = os.getenv("JWT_SECRET", "your-secret-key-change-in-production")
     JWT_ALGORITHM: str = "HS256"
     DATABASE_ENV: str = os.getenv("DATABASE_ENV", "local")

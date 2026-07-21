@@ -5,6 +5,7 @@ from datetime import datetime
 from app.config.database import connect_to_mongo, close_mongo_connection
 from app.config.cors import setup_cors
 from app.api.v1.router import router as v1_router
+from app.api.v1.websockets import router as ws_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -17,6 +18,7 @@ app = FastAPI(
 
 setup_cors(app)
 app.include_router(v1_router)
+app.include_router(ws_router)
 
 @app.on_event("startup")
 async def startup_event():
