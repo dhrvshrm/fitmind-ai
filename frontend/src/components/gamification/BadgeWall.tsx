@@ -1,7 +1,7 @@
 import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
+import { BadgeIcon } from './BadgeIcon';
 import { STRINGS } from '../../constants/strings';
-import { getBadgeIcon } from '../../constants/gamification';
 import type { Badge } from '../../types/gamification';
 import { badgeWallStyles as styles } from './BadgeWall.styles';
 
@@ -38,7 +38,6 @@ export function BadgeWall({
 
       <Box sx={styles.grid}>
         {allBadges.map((badge) => {
-          const Icon = getBadgeIcon(badge.id);
           const earned = earnedIds.has(badge.id);
           const isNew = newlyEarnedIds.has(badge.id);
 
@@ -55,7 +54,7 @@ export function BadgeWall({
                 sx={styles.badgeCard(earned)}
               >
                 <Box sx={styles.iconWrap(earned)}>
-                  <Icon fontSize="medium" />
+                  <BadgeIcon badgeId={badge.id} fontSize="medium" />
                 </Box>
                 <Typography sx={styles.badgeName}>{badge.name}</Typography>
                 {isNew && (
