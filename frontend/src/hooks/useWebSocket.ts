@@ -13,31 +13,32 @@ type UseWebSocketOptions<TIncoming> = {
  * Generic JSON WebSocket connection: connects when `url` is set, exposes the
  * live connection status, and reconnects automatically (with backoff) if the
  * socket drops for any reason other than the component unmounting.
+ *
+ * Guards against React StrictMode's dev-mode double-invoke (mount → cleanup →
+ * mount): `cancelled` is a plain closure variable scoped to one effect
+ * execution (never a ref), so an earlier instance's cleanup can't be
+ * "un-cancelled" by a later instance, and every socket handler double-checks
+ * `socketRef.current === socket` before acting, so a stale socket's late
+ * events are ignored once it's been superseded or closed.
  */
 export function useWebSocket<TIncoming, TOutgoing = TIncoming>({
   url,
   onMessage,
 }: UseWebSocketOptions<TIncoming>) {
-  const [status, setStatus] = useState<ConnectionStatus>('closed');
+  const [internalStatus, setInternalStatus] = useState<ConnectionStatus>('connecting');
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimerRef = useRef<number | null>(null);
   const attemptRef = useRef(0);
   const onMessageRef = useRef(onMessage);
-  // Set once the effect's cleanup runs, so a stale reconnect never fires after unmount.
-  const closedByCleanupRef = useRef(false);
 
   useEffect(() => {
     onMessageRef.current = onMessage;
   }, [onMessage]);
 
   useEffect(() => {
-    if (!url) {
-      // Deferred so the effect body itself schedules no state updates synchronously.
-      queueMicrotask(() => setStatus('closed'));
-      return;
-    }
+    if (!url) return;
 
-    closedByCleanupRef.current = false;
+    let cancelled = false;
 
     function clearReconnectTimer() {
       if (reconnectTimerRef.current !== null) {
@@ -47,20 +48,20 @@ export function useWebSocket<TIncoming, TOutgoing = TIncoming>({
     }
 
     function connect() {
-      // Guards against a connect deferred via queueMicrotask/setTimeout firing
-      // after this effect instance was already cleaned up.
-      if (!url || closedByCleanupRef.current) return;
-      setStatus(attemptRef.current === 0 ? 'connecting' : 'reconnecting');
+      if (cancelled || !url) return;
+      setInternalStatus(attemptRef.current === 0 ? 'connecting' : 'reconnecting');
 
       const socket = new WebSocket(url);
       socketRef.current = socket;
 
       socket.onopen = () => {
+        if (socketRef.current !== socket) return;
         attemptRef.current = 0;
-        setStatus('open');
+        setInternalStatus('open');
       };
 
       socket.onmessage = (event) => {
+        if (socketRef.current !== socket) return;
         try {
           onMessageRef.current(JSON.parse(event.data) as TIncoming);
         } catch {
@@ -69,10 +70,11 @@ export function useWebSocket<TIncoming, TOutgoing = TIncoming>({
       };
 
       socket.onclose = () => {
+        if (socketRef.current !== socket) return;
         socketRef.current = null;
-        if (closedByCleanupRef.current) return;
+        if (cancelled) return;
 
-        setStatus('reconnecting');
+        setInternalStatus('reconnecting');
         const delay =
           RECONNECT_DELAYS_MS[Math.min(attemptRef.current, RECONNECT_DELAYS_MS.length - 1)];
         attemptRef.current += 1;
@@ -86,14 +88,14 @@ export function useWebSocket<TIncoming, TOutgoing = TIncoming>({
       };
     }
 
-    // Deferred so the effect body itself schedules no state updates synchronously.
-    queueMicrotask(connect);
+    connect();
 
     return () => {
-      closedByCleanupRef.current = true;
+      cancelled = true;
       clearReconnectTimer();
-      socketRef.current?.close();
+      const socket = socketRef.current;
       socketRef.current = null;
+      socket?.close();
     };
   }, [url]);
 
@@ -104,5 +106,9 @@ export function useWebSocket<TIncoming, TOutgoing = TIncoming>({
     return true;
   }
 
+  // `internalStatus` only tracks a real socket's lifecycle; while `url` is
+  // null there's nothing connecting, so the exposed status is forced to
+  // 'closed' here rather than via a setState call inside the effect above.
+  const status: ConnectionStatus = url ? internalStatus : 'closed';
   return { status, send };
 }
