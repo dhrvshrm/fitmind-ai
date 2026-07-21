@@ -61,6 +61,7 @@ export const STRINGS = {
   },
   nav: {
     dashboard: "Dashboard",
+    coach: "AI Coach",
     workouts: "Workouts",
     recovery: "Recovery",
     voiceCheckin: "Voice Check-in",
@@ -350,6 +351,34 @@ export const STRINGS = {
       newBadgeChip: "New!",
       howToUnlock: "How to unlock",
       close: "Close",
+    },
+  },
+  coach: {
+    title: "AI Coach",
+    subtitle: "Ask about your workouts, recovery, or nutrition.",
+    emptyTitle: "Your coach is ready",
+    emptyBody: "Try one of the prompts below, or ask anything about your training.",
+    inputPlaceholder: "Message your coach…",
+    sendAria: "Send message",
+    you: "You",
+    assistantName: "FitMind Coach",
+    connection: {
+      open: "Connected",
+      connecting: "Connecting…",
+      reconnecting: "Reconnecting…",
+      closed: "Offline",
+    },
+    errors: {
+      sendWhileOffline: "Not connected yet — hold on a moment and try again.",
+      streamError: "Sorry, something went wrong with that reply.",
+    },
+    quickPrompts: {
+      title: "Try asking",
+      items: [
+        "Should I workout today?",
+        "What should I eat?",
+        "Modify my plan",
+      ],
     },
   },
 } as const;

@@ -41,10 +41,12 @@ function buildMonthCells(reference: Date): (DayCell | null)[] {
 export function WorkoutHistory({ completedDates }: WorkoutHistoryProps) {
   const [selected, setSelected] = useState<string | null>(null);
 
-  const now = new Date();
+  // Memoized so it's stable across renders (a fresh `Date` every render broke
+  // memoization for `cells` below and confused the compiler's analysis).
+  const now = useMemo(() => new Date(), []);
   const today = toIsoDate(now);
   const completed = useMemo(() => new Set(completedDates), [completedDates]);
-  const cells = useMemo(() => buildMonthCells(now), []);
+  const cells = useMemo(() => buildMonthCells(now), [now]);
   const streak = getStreak(completedDates);
 
   const monthLabel = now.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });

@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import {
+  ChatRounded,
   DashboardRounded,
   EmojiEventsRounded,
   FitnessCenterRounded,
@@ -22,6 +23,7 @@ export type NavItem = {
 /** Sidebar entries in display order. */
 export const NAV_ITEMS: NavItem[] = [
   { label: STRINGS.nav.dashboard, path: ROUTES.DASHBOARD, icon: DashboardRounded },
+  { label: STRINGS.nav.coach, path: ROUTES.COACH, icon: ChatRounded },
   { label: STRINGS.nav.workouts, path: ROUTES.WORKOUTS, icon: FitnessCenterRounded },
   { label: STRINGS.nav.recovery, path: ROUTES.RECOVERY, icon: MonitorHeartRounded },
   { label: STRINGS.nav.voiceCheckin, path: ROUTES.VOICE_CHECKIN, icon: MicRounded },
