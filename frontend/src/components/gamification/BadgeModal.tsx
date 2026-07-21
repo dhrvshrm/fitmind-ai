@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { LockRounded } from '@mui/icons-material';
 import { STRINGS } from '../../constants/strings';
-import { getBadgeIcon } from '../../constants/gamification';
+import { BadgeIcon } from './BadgeIcon';
 import type { Badge } from '../../types/gamification';
 import { badgeModalStyles as styles } from './BadgeModal.styles';
 
@@ -26,13 +26,16 @@ type BadgeModalProps = {
 /** Badge detail dialog: icon, name, earned status/date, and unlock condition. */
 export function BadgeModal({ badge, earned, earnedDateLabel, onClose }: BadgeModalProps) {
   if (!badge) return null;
-  const Icon = getBadgeIcon(badge.id);
 
   return (
     <Dialog open={Boolean(badge)} onClose={onClose} fullWidth maxWidth="xs">
       <DialogContent sx={styles.content}>
         <Box sx={styles.iconWrap(earned)}>
-          {earned ? <Icon sx={styles.icon} /> : <LockRounded sx={styles.icon} />}
+          {earned ? (
+            <BadgeIcon badgeId={badge.id} sx={styles.icon} />
+          ) : (
+            <LockRounded sx={styles.icon} />
+          )}
         </Box>
 
         <Typography variant="h6" sx={styles.name}>
