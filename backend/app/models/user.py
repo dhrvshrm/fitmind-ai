@@ -197,3 +197,11 @@ class User:
             return cls._from_dict(data) if data else None
         data = _MEMORY_STORE.get(user_id)
         return cls._from_dict(data) if data else None
+
+    @classmethod
+    async def get_all(cls) -> List["User"]:
+        """Return all users (used by background jobs that scan every user)."""
+        db = get_database()
+        if db is not None:
+            return [cls._from_dict(d) async for d in db[COLLECTION_NAME].find({})]
+        return [cls._from_dict(d) for d in _MEMORY_STORE.values()]

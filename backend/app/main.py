@@ -6,6 +6,7 @@ from app.config.database import connect_to_mongo, close_mongo_connection
 from app.config.cors import setup_cors
 from app.api.v1.router import router as v1_router
 from app.api.v1.websockets import router as ws_router
+from app.background_jobs.jobs import start_scheduler, stop_scheduler
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -28,10 +29,12 @@ async def startup_event():
         logger.info("Backend startup complete")
     except Exception as e:
         logger.info(f"MongoDB connection will be set up on Day 5")
+    start_scheduler()
 
 @app.on_event("shutdown")
 async def shutdown_event():
     logger.info("Shutting down...")
+    stop_scheduler()
     await close_mongo_connection()
 
 @app.get("/")

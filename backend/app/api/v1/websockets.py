@@ -2,6 +2,7 @@ import logging
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+from app.services import notification_service
 from app.websockets.handlers import chat_handler
 from app.websockets.manager import manager
 
@@ -18,8 +19,11 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str) -> None:
       client -> {"type": "message", "content": "..."}  triggers a streamed reply
       client -> {"type": "ping"}                        health check
       server -> {"type": "start"} / {"type": "token", "content"} / {"type": "done"}
+      server -> {"type": "notification", "data": {...}} live + pending on connect
     """
     await manager.connect(user_id, websocket)
+    # Deliver any notifications that arrived while the user was offline.
+    await notification_service.deliver_pending(user_id)
     try:
         while True:
             data = await websocket.receive_json()
