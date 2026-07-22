@@ -131,13 +131,20 @@ class Notification:
 
     @classmethod
     async def mark_read(cls, user_id: str, notification_id: str) -> bool:
-        """Mark a single notification read. Returns True if one was updated."""
+        """Mark a single notification read. Returns True if it exists for this user.
+
+        Uses ``matched_count`` rather than ``modified_count``: Mongo doesn't
+        count a `$set` that doesn't change the value as "modified", so an
+        already-read notification would otherwise look like a 404 on repeat
+        calls (e.g. double-clicking, or re-opening the drawer) even though it
+        exists and belongs to the user.
+        """
         db = get_database()
         if db is not None:
             result = await db[COLLECTION_NAME].update_one(
                 {"id": notification_id, "user_id": user_id}, {"$set": {"read": True}}
             )
-            return result.modified_count > 0
+            return result.matched_count > 0
         item = _MEMORY_STORE.get(notification_id)
         if item and item["user_id"] == user_id:
             item["read"] = True
