@@ -1,5 +1,5 @@
-import { BADGE_EARNED_DATES_KEY } from '../constants/api';
-import { toIsoDate } from './date';
+import { BADGE_EARNED_DATES_KEY } from "../constants/api";
+import { toIsoDate } from "./date";
 
 /**
  * The backend doesn't record *when* a badge was earned, only that it was.
@@ -12,7 +12,9 @@ function readEarnedDates(): Record<string, string> {
   try {
     const raw = localStorage.getItem(BADGE_EARNED_DATES_KEY);
     const parsed = raw ? (JSON.parse(raw) as unknown) : {};
-    return parsed && typeof parsed === 'object' ? (parsed as Record<string, string>) : {};
+    return parsed && typeof parsed === "object"
+      ? (parsed as Record<string, string>)
+      : {};
   } catch {
     return {};
   }
@@ -24,7 +26,7 @@ function readEarnedDates(): Record<string, string> {
  * date map and the subset of ids that are new since the last call.
  *
  * On this browser's very first sync (nothing stored yet) every earned badge
- * is seeded silently — they were earned before we started tracking, so none
+ * is seeded silently - they were earned before we started tracking, so none
  * count as "newly earned" and none trigger the unlock celebration.
  */
 export function syncEarnedBadgeDates(earnedIds: string[]): {

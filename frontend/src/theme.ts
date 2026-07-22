@@ -1,6 +1,6 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from "@mui/material/styles";
 
-/** Font stacks — Sora for display headings, Inter for body/UI text. */
+/** Font stacks - Sora for display headings, Inter for body/UI text. */
 const DISPLAY_FONT = "'Sora', system-ui, 'Segoe UI', sans-serif";
 const BODY_FONT = "'Inter', system-ui, 'Segoe UI', Roboto, sans-serif";
 
@@ -13,7 +13,7 @@ const softShadow = (y: number, blur: number, alpha: number): string =>
   `0px ${y}px ${blur}px rgba(76, 29, 149, ${alpha})`;
 
 const shadows = [
-  'none',
+  "none",
   softShadow(1, 2, 0.06),
   softShadow(2, 6, 0.07),
   softShadow(4, 12, 0.08),
@@ -46,32 +46,32 @@ const shadows = [
  */
 export const theme = createTheme({
   palette: {
-    mode: 'light',
+    mode: "light",
     primary: {
-      main: '#aa3bff',
-      light: '#c98bff',
-      dark: '#7a1fd0',
-      contrastText: '#ffffff',
+      main: "#aa3bff",
+      light: "#c98bff",
+      dark: "#7a1fd0",
+      contrastText: "#ffffff",
     },
     secondary: {
-      main: '#12b8a6',
-      light: '#5fe0d2',
-      dark: '#0c8578',
-      contrastText: '#ffffff',
+      main: "#12b8a6",
+      light: "#5fe0d2",
+      dark: "#0c8578",
+      contrastText: "#ffffff",
     },
-    success: { main: '#16a34a' },
-    warning: { main: '#f59e0b' },
-    error: { main: '#ef4444' },
-    info: { main: '#6366f1' },
+    success: { main: "#16a34a" },
+    warning: { main: "#f59e0b" },
+    error: { main: "#ef4444" },
+    info: { main: "#6366f1" },
     background: {
-      default: '#f6f5fb',
-      paper: '#ffffff',
+      default: "#f6f5fb",
+      paper: "#ffffff",
     },
     text: {
-      primary: '#1c1530',
-      secondary: '#6b6484',
+      primary: "#1c1530",
+      secondary: "#6b6484",
     },
-    divider: 'rgba(28, 21, 48, 0.08)',
+    divider: "rgba(28, 21, 48, 0.08)",
   },
 
   shape: {
@@ -82,31 +82,67 @@ export const theme = createTheme({
 
   typography: {
     fontFamily: BODY_FONT,
-    h1: { fontFamily: DISPLAY_FONT, fontWeight: 800, fontSize: '2.6rem', lineHeight: 1.12, letterSpacing: '-0.022em' },
-    h2: { fontFamily: DISPLAY_FONT, fontWeight: 800, fontSize: '2.1rem', lineHeight: 1.15, letterSpacing: '-0.02em' },
-    h3: { fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: '1.7rem', lineHeight: 1.18, letterSpacing: '-0.018em' },
-    h4: { fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: '1.4rem', lineHeight: 1.2, letterSpacing: '-0.015em' },
-    h5: { fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: '1.2rem', lineHeight: 1.25, letterSpacing: '-0.01em' },
-    h6: { fontFamily: DISPLAY_FONT, fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.3, letterSpacing: '-0.005em' },
+    h1: {
+      fontFamily: DISPLAY_FONT,
+      fontWeight: 800,
+      fontSize: "2.6rem",
+      lineHeight: 1.12,
+      letterSpacing: "-0.022em",
+    },
+    h2: {
+      fontFamily: DISPLAY_FONT,
+      fontWeight: 800,
+      fontSize: "2.1rem",
+      lineHeight: 1.15,
+      letterSpacing: "-0.02em",
+    },
+    h3: {
+      fontFamily: DISPLAY_FONT,
+      fontWeight: 700,
+      fontSize: "1.7rem",
+      lineHeight: 1.18,
+      letterSpacing: "-0.018em",
+    },
+    h4: {
+      fontFamily: DISPLAY_FONT,
+      fontWeight: 700,
+      fontSize: "1.4rem",
+      lineHeight: 1.2,
+      letterSpacing: "-0.015em",
+    },
+    h5: {
+      fontFamily: DISPLAY_FONT,
+      fontWeight: 700,
+      fontSize: "1.2rem",
+      lineHeight: 1.25,
+      letterSpacing: "-0.01em",
+    },
+    h6: {
+      fontFamily: DISPLAY_FONT,
+      fontWeight: 700,
+      fontSize: "1.05rem",
+      lineHeight: 1.3,
+      letterSpacing: "-0.005em",
+    },
     subtitle1: { fontWeight: 600 },
     subtitle2: { fontWeight: 600 },
     body1: { lineHeight: 1.6 },
     body2: { lineHeight: 1.55 },
     button: {
-      textTransform: 'none',
+      textTransform: "none",
       fontWeight: 600,
-      letterSpacing: '0.01em',
+      letterSpacing: "0.01em",
     },
     overline: {
       fontWeight: 700,
-      letterSpacing: '0.12em',
+      letterSpacing: "0.12em",
     },
   },
 
   components: {
     MuiCssBaseline: {
       styleOverrides: {
-        body: { backgroundColor: '#f6f5fb' },
+        body: { backgroundColor: "#f6f5fb" },
       },
     },
     MuiButton: {
@@ -115,29 +151,29 @@ export const theme = createTheme({
         root: {
           borderRadius: 10,
           paddingInline: 18,
-          '&.MuiButton-containedPrimary': {
-            boxShadow: '0px 6px 16px rgba(170, 59, 255, 0.28)',
+          "&.MuiButton-containedPrimary": {
+            boxShadow: "0px 6px 16px rgba(170, 59, 255, 0.28)",
           },
-          '&.MuiButton-containedPrimary:hover': {
-            boxShadow: '0px 8px 22px rgba(170, 59, 255, 0.36)',
+          "&.MuiButton-containedPrimary:hover": {
+            boxShadow: "0px 8px 22px rgba(170, 59, 255, 0.36)",
           },
         },
         sizeLarge: {
           paddingBlock: 11,
-          fontSize: '1rem',
+          fontSize: "1rem",
         },
       },
     },
     MuiPaper: {
       styleOverrides: {
-        root: { backgroundImage: 'none' },
+        root: { backgroundImage: "none" },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
           borderRadius: 18,
-          border: '1px solid rgba(28, 21, 48, 0.06)',
+          border: "1px solid rgba(28, 21, 48, 0.06)",
         },
       },
     },
@@ -156,9 +192,9 @@ export const theme = createTheme({
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          fontSize: '0.75rem',
+          fontSize: "0.75rem",
           borderRadius: 8,
-          backgroundColor: '#1c1530',
+          backgroundColor: "#1c1530",
         },
       },
     },

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from "react";
 import {
   Alert,
   Box,
@@ -10,22 +10,22 @@ import {
   Skeleton,
   Stack,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 import {
   CheckCircleRounded,
   FlagRounded,
   PauseRounded,
   PlayArrowRounded,
-} from '@mui/icons-material';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ExerciseLogger } from './ExerciseLogger';
-import { WorkoutCompletion } from './WorkoutCompletion';
-import { useWorkoutTimer } from '../../hooks/useWorkoutTimer';
-import { workoutService } from '../../services/workoutService';
-import { STRINGS } from '../../constants/strings';
-import { formatDuration } from '../../utils/date';
-import type { Exercise, WorkoutLogResult } from '../../types/workout';
-import { todayWorkoutStyles as styles } from './TodayWorkout.styles';
+} from "@mui/icons-material";
+import { AnimatePresence, motion } from "framer-motion";
+import { ExerciseLogger } from "./ExerciseLogger";
+import { WorkoutCompletion } from "./WorkoutCompletion";
+import { useWorkoutTimer } from "../../hooks/useWorkoutTimer";
+import { workoutService } from "../../services/workoutService";
+import { STRINGS } from "../../constants/strings";
+import { formatDuration } from "../../utils/date";
+import type { Exercise, WorkoutLogResult } from "../../types/workout";
+import { todayWorkoutStyles as styles } from "./TodayWorkout.styles";
 
 const S = STRINGS.workout;
 const CELEBRATION_MS = 2200;
@@ -34,7 +34,7 @@ type TodayWorkoutProps = {
   exercises: Exercise[];
   loading: boolean;
   error: string | null;
-  /** True when today's workout has already been saved — locks the logger. */
+  /** True when today's workout has already been saved - locks the logger. */
   alreadyLogged: boolean;
   /** Called after the workout is saved on the backend. */
   onLogged: (result: WorkoutLogResult) => void;
@@ -59,7 +59,8 @@ export function TodayWorkout({
   const syncedRef = useRef<Set<string>>(new Set());
 
   const totalSets = useMemo(
-    () => exercises.reduce((sum, exercise) => sum + Math.max(1, exercise.sets), 0),
+    () =>
+      exercises.reduce((sum, exercise) => sum + Math.max(1, exercise.sets), 0),
     [exercises],
   );
   const doneCount = useMemo(
@@ -87,7 +88,10 @@ export function TodayWorkout({
 
       // Full-workout celebration the moment the last set is ticked.
       const total = exercises.reduce((sum, e) => sum + Math.max(1, e.sets), 0);
-      const done = Object.values(next).reduce((sum, sets) => sum + sets.size, 0);
+      const done = Object.values(next).reduce(
+        (sum, sets) => sum + sets.size,
+        0,
+      );
       if (total > 0 && done >= total) {
         setCelebrating(true);
         window.setTimeout(() => setCelebrating(false), CELEBRATION_MS);
@@ -101,7 +105,8 @@ export function TodayWorkout({
     onLogged(result);
   }
 
-  const showLogger = exercises.length > 0 && !loading && !error && !alreadyLogged;
+  const showLogger =
+    exercises.length > 0 && !loading && !error && !alreadyLogged;
   const showDonePanel = !loading && !error && alreadyLogged;
 
   return (
@@ -109,7 +114,8 @@ export function TodayWorkout({
       {/* Celebration overlay when every set is done. */}
       <AnimatePresence>
         {celebrating && (
-          <Box component={motion.div}
+          <Box
+            component={motion.div}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -118,7 +124,7 @@ export function TodayWorkout({
             <motion.div
               initial={{ scale: 0.4, rotate: -8 }}
               animate={{ scale: [0.4, 1.15, 1], rotate: 0 }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
             >
               <Typography variant="h4" sx={styles.celebrationText}>
                 {S.today.celebration}
@@ -135,7 +141,7 @@ export function TodayWorkout({
         {showLogger && (
           <Chip
             label={S.today.progress(doneCount, totalSets)}
-            color={allDone ? 'success' : 'primary'}
+            color={allDone ? "success" : "primary"}
             variant="outlined"
             sx={styles.progressChip}
           />
@@ -146,14 +152,14 @@ export function TodayWorkout({
         <LinearProgress
           variant="determinate"
           value={totalSets === 0 ? 0 : (doneCount / totalSets) * 100}
-          color={allDone ? 'success' : 'primary'}
+          color={allDone ? "success" : "primary"}
           sx={styles.progressBar}
         />
       )}
 
       {showLogger && (
         <Stack sx={styles.timerRow}>
-          {timer.status === 'idle' && (
+          {timer.status === "idle" && (
             <Button
               variant="outlined"
               size="small"
@@ -163,7 +169,7 @@ export function TodayWorkout({
               {S.timer.start}
             </Button>
           )}
-          {timer.status !== 'idle' && (
+          {timer.status !== "idle" && (
             <>
               <Typography variant="h6" sx={styles.timerText}>
                 {formatDuration(timer.seconds)}
@@ -171,10 +177,18 @@ export function TodayWorkout({
               <IconButton
                 size="small"
                 color="primary"
-                aria-label={timer.status === 'running' ? S.timer.pause : S.timer.resume}
-                onClick={timer.status === 'running' ? timer.pause : timer.resume}
+                aria-label={
+                  timer.status === "running" ? S.timer.pause : S.timer.resume
+                }
+                onClick={
+                  timer.status === "running" ? timer.pause : timer.resume
+                }
               >
-                {timer.status === 'running' ? <PauseRounded /> : <PlayArrowRounded />}
+                {timer.status === "running" ? (
+                  <PauseRounded />
+                ) : (
+                  <PlayArrowRounded />
+                )}
               </IconButton>
             </>
           )}
@@ -220,7 +234,7 @@ export function TodayWorkout({
             variant="contained"
             fullWidth
             size="large"
-            color={allDone ? 'success' : 'primary'}
+            color={allDone ? "success" : "primary"}
             startIcon={<FlagRounded />}
             onClick={() => setCompletionOpen(true)}
             disabled={doneCount === 0}

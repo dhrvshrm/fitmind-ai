@@ -10,22 +10,22 @@ logger = logging.getLogger(__name__)
 _RECOVERY_BANDS: List[Tuple[int, str, str]] = [
     (
         80,
-        "Fully recovered — go for a high-intensity session.",
+        "Fully recovered - go for a high-intensity session.",
         "Your body is well rested and ready to handle heavy training today.",
     ),
     (
         60,
-        "Good recovery — a normal training session is fine.",
+        "Good recovery - a normal training session is fine.",
         "You've recovered reasonably well; train as planned but listen to your body.",
     ),
     (
         40,
-        "Moderate recovery — keep it light today.",
+        "Moderate recovery - keep it light today.",
         "Recovery is below par. Favour lighter volume, mobility, or technique work.",
     ),
     (
         0,
-        "Low recovery — prioritise rest and sleep.",
+        "Low recovery - prioritise rest and sleep.",
         "Your body needs recovery. Rest, hydrate, and focus on sleep before training hard.",
     ),
 ]

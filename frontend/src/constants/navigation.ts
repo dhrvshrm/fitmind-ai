@@ -35,6 +35,3 @@ export const NAV_ITEMS: NavItem[] = [
 ];
 
 export const SIDEBAR_WIDTH = 240;
-
-/** Unread notification count shown on the navbar bell. TODO(Day 12): fetch real count. */
-export const UNREAD_NOTIFICATIONS_PLACEHOLDER = 0;

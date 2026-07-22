@@ -26,7 +26,7 @@ def transcribe_audio(audio_bytes: bytes, filename: str = "audio.webm") -> str:
     """
     settings = get_settings()
     if not settings.GROQ_API_KEY:
-        logger.info("GROQ_API_KEY not set — skipping transcription")
+        logger.info("GROQ_API_KEY not set - skipping transcription")
         return ""
     try:
         from groq import Groq

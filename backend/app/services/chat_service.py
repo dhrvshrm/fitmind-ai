@@ -61,7 +61,7 @@ async def generate_chat_response(user_id: str, message: str) -> AsyncIterator[st
     system_prompt = _BASE_SYSTEM_PROMPT + context
 
     if not settings.GROQ_API_KEY:
-        logger.info("GROQ_API_KEY not set — streaming fallback chat reply")
+        logger.info("GROQ_API_KEY not set - streaming fallback chat reply")
         for word in _fallback_reply(message).split(" "):
             yield word + " "
         return

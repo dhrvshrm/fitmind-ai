@@ -140,7 +140,7 @@ export const ONBOARDING_STRINGS = {
     injuries: {
       title: "Any injuries or limitations?",
       helper:
-        "Optional — pick from suggestions or type your own. Leave empty if none.",
+        "Optional - pick from suggestions or type your own. Leave empty if none.",
       placeholder: "e.g. Lower back, Knee…",
     },
   },

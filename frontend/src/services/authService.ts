@@ -1,13 +1,13 @@
-import { apiClient } from '../lib/apiClient';
-import { AUTH_ENDPOINTS } from '../constants/api';
-import { useAuthStore } from '../store/authStore';
+import { apiClient } from "../lib/apiClient";
+import { AUTH_ENDPOINTS } from "../constants/api";
+import { useAuthStore } from "../store/authStore";
 import type {
   ApiEnvelope,
   Credentials,
   LoginResponseData,
   RegisterResponseData,
   User,
-} from '../types/auth';
+} from "../types/auth";
 
 /**
  * Thin wrapper over the `/auth` endpoints. Each call unwraps the backend
@@ -35,7 +35,7 @@ export const authService = {
     return data.data;
   },
 
-  /** No server session to invalidate yet — just drop the local credentials. */
+  /** No server session to invalidate yet - just drop the local credentials. */
   logout(): void {
     useAuthStore.getState().clearAuth();
   },

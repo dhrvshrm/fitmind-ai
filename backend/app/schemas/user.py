@@ -39,7 +39,7 @@ class UserOnboarding(BaseModel):
 
 
 class UserProfileUpdate(BaseModel):
-    """Partial profile update — every field is optional."""
+    """Partial profile update - every field is optional."""
 
     age: Optional[int] = None
     gender: Optional[str] = None

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -7,21 +7,30 @@ import {
   Slider,
   Stack,
   Typography,
-} from '@mui/material';
-import { CheckCircleRounded } from '@mui/icons-material';
-import toast from 'react-hot-toast';
-import { recoveryService } from '../../services/recoveryService';
-import { resolveApiError } from '../../lib/apiClient';
-import { STRINGS } from '../../constants/strings';
-import type { RecoveryLogPayload, RecoveryLogResult } from '../../types/recovery';
-import { recoveryLogFormStyles as styles } from './RecoveryLogForm.styles';
+} from "@mui/material";
+import { CheckCircleRounded } from "@mui/icons-material";
+import toast from "react-hot-toast";
+import { recoveryService } from "../../services/recoveryService";
+import { resolveApiError } from "../../lib/apiClient";
+import { STRINGS } from "../../constants/strings";
+import type {
+  RecoveryLogPayload,
+  RecoveryLogResult,
+} from "../../types/recovery";
+import { recoveryLogFormStyles as styles } from "./RecoveryLogForm.styles";
 
 const S = STRINGS.recovery.form;
 
 /** Slider bounds; ratings share the backend's 1–5 scale. */
 const SLEEP_MAX = 12;
-const RATING_MARKS = [1, 2, 3, 4, 5].map((value) => ({ value, label: String(value) }));
-const SLEEP_MARKS = [0, 4, 8, 12].map((value) => ({ value, label: `${value}h` }));
+const RATING_MARKS = [1, 2, 3, 4, 5].map((value) => ({
+  value,
+  label: String(value),
+}));
+const SLEEP_MARKS = [0, 4, 8, 12].map((value) => ({
+  value,
+  label: `${value}h`,
+}));
 
 const DEFAULTS: RecoveryLogPayload = {
   sleep_hours: 8,
@@ -87,13 +96,16 @@ function SliderField({
 }
 
 type RecoveryLogFormProps = {
-  /** True when today's check-in already exists — locks the form. */
+  /** True when today's check-in already exists - locks the form. */
   alreadyLogged: boolean;
   /** Called with the fresh result after a successful log. */
   onLogged: (result: RecoveryLogResult) => void;
 };
 
-export function RecoveryLogForm({ alreadyLogged, onLogged }: RecoveryLogFormProps) {
+export function RecoveryLogForm({
+  alreadyLogged,
+  onLogged,
+}: RecoveryLogFormProps) {
   const [form, setForm] = useState<RecoveryLogPayload>(DEFAULTS);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -143,7 +155,7 @@ export function RecoveryLogForm({ alreadyLogged, onLogged }: RecoveryLogFormProp
         label={S.sleepHours}
         value={form.sleep_hours}
         displayValue={`${form.sleep_hours}h`}
-        onChange={patch('sleep_hours')}
+        onChange={patch("sleep_hours")}
         min={0}
         max={SLEEP_MAX}
         step={0.5}
@@ -155,7 +167,7 @@ export function RecoveryLogForm({ alreadyLogged, onLogged }: RecoveryLogFormProp
         hint={S.qualityHint}
         value={form.sleep_quality}
         displayValue={String(form.sleep_quality)}
-        onChange={patch('sleep_quality')}
+        onChange={patch("sleep_quality")}
         min={1}
         max={5}
         step={1}
@@ -167,7 +179,7 @@ export function RecoveryLogForm({ alreadyLogged, onLogged }: RecoveryLogFormProp
         hint={S.stressHint}
         value={form.stress_level}
         displayValue={String(form.stress_level)}
-        onChange={patch('stress_level')}
+        onChange={patch("stress_level")}
         min={1}
         max={5}
         step={1}
@@ -179,7 +191,7 @@ export function RecoveryLogForm({ alreadyLogged, onLogged }: RecoveryLogFormProp
         hint={S.sorenessHint}
         value={form.muscle_soreness}
         displayValue={String(form.muscle_soreness)}
-        onChange={patch('muscle_soreness')}
+        onChange={patch("muscle_soreness")}
         min={1}
         max={5}
         step={1}
@@ -193,7 +205,9 @@ export function RecoveryLogForm({ alreadyLogged, onLogged }: RecoveryLogFormProp
         fullWidth
         onClick={handleSubmit}
         disabled={isSubmitting}
-        startIcon={isSubmitting ? <CircularProgress size={18} color="inherit" /> : null}
+        startIcon={
+          isSubmitting ? <CircularProgress size={18} color="inherit" /> : null
+        }
         sx={styles.submit}
       >
         {isSubmitting ? S.submitting : S.submit}

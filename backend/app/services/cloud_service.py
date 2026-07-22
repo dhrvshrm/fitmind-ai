@@ -35,13 +35,13 @@ async def upload_to_r2(
     development. Real uploads activate once R2 credentials are set.
     """
     if not _is_r2_configured():
-        logger.info("R2 not configured — skipping audio upload")
+        logger.info("R2 not configured - skipping audio upload")
         return None
 
     try:
         import boto3  # Soft import: only needed when R2 is actually used.
     except ImportError:
-        logger.warning("R2 configured but 'boto3' is not installed — skipping upload")
+        logger.warning("R2 configured but 'boto3' is not installed - skipping upload")
         return None
 
     settings = get_settings()

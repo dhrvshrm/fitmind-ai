@@ -41,7 +41,7 @@ async def connect_to_mongo() -> None:
     except Exception as e:
         db_client = None
         db = None
-        logger.warning(f"MongoDB unavailable — using in-memory fallback: {e}")
+        logger.warning(f"MongoDB unavailable - using in-memory fallback: {e}")
 
 
 async def close_mongo_connection() -> None:
