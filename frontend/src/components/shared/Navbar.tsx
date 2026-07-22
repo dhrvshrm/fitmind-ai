@@ -25,7 +25,9 @@ import { useNotifications } from "../../hooks/useNotifications";
 import { useUiStore } from "../../store/uiStore";
 import { STRINGS } from "../../constants/strings";
 import { ROUTES } from "../../constants/routes";
+import { getNotificationRoute } from "../../constants/notification";
 import { NotificationDrawer } from "./NotificationDrawer";
+import type { AppNotification } from "../../types/notification";
 import { navbarStyles as styles } from "./Navbar.styles";
 
 type NavbarProps = {
@@ -55,6 +57,13 @@ export function Navbar({ onMenuClick }: NavbarProps) {
     setMenuAnchor(null);
     logout();
     navigate(ROUTES.LOGIN, { replace: true });
+  }
+
+  /** Clicking a notification marks it read, closes the drawer, and takes the user to it. */
+  function handleNotificationClick(notification: AppNotification) {
+    markAsRead(notification.id);
+    setNotifOpen(false);
+    navigate(getNotificationRoute(notification.type));
   }
 
   return (
@@ -117,7 +126,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
       <NotificationDrawer
         open={notifOpen}
         onClose={() => setNotifOpen(false)}
-        onItemClick={(notification) => markAsRead(notification.id)}
+        onItemClick={handleNotificationClick}
         onMarkAllRead={markAllAsRead}
       />
     </AppBar>

@@ -1,3 +1,4 @@
+import { ROUTES } from "./routes";
 import type { NotificationType } from "../types/notification";
 
 /**
@@ -40,3 +41,20 @@ export const TOAST_NOTIFICATION_TYPES: ReadonlySet<string> =
     "streak_warning",
     "friend_accepted",
   ]);
+
+/** Where clicking a notification of each type should take the user. */
+export const NOTIFICATION_TYPE_ROUTE: Record<NotificationType, string> = {
+  follow: ROUTES.FRIENDS,
+  friend_accepted: ROUTES.FRIENDS,
+  nudge: ROUTES.WORKOUTS,
+  badge_earned: ROUTES.GAMIFICATION,
+  streak_warning: ROUTES.WORKOUTS,
+  workout_logged: ROUTES.WORKOUTS,
+  level_up: ROUTES.GAMIFICATION,
+  weekly_report: ROUTES.DASHBOARD,
+  leaderboard_change: ROUTES.GAMIFICATION,
+};
+
+export function getNotificationRoute(type: string): string {
+  return NOTIFICATION_TYPE_ROUTE[type as NotificationType] ?? ROUTES.DASHBOARD;
+}
