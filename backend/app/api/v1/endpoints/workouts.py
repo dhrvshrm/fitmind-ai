@@ -8,7 +8,12 @@ from app.schemas.workout import (
     WorkoutLogRequest,
     WorkoutPlanRequest,
 )
-from app.services import recovery_service, voice_service, workout_service
+from app.services import (
+    notification_service,
+    recovery_service,
+    voice_service,
+    workout_service,
+)
 
 router = APIRouter(prefix="/workouts", tags=["Workouts"])
 
@@ -91,6 +96,12 @@ async def log_workout(
         current_user.id, duration=log_data.duration_minutes
     )
     new_badges = await workout_service.check_and_award_badges(current_user.id)
+    await notification_service.create_notification(
+        current_user.id,
+        notification_service.TYPE_WORKOUT_LOGGED,
+        f"Workout logged! +{xp['xp_earned']} XP earned. Keep it up!",
+        meta={"xp_earned": xp["xp_earned"], "total_xp": xp["total_xp"]},
+    )
     return {
         "success": True,
         "message": "Workout logged",

@@ -8,6 +8,7 @@ from app.models.recovery import RecoveryLog
 from app.models.user import User
 from app.models.voice_checkin import VoiceCheckin
 from app.models.workout import WorkoutLog
+from app.services import notification_service
 
 logger = logging.getLogger(__name__)
 
@@ -205,6 +206,14 @@ async def check_badge_conditions(user_id: str) -> List[str]:
     )
     if new:
         logger.info("Awarded badges to user %s: %s", user_id, new)
+        for badge_id in new:
+            name = BADGE_CATALOG.get(badge_id, {}).get("name", badge_id)
+            await notification_service.create_notification(
+                user_id,
+                notification_service.TYPE_BADGE_EARNED,
+                f"You earned the '{name}' badge!",
+                meta={"badge_id": badge_id},
+            )
     return new
 
 
