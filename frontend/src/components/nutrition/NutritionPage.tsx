@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Alert, Box, Skeleton, Typography } from '@mui/material';
-import { MealForm } from './MealForm';
-import { CalorieProgressBar } from './CalorieProgressBar';
-import { MacroPieChart } from './MacroPieChart';
-import { WaterIntakeTracker } from './WaterIntakeTracker';
-import { MealHistory } from './MealHistory';
-import { nutritionService } from '../../services/nutritionService';
-import { resolveApiError } from '../../lib/apiClient';
-import { STRINGS } from '../../constants/strings';
-import type { NutritionSummary } from '../../types/nutrition';
-import { nutritionPageStyles as styles } from './NutritionPage.styles';
+import { useCallback, useEffect, useState } from "react";
+import { Alert, Box, Skeleton, Typography } from "@mui/material";
+import { MealForm } from "./MealForm";
+import { CalorieProgressBar } from "./CalorieProgressBar";
+import { MacroPieChart } from "./MacroPieChart";
+import { WaterIntakeTracker } from "./WaterIntakeTracker";
+import { MealHistory } from "./MealHistory";
+import { nutritionService } from "../../services/nutritionService";
+import { resolveApiError } from "../../lib/apiClient";
+import { STRINGS } from "../../constants/strings";
+import type { NutritionSummary } from "../../types/nutrition";
+import { nutritionPageStyles as styles } from "./NutritionPage.styles";
 
 const S = STRINGS.nutrition;
 
@@ -36,7 +36,7 @@ export function NutritionPage() {
     });
   }, [refresh]);
 
-  /** Water updates return the fresh total directly — patch without a refetch. */
+  /** Water updates return the fresh total directly - patch without a refetch. */
   function handleWaterChange(waterMl: number) {
     setSummary((prev) => (prev ? { ...prev, water_ml: waterMl } : prev));
   }

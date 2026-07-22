@@ -21,9 +21,11 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useNotifications } from "../../hooks/useNotifications";
+import { useUiStore } from "../../store/uiStore";
 import { STRINGS } from "../../constants/strings";
 import { ROUTES } from "../../constants/routes";
-import { UNREAD_NOTIFICATIONS_PLACEHOLDER } from "../../constants/navigation";
+import { NotificationDrawer } from "./NotificationDrawer";
 import { navbarStyles as styles } from "./Navbar.styles";
 
 type NavbarProps = {
@@ -36,6 +38,12 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
+  const [notifOpen, setNotifOpen] = useState(false);
+
+  // Loads notifications on mount and keeps them live over the WS channel;
+  // called once here since Navbar is mounted for the whole authenticated app.
+  const { markAllAsRead, markAsRead } = useNotifications();
+  const notificationCount = useUiStore((s) => s.notificationCount);
 
   const initial = (user?.email?.[0] ?? "?").toUpperCase();
 
@@ -69,13 +77,11 @@ export function Navbar({ onMenuClick }: NavbarProps) {
 
         <Box sx={styles.spacer} />
 
-        {/* Unread count is a placeholder until notifications land (Day 12). */}
-        <IconButton aria-label={STRINGS.navbar.notificationsAria}>
-          <Badge
-            badgeContent={UNREAD_NOTIFICATIONS_PLACEHOLDER}
-            color="error"
-            overlap="circular"
-          >
+        <IconButton
+          aria-label={STRINGS.navbar.notificationsAria}
+          onClick={() => setNotifOpen(true)}
+        >
+          <Badge badgeContent={notificationCount} color="error" overlap="circular">
             <NotificationsRounded />
           </Badge>
         </IconButton>
@@ -107,6 +113,13 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           </MenuItem>
         </Menu>
       </Toolbar>
+
+      <NotificationDrawer
+        open={notifOpen}
+        onClose={() => setNotifOpen(false)}
+        onItemClick={(notification) => markAsRead(notification.id)}
+        onMarkAllRead={markAllAsRead}
+      />
     </AppBar>
   );
 }

@@ -1,13 +1,13 @@
-import type { ComponentType, ReactNode } from 'react';
-import { Box, Card, Stack, Typography } from '@mui/material';
+import type { ComponentType, ReactNode } from "react";
+import { Box, Card, Stack, Typography } from "@mui/material";
 import {
   AutoAwesomeRounded,
   EmojiEventsRounded,
   FitnessCenterRounded,
   MonitorHeartRounded,
-} from '@mui/icons-material';
-import { STRINGS } from '../../constants/strings';
-import { authLayoutStyles as styles } from './AuthLayout.styles';
+} from "@mui/icons-material";
+import { STRINGS } from "../../constants/strings";
+import { authLayoutStyles as styles } from "./AuthLayout.styles";
 
 type AuthLayoutProps = {
   title: string;
@@ -25,10 +25,15 @@ const FEATURE_ICONS: ComponentType[] = [
 ];
 
 /**
- * Shared shell for the auth pages: a two-panel card — branded gradient panel
+ * Shared shell for the auth pages: a two-panel card - branded gradient panel
  * with feature highlights on the left (md+), the form on the right.
  */
-export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProps) {
+export function AuthLayout({
+  title,
+  subtitle,
+  children,
+  footer,
+}: AuthLayoutProps) {
   return (
     <Box sx={styles.root}>
       <Card elevation={8} sx={styles.card}>
@@ -67,7 +72,11 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
 
         <Box sx={styles.formPanel}>
           <Stack spacing={0.5} sx={styles.header}>
-            <Typography variant="overline" color="primary" sx={styles.mobileBrand}>
+            <Typography
+              variant="overline"
+              color="primary"
+              sx={styles.mobileBrand}
+            >
               {STRINGS.app.name}
             </Typography>
             <Typography variant="h5" sx={styles.title}>

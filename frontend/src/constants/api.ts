@@ -73,3 +73,8 @@ export function getChatSocketUrl(userId: string): string {
 
 /** localStorage key prefix for a user's persisted coach chat history. */
 export const CHAT_HISTORY_KEY_PREFIX = 'fitmind-chat-history-';
+
+export const NOTIFICATION_ENDPOINTS = {
+  LIST: '/notifications',
+  read: (id: string) => `/notifications/${encodeURIComponent(id)}/read`,
+} as const;

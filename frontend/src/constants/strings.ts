@@ -99,7 +99,7 @@ export const STRINGS = {
   comingSoon: {
     badge: "Coming soon",
     description: (feature: string) =>
-      `${feature} is under construction — it will arrive in a future update.`,
+      `${feature} is under construction - it will arrive in a future update.`,
   },
   recovery: {
     title: "Recovery",
@@ -118,7 +118,8 @@ export const STRINGS = {
       success: "Recovery logged!",
       error: "Could not log your recovery. Please try again.",
       alreadyDoneTitle: "Today's check-in is done ✅",
-      alreadyDoneBody: "Your recovery score is in — come back tomorrow morning.",
+      alreadyDoneBody:
+        "Your recovery score is in - come back tomorrow morning.",
     },
     score: {
       title: "Today's recovery",
@@ -134,7 +135,8 @@ export const STRINGS = {
   },
   voiceCheckin: {
     title: "Voice Check-in",
-    subtitle: "Tell us how you're feeling — we'll analyse your mood and energy.",
+    subtitle:
+      "Tell us how you're feeling - we'll analyse your mood and energy.",
     recorder: {
       title: "How are you feeling today?",
       hint: "Tap the mic and speak for a few seconds.",
@@ -168,7 +170,7 @@ export const STRINGS = {
     history: {
       chartTitle: "Mood & energy trend",
       listTitle: "Recent check-ins",
-      empty: "No check-ins yet — record your first one!",
+      empty: "No check-ins yet - record your first one!",
       error: "Could not load your check-in history.",
       tooltipEnergy: "Energy",
     },
@@ -191,7 +193,7 @@ export const STRINGS = {
     noPlanBody: "Generate your first AI workout plan to get started.",
     today: {
       title: "Today's workout",
-      restDay: "Rest day — no exercises today. Recover well!",
+      restDay: "Rest day - no exercises today. Recover well!",
       error: "Could not load today's workout.",
       progress: (done: number, total: number) => `${done}/${total} sets`,
       celebration: "Workout complete! 🎉",
@@ -206,7 +208,8 @@ export const STRINGS = {
     },
     logger: {
       setLabel: (n: number) => `Set ${n}`,
-      setAria: (exercise: string, set: number) => `Mark ${exercise} set ${set} done`,
+      setAria: (exercise: string, set: number) =>
+        `Mark ${exercise} set ${set} done`,
       exerciseDone: "Done 💪",
     },
     completion: {
@@ -243,7 +246,8 @@ export const STRINGS = {
     },
     history: {
       title: "History",
-      streak: (days: number) => (days === 1 ? "1-day streak" : `${days}-day streak`),
+      streak: (days: number) =>
+        days === 1 ? "1-day streak" : `${days}-day streak`,
       completedOn: "Workout completed 💪",
       nothingOn: "Nothing logged on this day.",
       hint: "Completed workouts light up here once you start logging (Day 8).",
@@ -325,7 +329,7 @@ export const STRINGS = {
   },
   gamification: {
     title: "Gamification",
-    subtitle: "Your XP, streaks and badges — keep the momentum going.",
+    subtitle: "Your XP, streaks and badges - keep the momentum going.",
     loadError: "Could not load your gamification profile.",
     level: {
       title: (level: number) => `Level ${level}`,
@@ -344,7 +348,8 @@ export const STRINGS = {
     },
     badges: {
       title: "Badges",
-      earnedCount: (earned: number, total: number) => `${earned}/${total} earned`,
+      earnedCount: (earned: number, total: number) =>
+        `${earned}/${total} earned`,
       locked: "Locked",
       earnedOn: (date: string) => `Earned ${date}`,
       newBadgeToast: (name: string) => `New badge unlocked: ${name}! 🎉`,
@@ -357,7 +362,8 @@ export const STRINGS = {
     title: "AI Coach",
     subtitle: "Ask about your workouts, recovery, or nutrition.",
     emptyTitle: "Your coach is ready",
-    emptyBody: "Try one of the prompts below, or ask anything about your training.",
+    emptyBody:
+      "Try one of the prompts below, or ask anything about your training.",
     inputPlaceholder: "Message your coach…",
     sendAria: "Send message",
     you: "You",
@@ -369,7 +375,7 @@ export const STRINGS = {
       closed: "Offline",
     },
     errors: {
-      sendWhileOffline: "Not connected yet — hold on a moment and try again.",
+      sendWhileOffline: "Not connected yet - hold on a moment and try again.",
       streamError: "Sorry, something went wrong with that reply.",
     },
     quickPrompts: {
@@ -380,5 +386,18 @@ export const STRINGS = {
         "Modify my plan",
       ],
     },
+  },
+  notifications: {
+    title: "Notifications",
+    markAllRead: "Mark all as read",
+    closeAria: "Close notifications",
+    empty: "You're all caught up - no notifications yet.",
+    unreadAria: "Unread",
+    groups: {
+      today: "Today",
+      thisWeek: "This week",
+      earlier: "Earlier",
+    },
+    loadError: "Could not load notifications.",
   },
 } as const;

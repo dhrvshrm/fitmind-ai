@@ -1,16 +1,16 @@
-import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
-import { motion } from 'framer-motion';
-import { BadgeIcon } from './BadgeIcon';
-import { STRINGS } from '../../constants/strings';
-import type { Badge } from '../../types/gamification';
-import { badgeWallStyles as styles } from './BadgeWall.styles';
+import { Box, Chip, Paper, Stack, Typography } from "@mui/material";
+import { motion } from "framer-motion";
+import { BadgeIcon } from "./BadgeIcon";
+import { STRINGS } from "../../constants/strings";
+import type { Badge } from "../../types/gamification";
+import { badgeWallStyles as styles } from "./BadgeWall.styles";
 
 const S = STRINGS.gamification.badges;
 
 type BadgeWallProps = {
   allBadges: Badge[];
   earnedIds: ReadonlySet<string>;
-  /** Ids unlocked since the last visit — these get the celebratory pop-in. */
+  /** Ids unlocked since the last visit - these get the celebratory pop-in. */
   newlyEarnedIds: ReadonlySet<string>;
   onSelect: (badge: Badge) => void;
 };
@@ -46,7 +46,7 @@ export function BadgeWall({
               key={badge.id}
               initial={isNew ? { scale: 0.3, opacity: 0, rotate: -15 } : false}
               animate={{ scale: 1, opacity: 1, rotate: 0 }}
-              transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+              transition={{ type: "spring", stiffness: 260, damping: 18 }}
             >
               <Paper
                 variant="outlined"
