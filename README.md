@@ -27,8 +27,7 @@ Friends, Profile, and Settings pages exist as placeholders ("Coming Soon") and a
 - React Router for routing
 - Axios for HTTP
 - Framer Motion for animation
-- Recharts for charts
-- react-hot-toast for notifications UI
+
 
 **Backend**
 - FastAPI (Python)
