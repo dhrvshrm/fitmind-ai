@@ -115,6 +115,50 @@ async def accept_friend_request(user_id: str, request_id: str) -> Friendship:
     return friendship
 
 
+async def get_pending_requests(user_id: str) -> List[Dict[str, Any]]:
+    """Return pending friend requests addressed to ``user_id``, newest first."""
+    requests = await Friendship.get_pending_incoming(user_id)
+    requests.sort(key=lambda f: f.created_at, reverse=True)
+
+    result: List[Dict[str, Any]] = []
+    for friendship in requests:
+        requester = await User.get_by_id(friendship.requester_id)
+        if requester is not None:
+            result.append(
+                {
+                    "request_id": friendship.id,
+                    "user_id": requester.id,
+                    "username": requester.username,
+                    "level": requester.level,
+                    "created_at": friendship.created_at.isoformat(),
+                }
+            )
+    return result
+
+
+async def decline_friend_request(user_id: str, request_id: str) -> None:
+    """Decline (remove) a pending friend request addressed to ``user_id``.
+
+    Deleting rather than flagging as "declined" lets the requester try again
+    later without `send_friend_request`'s existing-relationship check
+    blocking them forever.
+
+    Raises:
+        FriendServiceError: if the request is missing, not addressed to this
+            user, or not pending.
+    """
+    friendship = await Friendship.get_by_id(request_id)
+    if friendship is None:
+        raise FriendServiceError("Friend request not found")
+    if friendship.addressee_id != user_id:
+        raise FriendServiceError("This request is not addressed to you")
+    if friendship.status != STATUS_PENDING:
+        raise FriendServiceError("This request is not pending")
+
+    await friendship.delete()
+    logger.info("Friend request %s declined by %s", request_id, user_id)
+
+
 async def get_friends_list(user_id: str) -> List[Dict[str, Any]]:
     """Return the user's accepted friends as public profiles."""
     friendships = await Friendship.get_accepted_for(user_id)
@@ -175,7 +219,7 @@ async def send_nudge(from_user: str, to_user: str) -> None:
     await notification_service.create_notification(
         to_user,
         notification_service.TYPE_NUDGE,
-        f"{sender_name} nudged you — time to work out! 💪",
+        f"{sender_name} nudged you - time to work out! 💪",
         meta={"from_user_id": from_user},
     )
     logger.info("Nudge %s -> %s", from_user, to_user)

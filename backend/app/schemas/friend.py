@@ -4,7 +4,7 @@ from pydantic import BaseModel, model_validator
 
 
 class FriendRequestCreate(BaseModel):
-    """Payload for sending a friend request — by user id or username."""
+    """Payload for sending a friend request - by user id or username."""
 
     to_user_id: Optional[str] = None
     to_username: Optional[str] = None
@@ -42,3 +42,19 @@ class LeaderboardResponse(BaseModel):
     """The weekly leaderboard of a user and their friends."""
 
     leaderboard: List[LeaderboardEntry]
+
+
+class FriendRequestItem(BaseModel):
+    """A pending friend request addressed to the current user."""
+
+    request_id: str
+    user_id: str
+    username: str
+    level: int
+    created_at: str
+
+
+class FriendRequestListResponse(BaseModel):
+    """Pending incoming friend requests."""
+
+    requests: List[FriendRequestItem]
