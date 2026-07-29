@@ -10,6 +10,7 @@ from .endpoints import (
     nutrition,
     gamification,
     notifications,
+    friends,
 )
 
 router = APIRouter(prefix="/api/v1")
@@ -24,3 +25,5 @@ router.include_router(voice_checkin.router)
 router.include_router(nutrition.router)
 router.include_router(gamification.router)
 router.include_router(notifications.router)
+router.include_router(friends.router)
+router.include_router(friends.leaderboard_router)

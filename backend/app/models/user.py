@@ -205,3 +205,15 @@ class User:
         if db is not None:
             return [cls._from_dict(d) async for d in db[COLLECTION_NAME].find({})]
         return [cls._from_dict(d) for d in _MEMORY_STORE.values()]
+
+    @classmethod
+    async def get_by_username(cls, username: str) -> Optional["User"]:
+        """Return the user with the given username, or ``None`` if not found."""
+        db = get_database()
+        if db is not None:
+            data = await db[COLLECTION_NAME].find_one({"username": username})
+            return cls._from_dict(data) if data else None
+        for data in _MEMORY_STORE.values():
+            if data.get("username") == username:
+                return cls._from_dict(data)
+        return None
