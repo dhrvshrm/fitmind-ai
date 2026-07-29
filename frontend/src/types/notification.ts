@@ -3,6 +3,7 @@
 /** Known notification types from `notification_service.NOTIFICATION_TYPES`. */
 export type NotificationType =
   | "follow"
+  | "friend_request"
   | "friend_accepted"
   | "nudge"
   | "badge_earned"

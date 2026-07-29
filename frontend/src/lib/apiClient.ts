@@ -36,3 +36,8 @@ export function resolveApiError(error: unknown, fallback: string): string {
   }
   return fallback;
 }
+
+/** True when the failed request came back 404 — e.g. "no user with that username". */
+export function isNotFoundError(error: unknown): boolean {
+  return axios.isAxiosError(error) && error.response?.status === 404;
+}
