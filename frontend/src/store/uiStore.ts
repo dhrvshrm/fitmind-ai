@@ -1,12 +1,15 @@
-import { create } from 'zustand';
-import type { AppNotification } from '../types/notification';
+import { create } from "zustand";
+import type { AppNotification } from "../types/notification";
 
 type UiState = {
   notifications: AppNotification[];
   /** Unread count, tracked separately so it can be set directly from the API's count. */
   notificationCount: number;
 
-  setNotifications: (notifications: AppNotification[], unreadCount: number) => void;
+  setNotifications: (
+    notifications: AppNotification[],
+    unreadCount: number,
+  ) => void;
   /** Prepends a live-pushed notification and bumps the unread count. */
   addNotification: (notification: AppNotification) => void;
   markOneRead: (id: string) => void;
@@ -14,7 +17,7 @@ type UiState = {
 };
 
 /**
- * UI-only store for cross-page state that isn't part of auth — currently just
+ * UI-only store for cross-page state that isn't part of auth - currently just
  * notifications (loaded once via REST on app start, then kept live over the
  * WebSocket by `useNotifications`).
  */

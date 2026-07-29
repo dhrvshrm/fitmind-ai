@@ -1,18 +1,18 @@
-import { useCallback, useEffect } from 'react';
-import toast from 'react-hot-toast';
-import { useAuth } from './useAuth';
-import { useWebSocket } from './useWebSocket';
-import { useUiStore } from '../store/uiStore';
-import { notificationService } from '../services/notificationService';
-import { getChatSocketUrl } from '../constants/api';
-import { TOAST_NOTIFICATION_TYPES } from '../constants/notification';
-import type { ClientFrame, ServerFrame } from '../types/chat';
-import type { AppNotification } from '../types/notification';
+import { useCallback, useEffect } from "react";
+import toast from "react-hot-toast";
+import { useAuth } from "./useAuth";
+import { useWebSocket } from "./useWebSocket";
+import { useUiStore } from "../store/uiStore";
+import { notificationService } from "../services/notificationService";
+import { getChatSocketUrl } from "../constants/api";
+import { TOAST_NOTIFICATION_TYPES } from "../constants/notification";
+import type { ClientFrame, ServerFrame } from "../types/chat";
+import type { AppNotification } from "../types/notification";
 
 /** Shows a toast for a live-pushed notification, styled by its type. */
 function showNotificationToast(notification: AppNotification) {
-  if (notification.type === 'streak_warning') {
-    toast(notification.message, { icon: '🔥' });
+  if (notification.type === "streak_warning") {
+    toast(notification.message, { icon: "🔥" });
   } else {
     toast.success(notification.message);
   }
@@ -25,7 +25,7 @@ function showNotificationToast(notification: AppNotification) {
  * independently of whether the coach page is mounted).
  *
  * Call this once (from `Navbar`, which lives for the whole authenticated
- * session) — it writes into the shared `uiStore`, not local state.
+ * session) - it writes into the shared `uiStore`, not local state.
  */
 export function useNotifications() {
   const { user } = useAuth();
@@ -54,7 +54,7 @@ export function useNotifications() {
 
   const handleFrame = useCallback(
     (frame: ServerFrame) => {
-      if (frame.type !== 'notification') return;
+      if (frame.type !== "notification") return;
       addNotification(frame.data);
       if (TOAST_NOTIFICATION_TYPES.has(frame.data.type)) {
         showNotificationToast(frame.data);
@@ -75,7 +75,9 @@ export function useNotifications() {
       .map((n) => n.id);
     // Optimistic: the drawer reflects "read" immediately regardless of network speed.
     markAllReadInStore();
-    await Promise.allSettled(unreadIds.map((id) => notificationService.markRead(id)));
+    await Promise.allSettled(
+      unreadIds.map((id) => notificationService.markRead(id)),
+    );
   }
 
   async function markAsRead(id: string) {

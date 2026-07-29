@@ -4,12 +4,13 @@ import type { NotificationType } from "../types/notification";
 /**
  * Per-type accent color (icon tint + unread indicator), matched against the
  * backend's notification types. The icons themselves live in
- * `NotificationTypeIcon` — the React Compiler lint rule forbids rendering a
+ * `NotificationTypeIcon` - the React Compiler lint rule forbids rendering a
  * component reference picked out of a lookup map, so that file uses a
  * literal switch instead; keep the two in sync when adding a type.
  */
 export const NOTIFICATION_TYPE_COLOR: Record<NotificationType, string> = {
   follow: "#6366f1",
+  friend_request: "#6366f1",
   friend_accepted: "#12b8a6",
   nudge: "#f59e0b",
   badge_earned: "#aa3bff",
@@ -31,7 +32,7 @@ export function getNotificationTypeColor(type: string): string {
 
 /**
  * Types worth interrupting the user with a toast when they arrive live.
- * Everything else still updates the bell badge, but silently — a "you
+ * Everything else still updates the bell badge, but silently - a "you
  * gained a follower" shouldn't pop over whatever the user is doing.
  */
 export const TOAST_NOTIFICATION_TYPES: ReadonlySet<string> =
@@ -40,11 +41,13 @@ export const TOAST_NOTIFICATION_TYPES: ReadonlySet<string> =
     "level_up",
     "streak_warning",
     "friend_accepted",
+    "friend_request",
   ]);
 
 /** Where clicking a notification of each type should take the user. */
 export const NOTIFICATION_TYPE_ROUTE: Record<NotificationType, string> = {
   follow: ROUTES.FRIENDS,
+  friend_request: ROUTES.FRIENDS,
   friend_accepted: ROUTES.FRIENDS,
   nudge: ROUTES.WORKOUTS,
   badge_earned: ROUTES.GAMIFICATION,
