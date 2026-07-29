@@ -1,4 +1,4 @@
-import type { SvgIconProps } from '@mui/material';
+import type { SvgIconProps } from "@mui/material";
 import {
   CampaignRounded,
   EmojiEventsRounded,
@@ -8,8 +8,9 @@ import {
   InsightsRounded,
   LeaderboardRounded,
   LocalFireDepartmentRounded,
+  PersonAddRounded,
   TrendingUpRounded,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 type NotificationTypeIconProps = SvgIconProps & {
   notificationType: string;
@@ -19,30 +20,32 @@ type NotificationTypeIconProps = SvgIconProps & {
  * Renders a notification's icon by type. Written as a literal switch (rather
  * than picking a component out of a lookup map and rendering the result)
  * because the React Compiler lint rule flags rendering a locally-resolved
- * component reference — only statically-known JSX tags are allowed here.
+ * component reference - only statically-known JSX tags are allowed here.
  */
 export function NotificationTypeIcon({
   notificationType,
   ...iconProps
 }: NotificationTypeIconProps) {
   switch (notificationType) {
-    case 'follow':
+    case "follow":
       return <GroupAddRounded {...iconProps} />;
-    case 'friend_accepted':
+    case "friend_request":
+      return <PersonAddRounded {...iconProps} />;
+    case "friend_accepted":
       return <HowToRegRounded {...iconProps} />;
-    case 'nudge':
+    case "nudge":
       return <CampaignRounded {...iconProps} />;
-    case 'badge_earned':
+    case "badge_earned":
       return <EmojiEventsRounded {...iconProps} />;
-    case 'streak_warning':
+    case "streak_warning":
       return <LocalFireDepartmentRounded {...iconProps} />;
-    case 'workout_logged':
+    case "workout_logged":
       return <FitnessCenterRounded {...iconProps} />;
-    case 'level_up':
+    case "level_up":
       return <TrendingUpRounded {...iconProps} />;
-    case 'weekly_report':
+    case "weekly_report":
       return <InsightsRounded {...iconProps} />;
-    case 'leaderboard_change':
+    case "leaderboard_change":
       return <LeaderboardRounded {...iconProps} />;
     default:
       return <CampaignRounded {...iconProps} />;
