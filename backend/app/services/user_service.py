@@ -2,6 +2,7 @@ import logging
 from typing import Any, Dict
 
 from app.models.user import User
+from app.models.weight import log_weight
 from app.utils.helpers import calculate_bmi, calculate_tdee
 
 logger = logging.getLogger(__name__)
@@ -52,6 +53,7 @@ async def complete_onboarding(user_id: str, data: Dict[str, Any]) -> User:
             "onboarding_completed": True,
         }
     )
+    await log_weight(user_id, data["weight_kg"])
     logger.info("Completed onboarding for user %s", user_id)
     return user
 
@@ -95,5 +97,7 @@ async def update_user_profile(user_id: str, data: Dict[str, Any]) -> User:
             updates["tdee"] = calculate_tdee(weight, height, age, gender)
 
     await user.update(updates)
+    if "weight_kg" in updates:
+        await log_weight(user_id, updates["weight_kg"])
     logger.info("Updated profile for user %s", user_id)
     return user
