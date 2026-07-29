@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 # leaderboard_change, weekly_report) arrive with their feature systems; the
 # types are defined here so those systems can emit them without changes.
 TYPE_FOLLOW = "follow"
+TYPE_FRIEND_REQUEST = "friend_request"
 TYPE_FRIEND_ACCEPTED = "friend_accepted"
 TYPE_NUDGE = "nudge"
 TYPE_BADGE_EARNED = "badge_earned"
@@ -21,6 +22,7 @@ TYPE_LEADERBOARD_CHANGE = "leaderboard_change"
 
 NOTIFICATION_TYPES = {
     TYPE_FOLLOW,
+    TYPE_FRIEND_REQUEST,
     TYPE_FRIEND_ACCEPTED,
     TYPE_NUDGE,
     TYPE_BADGE_EARNED,
