@@ -84,6 +84,14 @@ class Friendship:
         await self.save()
         return self
 
+    async def delete(self) -> None:
+        """Remove this friendship (used to decline a pending request)."""
+        db = get_database()
+        if db is not None:
+            await db[COLLECTION_NAME].delete_one({"id": self.id})
+        else:
+            _MEMORY_STORE.pop(self.id, None)
+
     @classmethod
     async def get_by_id(cls, friendship_id: str) -> Optional["Friendship"]:
         """Return a friendship by id, or ``None``."""

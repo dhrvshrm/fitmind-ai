@@ -67,6 +67,34 @@ async def get_friends_list(current_user: User = Depends(get_current_user)) -> di
     }
 
 
+@router.get("/requests", response_model=SuccessResponse)
+async def get_pending_requests(current_user: User = Depends(get_current_user)) -> dict:
+    """Return pending friend requests addressed to the current user."""
+    requests = await friend_service.get_pending_requests(current_user.id)
+    return {
+        "success": True,
+        "message": "Pending requests retrieved",
+        "data": {"requests": requests},
+    }
+
+
+@router.put("/decline/{request_id}", response_model=SuccessResponse)
+async def decline_friend_request(
+    request_id: str, current_user: User = Depends(get_current_user)
+) -> dict:
+    """Decline a pending friend request addressed to the current user."""
+    try:
+        await friend_service.decline_friend_request(current_user.id, request_id)
+    except FriendServiceError as exc:
+        code = (
+            status.HTTP_404_NOT_FOUND
+            if "not found" in str(exc).lower()
+            else status.HTTP_400_BAD_REQUEST
+        )
+        raise HTTPException(status_code=code, detail=str(exc)) from exc
+    return {"success": True, "message": "Friend request declined", "data": None}
+
+
 @router.post("/nudge/{user_id}", response_model=SuccessResponse)
 async def send_nudge(
     user_id: str, current_user: User = Depends(get_current_user)
