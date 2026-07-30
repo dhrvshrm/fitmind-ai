@@ -18,7 +18,7 @@ export type MoodPerformancePoint = {
 };
 
 export type MoodPerformanceSummary = {
-  average_energy: number;s
+  average_energy: number;
   total_checkins: number;
   dominant_mood: string | null;
 };
