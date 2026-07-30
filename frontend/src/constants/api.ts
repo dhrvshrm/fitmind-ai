@@ -17,6 +17,11 @@ export const USER_ENDPOINTS = {
 
 export const DASHBOARD_ENDPOINTS = {
   SUMMARY: "/dashboard/summary",
+  MOOD_PERFORMANCE: "/dashboard/mood-performance",
+  WEIGHT_TREND: "/dashboard/weight-trend",
+  WORKOUT_RATE: "/dashboard/workout-rate",
+  XP_WEEKLY: "/dashboard/xp-weekly",
+  RECOVERY_TREND: "/dashboard/recovery-trend",
 } as const;
 
 export const RECOVERY_ENDPOINTS = {

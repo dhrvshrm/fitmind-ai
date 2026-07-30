@@ -1,6 +1,3 @@
-import { useEffect, useState, type ComponentType } from "react";
-import { Alert, Box, Button, Paper, Skeleton, Typography } from "@mui/material";
-import type { SvgIconProps } from "@mui/material";
 import {
   BoltRounded,
   FitnessCenterRounded,
@@ -10,14 +7,23 @@ import {
   MonitorHeartRounded,
   PersonRounded,
 } from "@mui/icons-material";
+import type { SvgIconProps } from "@mui/material";
+import { Alert, Box, Button, Paper, Skeleton, Typography } from "@mui/material";
+import type { ComponentType } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
-import { dashboardService } from "../../services/dashboardService";
-import { resolveApiError } from "../../lib/apiClient";
-import { STRINGS } from "../../constants/strings";
 import { ROUTES } from "../../constants/routes";
+import { STRINGS } from "../../constants/strings";
+import { useAuth } from "../../hooks/useAuth";
+import { useDashboardChart } from "../../hooks/useDashboardChart";
+import { dashboardService } from "../../services/dashboardService";
 import type { DashboardSummary } from "../../types/dashboard";
+import { joinMoodAndWorkouts } from "../../utils/dashboardCharts";
 import { dashboardStyles as styles } from "./Dashboard.styles";
+import { MoodPerformanceChart } from "./MoodPerformanceChart";
+import { RecoveryTrendChart } from "./RecoveryTrendChart";
+import { WeightTrendChart } from "./WeightTrendChart";
+import { WorkoutRateChart } from "./WorkoutRateChart";
+import { XPEarnedChart } from "./XPEarnedChart";
 
 const S = STRINGS.dashboard;
 
@@ -71,27 +77,41 @@ export function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
   const displayName = user?.email?.split("@")[0] ?? "";
 
-  useEffect(() => {
-    let active = true;
+  const {
+    data: summary,
+    loading: summaryLoading,
+    error: summaryError,
+  } = useDashboardChart(dashboardService.getSummary, S.loadError);
 
-    dashboardService
-      .getSummary()
-      .then((data) => {
-        if (active) setSummary(data);
-      })
-      .catch((err: unknown) => {
-        if (active) setError(resolveApiError(err, S.loadError));
-      });
+  const C = S.charts;
+  const moodPerformance = useDashboardChart(
+    dashboardService.getMoodPerformance,
+    C.moodPerformance.error,
+  );
+  const weightTrend = useDashboardChart(
+    dashboardService.getWeightTrend,
+    C.weightTrend.error,
+  );
+  const workoutRate = useDashboardChart(
+    dashboardService.getWorkoutRate,
+    C.workoutRate.error,
+  );
+  const xpWeekly = useDashboardChart(
+    dashboardService.getXpWeekly,
+    C.xpEarned.error,
+  );
+  const recoveryTrend = useDashboardChart(
+    dashboardService.getRecoveryTrend,
+    C.recoveryTrend.error,
+  );
 
-    return () => {
-      active = false;
-    };
-  }, []);
+  // Joined client-side: both endpoints already cover the same 30-day window.
+  const moodWorkoutPoints = joinMoodAndWorkouts(
+    moodPerformance.data?.data ?? [],
+    workoutRate.data?.data ?? [],
+  );
 
   return (
     <Box>
@@ -102,16 +122,16 @@ export function Dashboard() {
         {S.subtitle}
       </Typography>
 
-      {error && (
+      {summaryError && (
         <Alert severity="error" sx={styles.sectionTitle}>
-          {error}
+          {summaryError}
         </Alert>
       )}
 
       <Box sx={styles.statsGrid}>
         {STAT_TILES.map((tile) => {
           const Icon = tile.icon;
-          if (!summary && !error) {
+          if (!summary && summaryLoading) {
             return (
               <Skeleton
                 key={tile.label}
@@ -131,7 +151,7 @@ export function Dashboard() {
                 <Icon fontSize="small" />
               </Box>
               <Typography variant="h4" sx={styles.statValue}>
-                {summary ? tile.value(summary) : "-"}
+                {summary ? tile.value(summary) : "—"}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 {tile.label}
@@ -160,6 +180,37 @@ export function Dashboard() {
             </Button>
           );
         })}
+      </Box>
+
+      <Typography variant="h6" sx={styles.sectionTitle}>
+        {C.sectionTitle}
+      </Typography>
+      <Box sx={styles.chartsGrid}>
+        <MoodPerformanceChart
+          points={moodWorkoutPoints}
+          loading={moodPerformance.loading || workoutRate.loading}
+          error={moodPerformance.error ?? workoutRate.error}
+        />
+        <WeightTrendChart
+          result={weightTrend.data}
+          loading={weightTrend.loading}
+          error={weightTrend.error}
+        />
+        <WorkoutRateChart
+          result={workoutRate.data}
+          loading={workoutRate.loading}
+          error={workoutRate.error}
+        />
+        <XPEarnedChart
+          result={xpWeekly.data}
+          loading={xpWeekly.loading}
+          error={xpWeekly.error}
+        />
+        <RecoveryTrendChart
+          result={recoveryTrend.data}
+          loading={recoveryTrend.loading}
+          error={recoveryTrend.error}
+        />
       </Box>
     </Box>
   );
