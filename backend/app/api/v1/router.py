@@ -11,6 +11,7 @@ from .endpoints import (
     gamification,
     notifications,
     friends,
+    reports,
 )
 
 router = APIRouter(prefix="/api/v1")
@@ -27,3 +28,4 @@ router.include_router(gamification.router)
 router.include_router(notifications.router)
 router.include_router(friends.router)
 router.include_router(friends.leaderboard_router)
+router.include_router(reports.router)

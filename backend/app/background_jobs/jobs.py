@@ -6,12 +6,14 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.models.user import User
 from app.models.workout import WorkoutLog
-from app.services import notification_service
+from app.services import notification_service, report_service
 
 logger = logging.getLogger(__name__)
 
 # Hour of day (24h, server local time) to run the streak-warning job.
 STREAK_WARNING_HOUR = 20  # 8 PM
+# Weekly report runs Sundays at 9 PM.
+WEEKLY_REPORT_HOUR = 21
 
 _scheduler: AsyncIOScheduler | None = None
 
@@ -42,6 +44,22 @@ async def streak_warning_job() -> None:
     logger.info("streak_warning_job: warned %d user(s)", warned)
 
 
+async def weekly_report_job() -> None:
+    """Generate and deliver a weekly report for every user.
+
+    Runs Sundays at 9 PM. Each user's report is generated independently so a
+    single failure (e.g. a transient AI error) does not abort the batch.
+    """
+    generated = 0
+    for user in await User.get_all():
+        try:
+            await report_service.generate_weekly_report(user.id)
+            generated += 1
+        except Exception as e:
+            logger.warning("weekly_report_job failed for user %s: %s", user.id, e)
+    logger.info("weekly_report_job: generated %d report(s)", generated)
+
+
 def start_scheduler() -> None:
     """Start the background scheduler and register recurring jobs."""
     global _scheduler
@@ -54,8 +72,18 @@ def start_scheduler() -> None:
         id="streak_warning",
         replace_existing=True,
     )
+    _scheduler.add_job(
+        weekly_report_job,
+        CronTrigger(day_of_week="sun", hour=WEEKLY_REPORT_HOUR, minute=0),
+        id="weekly_report",
+        replace_existing=True,
+    )
     _scheduler.start()
-    logger.info("Background scheduler started (streak warning at %02d:00)", STREAK_WARNING_HOUR)
+    logger.info(
+        "Background scheduler started (streak warning %02d:00 daily, weekly report Sun %02d:00)",
+        STREAK_WARNING_HOUR,
+        WEEKLY_REPORT_HOUR,
+    )
 
 
 def stop_scheduler() -> None:
