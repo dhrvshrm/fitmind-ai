@@ -10,6 +10,7 @@ export const ROUTES = {
   VOICE_CHECKIN: '/voice-checkin',
   NUTRITION: '/nutrition',
   GAMIFICATION: '/gamification',
+  REPORTS: '/reports',
   FRIENDS: '/friends',
   PROFILE: '/profile',
   SETTINGS: '/settings',

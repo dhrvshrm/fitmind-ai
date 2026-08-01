@@ -10,6 +10,7 @@ import {
   PersonRounded,
   RestaurantRounded,
   SettingsRounded,
+  SummarizeRounded,
 } from '@mui/icons-material';
 import { ROUTES } from './routes';
 import { STRINGS } from './strings';
@@ -29,6 +30,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: STRINGS.nav.voiceCheckin, path: ROUTES.VOICE_CHECKIN, icon: MicRounded },
   { label: STRINGS.nav.nutrition, path: ROUTES.NUTRITION, icon: RestaurantRounded },
   { label: STRINGS.nav.gamification, path: ROUTES.GAMIFICATION, icon: EmojiEventsRounded },
+  { label: STRINGS.nav.reports, path: ROUTES.REPORTS, icon: SummarizeRounded },
   { label: STRINGS.nav.friends, path: ROUTES.FRIENDS, icon: GroupRounded },
   { label: STRINGS.nav.profile, path: ROUTES.PROFILE, icon: PersonRounded },
   { label: STRINGS.nav.settings, path: ROUTES.SETTINGS, icon: SettingsRounded },
