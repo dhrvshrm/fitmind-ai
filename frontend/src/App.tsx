@@ -20,6 +20,7 @@ import { NutritionPage } from './components/nutrition/NutritionPage';
 import { GamificationPage } from './components/gamification/GamificationPage';
 import { CoachPage } from './components/coach/CoachPage';
 import { FriendsPage } from './components/friends/FriendsPage';
+import { ReportsPage } from './components/reports/ReportsPage';
 
 /** Declares the route tree. Runs the auth bootstrap once on mount. */
 function AppRoutes() {
@@ -45,6 +46,7 @@ function AppRoutes() {
           <Route path={ROUTES.VOICE_CHECKIN} element={<VoiceCheckinPage />} />
           <Route path={ROUTES.NUTRITION} element={<NutritionPage />} />
           <Route path={ROUTES.GAMIFICATION} element={<GamificationPage />} />
+          <Route path={ROUTES.REPORTS} element={<ReportsPage />} />
           <Route path={ROUTES.FRIENDS} element={<FriendsPage />} />
           <Route
             path={ROUTES.PROFILE}

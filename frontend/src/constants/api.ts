@@ -98,3 +98,10 @@ export const FRIEND_ENDPOINTS = {
 export const LEADERBOARD_ENDPOINTS = {
   WEEKLY: "/leaderboard/weekly",
 } as const;
+
+export const REPORT_ENDPOINTS = {
+  HISTORY: "/reports/history",
+  LATEST: "/reports/latest",
+  GENERATE: "/reports/generate",
+  byId: (id: string) => `/reports/${encodeURIComponent(id)}`,
+} as const;
