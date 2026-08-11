@@ -2,6 +2,7 @@ import logging
 from typing import Any, Dict, List, Optional
 
 from app.models.notification import Notification
+from app.models.user import DEFAULT_NOTIFICATION_PREFERENCES, User
 from app.websockets.manager import manager
 
 logger = logging.getLogger(__name__)
@@ -39,13 +40,21 @@ async def create_notification(
     type: str,
     message: str,
     meta: Optional[Dict[str, Any]] = None,
-) -> Notification:
+) -> Optional[Notification]:
     """Create a notification: push live over WebSocket if the user is online,
     otherwise store it for delivery on their next connection.
 
     The notification is always persisted (for history and offline delivery);
-    ``delivered`` is set to True only when it was pushed live.
+    ``delivered`` is set to True only when it was pushed live. Returns ``None``
+    when the user has opted out of this notification type.
     """
+    # Respect the user's per-type opt-outs (only the toggleable types).
+    if type in DEFAULT_NOTIFICATION_PREFERENCES:
+        user = await User.get_by_id(user_id)
+        if user is not None and not user.notification_preferences.get(type, True):
+            logger.info("Notification '%s' suppressed by user %s preference", type, user_id)
+            return None
+
     online = manager.is_connected(user_id)
     notification = Notification(
         user_id=user_id, type=type, message=message, meta=meta, delivered=online
