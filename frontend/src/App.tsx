@@ -1,17 +1,14 @@
 import { CssBaseline, ThemeProvider } from '@mui/material';
-import { PersonRounded, SettingsRounded } from '@mui/icons-material';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { theme } from './theme';
 import { useAuthBootstrap } from './hooks/useAuth';
 import { ROUTES } from './constants/routes';
-import { STRINGS } from './constants/strings';
 import { LoginPage } from './components/auth/LoginPage';
 import { SignupPage } from './components/auth/SignupPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
 import { AppLayout } from './components/shared/AppLayout';
-import { ComingSoonPage } from './components/shared/ComingSoonPage';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { RecoveryPage } from './components/recovery/RecoveryPage';
 import { VoiceCheckinPage } from './components/voicecheckin/VoiceCheckinPage';
@@ -21,6 +18,8 @@ import { GamificationPage } from './components/gamification/GamificationPage';
 import { CoachPage } from './components/coach/CoachPage';
 import { FriendsPage } from './components/friends/FriendsPage';
 import { ReportsPage } from './components/reports/ReportsPage';
+import { ProfilePage } from './components/profile/ProfilePage';
+import { SettingsPage } from './components/profile/SettingsPage';
 
 /** Declares the route tree. Runs the auth bootstrap once on mount. */
 function AppRoutes() {
@@ -48,14 +47,8 @@ function AppRoutes() {
           <Route path={ROUTES.GAMIFICATION} element={<GamificationPage />} />
           <Route path={ROUTES.REPORTS} element={<ReportsPage />} />
           <Route path={ROUTES.FRIENDS} element={<FriendsPage />} />
-          <Route
-            path={ROUTES.PROFILE}
-            element={<ComingSoonPage title={STRINGS.nav.profile} icon={PersonRounded} />}
-          />
-          <Route
-            path={ROUTES.SETTINGS}
-            element={<ComingSoonPage title={STRINGS.nav.settings} icon={SettingsRounded} />}
-          />
+          <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
+          <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
         </Route>
       </Route>
 

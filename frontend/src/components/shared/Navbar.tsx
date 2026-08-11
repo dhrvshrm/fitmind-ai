@@ -18,6 +18,8 @@ import {
   LogoutRounded,
   MenuRounded,
   NotificationsRounded,
+  PersonRounded,
+  SettingsRounded,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
@@ -57,6 +59,11 @@ export function Navbar({ onMenuClick }: NavbarProps) {
     setMenuAnchor(null);
     logout();
     navigate(ROUTES.LOGIN, { replace: true });
+  }
+
+  function handleNavigate(path: string) {
+    setMenuAnchor(null);
+    navigate(path);
   }
 
   /** Clicking a notification marks it read, closes the drawer, and takes the user to it. */
@@ -113,6 +120,19 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             </Typography>
             <Typography variant="body2">{user?.email}</Typography>
           </Box>
+          <Divider />
+          <MenuItem onClick={() => handleNavigate(ROUTES.PROFILE)}>
+            <ListItemIcon>
+              <PersonRounded fontSize="small" />
+            </ListItemIcon>
+            {STRINGS.nav.profile}
+          </MenuItem>
+          <MenuItem onClick={() => handleNavigate(ROUTES.SETTINGS)}>
+            <ListItemIcon>
+              <SettingsRounded fontSize="small" />
+            </ListItemIcon>
+            {STRINGS.nav.settings}
+          </MenuItem>
           <Divider />
           <MenuItem onClick={handleLogout}>
             <ListItemIcon>

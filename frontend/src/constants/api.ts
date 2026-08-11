@@ -105,3 +105,10 @@ export const REPORT_ENDPOINTS = {
   GENERATE: "/reports/generate",
   byId: (id: string) => `/reports/${encodeURIComponent(id)}`,
 } as const;
+
+export const SETTINGS_ENDPOINTS = {
+  PROFILE: "/settings/profile",
+  NOTIFICATIONS: "/settings/notifications",
+  CHANGE_PASSWORD: "/settings/change-password",
+  ACCOUNT: "/settings/account",
+} as const;
