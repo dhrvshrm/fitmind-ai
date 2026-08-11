@@ -10,6 +10,17 @@ logger = logging.getLogger(__name__)
 # Name of the MongoDB collection backing users.
 COLLECTION_NAME = "users"
 
+# Default per-type notification opt-ins (all on). Keys match the toggleable
+# notification types surfaced in the settings UI.
+DEFAULT_NOTIFICATION_PREFERENCES = {
+    "follow": True,
+    "friend_request": True,
+    "nudge": True,
+    "weekly_report": True,
+    "badge_earned": True,
+    "streak_warning": True,
+}
+
 # Profile fields set during onboarding / profile updates. Kept in one place so
 # storage, updates, and public serialisation stay in sync.
 PROFILE_FIELDS = (
@@ -60,6 +71,7 @@ class User:
         badges: Optional[List[str]] = None,
         current_streak: int = 0,
         longest_streak: int = 0,
+        notification_preferences: Optional[Dict[str, bool]] = None,
     ) -> None:
         """Initialise a user, generating an id and username when omitted."""
         self.id: str = id or str(uuid4())
@@ -85,6 +97,10 @@ class User:
         self.badges: List[str] = badges or []
         self.current_streak: int = current_streak
         self.longest_streak: int = longest_streak
+        self.notification_preferences: Dict[str, bool] = {
+            **DEFAULT_NOTIFICATION_PREFERENCES,
+            **(notification_preferences or {}),
+        }
 
     def to_dict(self) -> dict:
         """Serialise the full user (including profile) for storage."""
@@ -110,6 +126,7 @@ class User:
             "badges": self.badges,
             "current_streak": self.current_streak,
             "longest_streak": self.longest_streak,
+            "notification_preferences": self.notification_preferences,
         }
 
     def public_dict(self) -> dict:
@@ -143,6 +160,7 @@ class User:
             badges=data.get("badges"),
             current_streak=data.get("current_streak", 0),
             longest_streak=data.get("longest_streak", 0),
+            notification_preferences=data.get("notification_preferences"),
         )
 
     async def save(self) -> "User":
@@ -217,3 +235,12 @@ class User:
             if data.get("username") == username:
                 return cls._from_dict(data)
         return None
+
+    @classmethod
+    async def delete(cls, user_id: str) -> None:
+        """Permanently remove a user by id."""
+        db = get_database()
+        if db is not None:
+            await db[COLLECTION_NAME].delete_one({"id": user_id})
+        else:
+            _MEMORY_STORE.pop(user_id, None)

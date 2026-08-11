@@ -132,3 +132,31 @@ async def get_user_from_token(token: str) -> User:
     if user is None:
         raise AuthError("User not found")
     return user
+
+
+async def change_password(user_id: str, current_password: str, new_password: str) -> None:
+    """Change a user's password after verifying their current one.
+
+    Raises:
+        AuthError: if the user is missing or the current password is wrong.
+    """
+    user = await User.get_by_id(user_id)
+    if user is None:
+        raise AuthError("User not found")
+    if not verify_password(current_password, user.password_hash):
+        raise AuthError("Current password is incorrect")
+    await user.update({"password_hash": hash_password(new_password)})
+    logger.info("Password changed for user %s", user_id)
+
+
+async def delete_account(user_id: str) -> None:
+    """Permanently delete a user's account.
+
+    Raises:
+        AuthError: if no user exists with ``user_id``.
+    """
+    user = await User.get_by_id(user_id)
+    if user is None:
+        raise AuthError("User not found")
+    await User.delete(user_id)
+    logger.info("Deleted account for user %s", user_id)
