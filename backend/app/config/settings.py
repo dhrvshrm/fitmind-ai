@@ -32,6 +32,11 @@ class Settings(BaseSettings):
     # Regex allowing any localhost/127.0.0.1 port in development so Vite's
     # auto-incremented dev ports (5173/5174/5175/...) all work without edits.
     ALLOWED_ORIGIN_REGEX: str = r"https?://(localhost|127\.0\.0\.1)(:\d+)?"
+    # Comma-separated production origins (e.g. "https://app.fitmind.ai").
+    CORS_EXTRA_ORIGINS: str = os.getenv("CORS_EXTRA_ORIGINS", "")
+    # Per-IP request budget for the rate limiter.
+    RATE_LIMIT_MAX_REQUESTS: int = int(os.getenv("RATE_LIMIT_MAX_REQUESTS", "100"))
+    RATE_LIMIT_WINDOW_SECONDS: int = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60"))
 
     class Config:
         env_file = ".env.local"
