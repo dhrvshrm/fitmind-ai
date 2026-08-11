@@ -2,7 +2,7 @@ import logging
 from typing import Any, Dict, List, Optional
 
 from app.models.notification import Notification
-from app.models.user import DEFAULT_NOTIFICATION_PREFERENCES, User
+from app.services import settings_service
 from app.websockets.manager import manager
 
 logger = logging.getLogger(__name__)
@@ -48,12 +48,10 @@ async def create_notification(
     ``delivered`` is set to True only when it was pushed live. Returns ``None``
     when the user has opted out of this notification type.
     """
-    # Respect the user's per-type opt-outs (only the toggleable types).
-    if type in DEFAULT_NOTIFICATION_PREFERENCES:
-        user = await User.get_by_id(user_id)
-        if user is not None and not user.notification_preferences.get(type, True):
-            logger.info("Notification '%s' suppressed by user %s preference", type, user_id)
-            return None
+    # Respect the user's per-type opt-outs before creating anything.
+    if not await settings_service.should_send_notification(user_id, type):
+        logger.info("Notification '%s' suppressed by user %s preference", type, user_id)
+        return None
 
     online = manager.is_connected(user_id)
     notification = Notification(

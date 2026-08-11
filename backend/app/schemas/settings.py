@@ -13,6 +13,14 @@ class ProfileUpdateRequest(BaseModel):
     fitness_goal: Optional[str] = None
 
 
+class GoalsUpdateRequest(BaseModel):
+    """Fitness-goal fields — all optional (partial update)."""
+
+    fitness_goal: Optional[str] = None
+    experience_level: Optional[str] = None
+    available_equipment: Optional[list] = None
+
+
 class NotificationPreferencesUpdate(BaseModel):
     """Per-type notification opt-ins — all optional (only provided keys change)."""
 
