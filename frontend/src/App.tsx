@@ -9,6 +9,7 @@ import { SignupPage } from './components/auth/SignupPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
 import { AppLayout } from './components/shared/AppLayout';
+import { ErrorBoundary } from './components/shared/ErrorBoundary';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { RecoveryPage } from './components/recovery/RecoveryPage';
 import { VoiceCheckinPage } from './components/voicecheckin/VoiceCheckinPage';
@@ -63,9 +64,11 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Toaster position="top-center" />
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <ErrorBoundary>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </ErrorBoundary>
     </ThemeProvider>
   );
 }

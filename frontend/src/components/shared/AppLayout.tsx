@@ -3,6 +3,7 @@ import { Box, Toolbar } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
+import { PageTransition } from './PageTransition';
 import { appLayoutStyles as styles } from './AppLayout.styles';
 
 /**
@@ -19,7 +20,9 @@ export function AppLayout() {
       <Box component="main" sx={styles.main}>
         {/* Spacer pushes content below the fixed navbar. */}
         <Toolbar />
-        <Outlet />
+        <PageTransition>
+          <Outlet />
+        </PageTransition>
       </Box>
     </Box>
   );

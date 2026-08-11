@@ -50,6 +50,11 @@ export const STRINGS = {
     network: "Cannot reach the server. Is the backend running?",
     generic: "Something went wrong. Please try again.",
   },
+  errorBoundary: {
+    title: "Something went wrong",
+    body: "An unexpected error occurred. You can try reloading the page.",
+    reload: "Reload page",
+  },
   toast: {
     loggedIn: "Welcome back!",
     signedUp: "Account created!",
@@ -522,7 +527,8 @@ export const STRINGS = {
       "Reports are generated automatically every Sunday, or you can create one now from this week's activity.",
     card: {
       created: (date: string) => `Generated ${date}`,
-      workouts: (done: number, planned: number) => `${done}/${planned} workouts`,
+      workouts: (done: number, planned: number) =>
+        `${done}/${planned} workouts`,
       xp: (xp: number) => `+${xp} XP`,
       expandAria: "Expand report",
       collapseAria: "Collapse report",
