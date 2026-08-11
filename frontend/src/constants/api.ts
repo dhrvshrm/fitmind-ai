@@ -108,7 +108,8 @@ export const REPORT_ENDPOINTS = {
 
 export const SETTINGS_ENDPOINTS = {
   PROFILE: "/settings/profile",
-  NOTIFICATIONS: "/settings/notifications",
-  CHANGE_PASSWORD: "/settings/change-password",
+  GOALS: "/settings/goals",
+  PREFERENCES: "/settings/preferences",
+  PASSWORD: "/settings/password",
   ACCOUNT: "/settings/account",
 } as const;

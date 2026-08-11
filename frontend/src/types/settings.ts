@@ -20,6 +20,7 @@ export type FullUserProfile = {
   current_streak: number;
   longest_streak: number;
   badges: string[];
+  notification_preferences: NotificationPreferences;
 };
 
 /** Body for `PUT /settings/profile` — every field optional. */

@@ -1,5 +1,5 @@
 import { apiClient } from "../lib/apiClient";
-import { SETTINGS_ENDPOINTS, USER_ENDPOINTS } from "../constants/api";
+import { SETTINGS_ENDPOINTS } from "../constants/api";
 import type { ApiEnvelope } from "../types/auth";
 import type {
   ChangePasswordPayload,
@@ -13,10 +13,10 @@ import type {
  * `{ success, message, data }` envelope and returns just `data`.
  */
 export const settingsService = {
-  /** Full current profile (reads the shared `/users/profile` endpoint). */
+  /** Full current profile, including notification preferences. */
   async getProfile(): Promise<FullUserProfile> {
     const { data } = await apiClient.get<ApiEnvelope<FullUserProfile>>(
-      USER_ENDPOINTS.PROFILE,
+      SETTINGS_ENDPOINTS.PROFILE,
     );
     return data.data;
   },
@@ -29,11 +29,10 @@ export const settingsService = {
     return data.data;
   },
 
+  /** Preferences live on the profile; read them from there. */
   async getNotificationPreferences(): Promise<NotificationPreferences> {
-    const { data } = await apiClient.get<
-      ApiEnvelope<{ preferences: NotificationPreferences }>
-    >(SETTINGS_ENDPOINTS.NOTIFICATIONS);
-    return data.data.preferences;
+    const profile = await this.getProfile();
+    return profile.notification_preferences;
   },
 
   async updateNotificationPreferences(
@@ -41,13 +40,13 @@ export const settingsService = {
   ): Promise<NotificationPreferences> {
     const { data } = await apiClient.put<
       ApiEnvelope<{ preferences: NotificationPreferences }>
-    >(SETTINGS_ENDPOINTS.NOTIFICATIONS, changes);
+    >(SETTINGS_ENDPOINTS.PREFERENCES, changes);
     return data.data.preferences;
   },
 
   async changePassword(payload: ChangePasswordPayload): Promise<void> {
-    await apiClient.post<ApiEnvelope<null>>(
-      SETTINGS_ENDPOINTS.CHANGE_PASSWORD,
+    await apiClient.put<ApiEnvelope<null>>(
+      SETTINGS_ENDPOINTS.PASSWORD,
       payload,
     );
   },
