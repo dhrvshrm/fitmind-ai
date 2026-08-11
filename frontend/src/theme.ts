@@ -152,10 +152,12 @@ export const theme = createTheme({
           borderRadius: 10,
           paddingInline: 18,
           "&.MuiButton-containedPrimary": {
-            boxShadow: "0px 6px 16px rgba(170, 59, 255, 0.28)",
+            background: "linear-gradient(135deg, #b455ff 0%, #8a2be2 100%)",
+            boxShadow: "0px 6px 16px rgba(170, 59, 255, 0.30)",
           },
           "&.MuiButton-containedPrimary:hover": {
-            boxShadow: "0px 8px 22px rgba(170, 59, 255, 0.36)",
+            background: "linear-gradient(135deg, #a63dff 0%, #7a1fd0 100%)",
+            boxShadow: "0px 10px 24px rgba(170, 59, 255, 0.42)",
           },
         },
         sizeLarge: {
