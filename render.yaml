@@ -1,0 +1,33 @@
+# Render Blueprint for the FitMind AI backend.
+# In Render: New + -> Blueprint -> connect this repo. Render reads this file,
+# creates the service, and prompts for the secret env vars (sync: false).
+services:
+  - type: web
+    name: fitmind-backend
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_ENV
+        value: production
+      # Secrets — set these in the Render dashboard (never committed).
+      - key: MONGODB_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      # Comma-separated production frontend origin(s) for CORS, e.g.
+      # https://fitmind.vercel.app
+      - key: CORS_EXTRA_ORIGINS
+        sync: false
