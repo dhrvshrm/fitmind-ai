@@ -1,0 +1,22 @@
+# Local-only files that must never enter the image.
+venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets — configured as environment variables on the host instead.
+.env.local
+.env.production
+.env
+
+# Local artifacts / editor cruft
+logs/
+*.log
+.DS_Store
+.idea/
+.vscode/
+tests/
