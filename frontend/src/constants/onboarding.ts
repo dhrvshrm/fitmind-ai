@@ -1,3 +1,25 @@
+import {
+  AccessibilityNewRounded,
+  BoltRounded,
+  ChairRounded,
+  DirectionsBikeRounded,
+  DirectionsRunRounded,
+  FavoriteRounded,
+  FemaleRounded,
+  FitnessCenterRounded,
+  LocalFireDepartmentRounded,
+  MaleRounded,
+  MilitaryTechRounded,
+  SelfImprovementRounded,
+  SportsGymnasticsRounded,
+  SportsMartialArtsRounded,
+  StadiumRounded,
+  TransgenderRounded,
+  WavesRounded,
+  WorkspacePremiumRounded,
+} from "@mui/icons-material";
+import type { SvgIconProps } from "@mui/material";
+import type { ComponentType } from "react";
 import type {
   ExperienceLevel,
   FitnessGoal,
@@ -5,18 +27,18 @@ import type {
   OnboardingData,
 } from "../types/onboarding";
 
-/** A selectable option rendered as a card (emoji icon keeps us dependency-free). */
+/** A selectable option rendered as a card, with a Material icon. */
 export type Option<T extends string = string> = {
   value: T;
   label: string;
   description?: string;
-  icon: string;
+  icon: ComponentType<SvgIconProps>;
 };
 
 export const GENDER_OPTIONS: Option<Gender>[] = [
-  { value: "male", label: "Male", icon: "♂️" },
-  { value: "female", label: "Female", icon: "♀️" },
-  { value: "other", label: "Other", icon: "⚧️" },
+  { value: "male", label: "Male", icon: MaleRounded },
+  { value: "female", label: "Female", icon: FemaleRounded },
+  { value: "other", label: "Other", icon: TransgenderRounded },
 ];
 
 export const GOAL_OPTIONS: Option<FitnessGoal>[] = [
@@ -24,25 +46,25 @@ export const GOAL_OPTIONS: Option<FitnessGoal>[] = [
     value: "lose_weight",
     label: "Lose weight",
     description: "Burn fat and get leaner with a calorie-smart plan.",
-    icon: "🔥",
+    icon: LocalFireDepartmentRounded,
   },
   {
     value: "build_muscle",
     label: "Build muscle",
     description: "Gain strength and size with progressive overload.",
-    icon: "💪",
+    icon: FitnessCenterRounded,
   },
   {
     value: "improve_endurance",
     label: "Improve endurance",
     description: "Boost stamina and cardiovascular fitness.",
-    icon: "🏃",
+    icon: DirectionsRunRounded,
   },
   {
     value: "general_fitness",
     label: "General fitness",
     description: "Stay healthy, mobile, and feel your best.",
-    icon: "✨",
+    icon: FavoriteRounded,
   },
 ];
 
@@ -52,42 +74,50 @@ export const EXPERIENCE_OPTIONS: Option<ExperienceLevel>[] = [
     label: "Beginner",
     description:
       "New to training or returning after a long break. e.g. never lifted weights.",
-    icon: "🌱",
+    icon: SelfImprovementRounded,
   },
   {
     value: "intermediate",
     label: "Intermediate",
     description:
       "Consistent for 6+ months and comfortable with the basics. e.g. train 3x/week.",
-    icon: "⚡",
+    icon: BoltRounded,
   },
   {
     value: "advanced",
     label: "Advanced",
     description:
       "Years of structured training and strong technique. e.g. tracked programming.",
-    icon: "🏆",
+    icon: WorkspacePremiumRounded,
   },
   {
     value: "Ultra-advanced",
     label: "Ultra-advanced",
     description:
       "Elite-level athlete with extensive experience. e.g. competitive powerlifter.",
-    icon: "🥇",
+    icon: MilitaryTechRounded,
   },
 ];
 
 /** Multi-select equipment. Values are sent as-is in `available_equipment`. */
 export const EQUIPMENT_OPTIONS: Option[] = [
-  { value: "bodyweight", label: "Bodyweight only", icon: "🤸" },
-  { value: "dumbbells", label: "Dumbbells", icon: "🏋️" },
-  { value: "barbell", label: "Barbell", icon: "🏋️‍♂️" },
-  { value: "kettlebell", label: "Kettlebell", icon: "🔔" },
-  { value: "resistance_bands", label: "Resistance bands", icon: "➰" },
-  { value: "pull_up_bar", label: "Pull-up bar", icon: "🚪" },
-  { value: "bench", label: "Bench", icon: "🪑" },
-  { value: "cardio_machine", label: "Cardio machine", icon: "🚴" },
-  { value: "full_gym", label: "Full gym", icon: "🏟️" },
+  {
+    value: "bodyweight",
+    label: "Bodyweight only",
+    icon: AccessibilityNewRounded,
+  },
+  { value: "dumbbells", label: "Dumbbells", icon: FitnessCenterRounded },
+  { value: "barbell", label: "Barbell", icon: SportsGymnasticsRounded },
+  { value: "kettlebell", label: "Kettlebell", icon: SportsMartialArtsRounded },
+  { value: "resistance_bands", label: "Resistance bands", icon: WavesRounded },
+  { value: "pull_up_bar", label: "Pull-up bar", icon: FitnessCenterRounded },
+  { value: "bench", label: "Bench", icon: ChairRounded },
+  {
+    value: "cardio_machine",
+    label: "Cardio machine",
+    icon: DirectionsBikeRounded,
+  },
+  { value: "full_gym", label: "Full gym", icon: StadiumRounded },
 ];
 
 /** Free-text friendly suggestions for the injuries autocomplete. */

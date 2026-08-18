@@ -14,7 +14,7 @@ type UseWebSocketOptions<TIncoming> = {
  * live connection status, and reconnects automatically (with backoff) if the
  * socket drops for any reason other than the component unmounting.
  *
- * Guards against React StrictMode's dev-mode double-invoke (mount → cleanup →
+ * Guards against React StrictMode's dev-mode double-invoke (mount -> cleanup ->
  * mount): `cancelled` is a plain closure variable scoped to one effect
  * execution (never a ref), so an earlier instance's cleanup can't be
  * "un-cancelled" by a later instance, and every socket handler double-checks

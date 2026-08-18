@@ -29,7 +29,7 @@ import { workoutCompletionStyles as styles } from './WorkoutCompletion.styles';
 const S = STRINGS.workout.completion;
 const INTENSITIES: Intensity[] = ['low', 'medium', 'high'];
 
-/** Animated 0 → xp counter shown after a successful save. */
+/** Animated 0 -> xp counter shown after a successful save. */
 function XpCounter({ xp }: { xp: number }) {
   const [display, setDisplay] = useState(0);
 

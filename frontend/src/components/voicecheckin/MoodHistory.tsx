@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { createElement, useMemo } from 'react';
 import {
   Alert,
   Box,
@@ -26,7 +26,7 @@ import { formatDateLabel } from '../../utils/date';
 import {
   getMoodSentiment,
   MOOD_CHART_COLOR,
-  MOOD_EMOJI,
+  MOOD_ICON,
   MOOD_LABEL,
   type MoodSentiment,
 } from '../../utils/voiceCheckin';
@@ -72,7 +72,7 @@ type MoodHistoryProps = {
 
 /** Energy-over-time chart with mood-colored points, plus a recent check-in list. */
 export function MoodHistory({ items, loading, error }: MoodHistoryProps) {
-  // Chart reads left→right, so flip the newest-first API order.
+  // Chart reads left->right, so flip the newest-first API order.
   const data = useMemo<ChartPoint[]>(
     () =>
       [...items].reverse().map((item) => ({
@@ -174,9 +174,10 @@ export function MoodHistory({ items, loading, error }: MoodHistoryProps) {
               return (
                 <ListItem key={`${item.date}-${index}`} divider={index < recent.length - 1}>
                   <ListItemIcon>
-                    <Typography component="span" sx={styles.listEmoji} aria-hidden>
-                      {MOOD_EMOJI[sentiment]}
-                    </Typography>
+                    {createElement(MOOD_ICON[sentiment], {
+                      sx: styles.listEmoji,
+                      "aria-hidden": true,
+                    })}
                   </ListItemIcon>
                   <ListItemText
                     primary={

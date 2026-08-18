@@ -31,6 +31,7 @@ export function OptionSelector<T extends string>({
     <Box sx={styles.grid(columns)}>
       {options.map((option) => {
         const selected = isSelected(option.value);
+        const Icon = option.icon;
         return (
           <Paper
             key={option.value}
@@ -47,9 +48,7 @@ export function OptionSelector<T extends string>({
             elevation={0}
             sx={styles.card(selected)}
           >
-            <Typography component="span" sx={styles.icon}>
-              {option.icon}
-            </Typography>
+            <Icon color={selected ? 'primary' : 'inherit'} sx={styles.icon} />
             <Stack spacing={0.25}>
               <Typography sx={styles.label}>{option.label}</Typography>
               {option.description && (

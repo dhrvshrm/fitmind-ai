@@ -9,13 +9,9 @@ import { TOAST_NOTIFICATION_TYPES } from "../constants/notification";
 import type { ClientFrame, ServerFrame } from "../types/chat";
 import type { AppNotification } from "../types/notification";
 
-/** Shows a toast for a live-pushed notification, styled by its type. */
+/** Shows a toast for a live-pushed notification. */
 function showNotificationToast(notification: AppNotification) {
-  if (notification.type === "streak_warning") {
-    toast(notification.message, { icon: "🔥" });
-  } else {
-    toast.success(notification.message);
-  }
+  toast.success(notification.message);
 }
 
 /**

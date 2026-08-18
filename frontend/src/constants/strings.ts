@@ -5,9 +5,9 @@ export const STRINGS = {
     tagline: "Your AI-powered fitness coach",
     heroTitle: "Train smarter, not just harder",
     features: [
-      "AI workout plans built around you",
-      "Recovery-aware coaching that adapts",
-      "Earn XP and level up as you train",
+"AI workout plans built around you",
+"Recovery-aware coaching that adapts",
+"Earn XP and level up as you train",
     ],
   },
   aria: {
@@ -19,7 +19,7 @@ export const STRINGS = {
     subtitle: "Log in to continue your journey",
     submit: "Log in",
     submitting: "Logging in…",
-    switchPrompt: "Don't have an account?",
+    switchPrompt: "Don't have an account? ",
     switchAction: "Sign up",
   },
   signup: {
@@ -27,7 +27,7 @@ export const STRINGS = {
     subtitle: "Start training smarter today",
     submit: "Sign up",
     submitting: "Creating account…",
-    switchPrompt: "Already have an account?",
+    switchPrompt: "Already have an account? ",
     switchAction: "Log in",
   },
   fields: {
@@ -47,7 +47,7 @@ export const STRINGS = {
   errors: {
     loginFailed: "Could not log in. Check your credentials and try again.",
     signupFailed: "Could not create your account. Please try again.",
-    network: "Cannot reach the server. Is the backend running?",
+    network: "Cannot reach the server. Is the backend running? ",
     generic: "Something went wrong. Please try again.",
   },
   errorBoundary: {
@@ -62,7 +62,7 @@ export const STRINGS = {
   },
   passwordStrength: {
     label: "Password strength",
-    levels: ["Too weak", "Weak", "Fair", "Good", "Strong"],
+    levels: ["Too weak","Weak","Fair","Good","Strong"],
   },
   nav: {
     dashboard: "Dashboard",
@@ -105,7 +105,7 @@ export const STRINGS = {
       sectionTitle: "Your trends",
       moodPerformance: {
         title: "Mood vs. workouts",
-        subtitle: "Do higher-energy days line up with more training?",
+        subtitle: "Do higher-energy days line up with more training? ",
         xLabel: "Energy",
         yLabel: "Workouts",
         tooltipDate: "Date",
@@ -160,7 +160,7 @@ export const STRINGS = {
   comingSoon: {
     badge: "Coming soon",
     description: (feature: string) =>
-      `${feature} is under construction - it will arrive in a future update.`,
+`${feature} is under construction - it will arrive in a future update.`,
   },
   recovery: {
     title: "Recovery",
@@ -178,9 +178,9 @@ export const STRINGS = {
       submitting: "Scoring…",
       success: "Recovery logged!",
       error: "Could not log your recovery. Please try again.",
-      alreadyDoneTitle: "Today's check-in is done ✅",
+      alreadyDoneTitle: "Today's check-in is done",
       alreadyDoneBody:
-        "Your recovery score is in - come back tomorrow morning.",
+"Your recovery score is in - come back tomorrow morning.",
     },
     score: {
       title: "Today's recovery",
@@ -197,25 +197,25 @@ export const STRINGS = {
   voiceCheckin: {
     title: "Voice Check-in",
     subtitle:
-      "Tell us how you're feeling - we'll analyse your mood and energy.",
+"Tell us how you're feeling - we'll analyse your mood and energy.",
     recorder: {
-      title: "How are you feeling today?",
+      title: "How are you feeling today? ",
       hint: "Tap the mic and speak for a few seconds.",
-      promptLabel: "Say something like:",
+      promptLabel: "Say something like: ",
       promptTexts: [
-        "“Today I'm feeling ____, my energy is ____ out of ten, I slept ____ hours, and my body feels ____.”",
-        "“I woke up feeling ____ this morning. My energy level is about ____ out of ten, and my muscles feel ____.”",
-        "“Right now my mood is ____. I slept ____ hours last night, my stress is ____, and I'm feeling ____ about training today.”",
-        "“Honestly, today I feel ____. Energy-wise I'd say ____ out of ten. Yesterday's workout left me feeling ____.”",
-        "“My day has been ____ so far. I'm feeling ____ mentally, my body feels ____, and my motivation to train is ____.”",
-        "“This week has felt ____. Today specifically I'm ____, my sleep was ____, and my energy sits around ____ out of ten.”",
+"“Today I'm feeling ____, my energy is ____ out of ten, I slept ____ hours, and my body feels ____.”",
+"“I woke up feeling ____ this morning. My energy level is about ____ out of ten, and my muscles feel ____.”",
+"“Right now my mood is ____. I slept ____ hours last night, my stress is ____, and I'm feeling ____ about training today.”",
+"“Honestly, today I feel ____. Energy-wise I'd say ____ out of ten. Yesterday's workout left me feeling ____.”",
+"“My day has been ____ so far. I'm feeling ____ mentally, my body feels ____, and my motivation to train is ____.”",
+"“This week has felt ____. Today specifically I'm ____, my sleep was ____, and my energy sits around ____ out of ten.”",
       ],
       startAria: "Start recording",
       stopAria: "Stop recording and analyse",
       recording: "Recording…",
       uploading: "Analysing your check-in…",
       permissionDenied:
-        "Microphone access was denied. Allow it in your browser settings and try again.",
+"Microphone access was denied. Allow it in your browser settings and try again.",
       noMicrophone: "No microphone found. Connect one and try again.",
       notSupported: "Audio recording isn't supported in this browser.",
       error: "Could not process your check-in. Please try again.",
@@ -257,9 +257,9 @@ export const STRINGS = {
       restDay: "Rest day - no exercises today. Recover well!",
       error: "Could not load today's workout.",
       progress: (done: number, total: number) => `${done}/${total} sets`,
-      celebration: "Workout complete! 🎉",
+      celebration: "Workout complete!",
       finish: "Finish workout",
-      alreadyDoneTitle: "Today's workout is logged 💪",
+      alreadyDoneTitle: "Today's workout is logged",
       alreadyDoneBody: "Great work! Come back tomorrow for your next session.",
     },
     timer: {
@@ -270,14 +270,14 @@ export const STRINGS = {
     logger: {
       setLabel: (n: number) => `Set ${n}`,
       setAria: (exercise: string, set: number) =>
-        `Mark ${exercise} set ${set} done`,
-      exerciseDone: "Done 💪",
+`Mark ${exercise} set ${set} done`,
+      exerciseDone: "Done",
     },
     completion: {
       title: "Workout complete",
       summaryTitle: "Summary",
       durationLabel: "Duration",
-      intensityLabel: "How intense was it?",
+      intensityLabel: "How intense was it? ",
       intensities: {
         low: "Low",
         medium: "Medium",
@@ -290,7 +290,7 @@ export const STRINGS = {
       saveError: "Could not save your workout. Please try again.",
       xpEarned: (xp: number) => `+${xp} XP`,
       totalXp: (xp: number) => `Total: ${xp} XP`,
-      levelUp: (level: number) => `Level up! You're now level ${level} 🎉`,
+      levelUp: (level: number) => `Level up! You're now level ${level}`,
       newBadge: (badge: string) => `New badge: ${badge}`,
       done: "Done",
     },
@@ -309,10 +309,10 @@ export const STRINGS = {
       title: "History",
       streak: (days: number) =>
         days === 1 ? "1-day streak" : `${days}-day streak`,
-      completedOn: "Workout completed 💪",
+      completedOn: "Workout completed",
       nothingOn: "Nothing logged on this day.",
       hint: "Completed workouts light up here once you start logging (Day 8).",
-      weekdays: ["M", "T", "W", "T", "F", "S", "S"],
+      weekdays: ["M","T","W","T","F","S","S"],
     },
     types: {
       strength: "Strength",
@@ -340,7 +340,7 @@ export const STRINGS = {
       submitting: "Logging…",
       success: "Meal logged!",
       xpToast: (xp: number) => `+${xp} XP`,
-      levelUpToast: (level: number) => `Level up! You're now level ${level} 🎉`,
+      levelUpToast: (level: number) => `Level up! You're now level ${level}`,
       error: "Could not log your meal. Please try again.",
       validation: {
         nameRequired: "Enter a meal name",
@@ -369,22 +369,22 @@ export const STRINGS = {
         fats: "Fats",
       },
       legendItem: (label: string, percent: number, grams: number) =>
-        `${label} ${percent}% · ${grams}g`,
+`${label} ${percent}% · ${grams}g`,
     },
     water: {
       title: "Water intake",
       goal: (glasses: number, goalGlasses: number, ml: number) =>
-        `${glasses}/${goalGlasses} glasses · ${ml} ml`,
+`${glasses}/${goalGlasses} glasses · ${ml} ml`,
       addAria: "Add a glass of water",
       removeAria: "Remove a glass of water",
-      goalReached: "Hydration goal reached! 💧",
+      goalReached: "Hydration goal reached!",
       error: "Could not update water intake.",
     },
     history: {
       title: "Today's meals",
       empty: "No meals logged yet today.",
       macros: (protein: number, carbs: number, fats: number) =>
-        `P ${protein}g · C ${carbs}g · F ${fats}g`,
+`P ${protein}g · C ${carbs}g · F ${fats}g`,
       kcal: (kcal: number) => `${kcal} kcal`,
     },
   },
@@ -410,10 +410,10 @@ export const STRINGS = {
     badges: {
       title: "Badges",
       earnedCount: (earned: number, total: number) =>
-        `${earned}/${total} earned`,
+`${earned}/${total} earned`,
       locked: "Locked",
       earnedOn: (date: string) => `Earned ${date}`,
-      newBadgeToast: (name: string) => `New badge unlocked: ${name}! 🎉`,
+      newBadgeToast: (name: string) => `New badge unlocked: ${name}!`,
       newBadgeChip: "New!",
       howToUnlock: "How to unlock",
       close: "Close",
@@ -424,7 +424,7 @@ export const STRINGS = {
     subtitle: "Ask about your workouts, recovery, or nutrition.",
     emptyTitle: "Your coach is ready",
     emptyBody:
-      "Try one of the prompts below, or ask anything about your training.",
+"Try one of the prompts below, or ask anything about your training.",
     inputPlaceholder: "Message your coach…",
     sendAria: "Send message",
     you: "You",
@@ -442,9 +442,9 @@ export const STRINGS = {
     quickPrompts: {
       title: "Try asking",
       items: [
-        "Should I workout today?",
-        "What should I eat?",
-        "Modify my plan",
+"Should I workout today? ",
+"What should I eat? ",
+"Modify my plan",
       ],
     },
   },
@@ -510,7 +510,7 @@ export const STRINGS = {
       you: "You",
       xp: (xp: number) => `${xp} XP`,
       nudgeAria: (name: string) => `Nudge ${name}`,
-      nudgeSent: (name: string) => `Nudged ${name}! 💪`,
+      nudgeSent: (name: string) => `Nudged ${name}!`,
       nudgeError: "Could not send that nudge.",
     },
   },
@@ -524,11 +524,11 @@ export const STRINGS = {
     loadError: "Could not load your reports.",
     noReportsTitle: "No reports yet",
     noReportsBody:
-      "Reports are generated automatically every Sunday, or you can create one now from this week's activity.",
+"Reports are generated automatically every Sunday, or you can create one now from this week's activity.",
     card: {
       created: (date: string) => `Generated ${date}`,
       workouts: (done: number, planned: number) =>
-        `${done}/${planned} workouts`,
+`${done}/${planned} workouts`,
       xp: (xp: number) => `+${xp} XP`,
       expandAria: "Expand report",
       collapseAria: "Collapse report",
@@ -560,7 +560,7 @@ export const STRINGS = {
         good: "Good",
         moderate: "Moderate",
         low: "Low",
-        "no data": "No data",
+"no data": "No data",
       },
     },
     archive: {
@@ -592,7 +592,7 @@ export const STRINGS = {
       label: (level: number, title: string) => `Level ${level} · ${title}`,
       xpBarAria: "XP progress to next level",
       progress: (into: number, needed: number) =>
-        `${into} / ${into + needed} XP`,
+`${into} / ${into + needed} XP`,
       maxed: "Max level reached!",
       toNext: (xp: number, title: string) => `${xp} XP to ${title}`,
     },
@@ -664,11 +664,11 @@ export const STRINGS = {
     danger: {
       title: "Danger zone",
       description:
-        "Deleting your account is permanent and cannot be undone. All your data will be removed.",
+"Deleting your account is permanent and cannot be undone. All your data will be removed.",
       deleteButton: "Delete account",
-      confirmTitle: "Delete your account?",
+      confirmTitle: "Delete your account? ",
       confirmBody:
-        "This permanently deletes your account and all associated data. This action cannot be undone.",
+"This permanently deletes your account and all associated data. This action cannot be undone.",
       confirmLabel: "Type DELETE to confirm",
       confirmKeyword: "DELETE",
       confirmButton: "Delete forever",

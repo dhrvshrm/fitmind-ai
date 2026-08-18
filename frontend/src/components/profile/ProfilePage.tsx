@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import {
   Alert,
   Avatar,
@@ -9,7 +9,17 @@ import {
   Skeleton,
   Stack,
   Typography,
+  type SvgIconProps,
 } from "@mui/material";
+import {
+  BedtimeRounded,
+  LocalFireDepartmentRounded,
+  MicRounded,
+  MilitaryTechRounded,
+  RestaurantRounded,
+  WaterDropRounded,
+  WorkspacePremiumRounded,
+} from "@mui/icons-material";
 import { gamificationService } from "../../services/gamificationService";
 import { settingsService } from "../../services/settingsService";
 import { resolveApiError } from "../../lib/apiClient";
@@ -24,14 +34,14 @@ import { profilePageStyles as styles } from "./ProfilePage.styles";
 
 const S = STRINGS.profile;
 
-/** Emoji per badge id (falls back to a medal for unknown ids). */
-const BADGE_ICONS: Record<string, string> = {
-  seven_day_warrior: "🔥",
-  recovery_king: "👑",
-  clean_eater: "🥗",
-  voice_native: "🎙️",
-  century_club: "💯",
-  hydration_hero: "💧",
+/** Material icon per badge id (falls back to a premium medal for unknown ids). */
+const BADGE_ICONS: Record<string, ComponentType<SvgIconProps>> = {
+  seven_day_warrior: LocalFireDepartmentRounded,
+  recovery_king: BedtimeRounded,
+  clean_eater: RestaurantRounded,
+  voice_native: MicRounded,
+  century_club: MilitaryTechRounded,
+  hydration_hero: WaterDropRounded,
 };
 
 function xpBarValue(profile: GamificationProfile): number {
@@ -190,7 +200,10 @@ export function ProfilePage() {
                 variant="outlined"
                 sx={{ ...styles.badge, ...(earned ? {} : styles.badgeLocked) }}
               >
-                <Box sx={styles.badgeIcon}>{BADGE_ICONS[badge.id] ?? "🏅"}</Box>
+                {(() => {
+                  const BadgeIcon = BADGE_ICONS[badge.id] ?? WorkspacePremiumRounded;
+                  return <BadgeIcon sx={styles.badgeIcon} color="primary" />;
+                })()}
                 <Typography variant="body2" sx={styles.badgeName}>
                   {badge.name}
                 </Typography>

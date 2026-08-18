@@ -1,3 +1,10 @@
+import type { ComponentType } from 'react';
+import type { SvgIconProps } from '@mui/material';
+import {
+  SentimentDissatisfiedRounded,
+  SentimentNeutralRounded,
+  SentimentSatisfiedAltRounded,
+} from '@mui/icons-material';
 import { STRINGS } from '../constants/strings';
 
 /**
@@ -22,10 +29,10 @@ export function getMoodSentiment(mood: string): MoodSentiment {
   return 'neutral';
 }
 
-export const MOOD_EMOJI: Record<MoodSentiment, string> = {
-  positive: '😄',
-  neutral: '😐',
-  low: '😔',
+export const MOOD_ICON: Record<MoodSentiment, ComponentType<SvgIconProps>> = {
+  positive: SentimentSatisfiedAltRounded,
+  neutral: SentimentNeutralRounded,
+  low: SentimentDissatisfiedRounded,
 };
 
 export const MOOD_LABEL: Record<MoodSentiment, string> = {

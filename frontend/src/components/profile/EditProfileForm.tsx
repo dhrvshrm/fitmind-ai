@@ -148,11 +148,15 @@ export function EditProfileForm({ profile, onSaved }: EditProfileFormProps) {
           }
           fullWidth
         >
-          {GOAL_OPTIONS.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.icon} {option.label}
-            </MenuItem>
-          ))}
+          {GOAL_OPTIONS.map((option) => {
+            const Icon = option.icon;
+            return (
+              <MenuItem key={option.value} value={option.value}>
+                <Icon fontSize="small" sx={{ mr: 1, verticalAlign: "middle" }} />
+                {option.label}
+              </MenuItem>
+            );
+          })}
         </TextField>
       </Box>
 

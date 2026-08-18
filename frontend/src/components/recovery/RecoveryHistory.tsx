@@ -28,7 +28,7 @@ type RecoveryHistoryProps = {
 
 /** Line chart of recovery scores over the requested window (single series). */
 export function RecoveryHistory({ items, loading, error }: RecoveryHistoryProps) {
-  // Chart reads left→right, so flip the newest-first API order.
+  // Chart reads left->right, so flip the newest-first API order.
   const data = useMemo(
     () =>
       [...items]

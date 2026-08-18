@@ -184,16 +184,20 @@ export function MealForm({ onLogged }: MealFormProps) {
               {S.mealType}
             </Typography>
             <Stack sx={styles.typeRow}>
-              {MEAL_TYPE_OPTIONS.map((option) => (
-                <Chip
-                  key={option.value}
-                  label={`${option.icon} ${option.label}`}
-                  color={form.meal_type === option.value ? 'primary' : 'default'}
-                  variant={form.meal_type === option.value ? 'filled' : 'outlined'}
-                  onClick={() => setForm((prev) => ({ ...prev, meal_type: option.value }))}
-                  disabled={isSubmitting}
-                />
-              ))}
+              {MEAL_TYPE_OPTIONS.map((option) => {
+                const Icon = option.icon;
+                return (
+                  <Chip
+                    key={option.value}
+                    icon={<Icon />}
+                    label={option.label}
+                    color={form.meal_type === option.value ? 'primary' : 'default'}
+                    variant={form.meal_type === option.value ? 'filled' : 'outlined'}
+                    onClick={() => setForm((prev) => ({ ...prev, meal_type: option.value }))}
+                    disabled={isSubmitting}
+                  />
+                );
+              })}
             </Stack>
           </Box>
 

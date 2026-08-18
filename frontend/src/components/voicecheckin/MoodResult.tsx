@@ -1,3 +1,4 @@
+import { createElement } from 'react';
 import { Box, LinearProgress, Paper, Stack, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import { STRINGS } from '../../constants/strings';
@@ -5,7 +6,7 @@ import { formatTimestamp } from '../../utils/date';
 import {
   getMoodSentiment,
   MOOD_COLOR_TOKEN,
-  MOOD_EMOJI,
+  MOOD_ICON,
 } from '../../utils/voiceCheckin';
 import type { VoiceCheckinResult } from '../../types/voiceCheckin';
 import { moodResultStyles as styles } from './MoodResult.styles';
@@ -34,9 +35,10 @@ export function MoodResult({ result }: MoodResultProps) {
         </Typography>
 
         <Stack sx={styles.headerRow}>
-          <Typography component="span" sx={styles.emoji} aria-hidden>
-            {MOOD_EMOJI[sentiment]}
-          </Typography>
+          {createElement(MOOD_ICON[sentiment], {
+            sx: styles.emoji,
+            "aria-hidden": true,
+          })}
           <Box>
             <Typography variant="h5" sx={styles.moodLabel(MOOD_COLOR_TOKEN[sentiment])}>
               {result.mood}

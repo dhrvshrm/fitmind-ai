@@ -35,12 +35,18 @@ export function MealHistory({ meals }: MealHistoryProps) {
             const typeOption = MEAL_TYPE_OPTIONS.find(
               (option) => option.value === meal.meal_type,
             );
+            const TypeIcon = typeOption?.icon;
             return (
               <ListItem key={meal.id} divider={index < meals.length - 1} disableGutters>
                 <ListItemText
                   primary={
                     <Typography component="span" sx={styles.mealName}>
-                      {typeOption ? `${typeOption.icon} ` : ''}
+                      {TypeIcon && (
+                        <TypeIcon
+                          fontSize="inherit"
+                          sx={{ mr: 0.5, verticalAlign: "middle" }}
+                        />
+                      )}
                       {meal.name}
                     </Typography>
                   }
