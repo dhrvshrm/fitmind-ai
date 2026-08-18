@@ -1,160 +1,64 @@
-# 🏋️ FitMind AI - AI Powered Fitness Coach
+# FitMind AI
 
-> A full-stack, AI-native fitness SaaS: voice mood detection, adaptive AI workout plans, a real-time streaming AI coach, gamification, social features, and automated weekly insights.
+FitMind AI is a full-stack fitness coaching app. You record a short voice note about how you're feeling; it gets transcribed and analysed for mood and energy, and that (together with a daily recovery score) is used to generate a workout plan that matches your readiness. On top of that it has a real-time AI chat coach, nutrition tracking, gamification, friends and a weekly leaderboard, and an automated weekly summary.
+
+I built it end to end - the FastAPI backend, the React frontend, the AI integrations, and the deployment.
 
 <p>
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" />
-  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-0.11x-009688?logo=fastapi&logoColor=white" />
+  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white" />
   <img alt="Python" src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" />
   <img alt="MongoDB" src="https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white" />
   <img alt="MUI" src="https://img.shields.io/badge/MUI-6-007FFF?logo=mui&logoColor=white" />
-  <img alt="Docker" src="https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white" />
+  <img alt="Docker" src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white" />
   <img alt="License" src="https://img.shields.io/badge/License-MIT-yellow" />
 </p>
 
-**Live demo:** 🌐 [fitmind-ai-lyart.vercel.app](https://fitmind-ai-lyart.vercel.app) &nbsp;·&nbsp; **API docs:** 📖 [/docs](https://fitmind-backend-vr5y.onrender.com/docs) &nbsp;·&nbsp; **Demo video:** 🎬 _add link_
+- Live app: https://fitmind-ai-lyart.vercel.app
+- API docs: https://fitmind-backend-vr5y.onrender.com/docs
+- Demo video: _to add_
 
-> ⏳ The backend runs on Render's free tier and sleeps after ~15 min idle — the first request may take 30-60s to wake it up.
+Note: the backend is on Render's free tier and sleeps after about 15 minutes of inactivity, so the first request can take 30 to 60 seconds while it wakes up.
 
----
+## What it does
 
-## ✨ Overview
+- Auth and onboarding. Email/password login with JWT, a multi-step onboarding flow, and BMI/TDEE calculated from your profile.
+- Voice check-in. Record audio, Groq Whisper transcribes it, and Gemini reads your mood and energy. Audio is stored in Cloudflare R2.
+- Recovery scoring. Log sleep, stress and soreness to get a 0 to 100 recovery score with a rest / light / hard recommendation.
+- AI workout planner. Gemini generates a 7-day plan that adapts to your recovery score and mood.
+- Workout logging. Log sessions, mark exercises done, earn XP, and track streaks and completion rate.
+- Nutrition tracking. Log meals, macros and water, with daily calorie and macro goals based on your TDEE.
+- Gamification. XP, level tiers from Rookie up to Legend, unlockable badges, and streaks.
+- Real-time AI coach. A streaming chat coach over WebSocket that answers with context from your plan, recovery and mood.
+- Notifications. Delivered live over WebSocket, or stored and delivered when you reconnect, with per-type preferences.
+- Friends and leaderboard. Requests, nudges, and a weekly-XP leaderboard.
+- Dashboard analytics. Charts for mood, weight, workout rate, weekly XP and recovery trends.
+- Weekly reports. A scheduled, AI-written recap of your week.
+- Settings. Edit your profile, toggle notifications, change your password, or delete your account.
 
-FitMind AI is a coaching platform that adapts to how you actually feel. You record a quick **voice check-in**; Groq Whisper transcribes it and Gemini reads your **mood and energy**. That signal — plus a daily **recovery score** — feeds an AI that generates a **weekly workout plan** tuned to your readiness. As you train, eat, and check in, you **earn XP, climb levels, unlock badges**, compete with friends on a **weekly leaderboard**, and get an **AI-written weekly report**. A **real-time AI coach** (streaming over WebSocket) answers questions with full context of your plan, recovery, and mood.
+## Tech stack
 
-It's built as a clean, layered monorepo — **endpoints → services → models** on the backend, and a **service/type/component** architecture on the frontend — with graceful degradation everywhere (every external dependency has a fallback, so the app runs even without a database or AI keys).
+Frontend: React 19, TypeScript, Vite, MUI with Emotion, Zustand, TanStack Query, React Router, Recharts, Framer Motion.
 
-## 🚀 Features
+Backend: FastAPI, Python 3.12, MongoDB (Motor async driver), Pydantic, native WebSockets, APScheduler, JWT auth with bcrypt.
 
-| Domain | What it does |
-|---|---|
-| 🔐 **Auth & Onboarding** | JWT auth (bcrypt-hashed passwords), multi-step onboarding, BMI/TDEE computed from profile |
-| 🎙️ **Voice Check-In** | Record audio → **Groq Whisper** transcribes → **Gemini** detects mood + energy (1–10); audio stored in **Cloudflare R2** |
-| 😌 **Recovery Intelligence** | Daily sleep/stress/soreness → 0–100 recovery score + rest/light/hard recommendation |
-| 🤖 **AI Workout Planner** | **Gemini** generates a 7-day plan, **adapted to your recovery score & mood**; robust JSON parsing with a template fallback |
-| 💪 **Workout Logging** | Log sessions, mark exercises done, earn XP, track streaks & completion rate |
-| 🥗 **Nutrition Tracking** | Meals, macros, water intake; daily calorie/macro goals derived from TDEE |
-| 🏆 **Gamification** | XP, named level tiers (Rookie → Legend), 6 unlockable badges, current/longest streaks |
-| 💬 **Real-Time AI Coach** | **WebSocket streaming chat** (Groq **Llama 3.3**) with live context from your plan/recovery/mood |
-| 🔔 **Notifications** | Live over WebSocket **or** stored offline and delivered on reconnect; per-type preferences |
-| 👥 **Friends & Leaderboard** | Requests, accept/decline, nudges, and a **weekly-XP leaderboard** |
-| 📊 **Dashboard Analytics** | 6 Recharts-ready endpoints — mood, weight, workout rate, weekly XP, recovery trends |
-| 📝 **Weekly AI Reports** | Scheduled (Sun 9 PM) **Gemini** recap of the week + data-driven highlight |
-| ⚙️ **Settings** | Edit profile, toggle each notification type, change password, delete account |
+AI: Google Gemini for plans, mood analysis and reports. Groq for the streaming chat model and Whisper transcription.
 
-## 🛠️ Tech Stack
+Infrastructure: Docker, Render (backend), Vercel (frontend), MongoDB Atlas, Cloudflare R2.
 
-**Frontend** — React 19 · TypeScript · Vite · MUI v6 + Emotion · Zustand · TanStack Query · React Router 7 · Recharts · Framer Motion · Axios · react-hot-toast
+## How it's built
 
-**Backend** — FastAPI · Python 3.12 · MongoDB (Motor async) · Pydantic v2 · native WebSockets · APScheduler · python-jose (JWT) · bcrypt · boto3 (R2) · pytest
+The backend is layered per feature: an endpoint calls a service, and the service talks to a model. A design idea I leaned on throughout is graceful degradation, so the app still runs when something isn't configured: with no database it falls back to an in-memory store, with no AI key it returns sensible fallbacks instead of erroring, and with no object storage it simply skips the audio upload. Every response, success or error, uses the same shape: `{ success, message, data }`.
 
-**AI** — Google **Gemini** (`google-genai`) for plans, mood analysis & reports · **Groq** for Llama 3.3 streaming chat and Whisper transcription
+There are 52 REST endpoints plus a WebSocket channel for the streaming chat and live notifications, all documented with interactive Swagger UI at `/docs`.
 
-**Infra** — Docker · **Render** (backend) · **Vercel** (frontend) · MongoDB **Atlas** · Cloudflare **R2**
+## Repository
 
-## 🏗️ Architecture
+- `backend/` - FastAPI app
+- `frontend/` - React + Vite app
+- `docs/API.md` - grouped API reference
 
-```
-                          ┌──────────────────────────┐
-   Browser (Vercel)  ◀──▶ │  React 19 + TypeScript    │
-                          │  MUI · Zustand · Recharts │
-                          └────────────┬─────────────┘
-                             REST + WebSocket (wss)
-                          ┌────────────▼─────────────┐
-                          │  FastAPI  (Render/Docker) │
-   middleware ─────────▶  │  rate-limit · logging ·   │
-                          │  global error envelope    │
-                          │  endpoints → services →   │
-                          │  models  (+ WS manager)   │
-                          └───┬────────┬────────┬─────┘
-                     Motor    │        │        │  soft-imported, optional
-                  ┌───────────▼──┐  ┌──▼───┐ ┌──▼───────────────┐
-                  │ MongoDB Atlas│  │ Groq │ │ Gemini · R2 ·    │
-                  │ (10 indexes) │  │Whisper│ │ APScheduler jobs │
-                  └──────────────┘  │+Llama│ └──────────────────┘
-                                    └──────┘
-```
+## License
 
-**Design principles**
-- **Layered:** every domain is `endpoint → service → model`; models own persistence, services own logic.
-- **Graceful degradation:** no MongoDB → in-memory store; no AI key → deterministic fallback; no R2 → skip upload. The app never hard-crashes on a missing dependency.
-- **Consistent contract:** every response (success *and* error) is `{ success, message, data }`.
-
-## 📁 Repository structure
-
-```
-fitmind-ai/
-├── backend/           # FastAPI app (see backend/README.md)
-│   ├── app/
-│   │   ├── api/v1/     # routers + WebSocket endpoint
-│   │   ├── services/   # business logic (auth, workout, gamification, …)
-│   │   ├── models/     # persistence (Mongo + in-memory fallback)
-│   │   ├── middleware/ # error handlers, rate limit, request logging
-│   │   ├── websockets/ # connection manager + handlers
-│   │   └── background_jobs/  # APScheduler jobs
-│   ├── Dockerfile
-│   └── requirements.txt
-├── frontend/          # React + Vite app (see frontend/README.md)
-│   └── src/{components,services,hooks,store,constants,types}
-├── render.yaml        # Render Blueprint (backend)
-└── README.md          # you are here
-```
-
-## ⚡ Quick start
-
-```bash
-# 1) Backend  (Terminal 1)
-cd backend
-python -m venv venv && source venv/bin/activate   # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env.local                         # fill in values (see below)
-uvicorn app.main:app --reload                      # http://localhost:8000/docs
-
-# 2) Frontend (Terminal 2)
-cd frontend
-npm install
-npm run dev                                        # http://localhost:5173
-```
-
-Runs **out of the box with zero keys** — it falls back to an in-memory store and deterministic AI stubs. Add keys to unlock real persistence and AI.
-
-## 🔑 Environment variables (backend `.env.local`)
-
-| Variable | Required | Purpose |
-|---|---|---|
-| `MONGODB_URL` | for persistence | Mongo connection (local or Atlas SRV) |
-| `JWT_SECRET` | ✅ | Signs auth tokens |
-| `DATABASE_ENV` | ✅ | `local` or `production` (controls CORS strictness) |
-| `GROQ_API_KEY` | for AI | Whisper transcription + Llama 3.3 chat |
-| `GEMINI_API_KEY` | for AI | Plans, mood analysis, weekly reports |
-| `CLOUDFLARE_R2_*` | optional | Voice-audio storage (access key/secret/bucket/url) |
-| `CORS_EXTRA_ORIGINS` | production | Comma-separated allowed frontend origins |
-
-Frontend uses a single var: `VITE_API_BASE_URL` (defaults to `http://localhost:8000`).
-
-## 🚢 Deployment
-
-- **Backend → Render:** one-click via [`render.yaml`](render.yaml) (Docker web service). Set the secret env vars in the dashboard and add `0.0.0.0/0` to Atlas Network Access.
-- **Frontend → Vercel:** root directory `frontend`, set `VITE_API_BASE_URL` to the backend URL, then add the Vercel origin to the backend's `CORS_EXTRA_ORIGINS`.
-
-Full steps in [`backend/README.md`](backend/README.md) and [`frontend/README.md`](frontend/README.md).
-
-## 📖 API
-
-52 REST endpoints + a WebSocket channel, fully documented via **interactive Swagger UI** at [`/docs`](https://fitmind-backend-vr5y.onrender.com/docs). A grouped reference lives in [`docs/API.md`](docs/API.md).
-
-## 🧪 Testing
-
-```bash
-cd backend && pytest        # backend test suite
-cd frontend && npm run build  # typecheck + production build
-```
-
-## 📸 Screenshots
-
-> _Add screenshots/GIFs to `docs/` and embed them here — dashboard, voice check-in, AI coach, leaderboard._
-
-## 📄 License
-
-[MIT](LICENSE) © Dhruv Sharma
+MIT, see [LICENSE](LICENSE). Dhruv Sharma.

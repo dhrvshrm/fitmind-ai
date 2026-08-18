@@ -1,11 +1,11 @@
-# FitMind AI — API Reference
+# FitMind AI - API Reference
 
-Base URL (local): `http://localhost:8000` · Base URL (prod): `https://fitmind-backend-vr5y.onrender.com`
+Base URL (local): `http://localhost:8000`, Base URL (prod): `https://fitmind-backend-vr5y.onrender.com`
 All REST routes are under `/api/v1`. Interactive docs: **[/docs](https://fitmind-backend-vr5y.onrender.com/docs)** (Swagger) and `/redoc`.
 
 ## Response envelope
 
-Every response — success **and** error — uses:
+Every response - success **and** error - uses:
 
 ```json
 { "success": true, "message": "Human-readable message", "data": { } }
@@ -15,7 +15,7 @@ On error, `success` is `false`, `message` explains it, and `data` is `null` (or 
 
 ## Authentication
 
-1. `POST /api/v1/auth/register` → `POST /api/v1/auth/login` returns `{ "data": { "token": "<jwt>" } }`.
+1. `POST /api/v1/auth/register` -> `POST /api/v1/auth/login` returns `{ "data": { "token": "<jwt>" } }`.
 2. Send it on protected routes: `Authorization: Bearer <token>`.
 
 ```bash
@@ -43,98 +43,98 @@ curl $BASE/api/v1/auth/me -H "Authorization: Bearer $TOKEN"
 |---|---|---|---|
 | POST | `/auth/register` | `{email, password}` | 201; returns `{user_id, email}` |
 | POST | `/auth/login` | `{email, password}` | returns `{token}` |
-| GET | `/auth/me` | — | 🔒 current user |
-| POST | `/auth/logout` | — | 🔒 stateless (client drops token) |
+| GET | `/auth/me` | - | (auth) current user |
+| POST | `/auth/logout` | - | (auth) stateless (client drops token) |
 
 ### Onboarding & profile
 | Method | Path | Body |
 |---|---|---|
-| POST | `/users/onboarding` | `{age, gender, weight_kg, height_cm, fitness_goal, experience_level, available_equipment}` → `{bmi, tdee, profile_created}` |
-| GET | `/users/profile` | 🔒 full profile |
-| PUT | `/users/profile` | 🔒 partial update |
+| POST | `/users/onboarding` | `{age, gender, weight_kg, height_cm, fitness_goal, experience_level, available_equipment}` -> `{bmi, tdee, profile_created}` |
+| GET | `/users/profile` | (auth) full profile |
+| PUT | `/users/profile` | (auth) partial update |
 
 ### Recovery
 | Method | Path | Body |
 |---|---|---|
-| POST | `/recovery/log` | `{sleep_hours, sleep_quality, stress_level, muscle_soreness}` → `{recovery_score, recommendation}` |
-| GET | `/recovery/score/today` | 🔒 `{score, recommendation, explanation}` |
-| GET | `/recovery/history` | 🔒 `?days=14` |
+| POST | `/recovery/log` | `{sleep_hours, sleep_quality, stress_level, muscle_soreness}` -> `{recovery_score, recommendation}` |
+| GET | `/recovery/score/today` | (auth) `{score, recommendation, explanation}` |
+| GET | `/recovery/history` | (auth) `?days=14` |
 
-**Score formula:** `(sleep_hours×10) + (sleep_quality×10) + ((5−stress)×10) + ((5−soreness)×5)`, clamped 0–100.
+**Score formula:** `(sleep_hoursx10) + (sleep_qualityx10) + ((5-stress)x10) + ((5-soreness)x5)`, clamped 0-100.
 
 ### Voice check-in
 | Method | Path | Body |
 |---|---|---|
-| POST | `/checkin/voice` | 🔒 multipart `audio` file → `{transcript, mood, energy_level, timestamp}` |
-| GET | `/checkin/history` | 🔒 `?limit=30` |
+| POST | `/checkin/voice` | (auth) multipart `audio` file -> `{transcript, mood, energy_level, timestamp}` |
+| GET | `/checkin/history` | (auth) `?limit=30` |
 
-Pipeline: R2 upload → Groq Whisper transcription → Gemini mood/energy analysis (with keyword-heuristic fallback).
+Pipeline: R2 upload -> Groq Whisper transcription -> Gemini mood/energy analysis (with keyword-heuristic fallback).
 
 ### Workouts
 | Method | Path | Body |
 |---|---|---|
-| POST | `/workouts/generate` | 🔒 `{fitness_goal?, experience_level?, available_equipment?}` — adapts to recovery + mood |
-| GET | `/workouts/plan/week` | 🔒 current weekly plan |
-| GET | `/workouts/plan/today` | 🔒 today's exercises |
-| POST | `/workouts/log` | 🔒 `{exercises, duration_minutes, intensity}` → `{xp_earned, new_level, new_badges}` |
-| GET | `/workouts/history` | 🔒 `?days=30` |
-| PUT | `/workouts/exercise/complete` | 🔒 `{exercise_name}` |
+| POST | `/workouts/generate` | (auth) `{fitness_goal?, experience_level?, available_equipment?}` - adapts to recovery + mood |
+| GET | `/workouts/plan/week` | (auth) current weekly plan |
+| GET | `/workouts/plan/today` | (auth) today's exercises |
+| POST | `/workouts/log` | (auth) `{exercises, duration_minutes, intensity}` -> `{xp_earned, new_level, new_badges}` |
+| GET | `/workouts/history` | (auth) `?days=30` |
+| PUT | `/workouts/exercise/complete` | (auth) `{exercise_name}` |
 
 ### Nutrition
 | Method | Path | Body |
 |---|---|---|
-| POST | `/nutrition/meal` | 🔒 `{name, calories, protein, carbs, fats}` → +XP |
-| GET | `/nutrition/today` | 🔒 totals, goals, macro %, water |
-| GET | `/nutrition/history` | 🔒 per-day totals |
-| POST | `/nutrition/water` | 🔒 `{amount_ml}` |
+| POST | `/nutrition/meal` | (auth) `{name, calories, protein, carbs, fats}` -> +XP |
+| GET | `/nutrition/today` | (auth) totals, goals, macro %, water |
+| GET | `/nutrition/history` | (auth) per-day totals |
+| POST | `/nutrition/water` | (auth) `{amount_ml}` |
 
 ### Gamification
 | Method | Path | Notes |
 |---|---|---|
-| GET | `/gamification/profile` | 🔒 xp, level, title, streaks, badges |
-| POST | `/gamification/xp` | 🔒 `{amount}` |
-| GET | `/gamification/badges` | 🔒 earned + full catalog |
+| GET | `/gamification/profile` | (auth) xp, level, title, streaks, badges |
+| POST | `/gamification/xp` | (auth) `{amount}` |
+| GET | `/gamification/badges` | (auth) earned + full catalog |
 
 ### Dashboard analytics (Recharts-ready)
-`GET /dashboard/{summary, mood-performance, weight-trend, workout-rate, xp-weekly, recovery-trend}` — each 🔒 returns `{ data: [...], summary: {...} }`.
+`GET /dashboard/{summary, mood-performance, weight-trend, workout-rate, xp-weekly, recovery-trend}` - each (auth) returns `{ data: [...], summary: {...} }`.
 
 ### Notifications
 | Method | Path |
 |---|---|
-| GET | `/notifications` 🔒 |
-| POST | `/notifications/{id}/read` 🔒 |
+| GET | `/notifications` (auth) |
+| POST | `/notifications/{id}/read` (auth) |
 
 ### Friends & leaderboard
 | Method | Path | Body |
 |---|---|---|
-| POST | `/friends/request` | 🔒 `{to_user_id?}` or `{to_username?}` |
-| PUT | `/friends/accept/{request_id}` | 🔒 |
-| PUT | `/friends/decline/{request_id}` | 🔒 |
-| GET | `/friends/list` | 🔒 |
-| GET | `/friends/requests` | 🔒 pending incoming |
-| POST | `/friends/nudge/{user_id}` | 🔒 friends only |
-| GET | `/friends/{username}` | 🔒 search + friendship status |
-| GET | `/leaderboard/weekly` | 🔒 ranked by weekly XP |
+| POST | `/friends/request` | (auth) `{to_user_id?}` or `{to_username?}` |
+| PUT | `/friends/accept/{request_id}` | (auth) |
+| PUT | `/friends/decline/{request_id}` | (auth) |
+| GET | `/friends/list` | (auth) |
+| GET | `/friends/requests` | (auth) pending incoming |
+| POST | `/friends/nudge/{user_id}` | (auth) friends only |
+| GET | `/friends/{username}` | (auth) search + friendship status |
+| GET | `/leaderboard/weekly` | (auth) ranked by weekly XP |
 
 ### Reports
 | Method | Path |
 |---|---|
-| GET | `/reports/history` 🔒 |
-| GET | `/reports/latest` 🔒 |
-| GET | `/reports/{report_id}` 🔒 |
-| POST | `/reports/generate` 🔒 on-demand |
+| GET | `/reports/history` (auth) |
+| GET | `/reports/latest` (auth) |
+| GET | `/reports/{report_id}` (auth) |
+| POST | `/reports/generate` (auth) on-demand |
 
 ### Settings
 | Method | Path | Body |
 |---|---|---|
-| GET | `/settings/profile` | 🔒 |
-| PUT | `/settings/profile` | 🔒 `{username?, age?, weight_kg?, height_cm?, fitness_goal?}` |
-| PUT | `/settings/goals` | 🔒 `{fitness_goal?, experience_level?, available_equipment?}` |
-| PUT | `/settings/preferences` | 🔒 per-type notification toggles |
-| PUT | `/settings/password` | 🔒 `{current_password, new_password}` |
-| DELETE | `/settings/account` | 🔒 |
+| GET | `/settings/profile` | (auth) |
+| PUT | `/settings/profile` | (auth) `{username?, age?, weight_kg?, height_cm?, fitness_goal?}` |
+| PUT | `/settings/goals` | (auth) `{fitness_goal?, experience_level?, available_equipment?}` |
+| PUT | `/settings/preferences` | (auth) per-type notification toggles |
+| PUT | `/settings/password` | (auth) `{current_password, new_password}` |
+| DELETE | `/settings/account` | (auth) |
 
 ### WebSocket
-`ws(s)://<host>/ws/{user_id}` — send `{type:"message", content:"..."}`; receive `{type:"start"}` → `{type:"token", content}` … → `{type:"done"}`. Also pushes `{type:"notification", data}` live and on reconnect.
+`ws(s)://<host>/ws/{user_id}` - send `{type:"message", content:"..."}`; receive `{type:"start"}` -> `{type:"token", content}` ... -> `{type:"done"}`. Also pushes `{type:"notification", data}` live and on reconnect.
 
-🔒 = requires `Authorization: Bearer <token>`.
+(auth) = requires `Authorization: Bearer <token>`.
