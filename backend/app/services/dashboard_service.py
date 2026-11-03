@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from datetime import date, timedelta
+from datetime import timedelta
 from typing import Any, Dict, List
 
 from app.models.gamification import XP_REWARDS
@@ -10,13 +10,14 @@ from app.models.user import User
 from app.models.voice_checkin import VoiceCheckin
 from app.models.weight import WeightLog
 from app.models.workout import WorkoutLog
+from app.utils.time import local_today, local_today_iso
 
 logger = logging.getLogger(__name__)
 
 
 def _date_labels(days: int) -> List[str]:
     """Return ISO date strings for the last ``days`` days, oldest first."""
-    today = date.today()
+    today = local_today()
     return [(today - timedelta(days=i)).isoformat() for i in range(days - 1, -1, -1)]
 
 
@@ -34,7 +35,7 @@ async def get_dashboard_summary(user_id: str) -> Dict[str, Any]:
     if user is None:
         return {}
 
-    today = date.today().isoformat()
+    today = local_today_iso()
     workouts_today = sum(
         1 for w in await WorkoutLog.get_history(user_id, days=50) if w.log_date == today
     )
@@ -99,7 +100,7 @@ async def get_weight_trend(user_id: str) -> Dict[str, Any]:
     if not data:
         user = await User.get_by_id(user_id)
         if user and user.weight_kg:
-            data = [{"date": date.today().isoformat(), "weight": user.weight_kg}]
+            data = [{"date": local_today_iso(), "weight": user.weight_kg}]
 
     weights = [d["weight"] for d in data]
     summary = {

@@ -56,7 +56,6 @@ export const NUTRITION_ENDPOINTS = {
 
 export const GAMIFICATION_ENDPOINTS = {
   PROFILE: "/gamification/profile",
-  XP: "/gamification/xp",
   BADGES: "/gamification/badges",
 } as const;
 
@@ -67,15 +66,22 @@ export const BADGE_EARNED_DATES_KEY = "fitmind-badge-earned-dates";
 export const AUTH_STORAGE_KEY = "fitmind-auth";
 
 /**
- * The chat WebSocket (`/ws/{user_id}`) is mounted at the app root, not under
- * `API_PREFIX`, so its URL is derived from `API_BASE_URL` directly and the
- * http(s) scheme is swapped for ws(s).
+ * The chat/notification WebSocket (`/ws`) is mounted at the app root, not
+ * under `API_PREFIX`, so its URL is derived from `API_BASE_URL` directly and
+ * the http(s) scheme is swapped for ws(s). The user is identified by an auth
+ * frame sent after connecting, never by the URL.
  */
-export function getChatSocketUrl(userId: string): string {
+export function getChatSocketUrl(): string {
   const wsProtocol = API_BASE_URL.startsWith("https") ? "wss" : "ws";
   const host = API_BASE_URL.replace(/^https?:\/\//, "");
-  return `${wsProtocol}://${host}/ws/${encodeURIComponent(userId)}`;
+  return `${wsProtocol}://${host}/ws`;
 }
+
+/** WebSocket close code the backend uses when authentication fails. */
+export const WS_CLOSE_UNAUTHORIZED = 4401;
+
+/** Header carrying the browser's IANA timezone, which decides the user's "today". */
+export const TIMEZONE_HEADER = "X-Timezone";
 
 /** localStorage key prefix for a user's persisted coach chat history. */
 export const CHAT_HISTORY_KEY_PREFIX = "fitmind-chat-history-";

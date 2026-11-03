@@ -117,7 +117,13 @@ export function WorkoutCompletion({
       <DialogContent>
         {result ? (
           <Box sx={styles.resultBox}>
-            <XpCounter xp={result.xp_earned} />
+            {result.xp_earned > 0 ? (
+              <XpCounter xp={result.xp_earned} />
+            ) : (
+              <Typography variant="body2" color="text.secondary" sx={styles.totalXp}>
+                {S.xpAlreadyEarned}
+              </Typography>
+            )}
             <Typography variant="body2" color="text.secondary" sx={styles.totalXp}>
               {S.totalXp(result.total_xp)}
             </Typography>

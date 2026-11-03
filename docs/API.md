@@ -15,8 +15,9 @@ On error, `success` is `false`, `message` explains it, and `data` is `null` (or 
 
 ## Authentication
 
-1. `POST /api/v1/auth/register` -> `POST /api/v1/auth/login` returns `{ "data": { "token": "<jwt>" } }`.
+1. `POST /api/v1/auth/register` -> `POST /api/v1/auth/login` returns `{ "data": { "token": "<jwt>" } }`. Emails are case-insensitive; passwords need at least 8 characters.
 2. Send it on protected routes: `Authorization: Bearer <token>`.
+3. Optionally send the browser's IANA timezone as `X-Timezone: Asia/Kolkata`. It decides the user's "today" for logs and plans and is saved to the profile. Without it, the stored timezone is used (default `Asia/Kolkata`).
 
 ```bash
 # Register + login
@@ -49,7 +50,7 @@ curl $BASE/api/v1/auth/me -H "Authorization: Bearer $TOKEN"
 ### Onboarding & profile
 | Method | Path | Body |
 |---|---|---|
-| POST | `/users/onboarding` | `{age, gender, weight_kg, height_cm, fitness_goal, experience_level, available_equipment}` -> `{bmi, tdee, profile_created}` |
+| POST | `/users/onboarding` | `{age (13-100), gender (male/female/other), weight_kg (30-300), height_cm (100-250), fitness_goal, experience_level, available_equipment, injuries?, activity_level?, timezone?}` -> `{bmi, tdee, profile_created}` |
 | GET | `/users/profile` | (auth) full profile |
 | PUT | `/users/profile` | (auth) partial update |
 
@@ -92,8 +93,9 @@ Pipeline: R2 upload -> Groq Whisper transcription -> Gemini mood/energy analysis
 | Method | Path | Notes |
 |---|---|---|
 | GET | `/gamification/profile` | (auth) xp, level, title, streaks, badges |
-| POST | `/gamification/xp` | (auth) `{amount}` |
 | GET | `/gamification/badges` | (auth) earned + full catalog |
+
+XP is awarded only by the server, for logged actions, with a daily cap per action: 1 workout, 1 recovery log, 1 voice check-in and 5 meals per local day. Logging more is allowed; it just earns 0 XP.
 
 ### Dashboard analytics (Recharts-ready)
 `GET /dashboard/{summary, mood-performance, weight-trend, workout-rate, xp-weekly, recovery-trend}` - each (auth) returns `{ data: [...], summary: {...} }`.
@@ -132,9 +134,9 @@ Pipeline: R2 upload -> Groq Whisper transcription -> Gemini mood/energy analysis
 | PUT | `/settings/goals` | (auth) `{fitness_goal?, experience_level?, available_equipment?}` |
 | PUT | `/settings/preferences` | (auth) per-type notification toggles |
 | PUT | `/settings/password` | (auth) `{current_password, new_password}` |
-| DELETE | `/settings/account` | (auth) |
+| DELETE | `/settings/account` | (auth) deletes the account and all of the user's data and stored files |
 
 ### WebSocket
-`ws(s)://<host>/ws/{user_id}` - send `{type:"message", content:"..."}`; receive `{type:"start"}` -> `{type:"token", content}` ... -> `{type:"done"}`. Also pushes `{type:"notification", data}` live and on reconnect.
+`ws(s)://<host>/ws`. The first frame must be `{type:"auth", token:"<jwt>"}` within 10 seconds; the server answers `{type:"ready"}` or closes with code `4401`. Then send `{type:"message", content:"..."}` and receive `{type:"start"}` -> `{type:"token", content}` ... -> `{type:"done"}` on the same socket. `{type:"ping"}` gets `{type:"pong"}`. Notifications are pushed as `{type:"notification", data}` live and on reconnect.
 
 (auth) = requires `Authorization: Bearer <token>`.

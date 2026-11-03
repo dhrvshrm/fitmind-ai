@@ -31,3 +31,24 @@ services:
       # https://fitmind.vercel.app
       - key: CORS_EXTRA_ORIGINS
         sync: false
+      # Cloudflare R2 object storage (voice check-in audio).
+      - key: CLOUDFLARE_R2_URL
+        sync: false
+      - key: CLOUDFLARE_R2_ACCESS_KEY
+        sync: false
+      - key: CLOUDFLARE_R2_SECRET_KEY
+        sync: false
+      - key: CLOUDFLARE_R2_BUCKET
+        sync: false
+      - key: CLOUDFLARE_R2_PUBLIC_URL
+        sync: false
+      # Models and limits. Defaults live in app/config/settings.py; set these
+      # only to override them.
+      - key: GEMINI_MODEL
+        value: gemini-3.1-flash-lite
+      - key: GROQ_CHAT_MODEL
+        value: openai/gpt-oss-20b
+      - key: GROQ_WHISPER_MODEL
+        value: whisper-large-v3
+      - key: AI_DAILY_QUOTA
+        value: "150"

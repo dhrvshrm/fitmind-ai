@@ -1,5 +1,5 @@
 import logging
-from datetime import date, timedelta
+from datetime import timedelta
 from typing import Any, Dict
 
 from app.models.gamification import XP_REWARDS
@@ -9,8 +9,11 @@ from app.models.report import WeeklyReport
 from app.models.user import User
 from app.models.voice_checkin import VoiceCheckin
 from app.models.workout import WorkoutLog, WorkoutPlan
-from app.services import ai_service, notification_service
-from app.services.ai_service import AIServiceError
+from app.ai import client as ai_client
+from app.ai.client import AIError
+from app.ai.style import STYLE_GUIDE
+from app.services import notification_service
+from app.utils.time import local_today
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +22,7 @@ WEEK_DAYS = 7
 
 def _week_dates() -> list:
     """Return ISO dates for the current week (last 7 days), oldest first."""
-    today = date.today()
+    today = local_today()
     return [(today - timedelta(days=i)).isoformat() for i in range(WEEK_DAYS - 1, -1, -1)]
 
 
@@ -136,33 +139,37 @@ async def _aggregate_week(user_id: str) -> Dict[str, Any]:
 def _build_highlight(stats: Dict[str, Any], current_streak: int) -> str:
     """Pick a data-driven highlight moment for the week."""
     if stats["workouts_completed"] >= stats["workouts_planned"] and stats["workouts_planned"] > 0:
-        return "You completed every planned workout this week — perfect attendance!"
+        return "You completed every planned workout this week."
     if current_streak >= 7:
-        return f"You reached a {current_streak}-day workout streak. Incredible consistency!"
+        return f"You're on a {current_streak}-day workout streak."
     if stats["recovery_trend"] == "excellent":
-        return "Your recovery was excellent all week — your body is primed to perform."
+        return "Your recovery stayed excellent all week."
     if stats["workouts_completed"] > 0:
-        return f"You logged {stats['workouts_completed']} workout(s) this week. Momentum is building!"
-    return "A fresh week is ahead — this is your moment to start strong."
+        return f"You logged {stats['workouts_completed']} workout(s) this week."
+    return "No workouts logged this week. A short session early next week is a good restart."
 
 
 def _fallback_content(stats: Dict[str, Any], username: str) -> str:
-    """Template summary used when Gemini is unavailable."""
+    """Template summary used when AI generation is unavailable."""
     return (
-        f"Nice work this week, {username}! You completed "
-        f"{stats['workouts_completed']}/{stats['workouts_planned']} planned workouts, "
-        f"averaged {stats['avg_calories']} calories a day, and earned "
-        f"{stats['xp_earned']} XP. Your mood is {stats['mood_trend']} and recovery has been "
-        f"{stats['recovery_trend']}. Keep the momentum going into next week!"
+        f"This week you completed {stats['workouts_completed']} of "
+        f"{stats['workouts_planned']} planned workouts and averaged "
+        f"{stats['avg_calories']} calories a day. Mood was {stats['mood_trend']} "
+        f"and recovery was {stats['recovery_trend']}. You earned {stats['xp_earned']} XP."
     )
 
 
+_REPORT_SYSTEM_PROMPT = (
+    "You are a fitness and nutrition coach writing a client's weekly check-in note.\n\n"
+    + STYLE_GUIDE
+)
+
+
 def _build_prompt(stats: Dict[str, Any], username: str) -> str:
-    """Build the Gemini prompt for the natural-language weekly recap."""
+    """Build the prompt for the natural-language weekly recap."""
     return (
-        "Write a warm, encouraging weekly fitness recap (3-4 sentences, second "
-        f"person) for {username}. Base it on these stats and do not invent "
-        "numbers:\n"
+        "Write a short weekly recap (3 to 4 sentences, second person) for "
+        f"{username}. Use only these stats and do not invent numbers:\n"
         f"- Workouts completed: {stats['workouts_completed']}/{stats['workouts_planned']}\n"
         f"- Average daily calories: {stats['avg_calories']}\n"
         f"- Average macros (g): protein {stats['avg_protein']}, carbs {stats['avg_carbs']}, "
@@ -170,7 +177,8 @@ def _build_prompt(stats: Dict[str, Any], username: str) -> str:
         f"- Mood trend: {stats['mood_trend']}\n"
         f"- Recovery: {stats['recovery_trend']}\n"
         f"- XP earned: {stats['xp_earned']}\n"
-        "Celebrate wins, gently motivate on gaps, and end on an uplifting note."
+        "Note what went well, name the one gap that matters most, and give one "
+        "specific thing to do next week."
     )
 
 
@@ -183,8 +191,13 @@ async def generate_weekly_report(user_id: str) -> WeeklyReport:
     highlight = _build_highlight(stats, user.current_streak if user else 0)
 
     try:
-        content = ai_service.generate_text(_build_prompt(stats, username), temperature=0.7).strip()
-    except AIServiceError as e:
+        content = await ai_client.generate_text(
+            _build_prompt(stats, username),
+            system=_REPORT_SYSTEM_PROMPT,
+            temperature=0.6,
+            user_id=user_id,
+        )
+    except AIError as e:
         logger.info("Weekly report using fallback content: %s", e)
         content = _fallback_content(stats, username)
 

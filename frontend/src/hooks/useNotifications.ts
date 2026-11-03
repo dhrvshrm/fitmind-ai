@@ -1,12 +1,11 @@
 import { useCallback, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "./useAuth";
-import { useWebSocket } from "./useWebSocket";
+import { useAppSocket } from "./useAppSocket";
 import { useUiStore } from "../store/uiStore";
 import { notificationService } from "../services/notificationService";
-import { getChatSocketUrl } from "../constants/api";
 import { TOAST_NOTIFICATION_TYPES } from "../constants/notification";
-import type { ClientFrame, ServerFrame } from "../types/chat";
+import type { ServerFrame } from "../types/chat";
 import type { AppNotification } from "../types/notification";
 
 /** Shows a toast for a live-pushed notification. */
@@ -16,7 +15,7 @@ function showNotificationToast(notification: AppNotification) {
 
 /**
  * Loads the user's notifications on app start and keeps them live over the
- * same `/ws/{user_id}` channel the AI coach uses (the backend fans out
+ * same authenticated `/ws` channel the AI coach uses (the backend fans out
  * `notification` frames to every connection a user has open, so this works
  * independently of whether the coach page is mounted).
  *
@@ -59,10 +58,7 @@ export function useNotifications() {
     [addNotification],
   );
 
-  useWebSocket<ServerFrame, ClientFrame>({
-    url: userId ? getChatSocketUrl(userId) : null,
-    onMessage: handleFrame,
-  });
+  useAppSocket(handleFrame);
 
   async function markAllAsRead() {
     const unreadIds = useUiStore

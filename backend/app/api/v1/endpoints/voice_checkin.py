@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, File, Query, UploadFile
 
 from app.api.v1.endpoints.auth import get_current_user
-from app.models.gamification import XP_REWARDS
 from app.models.user import User
 from app.schemas.general import SuccessResponse
 from app.services import gamification_service, voice_service
@@ -26,7 +25,7 @@ async def record_voice_checkin(
         filename=audio.filename or "audio.webm",
         content_type=audio.content_type or "audio/webm",
     )
-    xp = await gamification_service.award_xp(current_user.id, XP_REWARDS["voice_checkin"])
+    xp = await gamification_service.award_action_xp(current_user.id, "voice_checkin")
     new_badges = await gamification_service.check_badge_conditions(current_user.id)
     return {
         "success": True,

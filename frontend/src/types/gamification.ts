@@ -26,13 +26,3 @@ export type BadgesResponse = {
   earned: Badge[];
   all_badges: Badge[];
 };
-
-/** `POST /gamification/xp` -> data. */
-export type AwardXpResult = {
-  xp_earned: number;
-  total_xp: number;
-  level: number;
-  title: string;
-  leveled_up: boolean;
-  new_badges: string[];
-};

@@ -85,6 +85,20 @@ def _get_supabase_client():
 # ---------------------------------------------------------------------------
 # Registration / login
 # ---------------------------------------------------------------------------
+async def _unique_username(base: str) -> str:
+    """Return ``base`` or ``base`` plus a number, whichever is not taken yet.
+
+    Usernames default to the email's local part, so two people with
+    ``john@`` addresses at different domains would otherwise collide.
+    """
+    base = base or "user"
+    candidate, suffix = base, 1
+    while await User.get_by_username(candidate) is not None:
+        suffix += 1
+        candidate = f"{base}{suffix}"
+    return candidate
+
+
 async def register_user(email: str, password: str) -> User:
     """Register a new user and persist it.
 
@@ -94,6 +108,7 @@ async def register_user(email: str, password: str) -> User:
     Raises:
         AuthError: if a user with the given email already exists.
     """
+    email = email.strip().lower()
     existing = await User.get_by_email(email)
     if existing is not None:
         raise AuthError("A user with this email already exists")
@@ -102,7 +117,11 @@ async def register_user(email: str, password: str) -> User:
     if supabase is not None:
         supabase.auth.sign_up({"email": email, "password": password})
 
-    user = User(email=email, password_hash=hash_password(password))
+    user = User(
+        email=email,
+        password_hash=hash_password(password),
+        username=await _unique_username(email.split("@")[0]),
+    )
     await user.save()
     logger.info("Registered new user %s", email)
     return user
@@ -150,13 +169,15 @@ async def change_password(user_id: str, current_password: str, new_password: str
 
 
 async def delete_account(user_id: str) -> None:
-    """Permanently delete a user's account.
+    """Permanently delete a user's account and all of their data and files.
 
     Raises:
         AuthError: if no user exists with ``user_id``.
     """
+    from app.services import privacy_service  # Local import avoids a cycle.
+
     user = await User.get_by_id(user_id)
     if user is None:
         raise AuthError("User not found")
-    await User.delete(user_id)
+    await privacy_service.delete_user_data(user_id)
     logger.info("Deleted account for user %s", user_id)

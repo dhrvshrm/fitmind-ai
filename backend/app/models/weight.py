@@ -1,10 +1,10 @@
 import logging
-from datetime import date as date_cls
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 from uuid import uuid4
 
 from app.config.database import get_database
+from app.utils.time import local_today_iso
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class WeightLog:
         self.id: str = id or str(uuid4())
         self.user_id: str = user_id
         self.weight_kg: float = weight_kg
-        self.log_date: str = log_date or date_cls.today().isoformat()
+        self.log_date: str = log_date or local_today_iso()
         self.created_at: datetime = created_at or datetime.now(timezone.utc)
 
     def to_dict(self) -> dict:

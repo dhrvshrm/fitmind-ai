@@ -1,14 +1,15 @@
-import json
 import logging
-import re
-from datetime import date
 from typing import Any, Dict, List, Optional
 
+from pydantic import BaseModel, Field, field_validator, model_validator
+
 from app.config.database import get_database
-from app.models.gamification import XP_REWARDS
 from app.models.workout import Exercise, WorkoutLog, WorkoutPlan
-from app.services import ai_service, gamification_service
-from app.services.ai_service import AIServiceError
+from app.ai import client as ai_client
+from app.ai.client import AIError
+from app.ai.style import STYLE_GUIDE
+from app.services import gamification_service
+from app.utils.time import local_today, local_today_iso
 
 logger = logging.getLogger(__name__)
 
@@ -24,64 +25,88 @@ class WorkoutServiceError(Exception):
     """Raised when a workout-service operation fails (e.g. user not found)."""
 
 
+class _AIExercise(BaseModel):
+    """One exercise as returned by the model (validated before use)."""
+
+    name: str = Field(..., min_length=1, max_length=80)
+    sets: int = Field(..., ge=1, le=10)
+    reps: str = Field(..., min_length=1, max_length=20)
+    rest: str = Field("60s", max_length=20)
+    difficulty: str = Field("medium", max_length=20)
+
+    @field_validator("reps", "rest", "difficulty", mode="before")
+    @classmethod
+    def _to_text(cls, value: Any) -> str:
+        """Models sometimes send reps/rest as numbers; store them as text."""
+        return str(value).strip()
+
+
+class _AIDay(BaseModel):
+    """One day of the weekly plan as returned by the model."""
+
+    day: str
+    workout_type: str = Field(..., max_length=30)
+    exercises: List[_AIExercise] = Field(default_factory=list, max_length=10)
+
+    @field_validator("day")
+    @classmethod
+    def _known_day(cls, value: str) -> str:
+        """Accept any casing of a weekday name and store it canonically."""
+        for day in DAYS:
+            if value.strip().lower() == day.lower():
+                return day
+        raise ValueError(f"unknown day: {value}")
+
+
+class _AIWeek(BaseModel):
+    """The full Monday to Sunday plan; every weekday exactly once."""
+
+    week: List[_AIDay] = Field(..., min_length=7, max_length=7)
+
+    @model_validator(mode="after")
+    def _all_days_once(self) -> "_AIWeek":
+        """Reject plans that skip or repeat a weekday."""
+        if sorted(d.day for d in self.week) != sorted(DAYS):
+            raise ValueError("week must contain each day Monday to Sunday exactly once")
+        self.week.sort(key=lambda d: DAYS.index(d.day))
+        return self
+
+
+_PLAN_SYSTEM_PROMPT = (
+    "You are an experienced strength and conditioning coach writing training plans. "
+    "Plans must be safe for the person's experience level and limitations.\n\n" + STYLE_GUIDE
+)
+
+
 def _build_prompt(
     goal: str,
     level: str,
     equipment: List[str],
     recovery_score: int,
     mood_score: int,
+    injuries: Optional[List[str]] = None,
 ) -> str:
-    """Build the Gemini prompt for weekly workout-plan generation."""
+    """Build the prompt for weekly workout-plan generation."""
     equipment_str = ", ".join(equipment) if equipment else "bodyweight only"
+    injuries_str = ", ".join(injuries) if injuries else "none reported"
     return (
-        "Create a weekly (Monday-Sunday) workout plan with the following:\n"
-        f"- Fitness Goal: {goal}\n"
-        f"- Experience Level: {level}\n"
-        f"- Available Equipment: {equipment_str}\n"
-        f"- Recovery Score Today: {recovery_score}/100\n"
-        f"- Mood Score: {mood_score}/10\n\n"
-        "For each day, include:\n"
-        "- Workout type (strength/cardio/flexibility/rest)\n"
-        "- 4-6 exercises with: name, sets, reps, rest time, difficulty level\n"
-        "- Adapt intensity based on the recovery and mood scores\n\n"
-        "Return ONLY valid JSON with this exact structure:\n"
-        '{"week": [{"day": "Monday", "workout_type": "strength", '
-        '"exercises": [{"name": "...", "sets": 3, "reps": "10", '
-        '"rest": "60s", "difficulty": "medium"}]}]}'
+        "Create a weekly (Monday to Sunday) workout plan.\n"
+        f"- Fitness goal: {goal}\n"
+        f"- Experience level: {level}\n"
+        f"- Available equipment: {equipment_str}\n"
+        f"- Injuries or limitations: {injuries_str}\n"
+        f"- Recovery score today: {recovery_score}/100\n"
+        f"- Energy (from mood check-in): {mood_score}/10\n\n"
+        "Rules:\n"
+        "- Include every day once. Use workout_type strength, cardio, flexibility or rest.\n"
+        "- Training days have 4 to 6 exercises with sets, reps, rest and difficulty "
+        "(easy, medium or hard). Rest days have no exercises.\n"
+        "- Only use the listed equipment.\n"
+        "- Avoid exercises that load an injured area; choose safe alternatives instead.\n"
+        "- Lower volume and intensity when recovery or energy is low.\n"
+        'Example exercise: {"name": "Goblet Squat", "sets": 3, "reps": "10", '
+        '"rest": "60s", "difficulty": "medium"}'
     )
-
-
-def _parse_plan(raw: str) -> List[Dict[str, Any]]:
-    """Parse the model's JSON response into a normalized weekly structure.
-
-    Raises:
-        ValueError: if no valid week array can be extracted.
-    """
-    match = re.search(r"\{.*\}", raw, re.DOTALL)
-    if not match:
-        raise ValueError("no JSON object found in model response")
-    data = json.loads(match.group(0))
-    week_raw = data.get("week")
-    if not isinstance(week_raw, list) or not week_raw:
-        raise ValueError("model response missing a non-empty 'week' array")
-
-    week: List[Dict[str, Any]] = []
-    for entry in week_raw:
-        if not isinstance(entry, dict):
-            continue
-        exercises = entry.get("exercises") or []
-        week.append(
-            {
-                "day": str(entry.get("day", "")).strip() or "Day",
-                "workout_type": str(entry.get("workout_type", "strength")).strip(),
-                "exercises": [
-                    Exercise.normalize(e) for e in exercises if isinstance(e, dict)
-                ],
-            }
-        )
-    if not week:
-        raise ValueError("no valid days parsed from model response")
-    return week
 
 
 def _fallback_week(goal: str, level: str, equipment: List[str]) -> List[Dict[str, Any]]:
@@ -125,20 +150,30 @@ async def generate_workout_plan(
     equipment: List[str],
     recovery_score: int = 0,
     mood_score: int = 5,
+    injuries: Optional[List[str]] = None,
 ) -> WorkoutPlan:
     """Generate and persist a weekly workout plan.
 
-    Uses Gemini when available and falls back to a template plan if the AI
-    call or parsing fails, so the endpoint always returns a usable plan.
+    Uses the AI layer with a validated schema and falls back to a template
+    plan if generation fails, so the endpoint always returns a usable plan.
     """
     prompt = _build_prompt(
-        fitness_goal, experience_level, equipment, recovery_score, mood_score
+        fitness_goal, experience_level, equipment, recovery_score, mood_score, injuries
     )
     try:
-        raw = ai_service.generate_text(prompt, temperature=0.7, json_mode=True)
-        week = _parse_plan(raw)
+        result = await ai_client.generate_json(
+            prompt, _AIWeek, system=_PLAN_SYSTEM_PROMPT, temperature=0.6, user_id=user_id
+        )
+        week = [
+            {
+                "day": d.day,
+                "workout_type": d.workout_type,
+                "exercises": [Exercise.normalize(e.model_dump()) for e in d.exercises],
+            }
+            for d in result.week
+        ]
         logger.info("Generated AI workout plan for user %s", user_id)
-    except (AIServiceError, ValueError, json.JSONDecodeError) as e:
+    except AIError as e:
         logger.warning("Falling back to template workout plan: %s", e)
         week = _fallback_week(fitness_goal, experience_level, equipment)
 
@@ -165,7 +200,7 @@ async def get_today_workout(user_id: str) -> List[Dict[str, Any]]:
     plan = await WorkoutPlan.get_latest_for_user(user_id)
     if plan is None:
         return []
-    today_name = DAYS[date.today().weekday()]
+    today_name = DAYS[local_today().weekday()]
     for entry in plan.week:
         if str(entry.get("day", "")).strip().lower() == today_name.lower():
             return entry.get("exercises", [])
@@ -180,6 +215,7 @@ async def log_workout(
     exercises: List[Dict[str, Any]],
     duration: int,
     intensity: str = "medium",
+    xp_earned: int = 0,
 ) -> WorkoutLog:
     """Persist a completed workout for the user and return the saved log."""
     log = WorkoutLog(
@@ -187,7 +223,7 @@ async def log_workout(
         exercises=exercises,
         duration_minutes=duration,
         intensity=intensity,
-        xp_earned=XP_REWARDS["workout"],
+        xp_earned=xp_earned,
     )
     await log.save()
     logger.info("Logged workout for user %s (%s min, %s)", user_id, duration, intensity)
@@ -195,8 +231,8 @@ async def log_workout(
 
 
 async def award_xp_for_workout(user_id: str, duration: int = 0) -> Dict[str, Any]:
-    """Award workout XP via the gamification engine and return level info."""
-    result = await gamification_service.award_xp(user_id, XP_REWARDS["workout"])
+    """Award workout XP (once per day) and return level info."""
+    result = await gamification_service.award_action_xp(user_id, "workout")
     return {
         "xp_earned": result["xp_earned"],
         "total_xp": result["total_xp"],
@@ -220,7 +256,7 @@ async def mark_exercise_complete(
     user_id: str, exercise_name: str, day: Optional[str] = None
 ) -> Dict[str, Any]:
     """Mark a single exercise complete for today and return today's progress."""
-    today = date.today().isoformat()
+    today = local_today_iso()
     db = get_database()
     if db is not None:
         await db[_PROGRESS_COLLECTION].update_one(

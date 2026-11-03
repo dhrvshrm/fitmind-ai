@@ -1,9 +1,11 @@
-import json
 import logging
 import re
 from typing import Tuple
 
-from app.config.settings import get_settings
+from pydantic import BaseModel, Field
+
+from app.ai import client as ai_client
+from app.ai.client import AIError
 from app.models.voice_checkin import VoiceCheckin
 from app.services import cloud_service
 
@@ -18,27 +20,16 @@ _POSITIVE_WORDS = {"good", "great", "happy", "energised", "energized", "strong",
 _NEGATIVE_WORDS = {"tired", "exhausted", "sore", "stressed", "bad", "low", "sad", "drained", "sick", "anxious", "weak"}
 
 
-def transcribe_audio(audio_bytes: bytes, filename: str = "audio.webm") -> str:
+async def transcribe_audio(audio_bytes: bytes, user_id: str, filename: str = "audio.webm") -> str:
     """Transcribe audio using Groq Whisper.
 
-    Returns an empty string when Groq is not configured/installed or the
-    call fails, so the check-in flow can continue without transcription.
+    Returns an empty string when Groq is not configured or the call fails,
+    so the check-in flow can continue without transcription.
     """
-    settings = get_settings()
-    if not settings.GROQ_API_KEY:
-        logger.info("GROQ_API_KEY not set - skipping transcription")
-        return ""
     try:
-        from groq import Groq
-
-        client = Groq(api_key=settings.GROQ_API_KEY)
-        result = client.audio.transcriptions.create(
-            file=(filename, audio_bytes),
-            model=settings.GROQ_WHISPER_MODEL,
-        )
-        return (result.text or "").strip()
-    except Exception as e:
-        logger.warning("Groq transcription failed: %s", e)
+        return await ai_client.transcribe(audio_bytes, filename, user_id=user_id)
+    except AIError as e:
+        logger.warning("Transcription unavailable: %s", e)
         return ""
 
 
@@ -56,47 +47,33 @@ def _fallback_mood(transcript: str) -> Tuple[str, int]:
     return DEFAULT_MOOD, DEFAULT_ENERGY
 
 
-def analyze_mood_from_transcript(transcript: str) -> Tuple[str, int]:
-    """Analyse a transcript for mood and energy (1-10) using Gemini.
+class _MoodResult(BaseModel):
+    """Mood analysis as returned by the model."""
 
-    Falls back to a keyword heuristic when Gemini is not configured or the
-    response can't be parsed. Always returns ``(mood, energy_level)`` with
-    energy clamped to ``[1, 10]``.
+    mood: str = Field(..., min_length=1, max_length=30)
+    energy_level: int = Field(..., ge=1, le=10)
+
+
+async def analyze_mood_from_transcript(transcript: str, user_id: str) -> Tuple[str, int]:
+    """Analyse a transcript for mood and energy (1-10).
+
+    Falls back to a keyword heuristic when AI is unavailable or the response
+    is invalid. Always returns ``(mood, energy_level)`` with energy in
+    ``[1, 10]``.
     """
-    settings = get_settings()
-    if not settings.GEMINI_API_KEY or not transcript:
+    if not transcript:
         return _fallback_mood(transcript)
-
     prompt = (
-        "Analyze this voice check-in transcript from a fitness app user and "
-        "determine their mood and energy level. Respond with ONLY a JSON object "
-        'of the form {"mood": "<one or two words>", "energy_level": <integer 1-10>}. '
-        f"Transcript: {transcript}"
+        "Read this voice check-in from a fitness app user and judge their mood "
+        "(one or two lowercase words) and energy level from 1 (exhausted) to 10 "
+        f"(very energetic).\n\nTranscript: {transcript}"
     )
     try:
-        from google import genai
-
-        client = genai.Client(api_key=settings.GEMINI_API_KEY)
-        response = client.models.generate_content(
-            model=settings.GEMINI_MODEL,
-            contents=prompt,
-        )
-        return _parse_mood_response(response.text)
-    except Exception as e:
-        logger.warning("Gemini mood analysis failed: %s", e)
+        result = await ai_client.generate_json(prompt, _MoodResult, temperature=0.2, user_id=user_id)
+    except AIError as e:
+        logger.warning("Mood analysis unavailable: %s", e)
         return _fallback_mood(transcript)
-
-
-def _parse_mood_response(text: str) -> Tuple[str, int]:
-    """Extract (mood, energy_level) from Gemini's JSON-ish response."""
-    match = re.search(r"\{.*\}", text or "", re.DOTALL)
-    if not match:
-        raise ValueError("no JSON object in model response")
-    data = json.loads(match.group(0))
-    mood = str(data.get("mood", DEFAULT_MOOD)).strip() or DEFAULT_MOOD
-    energy = int(data.get("energy_level", DEFAULT_ENERGY))
-    energy = max(1, min(10, energy))
-    return mood, energy
+    return result.mood.strip().lower(), result.energy_level
 
 
 async def process_voice(
@@ -109,8 +86,8 @@ async def process_voice(
     audio_url = await cloud_service.upload_to_r2(
         audio_blob, user_id, content_type=content_type
     )
-    transcript = transcribe_audio(audio_blob, filename=filename)
-    mood, energy_level = analyze_mood_from_transcript(transcript)
+    transcript = await transcribe_audio(audio_blob, user_id, filename=filename)
+    mood, energy_level = await analyze_mood_from_transcript(transcript, user_id)
 
     checkin = VoiceCheckin(
         user_id=user_id,

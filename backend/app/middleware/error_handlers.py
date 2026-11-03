@@ -41,7 +41,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         message = f"{loc}: {detail}" if loc else detail
         logger.info("Validation error on %s %s: %s", request.method, request.url.path, message)
         return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             content=_envelope(message, {"errors": errors}),
         )
 

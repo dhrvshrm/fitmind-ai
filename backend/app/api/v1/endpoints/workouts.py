@@ -51,6 +51,7 @@ async def generate_workout_plan(
         equipment=equipment,
         recovery_score=recovery_score,
         mood_score=mood_score,
+        injuries=current_user.injuries,
     )
     return {
         "success": True,
@@ -85,21 +86,27 @@ async def get_today_workout(current_user: User = Depends(get_current_user)) -> d
 async def log_workout(
     log_data: WorkoutLogRequest, current_user: User = Depends(get_current_user)
 ) -> dict:
-    """Log a completed workout: award XP, recompute level, and check badges."""
+    """Log a completed workout: award XP (once per day), recompute level, check badges."""
+    xp = await workout_service.award_xp_for_workout(
+        current_user.id, duration=log_data.duration_minutes
+    )
     await workout_service.log_workout(
         current_user.id,
         exercises=log_data.exercises,
         duration=log_data.duration_minutes,
         intensity=log_data.intensity,
-    )
-    xp = await workout_service.award_xp_for_workout(
-        current_user.id, duration=log_data.duration_minutes
+        xp_earned=xp["xp_earned"],
     )
     new_badges = await workout_service.check_and_award_badges(current_user.id)
+    message = (
+        f"Workout logged. +{xp['xp_earned']} XP."
+        if xp["xp_earned"]
+        else "Workout logged."
+    )
     await notification_service.create_notification(
         current_user.id,
         notification_service.TYPE_WORKOUT_LOGGED,
-        f"Workout logged! +{xp['xp_earned']} XP earned. Keep it up!",
+        message,
         meta={"xp_earned": xp["xp_earned"], "total_xp": xp["total_xp"]},
     )
     return {

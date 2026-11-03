@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Dict
 
+from app.models import audit
 from app.models.user import DEFAULT_NOTIFICATION_PREFERENCES, User
 from app.services import auth_service, user_service
 
@@ -45,7 +46,10 @@ async def update_fitness_goals(user_id: str, data: Dict[str, Any]) -> User:
         raise SettingsError("User not found")
     updates = {k: v for k, v in data.items() if k in GOAL_FIELDS and v is not None}
     if updates:
+        before = {k: getattr(user, k) for k in GOAL_FIELDS}
         await user.update(updates)
+        after = {k: getattr(user, k) for k in GOAL_FIELDS}
+        await audit.record_change(user_id, "profile", "update_goals", before, after)
     logger.info("Updated fitness goals for user %s", user_id)
     return user
 

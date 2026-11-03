@@ -1,7 +1,10 @@
 import logging
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any, Dict, List
 
+from pymongo.errors import DuplicateKeyError
+
+from app.config.database import get_database
 from app.models.gamification import BADGE_CATALOG, LEVEL_TIERS, XP_REWARDS
 from app.models.nutrition import Meal, count_days_hydration_goal_met
 from app.models.recovery import RecoveryLog
@@ -9,6 +12,7 @@ from app.models.user import User
 from app.models.voice_checkin import VoiceCheckin
 from app.models.workout import WorkoutLog
 from app.services import notification_service
+from app.utils.time import local_today, local_today_iso
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +27,19 @@ CLEAN_EATER_TOLERANCE = 0.15
 DEFAULT_TDEE = 2000
 HYDRATION_GOAL_ML = 2000
 HYDRATION_HERO_DAYS = 7
+
+# How many times per local day each action earns XP. Logging more is allowed,
+# it just stops paying out, so repeated logs can't be used to farm XP.
+DAILY_XP_CAPS: Dict[str, int] = {
+    "workout": 1,
+    "recovery": 1,
+    "voice_checkin": 1,
+    "meal": 5,
+}
+
+# Ledger of XP payouts; one document per paid-out action slot.
+XP_EVENTS_COLLECTION = "xp_events"
+_XP_EVENTS_MEMORY: Dict[str, dict] = {}
 
 # Badge ids (kept aligned with app.models.gamification.BADGE_CATALOG).
 BADGE_SEVEN_DAY_WARRIOR = "seven_day_warrior"
@@ -71,7 +88,10 @@ def calculate_level(xp: int) -> Dict[str, Any]:
 
 
 async def award_xp(user_id: str, amount: int) -> Dict[str, Any]:
-    """Add XP to a user, recompute their level, and persist.
+    """Atomically add XP to a user, recompute their level, and persist.
+
+    Server-side only: clients can't award XP directly. Use
+    :func:`award_action_xp` for user actions so daily caps apply.
 
     Returns the XP awarded, new total, level number/title and whether the
     user reached a new tier.
@@ -79,14 +99,16 @@ async def award_xp(user_id: str, amount: int) -> Dict[str, Any]:
     Raises:
         GamificationError: if the user does not exist.
     """
-    user = await User.get_by_id(user_id)
-    if user is None:
+    new_xp = await User.increment_xp(user_id, amount)
+    if new_xp is None:
         raise GamificationError("User not found")
 
-    old = calculate_level(user.xp)
-    new_xp = user.xp + amount
+    old = calculate_level(new_xp - amount)
     new = calculate_level(new_xp)
-    await user.update({"xp": new_xp, "level": new["level"]})
+    if new["level"] != old["level"]:
+        user = await User.get_by_id(user_id)
+        if user is not None:
+            await user.update({"level": new["level"]})
     return {
         "xp_earned": amount,
         "total_xp": new_xp,
@@ -96,18 +118,73 @@ async def award_xp(user_id: str, amount: int) -> Dict[str, Any]:
     }
 
 
+async def _claim_xp_slot(user_id: str, action: str, day: str) -> bool:
+    """Reserve the next XP payout slot for ``action`` today.
+
+    Returns False once the daily cap is reached. Each slot has a unique key,
+    so two concurrent requests can't both claim the same one.
+    """
+    cap = DAILY_XP_CAPS.get(action, 1)
+    db = get_database()
+    if db is not None:
+        used = await db[XP_EVENTS_COLLECTION].count_documents(
+            {"user_id": user_id, "action": action, "local_date": day}
+        )
+        if used >= cap:
+            return False
+        try:
+            await db[XP_EVENTS_COLLECTION].insert_one(
+                {
+                    "user_id": user_id,
+                    "action": action,
+                    "local_date": day,
+                    "key": f"{action}:{day}:{used}",
+                    "amount": XP_REWARDS[action],
+                    "created_at": datetime.now(timezone.utc),
+                }
+            )
+        except DuplicateKeyError:
+            return False
+        return True
+
+    for slot in range(cap):
+        key = f"{user_id}:{action}:{day}:{slot}"
+        if key not in _XP_EVENTS_MEMORY:
+            _XP_EVENTS_MEMORY[key] = {"user_id": user_id, "action": action, "local_date": day}
+            return True
+    return False
+
+
+async def award_action_xp(user_id: str, action: str) -> Dict[str, Any]:
+    """Award the XP for a user action, respecting its daily cap.
+
+    Returns the same shape as :func:`award_xp`; ``xp_earned`` is 0 once the
+    day's cap for ``action`` is reached.
+    """
+    if action not in XP_REWARDS:
+        raise GamificationError(f"Unknown XP action: {action}")
+    if await _claim_xp_slot(user_id, action, local_today_iso()):
+        return await award_xp(user_id, XP_REWARDS[action])
+    return await award_xp(user_id, 0)
+
+
 # ---------------------------------------------------------------------------
 # Streaks
 # ---------------------------------------------------------------------------
-async def _workout_streak(user_id: str) -> int:
-    """Count consecutive days with a workout ending today (0 if none today)."""
+async def workout_streak_ending(user_id: str, last_day: date) -> int:
+    """Count consecutive days with a workout ending on ``last_day`` (0 if none that day)."""
     dates = set(await WorkoutLog.get_workout_dates(user_id))
     streak = 0
-    day = date.today()
+    day = last_day
     while day.isoformat() in dates:
         streak += 1
         day -= timedelta(days=1)
     return streak
+
+
+async def _workout_streak(user_id: str) -> int:
+    """Count consecutive days with a workout ending today (0 if none today)."""
+    return await workout_streak_ending(user_id, local_today())
 
 
 async def update_streak(user_id: str) -> int:
@@ -158,7 +235,7 @@ async def award_badge(user_id: str, badge_id: str) -> bool:
     user = await User.get_by_id(user_id)
     if user is None or badge_id in user.badges:
         return False
-    await user.update({"badges": user.badges + [badge_id]})
+    await User.add_badges(user_id, [badge_id])
     logger.info("Awarded badge '%s' to user %s", badge_id, user_id)
     return True
 
@@ -196,14 +273,10 @@ async def check_badge_conditions(user_id: str) -> List[str]:
         if hydrated_days >= HYDRATION_HERO_DAYS:
             new.append(BADGE_HYDRATION_HERO)
 
-    # Single write covers streak refresh + any newly earned badges.
-    await user.update(
-        {
-            "current_streak": streak,
-            "longest_streak": longest,
-            "badges": list(earned | set(new)),
-        }
-    )
+    # Streak fields are written alone and badges are added atomically, so
+    # XP or badge changes made by concurrent requests aren't overwritten.
+    await user.update({"current_streak": streak, "longest_streak": longest})
+    await User.add_badges(user_id, new)
     if new:
         logger.info("Awarded badges to user %s: %s", user_id, new)
         for badge_id in new:

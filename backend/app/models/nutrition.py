@@ -1,10 +1,10 @@
 import logging
-from datetime import date as date_cls
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 from uuid import uuid4
 
 from app.config.database import get_database
+from app.utils.time import local_today_iso
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class Meal:
         self.protein: float = protein
         self.carbs: float = carbs
         self.fats: float = fats
-        self.log_date: str = log_date or date_cls.today().isoformat()
+        self.log_date: str = log_date or local_today_iso()
         self.created_at: datetime = created_at or datetime.now(timezone.utc)
 
     def to_dict(self) -> dict:
@@ -111,7 +111,7 @@ class Meal:
 
 async def add_water(user_id: str, amount_ml: int, log_date: Optional[str] = None) -> int:
     """Add water intake for a day and return the new daily total (ml)."""
-    day = log_date or date_cls.today().isoformat()
+    day = log_date or local_today_iso()
     db = get_database()
     if db is not None:
         await db[WATER_COLLECTION].update_one(
@@ -137,7 +137,7 @@ async def add_water(user_id: str, amount_ml: int, log_date: Optional[str] = None
 
 async def get_water(user_id: str, log_date: Optional[str] = None) -> int:
     """Return the user's total water intake (ml) for a day."""
-    day = log_date or date_cls.today().isoformat()
+    day = log_date or local_today_iso()
     db = get_database()
     if db is not None:
         doc = await db[WATER_COLLECTION].find_one({"user_id": user_id, "log_date": day})

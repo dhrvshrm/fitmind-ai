@@ -100,7 +100,9 @@ export function MealForm({ onLogged }: MealFormProps) {
         fats: Number(form.fats) || 0,
         meal_type: form.meal_type,
       });
-      toast.success(`${S.success} ${S.xpToast(result.xp_earned)}`);
+      toast.success(
+        result.xp_earned > 0 ? `${S.success} ${S.xpToast(result.xp_earned)}` : S.success,
+      );
       if (result.leveled_up) toast.success(S.levelUpToast(result.new_level));
       setForm((prev) => ({ ...INITIAL_FORM, meal_type: prev.meal_type }));
       onLogged(result);

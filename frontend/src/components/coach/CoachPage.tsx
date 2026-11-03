@@ -5,12 +5,11 @@ import { ChatContainer } from './ChatContainer';
 import { QuickPrompts } from './QuickPrompts';
 import { InputBox } from './InputBox';
 import { useAuth } from '../../hooks/useAuth';
-import { useWebSocket } from '../../hooks/useWebSocket';
+import { useAppSocket } from '../../hooks/useAppSocket';
 import { STRINGS } from '../../constants/strings';
 import { PING_INTERVAL_MS } from '../../constants/chat';
-import { getChatSocketUrl } from '../../constants/api';
 import { generateMessageId, loadChatHistory, saveChatHistory } from '../../utils/chat';
-import type { ChatMessage, ClientFrame, ConnectionStatus, ServerFrame } from '../../types/chat';
+import type { ChatMessage, ConnectionStatus, ServerFrame } from '../../types/chat';
 import { coachPageStyles as styles } from './CoachPage.styles';
 
 const S = STRINGS.coach;
@@ -99,10 +98,7 @@ export function CoachPage() {
     }
   }, []);
 
-  const { status, send } = useWebSocket<ServerFrame, ClientFrame>({
-    url: userId ? getChatSocketUrl(userId) : null,
-    onMessage: handleFrame,
-  });
+  const { status, send } = useAppSocket(handleFrame);
 
   // Keepalive ping while connected, so idle proxies don't drop the socket.
   useEffect(() => {

@@ -1,18 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import { RECONNECT_DELAYS_MS } from '../constants/chat';
+import { WS_CLOSE_UNAUTHORIZED } from '../constants/api';
 import type { ConnectionStatus } from '../types/chat';
 
-type UseWebSocketOptions<TIncoming> = {
+type UseWebSocketOptions<TIncoming, TOutgoing> = {
   /** Socket URL, or `null` to stay disconnected (e.g. auth not ready yet). */
   url: string | null;
   /** Called with each parsed JSON frame received from the server. */
   onMessage: (frame: TIncoming) => void;
+  /** Frame sent as soon as the socket opens (used to authenticate). */
+  authFrame: TOutgoing | null;
+  /** True for the frame confirming authentication; status becomes `open` then. */
+  isReadyFrame: (frame: TIncoming) => boolean;
 };
 
 /**
- * Generic JSON WebSocket connection: connects when `url` is set, exposes the
- * live connection status, and reconnects automatically (with backoff) if the
- * socket drops for any reason other than the component unmounting.
+ * Generic JSON WebSocket connection: connects when `url` is set, sends
+ * `authFrame` on open, reports `open` once the server confirms with a ready
+ * frame, and reconnects automatically (with backoff) if the socket drops for
+ * any reason other than the component unmounting or a rejected login.
  *
  * Guards against React StrictMode's dev-mode double-invoke (mount -> cleanup ->
  * mount): `cancelled` is a plain closure variable scoped to one effect
@@ -24,16 +30,22 @@ type UseWebSocketOptions<TIncoming> = {
 export function useWebSocket<TIncoming, TOutgoing = TIncoming>({
   url,
   onMessage,
-}: UseWebSocketOptions<TIncoming>) {
+  authFrame,
+  isReadyFrame,
+}: UseWebSocketOptions<TIncoming, TOutgoing>) {
   const [internalStatus, setInternalStatus] = useState<ConnectionStatus>('connecting');
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimerRef = useRef<number | null>(null);
   const attemptRef = useRef(0);
   const onMessageRef = useRef(onMessage);
+  const authFrameRef = useRef(authFrame);
+  const isReadyFrameRef = useRef(isReadyFrame);
 
   useEffect(() => {
     onMessageRef.current = onMessage;
-  }, [onMessage]);
+    authFrameRef.current = authFrame;
+    isReadyFrameRef.current = isReadyFrame;
+  }, [onMessage, authFrame, isReadyFrame]);
 
   useEffect(() => {
     if (!url) return;
@@ -56,23 +68,33 @@ export function useWebSocket<TIncoming, TOutgoing = TIncoming>({
 
       socket.onopen = () => {
         if (socketRef.current !== socket) return;
-        attemptRef.current = 0;
-        setInternalStatus('open');
+        if (authFrameRef.current) socket.send(JSON.stringify(authFrameRef.current));
       };
 
       socket.onmessage = (event) => {
         if (socketRef.current !== socket) return;
+        let frame: TIncoming;
         try {
-          onMessageRef.current(JSON.parse(event.data) as TIncoming);
+          frame = JSON.parse(event.data) as TIncoming;
         } catch {
-          // Ignore frames that aren't valid JSON.
+          return; // Ignore frames that aren't valid JSON.
         }
+        if (isReadyFrameRef.current(frame)) {
+          attemptRef.current = 0;
+          setInternalStatus('open');
+        }
+        onMessageRef.current(frame);
       };
 
-      socket.onclose = () => {
+      socket.onclose = (event) => {
         if (socketRef.current !== socket) return;
         socketRef.current = null;
         if (cancelled) return;
+        // A rejected token won't start working on retry; stay closed.
+        if (event.code === WS_CLOSE_UNAUTHORIZED) {
+          setInternalStatus('closed');
+          return;
+        }
 
         setInternalStatus('reconnecting');
         const delay =

@@ -17,9 +17,8 @@ class ConnectionManager:
         """Initialise an empty registry of active connections."""
         self._connections: Dict[str, Set[WebSocket]] = {}
 
-    async def connect(self, user_id: str, websocket: WebSocket) -> None:
-        """Accept a socket and register it under ``user_id``."""
-        await websocket.accept()
+    def register(self, user_id: str, websocket: WebSocket) -> None:
+        """Register an already accepted, authenticated socket under ``user_id``."""
         self._connections.setdefault(user_id, set()).add(websocket)
         logger.info("WS connected: user=%s (total=%d)", user_id, self.connection_count)
 

@@ -3,7 +3,6 @@ from fastapi import APIRouter, Depends
 from app.api.v1.endpoints.auth import get_current_user
 from app.models.user import User
 from app.schemas.general import SuccessResponse
-from app.schemas.gamification import AwardXpRequest
 from app.services import gamification_service
 
 router = APIRouter(prefix="/gamification", tags=["Gamification"])
@@ -17,20 +16,6 @@ async def get_profile(current_user: User = Depends(get_current_user)) -> dict:
         "success": True,
         "message": "Gamification profile retrieved",
         "data": profile,
-    }
-
-
-@router.post("/xp", response_model=SuccessResponse)
-async def award_xp(
-    payload: AwardXpRequest, current_user: User = Depends(get_current_user)
-) -> dict:
-    """Award XP to the current user and re-check badge conditions."""
-    result = await gamification_service.award_xp(current_user.id, payload.amount)
-    new_badges = await gamification_service.check_badge_conditions(current_user.id)
-    return {
-        "success": True,
-        "message": "XP awarded",
-        "data": {**result, "new_badges": new_badges},
     }
 
 

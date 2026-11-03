@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { API_BASE_URL, API_PREFIX } from '../constants/api';
+import { API_BASE_URL, API_PREFIX, TIMEZONE_HEADER } from '../constants/api';
 import { STRINGS } from '../constants/strings';
 import { useAuthStore } from '../store/authStore';
 
@@ -9,14 +9,47 @@ export const apiClient = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-/** Attach the bearer token (if any) to every outgoing request. */
+/** The browser's IANA timezone (e.g. "Asia/Kolkata"), or null if unavailable. */
+function browserTimezone(): string | null {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Attach the bearer token (if any) and the browser's timezone to every
+ * outgoing request. The backend uses the timezone to decide the user's
+ * "today" for logs, plans and reminders.
+ */
 apiClient.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  const timezone = browserTimezone();
+  if (timezone) {
+    config.headers[TIMEZONE_HEADER] = timezone;
+  }
   return config;
 });
+
+/** True when the server rejected the request's credentials (expired or revoked token). */
+export function isUnauthorizedError(error: unknown): boolean {
+  return axios.isAxiosError(error) && error.response?.status === 401;
+}
+
+/** An expired or revoked token ends the session everywhere in the app. */
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (isUnauthorizedError(error) && useAuthStore.getState().token) {
+      useAuthStore.getState().clearAuth();
+    }
+    return Promise.reject(error);
+  },
+);
 
 /**
  * Turn an axios error into a human-readable message, preferring the backend's

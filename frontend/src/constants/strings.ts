@@ -289,6 +289,7 @@ export const STRINGS = {
       saved: "Workout saved!",
       saveError: "Could not save your workout. Please try again.",
       xpEarned: (xp: number) => `+${xp} XP`,
+      xpAlreadyEarned: "Workout saved. Today's workout XP was already counted.",
       totalXp: (xp: number) => `Total: ${xp} XP`,
       levelUp: (level: number) => `Level up! You're now level ${level}`,
       newBadge: (badge: string) => `New badge: ${badge}`,

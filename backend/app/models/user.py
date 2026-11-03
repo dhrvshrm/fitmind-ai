@@ -3,7 +3,10 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
+from pymongo import ReturnDocument
+
 from app.config.database import get_database
+from app.utils.time import DEFAULT_TIMEZONE
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +34,9 @@ PROFILE_FIELDS = (
     "fitness_goal",
     "experience_level",
     "available_equipment",
+    "injuries",
+    "activity_level",
+    "timezone",
     "bmi",
     "tdee",
     "onboarding_completed",
@@ -65,6 +71,9 @@ class User:
         fitness_goal: Optional[str] = None,
         experience_level: Optional[str] = None,
         available_equipment: Optional[List[str]] = None,
+        injuries: Optional[List[str]] = None,
+        activity_level: Optional[str] = None,
+        timezone_name: Optional[str] = None,
         bmi: Optional[float] = None,
         tdee: Optional[int] = None,
         onboarding_completed: bool = False,
@@ -91,6 +100,10 @@ class User:
         self.fitness_goal: Optional[str] = fitness_goal
         self.experience_level: Optional[str] = experience_level
         self.available_equipment: List[str] = available_equipment or []
+        self.injuries: List[str] = injuries or []
+        self.activity_level: Optional[str] = activity_level
+        # IANA timezone used to decide the user's "today" (e.g. Asia/Kolkata).
+        self.timezone: str = timezone_name or DEFAULT_TIMEZONE
         self.bmi: Optional[float] = bmi
         self.tdee: Optional[int] = tdee
         self.onboarding_completed: bool = onboarding_completed
@@ -120,6 +133,9 @@ class User:
             "fitness_goal": self.fitness_goal,
             "experience_level": self.experience_level,
             "available_equipment": self.available_equipment,
+            "injuries": self.injuries,
+            "activity_level": self.activity_level,
+            "timezone": self.timezone,
             "bmi": self.bmi,
             "tdee": self.tdee,
             "onboarding_completed": self.onboarding_completed,
@@ -154,6 +170,9 @@ class User:
             fitness_goal=data.get("fitness_goal"),
             experience_level=data.get("experience_level"),
             available_equipment=data.get("available_equipment"),
+            injuries=data.get("injuries"),
+            activity_level=data.get("activity_level"),
+            timezone_name=data.get("timezone"),
             bmi=data.get("bmi"),
             tdee=data.get("tdee"),
             onboarding_completed=data.get("onboarding_completed", False),
@@ -176,33 +195,73 @@ class User:
     async def update(self, fields: Dict[str, Any]) -> "User":
         """Apply and persist a partial update to this user's fields.
 
-        Only known attributes are updated; ``updated_at`` is refreshed
-        automatically.
+        Only known attributes are updated, and only those fields are written,
+        so concurrent updates to other fields (XP, badges, streaks) are not
+        overwritten with stale values. ``updated_at`` is refreshed
+        automatically. Use :meth:`increment_xp` / :meth:`add_badges` for
+        counters and sets that several requests may change at once.
         """
-        for key, value in fields.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
+        changes = {k: v for k, v in fields.items() if hasattr(self, k) and k != "id"}
+        for key, value in changes.items():
+            setattr(self, key, value)
         self.updated_at = datetime.now(timezone.utc)
+        changes["updated_at"] = self.updated_at
 
         db = get_database()
         if db is not None:
-            await db[COLLECTION_NAME].update_one(
-                {"id": self.id}, {"$set": self.to_dict()}
-            )
+            await db[COLLECTION_NAME].update_one({"id": self.id}, {"$set": changes})
         else:
-            _MEMORY_STORE[self.id] = self.to_dict()
-        logger.info("Updated user %s", self.email)
+            stored = _MEMORY_STORE.setdefault(self.id, self.to_dict())
+            stored.update(changes)
+        logger.info("Updated user %s fields %s", self.id, sorted(changes))
         return self
 
     @classmethod
-    async def get_by_email(cls, email: str) -> Optional["User"]:
-        """Return the user with the given email, or ``None`` if not found."""
+    async def increment_xp(cls, user_id: str, amount: int) -> Optional[int]:
+        """Atomically add ``amount`` XP and return the new total (None if no user)."""
         db = get_database()
         if db is not None:
-            data = await db[COLLECTION_NAME].find_one({"email": email})
+            doc = await db[COLLECTION_NAME].find_one_and_update(
+                {"id": user_id},
+                {"$inc": {"xp": amount}},
+                return_document=ReturnDocument.AFTER,
+            )
+            return int(doc["xp"]) if doc else None
+        stored = _MEMORY_STORE.get(user_id)
+        if stored is None:
+            return None
+        stored["xp"] = stored.get("xp", 0) + amount
+        return stored["xp"]
+
+    @classmethod
+    async def add_badges(cls, user_id: str, badge_ids: List[str]) -> None:
+        """Atomically add badges to a user's set (duplicates are ignored)."""
+        if not badge_ids:
+            return
+        db = get_database()
+        if db is not None:
+            await db[COLLECTION_NAME].update_one(
+                {"id": user_id}, {"$addToSet": {"badges": {"$each": badge_ids}}}
+            )
+            return
+        stored = _MEMORY_STORE.get(user_id)
+        if stored is not None:
+            stored["badges"] = list(dict.fromkeys(stored.get("badges", []) + badge_ids))
+
+    @classmethod
+    async def get_by_email(cls, email: str) -> Optional["User"]:
+        """Return the user with the given email, or ``None`` if not found.
+
+        Emails are stored lowercased; the exact spelling is also tried so
+        accounts created before normalisation can still sign in.
+        """
+        candidates = list(dict.fromkeys([email.strip().lower(), email]))
+        db = get_database()
+        if db is not None:
+            data = await db[COLLECTION_NAME].find_one({"email": {"$in": candidates}})
             return cls._from_dict(data) if data else None
         for data in _MEMORY_STORE.values():
-            if data["email"] == email:
+            if data["email"] in candidates:
                 return cls._from_dict(data)
         return None
 

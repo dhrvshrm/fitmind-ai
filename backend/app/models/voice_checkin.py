@@ -1,9 +1,10 @@
 import logging
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 from uuid import uuid4
 
 from app.config.database import get_database
+from app.utils.time import local_today_iso
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ class VoiceCheckin:
         self.transcript: str = transcript
         self.mood: str = mood
         self.energy_level: int = energy_level
-        self.log_date: str = log_date or date.today().isoformat()
+        self.log_date: str = log_date or local_today_iso()
         self.created_at: datetime = created_at or datetime.now(timezone.utc)
 
     def to_dict(self) -> dict:

@@ -15,18 +15,21 @@ export type ChatMessage = {
   timestamp: string;
 };
 
-/** Frames the client sends over `/ws/{user_id}`. */
+/** Frames the client sends over `/ws`. The first frame must be `auth`. */
 export type ClientFrame =
+  | { type: 'auth'; token: string }
   | { type: 'message'; content: string }
   | { type: 'ping' };
 
 /**
- * Frames the server sends back. `start`/`token`/`done`/`error` come from
+ * Frames the server sends back. `ready` confirms authentication;
+ * `start`/`token`/`done`/`error` come from
  * `chat_handler`; `pong` answers a keepalive ping; `notification` is pushed
  * live (or on reconnect, for anything missed while offline) by
  * `notification_service.create_notification` / `deliver_pending`.
  */
 export type ServerFrame =
+  | { type: 'ready' }
   | { type: 'start' }
   | { type: 'token'; content: string }
   | { type: 'done'; content: string }

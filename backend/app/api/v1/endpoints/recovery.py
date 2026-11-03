@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 
 from app.api.v1.endpoints.auth import get_current_user
-from app.models.gamification import XP_REWARDS
 from app.models.user import User
 from app.schemas.general import SuccessResponse
 from app.schemas.recovery import RecoveryLogRequest
@@ -16,7 +15,7 @@ async def log_recovery(
 ) -> dict:
     """Log today's recovery metrics, award XP, and return the computed score."""
     log = await recovery_service.log_recovery(current_user.id, payload.model_dump())
-    xp = await gamification_service.award_xp(current_user.id, XP_REWARDS["recovery"])
+    xp = await gamification_service.award_action_xp(current_user.id, "recovery")
     new_badges = await gamification_service.check_badge_conditions(current_user.id)
     return {
         "success": True,

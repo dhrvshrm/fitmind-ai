@@ -1,5 +1,10 @@
 import { CHAT_HISTORY_KEY_PREFIX } from '../constants/api';
-import type { ChatMessage } from '../types/chat';
+import type { ChatMessage, ServerFrame } from '../types/chat';
+
+/** True for the server frame that confirms the socket is authenticated. */
+export function isReadyFrame(frame: ServerFrame): boolean {
+  return frame.type === 'ready';
+}
 
 /** Caps how much history is kept per user, so localStorage doesn't grow unbounded. */
 const MAX_STORED_MESSAGES = 200;

@@ -13,7 +13,7 @@ router = APIRouter(prefix="/nutrition", tags=["Nutrition"])
 async def log_meal(
     payload: MealLogRequest, current_user: User = Depends(get_current_user)
 ) -> dict:
-    """Log a meal, award +10 XP, and return the meal with XP progress."""
+    """Log a meal, award meal XP (capped per day), and return it with XP progress."""
     meal = await nutrition_service.log_meal(
         current_user.id,
         name=payload.name,

@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { authService } from '../services/authService';
+import { isUnauthorizedError } from '../lib/apiClient';
 import { useAuthStore } from '../store/authStore';
 import { STRINGS } from '../constants/strings';
 import type { Credentials, User } from '../types/auth';
@@ -76,8 +77,10 @@ export function useAuth() {
 
 /**
  * Runs once at app root: if a token was restored from localStorage, confirm it
- * still resolves a user; otherwise clear it. Toggles `isBootstrapping` so
- * `ProtectedRoute` can show a spinner instead of flashing the login page.
+ * still resolves a user. Only a 401 ends the session; network errors and
+ * backend cold starts keep the persisted session so the user isn't logged
+ * out by a slow server. Toggles `isBootstrapping` so `ProtectedRoute` can
+ * show a spinner instead of flashing the login page.
  */
 export function useAuthBootstrap() {
   const setUser = useAuthStore((s) => s.setUser);
@@ -96,8 +99,8 @@ export function useAuthBootstrap() {
       try {
         const current = await authService.getCurrentUser();
         if (active) setUser(current);
-      } catch {
-        if (active) clearAuth();
+      } catch (error) {
+        if (active && isUnauthorizedError(error)) clearAuth();
       } finally {
         if (active) setBootstrapping(false);
       }

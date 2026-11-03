@@ -1,11 +1,7 @@
 import { apiClient } from '../lib/apiClient';
 import { GAMIFICATION_ENDPOINTS } from '../constants/api';
 import type { ApiEnvelope } from '../types/auth';
-import type {
-  AwardXpResult,
-  BadgesResponse,
-  GamificationProfile,
-} from '../types/gamification';
+import type { BadgesResponse, GamificationProfile } from '../types/gamification';
 
 /** Gamification API. Unwraps the backend `{ success, message, data }` envelope. */
 export const gamificationService = {
@@ -20,14 +16,6 @@ export const gamificationService = {
   async getBadges(): Promise<BadgesResponse> {
     const { data } = await apiClient.get<ApiEnvelope<BadgesResponse>>(
       GAMIFICATION_ENDPOINTS.BADGES,
-    );
-    return data.data;
-  },
-
-  async awardXp(amount: number): Promise<AwardXpResult> {
-    const { data } = await apiClient.post<ApiEnvelope<AwardXpResult>>(
-      GAMIFICATION_ENDPOINTS.XP,
-      { amount },
     );
     return data.data;
   },

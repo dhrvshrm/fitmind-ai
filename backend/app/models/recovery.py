@@ -1,9 +1,10 @@
 import logging
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from app.config.database import get_database
+from app.utils.time import local_today_iso
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,7 @@ class RecoveryLog:
         self.muscle_soreness: int = muscle_soreness
         self.score: int = score
         # ISO date (YYYY-MM-DD) used to identify "today's" log.
-        self.log_date: str = log_date or date.today().isoformat()
+        self.log_date: str = log_date or local_today_iso()
         self.created_at: datetime = created_at or datetime.now(timezone.utc)
 
     def to_dict(self) -> dict:

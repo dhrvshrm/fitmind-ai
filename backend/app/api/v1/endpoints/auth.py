@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.schemas.general import SuccessResponse
@@ -6,6 +8,7 @@ from app.schemas.user import UserLogin, UserRegister
 from app.models.user import User
 from app.services import auth_service
 from app.services.auth_service import AuthError
+from app.utils.time import is_valid_timezone, set_current_timezone
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -15,20 +18,29 @@ bearer_scheme = HTTPBearer(auto_error=True)
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    x_timezone: Optional[str] = Header(default=None),
 ) -> User:
     """FastAPI dependency that resolves the authenticated user from a JWT.
+
+    Also sets the request's timezone, which decides the user's "today". The
+    browser sends its IANA zone in ``X-Timezone``; when it differs from the
+    stored one it is saved, so background jobs use it too.
 
     Raises:
         HTTPException: 401 if the token is missing, invalid, or expired.
     """
     try:
-        return await auth_service.get_user_from_token(credentials.credentials)
+        user = await auth_service.get_user_from_token(credentials.credentials)
     except AuthError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(exc),
             headers={"WWW-Authenticate": "Bearer"},
         ) from exc
+    if is_valid_timezone(x_timezone) and x_timezone != user.timezone:
+        await user.update({"timezone": x_timezone})
+    set_current_timezone(user.timezone)
+    return user
 
 
 @router.post("/register", response_model=SuccessResponse, status_code=status.HTTP_201_CREATED)

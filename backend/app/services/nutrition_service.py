@@ -1,11 +1,10 @@
 import logging
-from datetime import date as date_cls
 from typing import Any, Dict, List, Optional
 
-from app.models.gamification import XP_REWARDS
 from app.models.nutrition import Meal, add_water, get_water
 from app.models.user import User
 from app.services import gamification_service
+from app.utils.time import local_today_iso
 
 logger = logging.getLogger(__name__)
 
@@ -67,8 +66,8 @@ async def log_meal(
 
 
 async def award_xp_for_meal(user_id: str) -> Dict[str, Any]:
-    """Award meal XP via the gamification engine and return level info."""
-    result = await gamification_service.award_xp(user_id, XP_REWARDS["meal"])
+    """Award meal XP (capped per day) and return level info."""
+    result = await gamification_service.award_action_xp(user_id, "meal")
     return {
         "xp_earned": result["xp_earned"],
         "total_xp": result["total_xp"],
@@ -80,7 +79,7 @@ async def award_xp_for_meal(user_id: str) -> Dict[str, Any]:
 
 async def get_daily_nutrition(user_id: str, log_date: Optional[str] = None) -> List[Meal]:
     """Return the user's meals for a given ISO date (defaults to today)."""
-    day = log_date or date_cls.today().isoformat()
+    day = log_date or local_today_iso()
     return await Meal.get_by_date(user_id, day)
 
 
@@ -88,7 +87,7 @@ async def get_nutrition_summary(
     user_id: str, log_date: Optional[str] = None
 ) -> Dict[str, Any]:
     """Build a full daily nutrition summary with totals, goals and water."""
-    day = log_date or date_cls.today().isoformat()
+    day = log_date or local_today_iso()
     meals = await Meal.get_by_date(user_id, day)
 
     totals = {

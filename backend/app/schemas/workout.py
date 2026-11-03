@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class WorkoutPlanRequest(BaseModel):
@@ -43,9 +43,9 @@ class WorkoutPlanResponse(BaseModel):
 class WorkoutLogRequest(BaseModel):
     """Payload for logging a completed workout."""
 
-    exercises: List[dict] = []
-    duration_minutes: int = 0
-    intensity: str = "medium"
+    exercises: List[dict] = Field(default_factory=list, max_length=50)
+    duration_minutes: int = Field(0, ge=0, le=600)
+    intensity: str = Field("medium", max_length=20)
 
 
 class WorkoutLogResponse(BaseModel):

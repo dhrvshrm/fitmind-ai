@@ -1,5 +1,5 @@
 import logging
-from datetime import date, timedelta
+from datetime import timedelta
 from typing import Any, Dict, List
 
 from app.models.friend import STATUS_ACCEPTED, STATUS_PENDING, Friendship
@@ -10,6 +10,7 @@ from app.models.user import User
 from app.models.voice_checkin import VoiceCheckin
 from app.models.workout import WorkoutLog
 from app.services import notification_service
+from app.utils.time import local_today
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ async def _weekly_xp(user_id: str) -> int:
     multiplies each by its XP reward, giving a fair week-over-week ranking
     metric even though the stored ``xp`` total is cumulative.
     """
-    cutoff = (date.today() - timedelta(days=WEEKLY_WINDOW_DAYS - 1)).isoformat()
+    cutoff = (local_today() - timedelta(days=WEEKLY_WINDOW_DAYS - 1)).isoformat()
 
     workouts = sum(
         1 for w in await WorkoutLog.get_history(user_id, days=500) if w.log_date >= cutoff

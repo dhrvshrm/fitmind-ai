@@ -16,7 +16,7 @@ function run(cmd, args) {
 }
 
 function installRequirements() {
-  run(venvPython, ['-m', 'pip', 'install', '-r', 'requirements.txt'])
+  run(venvPython, ['-m', 'pip', 'install', '-r', 'requirements-dev.txt'])
 }
 
 if (!existsSync(venvPython)) {

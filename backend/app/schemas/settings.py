@@ -7,9 +7,9 @@ class ProfileUpdateRequest(BaseModel):
     """Editable profile fields — all optional (partial update)."""
 
     username: Optional[str] = Field(None, min_length=1, max_length=40)
-    age: Optional[int] = Field(None, ge=1, le=120)
-    weight_kg: Optional[float] = Field(None, gt=0, le=500)
-    height_cm: Optional[float] = Field(None, gt=0, le=300)
+    age: Optional[int] = Field(None, ge=13, le=100)
+    weight_kg: Optional[float] = Field(None, ge=30, le=300)
+    height_cm: Optional[float] = Field(None, ge=100, le=250)
     fitness_goal: Optional[str] = None
 
 

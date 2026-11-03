@@ -1,12 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
-
-
-class AwardXpRequest(BaseModel):
-    """Payload for manually awarding XP to a user."""
-
-    amount: int = Field(..., gt=0, le=1000)
+from pydantic import BaseModel
 
 
 class BadgeSchema(BaseModel):

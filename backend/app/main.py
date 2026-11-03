@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
 import logging
+
+from fastapi import FastAPI
 
 from app.config.database import connect_to_mongo, close_mongo_connection
 from app.config.cors import setup_cors
@@ -16,11 +18,30 @@ logger = logging.getLogger(__name__)
 
 _settings = get_settings()
 
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    """Start and stop the database connection and background scheduler."""
+    logger.info("Starting FitMind AI Backend (%s)...", _settings.DATABASE_ENV)
+    # Both raise in production on unsafe config or an unreachable database,
+    # so a broken deploy fails its health check instead of serving bad data.
+    _settings.validate_for_production()
+    await connect_to_mongo()
+    start_scheduler()
+    logger.info("Backend startup complete")
+    yield
+    logger.info("Shutting down...")
+    stop_scheduler()
+    await close_mongo_connection()
+
+
 app = FastAPI(
     title="FitMind AI API",
     description="AI-powered fitness coach. All responses use the envelope "
     "`{success: bool, message: str, data: any}`.",
-    version="1.0.0",
+    version=_settings.APP_VERSION,
+    debug=_settings.DEBUG,
+    lifespan=lifespan,
 )
 
 # Middleware runs bottom-to-top on the way in: rate limit first, then logging.
@@ -35,27 +56,12 @@ register_exception_handlers(app)
 app.include_router(v1_router)
 app.include_router(ws_router)
 
-@app.on_event("startup")
-async def startup_event():
-    logger.info("Starting FitMind AI Backend...")
-    try:
-        await connect_to_mongo()
-        logger.info("Backend startup complete")
-    except Exception as e:
-        logger.info(f"MongoDB connection will be set up on Day 5")
-    start_scheduler()
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    logger.info("Shutting down...")
-    stop_scheduler()
-    await close_mongo_connection()
 
 @app.get("/")
 async def root():
     return {
         "service": "FitMind AI API",
-        "version": "0.1.0",
+        "version": _settings.APP_VERSION,
         "docs": "/docs"
     }
 
