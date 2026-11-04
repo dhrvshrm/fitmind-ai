@@ -154,6 +154,15 @@ def _extract_json(raw: str) -> object:
         return json.loads(match.group(0))
 
 
+def _describe_validation_error(error: ValidationError) -> str:
+    """The actual problems ("kcal: ...; grams: ..."), not just "1 validation error"."""
+    parts = []
+    for detail in error.errors()[:3]:
+        where = ".".join(str(p) for p in detail.get("loc", ())) or "value"
+        parts.append(f"{where}: {detail.get('msg', 'invalid')}")
+    return "; ".join(parts)[:300]
+
+
 def _schema_instructions(schema: Type[BaseModel]) -> str:
     """Describe the required JSON shape so any provider can follow it."""
     return (
@@ -207,8 +216,12 @@ async def generate_json(
         raw = await _call_providers(attempt_prompt, system, temperature, True, providers)
         try:
             result = schema.model_validate(_extract_json(raw))
-        except (json.JSONDecodeError, ValidationError) as e:
-            last_error = str(e).splitlines()[0][:300]
+        except json.JSONDecodeError as e:
+            last_error = f"not valid JSON: {e}"[:300]
+            logger.info("AI JSON attempt %d invalid: %s", attempt + 1, last_error)
+            continue
+        except ValidationError as e:
+            last_error = _describe_validation_error(e)
             logger.info("AI JSON attempt %d invalid: %s", attempt + 1, last_error)
             continue
         if cache_key:

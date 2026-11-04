@@ -79,15 +79,18 @@ class _AIFoodEstimate(BaseModel):
     carbs: float = Field(..., ge=0, le=400)
     fat: float = Field(..., ge=0, le=300)
     fiber: float = Field(0, ge=0, le=100)
+    # Drinks get most of their energy from alcohol (7 kcal/g), not macros.
+    alcohol: float = Field(0, ge=0, le=300)
     confidence: Confidence
     assumption: str = Field("", max_length=200)
 
     @model_validator(mode="after")
     def _energy_matches_macros(self) -> "_AIFoodEstimate":
-        from_macros = 4 * self.protein + 4 * self.carbs + 9 * self.fat
+        from_macros = 4 * self.protein + 4 * self.carbs + 9 * self.fat + 7 * self.alcohol
         if abs(self.kcal - from_macros) > 0.3 * max(self.kcal, from_macros) + 20:
             raise ValueError(
-                f"kcal {self.kcal} doesn't match macros (4P+4C+9F = {from_macros:.0f})"
+                f"kcal {self.kcal} doesn't match 4*protein + 4*carbs + 9*fat + 7*alcohol "
+                f"= {from_macros:.0f}"
             )
         return self
 
@@ -144,9 +147,10 @@ async def _ai_estimate(item: ParsedItem, user_id: Optional[str]) -> _AIFoodEstim
     prep = f" ({item.preparation})" if item.preparation else ""
     prompt = (
         f"Food: {item.name}{prep}\nAmount eaten: {amount}\n\n"
-        "Give the total grams for that amount and its calories (kcal), protein, carbs, fat and "
-        "fiber in grams. confidence is high, medium or low. assumption briefly states the portion "
-        "and preparation you assumed, in plain words."
+        "Give the total grams for that amount and its calories (kcal), protein, carbs, fat, "
+        "fiber and alcohol in grams (alcohol is 0 unless it's an alcoholic drink). confidence is "
+        "high, medium or low. assumption briefly states the portion and preparation you assumed, "
+        "in plain words."
     )
     return await ai_client.generate_json(
         prompt,
