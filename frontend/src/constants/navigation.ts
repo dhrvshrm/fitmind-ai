@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react';
+import type { SvgIconProps } from '@mui/material';
 import {
   ChatRounded,
   DashboardRounded,
@@ -7,9 +8,7 @@ import {
   GroupRounded,
   MicRounded,
   MonitorHeartRounded,
-  PersonRounded,
   RestaurantRounded,
-  SettingsRounded,
   SummarizeRounded,
 } from '@mui/icons-material';
 import { ROUTES } from './routes';
@@ -18,22 +17,43 @@ import { STRINGS } from './strings';
 export type NavItem = {
   label: string;
   path: string;
-  icon: ComponentType;
+  icon: ComponentType<SvgIconProps>;
 };
 
-/** Sidebar entries in display order. */
-export const NAV_ITEMS: NavItem[] = [
-  { label: STRINGS.nav.dashboard, path: ROUTES.DASHBOARD, icon: DashboardRounded },
-  { label: STRINGS.nav.coach, path: ROUTES.COACH, icon: ChatRounded },
-  { label: STRINGS.nav.workouts, path: ROUTES.WORKOUTS, icon: FitnessCenterRounded },
-  { label: STRINGS.nav.recovery, path: ROUTES.RECOVERY, icon: MonitorHeartRounded },
-  { label: STRINGS.nav.voiceCheckin, path: ROUTES.VOICE_CHECKIN, icon: MicRounded },
-  { label: STRINGS.nav.nutrition, path: ROUTES.NUTRITION, icon: RestaurantRounded },
-  { label: STRINGS.nav.gamification, path: ROUTES.GAMIFICATION, icon: EmojiEventsRounded },
-  { label: STRINGS.nav.reports, path: ROUTES.REPORTS, icon: SummarizeRounded },
-  { label: STRINGS.nav.friends, path: ROUTES.FRIENDS, icon: GroupRounded },
-  { label: STRINGS.nav.profile, path: ROUTES.PROFILE, icon: PersonRounded },
-  { label: STRINGS.nav.settings, path: ROUTES.SETTINGS, icon: SettingsRounded },
+export type NavGroup = {
+  label: string;
+  items: NavItem[];
+};
+
+/**
+ * Sidebar sections in display order. Profile and settings live in the
+ * account menu (top right), not here, to keep the sidebar about daily use.
+ */
+export const NAV_GROUPS: NavGroup[] = [
+  {
+    label: STRINGS.nav.groups.today,
+    items: [
+      { label: STRINGS.nav.dashboard, path: ROUTES.DASHBOARD, icon: DashboardRounded },
+      { label: STRINGS.nav.coach, path: ROUTES.COACH, icon: ChatRounded },
+    ],
+  },
+  {
+    label: STRINGS.nav.groups.track,
+    items: [
+      { label: STRINGS.nav.nutrition, path: ROUTES.NUTRITION, icon: RestaurantRounded },
+      { label: STRINGS.nav.workouts, path: ROUTES.WORKOUTS, icon: FitnessCenterRounded },
+      { label: STRINGS.nav.recovery, path: ROUTES.RECOVERY, icon: MonitorHeartRounded },
+      { label: STRINGS.nav.voiceCheckin, path: ROUTES.VOICE_CHECKIN, icon: MicRounded },
+    ],
+  },
+  {
+    label: STRINGS.nav.groups.progress,
+    items: [
+      { label: STRINGS.nav.reports, path: ROUTES.REPORTS, icon: SummarizeRounded },
+      { label: STRINGS.nav.gamification, path: ROUTES.GAMIFICATION, icon: EmojiEventsRounded },
+      { label: STRINGS.nav.friends, path: ROUTES.FRIENDS, icon: GroupRounded },
+    ],
+  },
 ];
 
-export const SIDEBAR_WIDTH = 240;
+export const SIDEBAR_WIDTH = 248;

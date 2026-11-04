@@ -1,19 +1,23 @@
 import type { SxProps, Theme } from '@mui/material';
 
+/** Widest the page content gets; keeps lines and grids readable on large screens. */
+const CONTENT_MAX_WIDTH = 1280;
+
 export const appLayoutStyles = {
   root: {
     display: 'flex',
     minHeight: '100svh',
-    // Subtle "aurora" wash: a violet glow top-right, a teal glow bottom-left,
-    // over the base lavender-grey — adds depth without distracting from content.
-    background:
-      'radial-gradient(1000px 620px at 100% -6%, rgba(170, 59, 255, 0.08), transparent 55%),' +
-      'radial-gradient(820px 620px at -6% 106%, rgba(18, 184, 166, 0.06), transparent 55%),' +
-      '#f6f5fb',
+    bgcolor: 'background.default',
   },
   main: {
     flexGrow: 1,
-    p: { xs: 2, sm: 3 },
     minWidth: 0,
+  },
+  content: {
+    width: '100%',
+    maxWidth: CONTENT_MAX_WIDTH,
+    mx: 'auto',
+    px: { xs: 2, sm: 3, lg: 4 },
+    py: { xs: 2.5, sm: 3.5 },
   },
 } satisfies Record<string, SxProps<Theme>>;

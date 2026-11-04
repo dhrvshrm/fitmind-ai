@@ -1,22 +1,25 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const mealHistoryStyles = {
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
+  list: {
+    pt: 1,
+    pb: 0.5,
   },
-  title: {
-    fontWeight: 700,
-    mb: 1,
+  item: {
+    px: { xs: 2, sm: 2.5 },
+    py: 1.25,
+    gap: 1.5,
   },
-  empty: {
-    py: 4,
-    textAlign: 'center',
+  typeIcon: {
+    color: 'text.secondary',
+    display: 'flex',
   },
   mealName: {
-    fontWeight: 600,
+    fontWeight: 500,
   },
-  kcalChip: {
-    fontWeight: 700,
+  kcal: {
+    fontWeight: 600,
+    fontVariantNumeric: 'tabular-nums',
+    whiteSpace: 'nowrap',
   },
 } satisfies Record<string, SxProps<Theme>>;

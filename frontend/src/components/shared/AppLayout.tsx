@@ -20,9 +20,11 @@ export function AppLayout() {
       <Box component="main" sx={styles.main}>
         {/* Spacer pushes content below the fixed navbar. */}
         <Toolbar />
-        <PageTransition>
-          <Outlet />
-        </PageTransition>
+        <Box sx={styles.content}>
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
+        </Box>
       </Box>
     </Box>
   );

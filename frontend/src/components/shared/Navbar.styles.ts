@@ -4,12 +4,9 @@ export const navbarStyles = {
   appBar: {
     zIndex: (theme: Theme) => theme.zIndex.drawer + 1,
     bgcolor: "background.paper",
-    backdropFilter: "blur(14px)",
-    WebkitBackdropFilter: "blur(14px)",
     color: "text.primary",
     borderBottom: "1px solid",
     borderColor: "divider",
-    boxShadow: "0 1px 14px rgba(76, 29, 149, 0.05)",
   },
   menuButton: {
     mr: 1,
@@ -22,26 +19,25 @@ export const navbarStyles = {
   },
   brandIcon: {
     color: "primary.main",
-    filter: "drop-shadow(0 2px 6px rgba(170, 59, 255, 0.4))",
   },
   brandName: {
-    fontWeight: 800,
-    letterSpacing: 0.2,
-    background: "linear-gradient(120deg, #aa3bff 0%, #12b8a6 100%)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    backgroundClip: "text",
+    fontWeight: 700,
   },
   spacer: {
     flexGrow: 1,
   },
+  actions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 0.5,
+  },
   avatar: {
-    width: 34,
-    height: 34,
-    background: "linear-gradient(135deg, #aa3bff 0%, #7a1fd0 100%)",
+    width: 32,
+    height: 32,
+    bgcolor: "primary.main",
+    color: "primary.contrastText",
     fontSize: 14,
-    fontWeight: 700,
-    boxShadow: "0 4px 12px rgba(170, 59, 255, 0.35)",
+    fontWeight: 600,
   },
   menuHeader: {
     px: 2,

@@ -12,7 +12,7 @@ import { STRINGS } from "../../constants/strings";
 import { formatDateLabel } from "../../utils/date";
 import { computeWeightTrendLine } from "../../utils/dashboardCharts";
 import type { WeightTrendResult } from "../../types/dashboard";
-import { dashboardChartTheme as chart } from "./dashboardChartTheme";
+import { useChartTheme } from "../../hooks/useChartTheme";
 import { weightTrendChartStyles as styles } from "./WeightTrendChart.styles";
 
 const S = STRINGS.dashboard.charts.weightTrend;
@@ -29,6 +29,7 @@ export function WeightTrendChart({
   loading,
   error,
 }: WeightTrendChartProps) {
+  const chart = useChartTheme();
   const points = result?.data ?? [];
   const trendLine = computeWeightTrendLine(points);
   const data = points.map((p, i) => ({
@@ -97,6 +98,8 @@ export function WeightTrendChart({
               />
               <Tooltip
                 contentStyle={chart.tooltip}
+                labelStyle={chart.tooltipLabel}
+                itemStyle={chart.tooltipItem}
                 formatter={(value, name) => [
                   value as number,
                   name === "trend" ? S.trendLegend : S.tooltipWeight,

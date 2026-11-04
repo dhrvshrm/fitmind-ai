@@ -1,14 +1,6 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const mealFormStyles = {
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
-  },
-  title: {
-    fontWeight: 700,
-    mb: 2,
-  },
   macroRow: {
     display: 'grid',
     gap: 2,

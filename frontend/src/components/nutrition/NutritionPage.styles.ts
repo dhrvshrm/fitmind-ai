@@ -1,28 +1,27 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const nutritionPageStyles = {
-  title: {
-    fontWeight: 700,
-  },
   grid: {
     display: 'grid',
-    gap: 3,
-    gridTemplateColumns: { xs: '1fr', md: '5fr 7fr' },
-    mt: 3,
+    gap: 2,
+    gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: '5fr 7fr' },
     alignItems: 'start',
   },
   rightColumn: {
     display: 'grid',
-    gap: 3,
+    gap: 2,
+    minWidth: 0,
   },
   chartsRow: {
     display: 'grid',
-    gap: 3,
-    gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+    gap: 2,
+    gridTemplateColumns: { xs: 'minmax(0, 1fr)', sm: 'repeat(2, minmax(0, 1fr))' },
     alignItems: 'stretch',
   },
   skeleton: {
-    borderRadius: 3,
-    height: 140,
+    height: 220,
+  },
+  skeletonTall: {
+    height: 200,
   },
 } satisfies Record<string, SxProps<Theme>>;

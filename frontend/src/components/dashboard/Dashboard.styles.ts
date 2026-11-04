@@ -1,77 +1,34 @@
 import type { SxProps, Theme } from "@mui/material";
 
 export const dashboardStyles = {
-  welcome: {
-    fontWeight: 700,
+  section: {
+    mb: 2,
   },
   statsGrid: {
     display: "grid",
     gap: 2,
-    gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(4, 1fr)" },
-    mt: 3,
+    gridTemplateColumns: { xs: "repeat(2, minmax(0, 1fr))", md: "repeat(4, minmax(0, 1fr))" },
   },
-  statCard: {
-    p: 2.5,
-    borderRadius: 3,
+  actionsRow: {
     display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
+    flexWrap: "wrap",
     gap: 1,
-    background: "linear-gradient(155deg, #ffffff 0%, #faf7ff 100%)",
-    borderColor: "rgba(170, 59, 255, 0.14)",
-    transition: "transform 0.18s ease, box-shadow 0.18s ease",
-    "&:hover": {
-      transform: "translateY(-3px)",
-      boxShadow: 6,
-    },
+    mt: 2,
   },
-  statIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 2.5,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "#fff",
-    background: "linear-gradient(150deg, #aa3bff 0%, #7a1fd0 100%)",
-    boxShadow: "0px 6px 14px rgba(170, 59, 255, 0.32)",
-  },
-  statValue: {
-    fontWeight: 700,
-    lineHeight: 1.1,
-  },
-  statSkeleton: {
-    borderRadius: 3,
-    height: 118,
+  actionButton: {
+    color: "text.primary",
+    borderColor: "divider",
+    bgcolor: "background.paper",
+    "& .MuiButton-startIcon": { color: "primary.main" },
+    "&:hover": { borderColor: "primary.main", bgcolor: "background.paper" },
   },
   sectionTitle: {
-    fontWeight: 700,
     mt: 4,
     mb: 2,
   },
-  actionsGrid: {
-    display: "grid",
-    gap: 2,
-    gridTemplateColumns: {
-      xs: "1fr",
-      sm: "repeat(2, 1fr)",
-      md: "repeat(4, 1fr)",
-    },
-  },
-  actionButton: {
-    py: 1.5,
-    justifyContent: "flex-start",
-    borderColor: "rgba(170, 59, 255, 0.28)",
-    transition: "transform 0.15s ease, background-color 0.15s ease",
-    "&:hover": {
-      bgcolor: "rgba(170, 59, 255, 0.06)",
-      borderColor: "primary.main",
-      transform: "translateY(-2px)",
-    },
-  },
   chartsGrid: {
     display: "grid",
-    gap: 3,
-    gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" },
+    gap: 2,
+    gridTemplateColumns: { xs: "minmax(0, 1fr)", lg: "repeat(2, minmax(0, 1fr))" },
   },
 } satisfies Record<string, SxProps<Theme>>;

@@ -10,7 +10,7 @@ import {
 } from "recharts";
 import { STRINGS } from "../../constants/strings";
 import type { MoodWorkoutPoint } from "../../types/dashboard";
-import { dashboardChartTheme as chart } from "./dashboardChartTheme";
+import { useChartTheme } from "../../hooks/useChartTheme";
 import { moodPerformanceChartStyles as styles } from "./MoodPerformanceChart.styles";
 
 const S = STRINGS.dashboard.charts.moodPerformance;
@@ -30,6 +30,7 @@ export function MoodPerformanceChart({
   loading,
   error,
 }: MoodPerformanceChartProps) {
+  const chart = useChartTheme();
   const hasData = points.length >= MIN_POINTS;
   const maxWorkouts = points.reduce((max, p) => Math.max(max, p.workouts), 0);
 
@@ -89,6 +90,8 @@ export function MoodPerformanceChart({
               />
               <Tooltip
                 contentStyle={chart.tooltip}
+                labelStyle={chart.tooltipLabel}
+                itemStyle={chart.tooltipItem}
                 cursor={{ strokeDasharray: "3 3" }}
                 formatter={(value, name) => [
                   value as number,

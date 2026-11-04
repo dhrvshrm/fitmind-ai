@@ -6,6 +6,7 @@ import {
   Skeleton,
   Stack,
   Typography,
+  useTheme,
 } from "@mui/material";
 import {
   TrendingDownRounded,
@@ -23,9 +24,9 @@ import {
 } from "recharts";
 import { STRINGS } from "../../constants/strings";
 import { formatDateLabel } from "../../utils/date";
-import { getScoreHexColor, RECOVERY_BAND_HEX } from "../../utils/recovery";
+import { getRecoveryBandColors, getScoreBand, type RecoveryBand } from "../../utils/recovery";
 import type { RecoveryTrendResult } from "../../types/dashboard";
-import { dashboardChartTheme as chart } from "./dashboardChartTheme";
+import { useChartTheme } from "../../hooks/useChartTheme";
 import { recoveryTrendChartStyles as styles } from "./RecoveryTrendChart.styles";
 
 const S = STRINGS.dashboard.charts.recoveryTrend;
@@ -40,18 +41,20 @@ type DotProps = {
   cx?: number;
   cy?: number;
   payload?: { score: number };
+  bandColors: Record<RecoveryBand, string>;
+  ringColor: string;
 };
 
 /** Recovery-score dot colored by band (red/amber/green), ringed for contrast. */
-function RecoveryDot({ cx, cy, payload }: DotProps) {
+function RecoveryDot({ cx, cy, payload, bandColors, ringColor }: DotProps) {
   if (cx === undefined || cy === undefined || !payload) return null;
   return (
     <circle
       cx={cx}
       cy={cy}
       r={5}
-      fill={getScoreHexColor(payload.score)}
-      stroke="#fff"
+      fill={bandColors[getScoreBand(payload.score)]}
+      stroke={ringColor}
       strokeWidth={2}
     />
   );
@@ -69,6 +72,8 @@ export function RecoveryTrendChart({
   loading,
   error,
 }: RecoveryTrendChartProps) {
+  const chart = useChartTheme();
+  const bandColors = getRecoveryBandColors(useTheme().palette);
   const data =
     result?.data.map((d) => ({ ...d, label: formatDateLabel(d.date) })) ?? [];
   const trendMeta = result ? TREND_META[result.summary.trend] : null;
@@ -129,6 +134,8 @@ export function RecoveryTrendChart({
                 />
                 <Tooltip
                   contentStyle={chart.tooltip}
+                labelStyle={chart.tooltipLabel}
+                itemStyle={chart.tooltipItem}
                   formatter={(value) => [value as number, S.tooltipScore]}
                 />
                 <Line
@@ -136,7 +143,7 @@ export function RecoveryTrendChart({
                   dataKey="score"
                   stroke={chart.purple}
                   strokeWidth={2}
-                  dot={<RecoveryDot />}
+                  dot={<RecoveryDot bandColors={bandColors} ringColor={chart.surface} />}
                   activeDot={{ r: 6 }}
                 />
               </LineChart>
@@ -147,7 +154,7 @@ export function RecoveryTrendChart({
             <Stack sx={styles.legendItem}>
               <Box
                 component="span"
-                sx={styles.legendDot(RECOVERY_BAND_HEX.low)}
+                sx={styles.legendDot(bandColors.low)}
               />
               <Typography variant="caption" color="text.secondary">
                 {S.bands.low}
@@ -156,7 +163,7 @@ export function RecoveryTrendChart({
             <Stack sx={styles.legendItem}>
               <Box
                 component="span"
-                sx={styles.legendDot(RECOVERY_BAND_HEX.moderate)}
+                sx={styles.legendDot(bandColors.moderate)}
               />
               <Typography variant="caption" color="text.secondary">
                 {S.bands.moderate}
@@ -165,7 +172,7 @@ export function RecoveryTrendChart({
             <Stack sx={styles.legendItem}>
               <Box
                 component="span"
-                sx={styles.legendDot(RECOVERY_BAND_HEX.good)}
+                sx={styles.legendDot(bandColors.good)}
               />
               <Typography variant="caption" color="text.secondary">
                 {S.bands.good}

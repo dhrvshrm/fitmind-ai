@@ -27,16 +27,5 @@ export const MEAL_TYPE_OPTIONS: MealTypeOption[] = [
 export const GLASS_ML = 250;
 export const WATER_GOAL_GLASSES = 8;
 
-/**
- * Macro slice colors (validated against the light surface; CVD-safe order).
- * Amber/teal sit below 3:1 contrast, so the chart always pairs them with a
- * text legend showing exact percentages and grams.
- */
-export const MACRO_COLORS = {
-  protein: '#6366f1',
-  carbs: '#f59e0b',
-  fats: '#12b8a6',
-} as const;
-
 /** kcal per gram of each macro (Atwater factors). */
 export const KCAL_PER_GRAM = { protein: 4, carbs: 4, fats: 9 } as const;

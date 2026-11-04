@@ -65,6 +65,9 @@ export const BADGE_EARNED_DATES_KEY = "fitmind-badge-earned-dates";
 /** localStorage key under which the Zustand auth store is persisted. */
 export const AUTH_STORAGE_KEY = "fitmind-auth";
 
+/** localStorage key for per-device display preferences (color mode). */
+export const PREFERENCES_STORAGE_KEY = "fitmind-preferences";
+
 /**
  * The chat/notification WebSocket (`/ws`) is mounted at the app root, not
  * under `API_PREFIX`, so its URL is derived from `API_BASE_URL` directly and

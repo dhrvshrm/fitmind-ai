@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { MoodTrendChip } from "./MoodTrendChip";
 import { RecoveryTrendChip } from "./RecoveryTrendChip";
 import { STRINGS } from "../../constants/strings";
-import { MACRO_COLORS } from "../../constants/nutrition";
+import { useChartTheme } from "../../hooks/useChartTheme";
 import { buildReportShareText } from "../../utils/report";
 import type { WeeklyReport } from "../../types/report";
 import { reportDetailStyles as styles } from "./ReportDetail.styles";
@@ -17,6 +17,7 @@ type ReportDetailProps = {
 
 /** Full report body: highlight callout, stat cards, trend chips, AI recap, and share/download actions. */
 export function ReportDetail({ report }: ReportDetailProps) {
+  const chart = useChartTheme();
   const workoutPercent =
     report.workouts_planned > 0
       ? Math.min(100, (report.workouts_completed / report.workouts_planned) * 100)
@@ -103,13 +104,13 @@ export function ReportDetail({ report }: ReportDetailProps) {
             {S.macrosLabel}
           </Typography>
           <Stack sx={styles.macroRow}>
-            <Box component="span" sx={styles.macroChip(MACRO_COLORS.protein)}>
+            <Box component="span" sx={styles.macroChip(chart.protein)}>
               P{report.avg_protein}
             </Box>
-            <Box component="span" sx={styles.macroChip(MACRO_COLORS.carbs)}>
+            <Box component="span" sx={styles.macroChip(chart.carbs)}>
               C{report.avg_carbs}
             </Box>
-            <Box component="span" sx={styles.macroChip(MACRO_COLORS.fats)}>
+            <Box component="span" sx={styles.macroChip(chart.fats)}>
               F{report.avg_fats}
             </Box>
           </Stack>

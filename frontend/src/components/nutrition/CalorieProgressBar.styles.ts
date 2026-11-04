@@ -1,30 +1,24 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const calorieProgressBarStyles = {
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-    mb: 1,
-  },
-  title: {
-    fontWeight: 700,
-  },
   progressText: {
-    fontWeight: 700,
-    color: 'primary.main',
+    fontWeight: 600,
     fontVariantNumeric: 'tabular-nums',
   },
   bar: {
-    height: 12,
-    borderRadius: 6,
+    height: 10,
   },
   remaining: {
     mt: 1,
     display: 'block',
+  },
+  macros: {
+    mt: 2.5,
+    pt: 2,
+    gap: 1.75,
+    borderTop: '1px solid',
+    borderColor: 'divider',
+    display: 'grid',
+    gridTemplateColumns: { xs: 'minmax(0, 1fr)', sm: 'repeat(3, minmax(0, 1fr))' },
   },
 } satisfies Record<string, SxProps<Theme>>;

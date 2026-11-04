@@ -1,3 +1,5 @@
+import type { Palette } from "@mui/material";
+
 /** Score-band helpers for color-coding recovery UI. */
 
 /**
@@ -22,16 +24,14 @@ export function getScoreBand(score: number): RecoveryBand {
 }
 
 /**
- * Literal hex per band, for contexts (Recharts fills/strokes) that can't
- * resolve MUI theme-path tokens like `getScoreColorToken` returns. Matches
- * the app's success/warning/error palette (theme.ts).
+ * Resolved color per band from the active theme, for contexts (Recharts
+ * fills/strokes) that can't use MUI theme-path tokens like
+ * `getScoreColorToken` returns.
  */
-export const RECOVERY_BAND_HEX: Record<RecoveryBand, string> = {
-  good: "#16a34a",
-  moderate: "#f59e0b",
-  low: "#ef4444",
-};
-
-export function getScoreHexColor(score: number): string {
-  return RECOVERY_BAND_HEX[getScoreBand(score)];
+export function getRecoveryBandColors(palette: Palette): Record<RecoveryBand, string> {
+  return {
+    good: palette.success.main,
+    moderate: palette.warning.main,
+    low: palette.error.main,
+  };
 }

@@ -10,6 +10,12 @@ export const STRINGS = {
 "Earn XP and level up as you train",
     ],
   },
+  ui: {
+    retry: "Try again",
+    cancel: "Cancel",
+    noValue: "-",
+    loadError: "Couldn't load this. Check your connection and try again.",
+  },
   aria: {
     showPassword: "Show password",
     hidePassword: "Hide password",
@@ -71,11 +77,16 @@ export const STRINGS = {
     recovery: "Recovery",
     voiceCheckin: "Voice Check-in",
     nutrition: "Nutrition",
-    gamification: "Gamification",
-    reports: "Reports",
+    gamification: "Achievements",
+    reports: "Weekly reports",
     friends: "Friends",
     profile: "Profile",
     settings: "Settings",
+    groups: {
+      today: "Today",
+      track: "Track",
+      progress: "Progress",
+    },
   },
   navbar: {
     openMenuAria: "Open navigation menu",
@@ -83,10 +94,16 @@ export const STRINGS = {
     accountAria: "Account menu",
     signedInAs: "Signed in as",
     logout: "Log out",
+    colorModeAria: "Change color mode",
+    colorModes: {
+      system: "Match system",
+      light: "Light",
+      dark: "Dark",
+    },
   },
   dashboard: {
-    welcome: (name: string) => `Welcome back, ${name}!`,
-    subtitle: "Here's your training snapshot for today.",
+    welcome: (name: string) => `Welcome back, ${name}`,
+    subtitle: "Here's where your training, recovery and progress stand today.",
     stats: {
       xp: "XP",
       level: "Level",
@@ -95,6 +112,7 @@ export const STRINGS = {
     },
     quickActions: "Quick actions",
     actions: {
+      logMeal: "Log a meal",
       startWorkout: "Start a workout",
       logRecovery: "Recovery check",
       voiceCheckin: "Voice check-in",
@@ -339,7 +357,7 @@ export const STRINGS = {
       useEstimate: "Use estimate",
       submit: "Log meal",
       submitting: "Logging…",
-      success: "Meal logged!",
+      success: "Meal logged.",
       xpToast: (xp: number) => `+${xp} XP`,
       levelUpToast: (level: number) => `Level up! You're now level ${level}`,
       error: "Could not log your meal. Please try again.",
@@ -358,19 +376,21 @@ export const STRINGS = {
     calories: {
       title: "Daily calories",
       progress: (eaten: number, goal: number) => `${eaten} / ${goal} kcal`,
+      grams: "g",
       remaining: (kcal: number) => `${kcal} kcal remaining`,
       over: (kcal: number) => `${kcal} kcal over goal`,
     },
     macros: {
       title: "Macro split",
-      empty: "Log a meal to see your macro breakdown.",
+      emptyTitle: "No macros yet",
+      empty: "Log a meal to see your protein, carbs and fats split.",
+      tooltipValue: (percent: number, grams: number) => `${percent}% (${grams} g)`,
+      legendValue: (percent: number, grams: number) => `${percent}%  ${grams} g`,
       labels: {
         protein: "Protein",
         carbs: "Carbs",
         fats: "Fats",
       },
-      legendItem: (label: string, percent: number, grams: number) =>
-`${label} ${percent}% · ${grams}g`,
     },
     water: {
       title: "Water intake",
@@ -378,12 +398,13 @@ export const STRINGS = {
 `${glasses}/${goalGlasses} glasses · ${ml} ml`,
       addAria: "Add a glass of water",
       removeAria: "Remove a glass of water",
-      goalReached: "Hydration goal reached!",
+      goalReached: "Hydration goal reached for today.",
       error: "Could not update water intake.",
     },
     history: {
       title: "Today's meals",
-      empty: "No meals logged yet today.",
+      emptyTitle: "Nothing logged yet",
+      empty: "Meals you add today will show up here.",
       macros: (protein: number, carbs: number, fats: number) =>
 `P ${protein}g · C ${carbs}g · F ${fats}g`,
       kcal: (kcal: number) => `${kcal} kcal`,
@@ -631,7 +652,11 @@ export const STRINGS = {
   },
   settings: {
     title: "Settings",
-    subtitle: "Manage notifications, security, and your account.",
+    subtitle: "Manage appearance, notifications, security, and your account.",
+    appearance: {
+      title: "Appearance",
+      subtitle: "Choose how FitMind looks on this device.",
+    },
     notifications: {
       title: "Notifications",
       subtitle: "Choose which alerts you'd like to receive.",

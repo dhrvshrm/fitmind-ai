@@ -4,17 +4,17 @@ import {
   Button,
   Chip,
   CircularProgress,
-  Paper,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
 import toast from 'react-hot-toast';
-import { nutritionService } from '../../services/nutritionService';
+import { useLogMeal } from '../../hooks/queries/useNutritionQueries';
 import { resolveApiError } from '../../lib/apiClient';
+import { SectionCard } from '../ui/SectionCard';
 import { STRINGS } from '../../constants/strings';
 import { KCAL_PER_GRAM, MEAL_TYPE_OPTIONS } from '../../constants/nutrition';
-import type { MealLogResult, MealType } from '../../types/nutrition';
+import type { MealType } from '../../types/nutrition';
 import { mealFormStyles as styles } from './MealForm.styles';
 
 const S = STRINGS.nutrition.form;
@@ -48,15 +48,12 @@ function toNumberOrEmpty(raw: string): number | '' {
   return Number.isNaN(parsed) ? '' : parsed;
 }
 
-type MealFormProps = {
-  /** Called after a successful log so the page can refresh the summary. */
-  onLogged: (result: MealLogResult) => void;
-};
-
-export function MealForm({ onLogged }: MealFormProps) {
+/** Manual meal entry. Logging refreshes today's summary and the dashboard. */
+export function MealForm() {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [errors, setErrors] = useState<FieldErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const logMeal = useLogMeal();
+  const isSubmitting = logMeal.isPending;
 
   /** Real-time kcal estimate from the macro grams (Atwater factors). */
   const estimatedKcal = Math.round(
@@ -90,9 +87,8 @@ export function MealForm({ onLogged }: MealFormProps) {
     event.preventDefault();
     if (!validate()) return;
 
-    setIsSubmitting(true);
     try {
-      const result = await nutritionService.logMeal({
+      const result = await logMeal.mutateAsync({
         name: form.name.trim(),
         calories: Number(form.calories),
         protein: Number(form.protein) || 0,
@@ -105,20 +101,13 @@ export function MealForm({ onLogged }: MealFormProps) {
       );
       if (result.leveled_up) toast.success(S.levelUpToast(result.new_level));
       setForm((prev) => ({ ...INITIAL_FORM, meal_type: prev.meal_type }));
-      onLogged(result);
     } catch (error) {
       toast.error(resolveApiError(error, S.error));
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
   return (
-    <Paper variant="outlined" sx={styles.card}>
-      <Typography variant="h6" sx={styles.title}>
-        {S.title}
-      </Typography>
-
+    <SectionCard title={S.title}>
       <Box component="form" onSubmit={handleSubmit} noValidate>
         <Stack spacing={2}>
           <TextField
@@ -216,6 +205,6 @@ export function MealForm({ onLogged }: MealFormProps) {
           </Button>
         </Stack>
       </Box>
-    </Paper>
+    </SectionCard>
   );
 }

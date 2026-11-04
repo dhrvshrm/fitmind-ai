@@ -19,7 +19,7 @@ import {
 import { STRINGS } from "../../constants/strings";
 import { formatDateLabel } from "../../utils/date";
 import type { XpWeeklyResult } from "../../types/dashboard";
-import { dashboardChartTheme as chart } from "./dashboardChartTheme";
+import { useChartTheme } from "../../hooks/useChartTheme";
 import { xpEarnedChartStyles as styles } from "./XPEarnedChart.styles";
 
 const S = STRINGS.dashboard.charts.xpEarned;
@@ -32,6 +32,7 @@ type XPEarnedChartProps = {
 
 /** XP earned per day over the last 7 days, with the weekly total called out. */
 export function XPEarnedChart({ result, loading, error }: XPEarnedChartProps) {
+  const chart = useChartTheme();
   const data =
     result?.data.map((d) => ({ ...d, label: formatDateLabel(d.date) })) ?? [];
   const hasData = result ? result.summary.weekly_total > 0 : false;
@@ -88,6 +89,8 @@ export function XPEarnedChart({ result, loading, error }: XPEarnedChartProps) {
               />
               <Tooltip
                 contentStyle={chart.tooltip}
+                labelStyle={chart.tooltipLabel}
+                itemStyle={chart.tooltipItem}
                 formatter={(value) => [value as number, S.tooltipXp]}
               />
               <Bar

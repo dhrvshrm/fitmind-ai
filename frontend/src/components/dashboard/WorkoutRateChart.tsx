@@ -19,7 +19,7 @@ import {
 import { STRINGS } from "../../constants/strings";
 import { bucketWorkoutsByWeek } from "../../utils/dashboardCharts";
 import type { WorkoutRateResult } from "../../types/dashboard";
-import { dashboardChartTheme as chart } from "./dashboardChartTheme";
+import { useChartTheme } from "../../hooks/useChartTheme";
 import { workoutRateChartStyles as styles } from "./WorkoutRateChart.styles";
 
 const S = STRINGS.dashboard.charts.workoutRate;
@@ -36,6 +36,7 @@ export function WorkoutRateChart({
   loading,
   error,
 }: WorkoutRateChartProps) {
+  const chart = useChartTheme();
   const buckets = result ? bucketWorkoutsByWeek(result.data) : [];
   const hasData = result ? result.summary.total_workouts > 0 : false;
 
@@ -91,6 +92,8 @@ export function WorkoutRateChart({
               />
               <Tooltip
                 contentStyle={chart.tooltip}
+                labelStyle={chart.tooltipLabel}
+                itemStyle={chart.tooltipItem}
                 formatter={(value) => [value as number, S.tooltipWorkouts]}
               />
               <Bar

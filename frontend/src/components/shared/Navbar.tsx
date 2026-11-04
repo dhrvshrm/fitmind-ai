@@ -29,6 +29,7 @@ import { STRINGS } from "../../constants/strings";
 import { ROUTES } from "../../constants/routes";
 import { getNotificationRoute } from "../../constants/notification";
 import { NotificationDrawer } from "./NotificationDrawer";
+import { ColorModeMenu } from "./ColorModeMenu";
 import type { AppNotification } from "../../types/notification";
 import { navbarStyles as styles } from "./Navbar.styles";
 
@@ -93,21 +94,25 @@ export function Navbar({ onMenuClick }: NavbarProps) {
 
         <Box sx={styles.spacer} />
 
-        <IconButton
-          aria-label={STRINGS.navbar.notificationsAria}
-          onClick={() => setNotifOpen(true)}
-        >
-          <Badge badgeContent={notificationCount} color="error" overlap="circular">
-            <NotificationsRounded />
-          </Badge>
-        </IconButton>
+        <Stack sx={styles.actions}>
+          <ColorModeMenu />
 
-        <IconButton
-          aria-label={STRINGS.navbar.accountAria}
-          onClick={handleOpenMenu}
-        >
-          <Avatar sx={styles.avatar}>{initial}</Avatar>
-        </IconButton>
+          <IconButton
+            aria-label={STRINGS.navbar.notificationsAria}
+            onClick={() => setNotifOpen(true)}
+          >
+            <Badge badgeContent={notificationCount} color="error" overlap="circular">
+              <NotificationsRounded />
+            </Badge>
+          </IconButton>
+
+          <IconButton
+            aria-label={STRINGS.navbar.accountAria}
+            onClick={handleOpenMenu}
+          >
+            <Avatar sx={styles.avatar}>{initial}</Avatar>
+          </IconButton>
+        </Stack>
 
         <Menu
           anchorEl={menuAnchor}

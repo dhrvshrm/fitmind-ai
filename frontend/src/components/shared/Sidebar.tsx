@@ -4,10 +4,11 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  ListSubheader,
   Toolbar,
 } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { NAV_ITEMS } from '../../constants/navigation';
+import { NAV_GROUPS } from '../../constants/navigation';
 import { sidebarStyles as styles } from './Sidebar.styles';
 
 type SidebarProps = {
@@ -16,33 +17,44 @@ type SidebarProps = {
   onClose: () => void;
 };
 
-/** Navigation list shared by both drawer variants. */
+/** Grouped navigation shared by both drawer variants. */
 function NavList({ onNavigate }: { onNavigate: () => void }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
   return (
-    <List sx={styles.list}>
-      {NAV_ITEMS.map((item) => {
-        const Icon = item.icon;
-        return (
-          <ListItemButton
-            key={item.path}
-            selected={pathname.startsWith(item.path)}
-            onClick={() => {
-              navigate(item.path);
-              onNavigate();
-            }}
-            sx={styles.itemButton}
-          >
-            <ListItemIcon sx={styles.itemIcon}>
-              <Icon />
-            </ListItemIcon>
-            <ListItemText primary={item.label} />
-          </ListItemButton>
-        );
-      })}
-    </List>
+    <nav>
+      {NAV_GROUPS.map((group) => (
+        <List
+          key={group.label}
+          dense
+          sx={styles.list}
+          subheader={<ListSubheader sx={styles.groupLabel}>{group.label}</ListSubheader>}
+        >
+          {group.items.map((item) => {
+            const Icon = item.icon;
+            const selected = pathname.startsWith(item.path);
+            return (
+              <ListItemButton
+                key={item.path}
+                selected={selected}
+                aria-current={selected ? 'page' : undefined}
+                onClick={() => {
+                  navigate(item.path);
+                  onNavigate();
+                }}
+                sx={styles.itemButton}
+              >
+                <ListItemIcon sx={styles.itemIcon}>
+                  <Icon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary={item.label} />
+              </ListItemButton>
+            );
+          })}
+        </List>
+      ))}
+    </nav>
   );
 }
 

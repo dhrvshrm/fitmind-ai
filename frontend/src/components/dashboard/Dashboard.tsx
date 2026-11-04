@@ -5,19 +5,30 @@ import {
   MicRounded,
   MilitaryTechRounded,
   MonitorHeartRounded,
-  PersonRounded,
+  RestaurantRounded,
 } from "@mui/icons-material";
 import type { SvgIconProps } from "@mui/material";
-import { Alert, Box, Button, Paper, Skeleton, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import type { ComponentType } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../constants/routes";
 import { STRINGS } from "../../constants/strings";
 import { useAuth } from "../../hooks/useAuth";
-import { useDashboardChart } from "../../hooks/useDashboardChart";
-import { dashboardService } from "../../services/dashboardService";
+import {
+  useDashboardSummary,
+  useMoodPerformance,
+  useRecoveryTrend,
+  useWeightTrend,
+  useWorkoutRate,
+  useXpWeekly,
+} from "../../hooks/queries/useDashboardQueries";
+import { queryErrorMessage } from "../../hooks/queries/queryHelpers";
 import type { DashboardSummary } from "../../types/dashboard";
 import { joinMoodAndWorkouts } from "../../utils/dashboardCharts";
+import { PageHeader } from "../ui/PageHeader";
+import { StatTile } from "../ui/StatTile";
+import { ErrorState } from "../ui/ErrorState";
+import type { IconBadgeTone } from "../ui/IconBadge.styles";
 import { dashboardStyles as styles } from "./Dashboard.styles";
 import { MoodPerformanceChart } from "./MoodPerformanceChart";
 import { RecoveryTrendChart } from "./RecoveryTrendChart";
@@ -26,26 +37,20 @@ import { WorkoutRateChart } from "./WorkoutRateChart";
 import { XPEarnedChart } from "./XPEarnedChart";
 
 const S = STRINGS.dashboard;
+const C = S.charts;
 
-type StatTile = {
+type StatTileConfig = {
   label: string;
   value: (summary: DashboardSummary) => number;
   icon: ComponentType<SvgIconProps>;
+  tone: IconBadgeTone;
 };
 
-const STAT_TILES: StatTile[] = [
-  { label: S.stats.level, value: (s) => s.level, icon: MilitaryTechRounded },
-  { label: S.stats.xp, value: (s) => s.xp, icon: BoltRounded },
-  {
-    label: S.stats.streak,
-    value: (s) => s.streak,
-    icon: LocalFireDepartmentRounded,
-  },
-  {
-    label: S.stats.workoutsToday,
-    value: (s) => s.workouts_today,
-    icon: FitnessCenterRounded,
-  },
+const STAT_TILES: StatTileConfig[] = [
+  { label: S.stats.level, value: (s) => s.level, icon: MilitaryTechRounded, tone: "primary" },
+  { label: S.stats.xp, value: (s) => s.xp, icon: BoltRounded, tone: "primary" },
+  { label: S.stats.streak, value: (s) => s.streak, icon: LocalFireDepartmentRounded, tone: "warning" },
+  { label: S.stats.workoutsToday, value: (s) => s.workouts_today, icon: FitnessCenterRounded, tone: "secondary" },
 ];
 
 type QuickAction = {
@@ -55,57 +60,23 @@ type QuickAction = {
 };
 
 const QUICK_ACTIONS: QuickAction[] = [
-  {
-    label: S.actions.startWorkout,
-    path: ROUTES.WORKOUTS,
-    icon: FitnessCenterRounded,
-  },
-  {
-    label: S.actions.logRecovery,
-    path: ROUTES.RECOVERY,
-    icon: MonitorHeartRounded,
-  },
-  {
-    label: S.actions.voiceCheckin,
-    path: ROUTES.VOICE_CHECKIN,
-    icon: MicRounded,
-  },
-  { label: S.actions.viewProfile, path: ROUTES.PROFILE, icon: PersonRounded },
+  { label: S.actions.logMeal, path: ROUTES.NUTRITION, icon: RestaurantRounded },
+  { label: S.actions.startWorkout, path: ROUTES.WORKOUTS, icon: FitnessCenterRounded },
+  { label: S.actions.logRecovery, path: ROUTES.RECOVERY, icon: MonitorHeartRounded },
+  { label: S.actions.voiceCheckin, path: ROUTES.VOICE_CHECKIN, icon: MicRounded },
 ];
 
 export function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const displayName = user?.username ?? user?.email?.split("@")[0] ?? "";
 
-  const displayName = user?.email?.split("@")[0] ?? "";
-
-  const {
-    data: summary,
-    loading: summaryLoading,
-    error: summaryError,
-  } = useDashboardChart(dashboardService.getSummary, S.loadError);
-
-  const C = S.charts;
-  const moodPerformance = useDashboardChart(
-    dashboardService.getMoodPerformance,
-    C.moodPerformance.error,
-  );
-  const weightTrend = useDashboardChart(
-    dashboardService.getWeightTrend,
-    C.weightTrend.error,
-  );
-  const workoutRate = useDashboardChart(
-    dashboardService.getWorkoutRate,
-    C.workoutRate.error,
-  );
-  const xpWeekly = useDashboardChart(
-    dashboardService.getXpWeekly,
-    C.xpEarned.error,
-  );
-  const recoveryTrend = useDashboardChart(
-    dashboardService.getRecoveryTrend,
-    C.recoveryTrend.error,
-  );
+  const summary = useDashboardSummary();
+  const moodPerformance = useMoodPerformance();
+  const weightTrend = useWeightTrend();
+  const workoutRate = useWorkoutRate();
+  const xpWeekly = useXpWeekly();
+  const recoveryTrend = useRecoveryTrend();
 
   // Joined client-side: both endpoints already cover the same 30-day window.
   const moodWorkoutPoints = joinMoodAndWorkouts(
@@ -113,65 +84,39 @@ export function Dashboard() {
     workoutRate.data?.data ?? [],
   );
 
+  const summaryError = queryErrorMessage(summary.error, S.loadError);
+
   return (
     <Box>
-      <Typography variant="h5" sx={styles.welcome}>
-        {S.welcome(displayName)}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {S.subtitle}
-      </Typography>
+      <PageHeader title={S.welcome(displayName)} subtitle={S.subtitle} />
 
       {summaryError && (
-        <Alert severity="error" sx={styles.sectionTitle}>
-          {summaryError}
-        </Alert>
+        <Box sx={styles.section}>
+          <ErrorState message={summaryError} onRetry={() => summary.refetch()} />
+        </Box>
       )}
 
       <Box sx={styles.statsGrid}>
-        {STAT_TILES.map((tile) => {
-          const Icon = tile.icon;
-          if (!summary && summaryLoading) {
-            return (
-              <Skeleton
-                key={tile.label}
-                variant="rounded"
-                sx={styles.statSkeleton}
-              />
-            );
-          }
-          return (
-            <Paper
-              key={tile.label}
-              elevation={0}
-              variant="outlined"
-              sx={styles.statCard}
-            >
-              <Box sx={styles.statIcon}>
-                <Icon fontSize="small" />
-              </Box>
-              <Typography variant="h4" sx={styles.statValue}>
-                {summary ? tile.value(summary) : "—"}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {tile.label}
-              </Typography>
-            </Paper>
-          );
-        })}
+        {STAT_TILES.map((tile) => (
+          <StatTile
+            key={tile.label}
+            label={tile.label}
+            icon={tile.icon}
+            tone={tile.tone}
+            loading={summary.isPending}
+            value={summary.data ? tile.value(summary.data) : null}
+          />
+        ))}
       </Box>
 
-      <Typography variant="h6" sx={styles.sectionTitle}>
-        {S.quickActions}
-      </Typography>
-      <Box sx={styles.actionsGrid}>
+      <Box sx={styles.actionsRow}>
         {QUICK_ACTIONS.map((action) => {
           const Icon = action.icon;
           return (
             <Button
               key={action.path}
               variant="outlined"
-              size="large"
+              color="inherit"
               startIcon={<Icon />}
               onClick={() => navigate(action.path)}
               sx={styles.actionButton}
@@ -182,34 +127,37 @@ export function Dashboard() {
         })}
       </Box>
 
-      <Typography variant="h6" sx={styles.sectionTitle}>
+      <Typography variant="h6" component="h2" sx={styles.sectionTitle}>
         {C.sectionTitle}
       </Typography>
       <Box sx={styles.chartsGrid}>
         <MoodPerformanceChart
           points={moodWorkoutPoints}
-          loading={moodPerformance.loading || workoutRate.loading}
-          error={moodPerformance.error ?? workoutRate.error}
+          loading={moodPerformance.isPending || workoutRate.isPending}
+          error={
+            queryErrorMessage(moodPerformance.error, C.moodPerformance.error) ??
+            queryErrorMessage(workoutRate.error, C.moodPerformance.error)
+          }
         />
         <WeightTrendChart
-          result={weightTrend.data}
-          loading={weightTrend.loading}
-          error={weightTrend.error}
+          result={weightTrend.data ?? null}
+          loading={weightTrend.isPending}
+          error={queryErrorMessage(weightTrend.error, C.weightTrend.error)}
         />
         <WorkoutRateChart
-          result={workoutRate.data}
-          loading={workoutRate.loading}
-          error={workoutRate.error}
+          result={workoutRate.data ?? null}
+          loading={workoutRate.isPending}
+          error={queryErrorMessage(workoutRate.error, C.workoutRate.error)}
         />
         <XPEarnedChart
-          result={xpWeekly.data}
-          loading={xpWeekly.loading}
-          error={xpWeekly.error}
+          result={xpWeekly.data ?? null}
+          loading={xpWeekly.isPending}
+          error={queryErrorMessage(xpWeekly.error, C.xpEarned.error)}
         />
         <RecoveryTrendChart
-          result={recoveryTrend.data}
-          loading={recoveryTrend.loading}
-          error={recoveryTrend.error}
+          result={recoveryTrend.data ?? null}
+          loading={recoveryTrend.isPending}
+          error={queryErrorMessage(recoveryTrend.error, C.recoveryTrend.error)}
         />
       </Box>
     </Box>
