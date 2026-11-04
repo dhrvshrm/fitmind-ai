@@ -77,6 +77,8 @@ _INDEXES = {
     ],
     "audit_logs": [([("user_id", 1), ("at", -1)], {})],
     "ai_usage": [([("user_id", 1), ("local_date", 1)], {"unique": True})],
+    "saved_meals": [([("user_id", 1), ("last_logged_at", -1)], {})],
+    "user_foods": [([("user_id", 1), ("created_at", -1)], {})],
     # Cached AI results expire on their own via a TTL index.
     "ai_cache": [
         ([("key", 1)], {"unique": True}),

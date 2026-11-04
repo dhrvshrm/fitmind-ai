@@ -2,10 +2,10 @@ import type { SxProps, Theme } from '@mui/material';
 
 export const waterIntakeTrackerStyles = {
   glassesRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, auto)',
     justifyContent: 'center',
-    gap: 0.5,
+    gap: 0.75,
     mb: 2,
   },
   glassIcon: (filled: boolean): SxProps<Theme> => ({

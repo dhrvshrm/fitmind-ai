@@ -84,10 +84,23 @@ Pipeline: R2 upload -> Groq Whisper transcription -> Gemini mood/energy analysis
 ### Nutrition
 | Method | Path | Body |
 |---|---|---|
-| POST | `/nutrition/meal` | (auth) `{name, calories, protein, carbs, fats}` -> +XP |
-| GET | `/nutrition/today` | (auth) totals, goals, macro %, water |
+| POST | `/nutrition/estimate` | (auth) `{text}` e.g. "2 aloo parathas with curd" -> items with source (`INDB`, `USDA`, `custom`, `ai_estimate`, `unresolved`), grams, nutrients, per-100 g values and alternatives, plus totals. Saves nothing. |
+| GET | `/nutrition/foods/search?q=` | (auth) user's own foods and dataset foods by name |
+| GET | `/nutrition/foods/{id}` | (auth) one dataset food |
+| POST | `/nutrition/meal` | (auth) `{name, calories, protein, carbs, fats, fiber?, meal_type?, eaten_at? "HH:MM", items?, log_date? (up to 7 days back)}` -> meal + XP |
+| PUT | `/nutrition/meal/{id}` | (auth) partial edit; marks the meal edited; audited |
+| DELETE | `/nutrition/meal/{id}` | (auth) audited |
+| GET | `/nutrition/recent` | (auth) distinct meals from the last 30 days with `times_logged` |
+| GET | `/nutrition/today` | (auth) totals (incl. fiber), goals, macro %, water, meals |
 | GET | `/nutrition/history` | (auth) per-day totals |
 | POST | `/nutrition/water` | (auth) `{amount_ml}` |
+| GET / POST | `/nutrition/saved-meals` | (auth) list; create `{name, from_meal_id}` or `{name, items}` |
+| POST | `/nutrition/saved-meals/{id}/log` | (auth) `{meal_type?, eaten_at?}` logs it for today |
+| DELETE | `/nutrition/saved-meals/{id}` | (auth) |
+| GET / POST | `/nutrition/my-foods` | (auth) custom foods: `{name, aliases?, serving_unit, serving_grams, calories, protein, carbs, fats, fiber}` per serving; matched before the datasets |
+| DELETE | `/nutrition/my-foods/{id}` | (auth) |
+
+Meals carry a `source`: `verified` (all foods from a dataset or the user's own foods), `estimated` (AI), `mixed`, or `manual`. See `docs/DATA_SOURCES.md` for where the numbers come from.
 
 ### Gamification
 | Method | Path | Notes |

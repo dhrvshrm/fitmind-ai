@@ -2,7 +2,19 @@ import logging
 from typing import Dict, List
 
 from app.config.database import get_database
-from app.models import audit, friend, notification, nutrition, recovery, report, user, voice_checkin, weight, workout
+from app.models import (
+    audit,
+    food_library,
+    friend,
+    notification,
+    nutrition,
+    recovery,
+    report,
+    user,
+    voice_checkin,
+    weight,
+    workout,
+)
 from app.services import cloud_service, gamification_service, workout_service
 
 logger = logging.getLogger(__name__)
@@ -26,6 +38,8 @@ USER_DATA_COLLECTIONS: Dict[str, List[str]] = {
     "xp_events": ["user_id"],
     "audit_logs": ["user_id"],
     "ai_usage": ["user_id"],
+    "saved_meals": ["user_id"],
+    "user_foods": ["user_id"],
 }
 
 
@@ -46,6 +60,8 @@ def _memory_stores() -> List[dict]:
         friend._MEMORY_STORE,
         gamification_service._XP_EVENTS_MEMORY,
         audit._MEMORY_STORE,
+        food_library._SAVED_MEAL_MEMORY,
+        food_library._USER_FOOD_MEMORY,
     ]
 
 

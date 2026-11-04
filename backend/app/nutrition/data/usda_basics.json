@@ -1,0 +1,720 @@
+[
+ {
+  "id": "usda:171284",
+  "name": "Curd (plain yogurt, whole milk)",
+  "full_name": "Yogurt, plain, whole milk",
+  "aliases": [
+   "curd",
+   "dahi",
+   "yogurt",
+   "plain curd",
+   "plain dahi"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 61.0,
+   "protein": 3.47,
+   "carbs": 4.66,
+   "fat": 3.25,
+   "fiber": 0.0
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:171265",
+  "name": "Milk (whole)",
+  "full_name": "Milk, whole, 3.25% milkfat, with added vitamin D",
+  "aliases": [
+   "milk",
+   "doodh",
+   "full cream milk",
+   "full fat milk"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 61.0,
+   "protein": 3.15,
+   "carbs": 4.8,
+   "fat": 3.25,
+   "fiber": 0.0
+  },
+  "serving": {
+   "unit": "glass",
+   "grams": 250,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:171267",
+  "name": "Milk (toned, 2% fat)",
+  "full_name": "Milk, reduced fat, fluid, 2% milkfat, with added vitamin A and vitamin D",
+  "aliases": [
+   "toned milk",
+   "low fat milk"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 50.0,
+   "protein": 3.3,
+   "carbs": 4.8,
+   "fat": 1.98,
+   "fiber": 0.0
+  },
+  "serving": {
+   "unit": "glass",
+   "grams": 250,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:173424",
+  "name": "Egg (boiled)",
+  "full_name": "Egg, whole, cooked, hard-boiled",
+  "aliases": [
+   "boiled egg",
+   "egg",
+   "hard boiled egg"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 155.0,
+   "protein": 12.58,
+   "carbs": 1.12,
+   "fat": 10.61,
+   "fiber": 0.0
+  },
+  "serving": {
+   "unit": "egg",
+   "grams": 50,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:172183",
+  "name": "Egg white",
+  "full_name": "Egg, white, raw, fresh",
+  "aliases": [
+   "egg white"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 52.0,
+   "protein": 10.9,
+   "carbs": 0.73,
+   "fat": 0.17,
+   "fiber": 0.0
+  },
+  "serving": {
+   "unit": "egg",
+   "grams": 33,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:173944",
+  "name": "Banana",
+  "full_name": "Bananas, raw",
+  "aliases": [
+   "banana",
+   "kela"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 89.0,
+   "protein": 1.09,
+   "carbs": 22.84,
+   "fat": 0.33,
+   "fiber": 2.6
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 118,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:171688",
+  "name": "Apple",
+  "full_name": "Apples, raw, with skin (Includes foods for USDA's Food Distribution Program)",
+  "aliases": [
+   "apple",
+   "seb"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 52.0,
+   "protein": 0.26,
+   "carbs": 13.81,
+   "fat": 0.17,
+   "fiber": 2.4
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 180,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:169097",
+  "name": "Orange",
+  "full_name": "Oranges, raw, all commercial varieties",
+  "aliases": [
+   "orange",
+   "santra"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 47.0,
+   "protein": 0.94,
+   "carbs": 11.75,
+   "fat": 0.12,
+   "fiber": 2.4
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 130,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:169910",
+  "name": "Mango",
+  "full_name": "Mangos, raw",
+  "aliases": [
+   "mango",
+   "aam"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 60.0,
+   "protein": 0.82,
+   "carbs": 14.98,
+   "fat": 0.38,
+   "fiber": 1.6
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 200,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:169926",
+  "name": "Papaya",
+  "full_name": "Papayas, raw",
+  "aliases": [
+   "papaya",
+   "papita"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 43.0,
+   "protein": 0.47,
+   "carbs": 10.82,
+   "fat": 0.26,
+   "fiber": 1.7
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 145,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:171477",
+  "name": "Chicken breast (roasted)",
+  "full_name": "Chicken, broilers or fryers, breast, meat only, cooked, roasted",
+  "aliases": [
+   "chicken breast",
+   "grilled chicken",
+   "boiled chicken"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 165.0,
+   "protein": 31.02,
+   "carbs": 0.0,
+   "fat": 3.57,
+   "fiber": 0.0
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 120,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:174924",
+  "name": "White bread",
+  "full_name": "Bread, white, commercially prepared (includes soft bread crumbs)",
+  "aliases": [
+   "bread",
+   "white bread",
+   "bread slice"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 266.0,
+   "protein": 8.85,
+   "carbs": 49.42,
+   "fat": 3.33,
+   "fiber": 2.7
+  },
+  "serving": {
+   "unit": "slice",
+   "grams": 30,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:172796",
+  "name": "Pav (bread roll)",
+  "full_name": "Rolls, hamburger or hotdog, plain",
+  "aliases": [
+   "pav",
+   "ladi pav",
+   "bun",
+   "bread roll"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 279.0,
+   "protein": 9.77,
+   "carbs": 50.12,
+   "fat": 3.91,
+   "fiber": 1.8
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 40,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:172688",
+  "name": "Brown bread (whole wheat)",
+  "full_name": "Bread, whole-wheat, commercially prepared",
+  "aliases": [
+   "brown bread",
+   "whole wheat bread",
+   "atta bread"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 252.0,
+   "protein": 12.45,
+   "carbs": 42.71,
+   "fat": 3.5,
+   "fiber": 6.0
+  },
+  "serving": {
+   "unit": "slice",
+   "grams": 30,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:173410",
+  "name": "Butter",
+  "full_name": "Butter, salted",
+  "aliases": [
+   "butter",
+   "makhan",
+   "amul butter"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 717.0,
+   "protein": 0.85,
+   "carbs": 0.06,
+   "fat": 81.11,
+   "fiber": 0.0
+  },
+  "serving": {
+   "unit": "tsp",
+   "grams": 5,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:173412",
+  "name": "Ghee",
+  "full_name": "Butter oil, anhydrous",
+  "aliases": [
+   "ghee",
+   "clarified butter",
+   "desi ghee"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 876.0,
+   "protein": 0.28,
+   "carbs": 0.0,
+   "fat": 99.48,
+   "fiber": 0.0
+  },
+  "serving": {
+   "unit": "tsp",
+   "grams": 5,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:171411",
+  "name": "Cooking oil",
+  "full_name": "Oil, soybean, salad or cooking",
+  "aliases": [
+   "oil",
+   "vegetable oil",
+   "refined oil",
+   "cooking oil"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 884.0,
+   "protein": 0.0,
+   "carbs": 0.0,
+   "fat": 100.0,
+   "fiber": 0.0
+  },
+  "serving": {
+   "unit": "tsp",
+   "grams": 5,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:173806",
+  "name": "Peanuts (roasted)",
+  "full_name": "Peanuts, all types, dry-roasted, without salt",
+  "aliases": [
+   "peanuts",
+   "moongphali",
+   "groundnuts"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 587.0,
+   "protein": 24.35,
+   "carbs": 21.26,
+   "fat": 49.66,
+   "fiber": 8.4
+  },
+  "serving": {
+   "unit": "tbsp",
+   "grams": 15,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:170567",
+  "name": "Almonds",
+  "full_name": "Nuts, almonds",
+  "aliases": [
+   "almonds",
+   "badam"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 579.0,
+   "protein": 21.15,
+   "carbs": 21.55,
+   "fat": 49.93,
+   "fiber": 12.5
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 1.2,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:170162",
+  "name": "Cashews",
+  "full_name": "Nuts, cashew nuts, raw",
+  "aliases": [
+   "cashews",
+   "kaju"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 553.0,
+   "protein": 18.22,
+   "carbs": 30.19,
+   "fat": 43.85,
+   "fiber": 3.3
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 1.5,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:173904",
+  "name": "Oats (dry)",
+  "full_name": "Cereals, oats, regular and quick, not fortified, dry",
+  "aliases": [
+   "oats",
+   "rolled oats"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 379.0,
+   "protein": 13.15,
+   "carbs": 67.7,
+   "fat": 6.52,
+   "fiber": 10.1
+  },
+  "serving": {
+   "unit": "cup",
+   "grams": 40,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:169655",
+  "name": "Sugar",
+  "full_name": "Sugars, granulated",
+  "aliases": [
+   "sugar",
+   "cheeni"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 387.0,
+   "protein": 0.0,
+   "carbs": 99.98,
+   "fat": 0.0,
+   "fiber": 0.0
+  },
+  "serving": {
+   "unit": "tsp",
+   "grams": 4,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:169640",
+  "name": "Honey",
+  "full_name": "Honey",
+  "aliases": [
+   "honey",
+   "shahad"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 304.0,
+   "protein": 0.3,
+   "carbs": 82.4,
+   "fat": 0.0,
+   "fiber": 0.2
+  },
+  "serving": {
+   "unit": "tsp",
+   "grams": 7,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:170853",
+  "name": "Cheese slice (processed)",
+  "full_name": "Cheese, pasteurized process, American, fortified with vitamin D",
+  "aliases": [
+   "cheese",
+   "cheese slice"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 366.0,
+   "protein": 18.13,
+   "carbs": 4.78,
+   "fat": 30.71,
+   "fiber": 0.0
+  },
+  "serving": {
+   "unit": "slice",
+   "grams": 20,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:172475",
+  "name": "Tofu (firm)",
+  "full_name": "Tofu, raw, firm, prepared with calcium sulfate",
+  "aliases": [
+   "tofu"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 144.0,
+   "protein": 17.27,
+   "carbs": 2.78,
+   "fat": 8.72,
+   "fiber": 2.3
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 80,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:168878",
+  "name": "White rice (cooked)",
+  "full_name": "Rice, white, long-grain, regular, enriched, cooked",
+  "aliases": [
+   "white rice",
+   "steamed rice",
+   "cooked rice"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 130.0,
+   "protein": 2.69,
+   "carbs": 28.17,
+   "fat": 0.28,
+   "fiber": 0.4
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:173757",
+  "name": "Chickpeas (boiled)",
+  "full_name": "Chickpeas (garbanzo beans, bengal gram), mature seeds, cooked, boiled, without salt",
+  "aliases": [
+   "boiled chana",
+   "boiled chickpeas",
+   "kabuli chana"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 164.0,
+   "protein": 8.86,
+   "carbs": 27.42,
+   "fat": 2.59,
+   "fiber": 7.6
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:172421",
+  "name": "Lentils (boiled)",
+  "full_name": "Lentils, mature seeds, cooked, boiled, without salt",
+  "aliases": [
+   "boiled lentils",
+   "boiled masoor"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 116.0,
+   "protein": 9.02,
+   "carbs": 20.13,
+   "fat": 0.38,
+   "fiber": 7.9
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:172470",
+  "name": "Peanut butter",
+  "full_name": "Peanut butter, smooth style, without salt",
+  "aliases": [
+   "peanut butter"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 598.0,
+   "protein": 22.21,
+   "carbs": 22.31,
+   "fat": 51.36,
+   "fiber": 5.0
+  },
+  "serving": {
+   "unit": "tbsp",
+   "grams": 16,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:170273",
+  "name": "Dark chocolate (70-85%)",
+  "full_name": "Chocolate, dark, 70-85% cacao solids",
+  "aliases": [
+   "dark chocolate"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 598.0,
+   "protein": 7.79,
+   "carbs": 45.9,
+   "fat": 42.63,
+   "fiber": 10.9
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 10,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:168409",
+  "name": "Cucumber",
+  "full_name": "Cucumber, with peel, raw",
+  "aliases": [
+   "cucumber",
+   "kheera"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 15.0,
+   "protein": 0.65,
+   "carbs": 3.63,
+   "fat": 0.11,
+   "fiber": 0.5
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 200,
+   "from_source": false
+  }
+ },
+ {
+  "id": "usda:170457",
+  "name": "Tomato",
+  "full_name": "Tomatoes, red, ripe, raw, year round average",
+  "aliases": [
+   "tomato",
+   "tamatar"
+  ],
+  "source": "USDA",
+  "per_100g": {
+   "kcal": 18.0,
+   "protein": 0.88,
+   "carbs": 3.89,
+   "fat": 0.2,
+   "fiber": 1.2
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 120,
+   "from_source": false
+  }
+ }
+]

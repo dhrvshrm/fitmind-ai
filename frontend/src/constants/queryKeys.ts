@@ -15,6 +15,10 @@ export const QUERY_KEYS = {
   nutrition: {
     all: ['nutrition'] as const,
     today: ['nutrition', 'today'] as const,
+    recent: ['nutrition', 'recent'] as const,
+    savedMeals: ['nutrition', 'saved-meals'] as const,
+    userFoods: ['nutrition', 'my-foods'] as const,
+    foodSearch: (query: string) => ['nutrition', 'food-search', query] as const,
   },
   workouts: {
     all: ['workouts'] as const,

@@ -1,5 +1,7 @@
 import { Box, Skeleton } from "@mui/material";
-import { MealForm } from "./MealForm";
+import { QuickLog } from "./QuickLog";
+import { QuickPicks } from "./QuickPicks";
+import { MyFoods } from "./MyFoods";
 import { CalorieProgressBar } from "./CalorieProgressBar";
 import { MacroPieChart } from "./MacroPieChart";
 import { WaterIntakeTracker } from "./WaterIntakeTracker";
@@ -23,7 +25,11 @@ export function NutritionPage() {
       <PageHeader title={S.title} subtitle={S.subtitle} />
 
       <Box sx={styles.grid}>
-        <MealForm />
+        <Box sx={styles.leftColumn}>
+          <QuickLog />
+          <QuickPicks />
+          <MyFoods />
+        </Box>
 
         <Box sx={styles.rightColumn}>
           {today.isPending && (

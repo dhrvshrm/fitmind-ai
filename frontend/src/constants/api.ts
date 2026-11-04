@@ -49,9 +49,19 @@ export const WORKOUT_COMPLETIONS_KEY = "fitmind-workout-completions";
 
 export const NUTRITION_ENDPOINTS = {
   MEAL: "/nutrition/meal",
+  meal: (id: string) => `/nutrition/meal/${encodeURIComponent(id)}`,
   TODAY: "/nutrition/today",
   HISTORY: "/nutrition/history",
   WATER: "/nutrition/water",
+  ESTIMATE: "/nutrition/estimate",
+  FOOD_SEARCH: "/nutrition/foods/search",
+  food: (id: string) => `/nutrition/foods/${encodeURIComponent(id)}`,
+  RECENT: "/nutrition/recent",
+  SAVED_MEALS: "/nutrition/saved-meals",
+  savedMeal: (id: string) => `/nutrition/saved-meals/${encodeURIComponent(id)}`,
+  logSavedMeal: (id: string) => `/nutrition/saved-meals/${encodeURIComponent(id)}/log`,
+  MY_FOODS: "/nutrition/my-foods",
+  myFood: (id: string) => `/nutrition/my-foods/${encodeURIComponent(id)}`,
 } as const;
 
 export const GAMIFICATION_ENDPOINTS = {

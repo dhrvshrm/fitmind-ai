@@ -11,7 +11,6 @@ import {
 import toast from 'react-hot-toast';
 import { useLogMeal } from '../../hooks/queries/useNutritionQueries';
 import { resolveApiError } from '../../lib/apiClient';
-import { SectionCard } from '../ui/SectionCard';
 import { STRINGS } from '../../constants/strings';
 import { KCAL_PER_GRAM, MEAL_TYPE_OPTIONS } from '../../constants/nutrition';
 import type { MealType } from '../../types/nutrition';
@@ -48,7 +47,7 @@ function toNumberOrEmpty(raw: string): number | '' {
   return Number.isNaN(parsed) ? '' : parsed;
 }
 
-/** Manual meal entry. Logging refreshes today's summary and the dashboard. */
+/** Manual meal entry (macros typed in). Logging refreshes today's summary and the dashboard. */
 export function MealForm() {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -107,104 +106,102 @@ export function MealForm() {
   }
 
   return (
-    <SectionCard title={S.title}>
-      <Box component="form" onSubmit={handleSubmit} noValidate>
-        <Stack spacing={2}>
-          <TextField
-            label={S.name}
-            fullWidth
-            value={form.name}
-            onChange={(e) => {
-              setForm((prev) => ({ ...prev, name: e.target.value }));
-              setErrors((prev) => ({ ...prev, name: undefined }));
-            }}
-            error={Boolean(errors.name)}
-            helperText={errors.name}
-            disabled={isSubmitting}
-          />
+    <Box component="form" onSubmit={handleSubmit} noValidate>
+      <Stack spacing={2}>
+        <TextField
+          label={S.name}
+          fullWidth
+          value={form.name}
+          onChange={(e) => {
+            setForm((prev) => ({ ...prev, name: e.target.value }));
+            setErrors((prev) => ({ ...prev, name: undefined }));
+          }}
+          error={Boolean(errors.name)}
+          helperText={errors.name}
+          disabled={isSubmitting}
+        />
 
-          <TextField
-            label={S.calories}
-            type="number"
-            fullWidth
-            value={form.calories}
-            onChange={(e) => setNumeric('calories')(e.target.value)}
-            error={Boolean(errors.calories)}
-            helperText={errors.calories}
-            disabled={isSubmitting}
-            slotProps={{ htmlInput: { min: 0, step: 1 } }}
-          />
+        <TextField
+          label={S.calories}
+          type="number"
+          fullWidth
+          value={form.calories}
+          onChange={(e) => setNumeric('calories')(e.target.value)}
+          error={Boolean(errors.calories)}
+          helperText={errors.calories}
+          disabled={isSubmitting}
+          slotProps={{ htmlInput: { min: 0, step: 1 } }}
+        />
 
-          <Box sx={styles.macroRow}>
-            {(['protein', 'carbs', 'fats'] as const).map((field) => (
-              <TextField
-                key={field}
-                label={S[field]}
-                type="number"
-                value={form[field]}
-                onChange={(e) => setNumeric(field)(e.target.value)}
-                error={Boolean(errors[field])}
-                helperText={errors[field]}
+        <Box sx={styles.macroRow}>
+          {(['protein', 'carbs', 'fats'] as const).map((field) => (
+            <TextField
+              key={field}
+              label={S[field]}
+              type="number"
+              value={form[field]}
+              onChange={(e) => setNumeric(field)(e.target.value)}
+              error={Boolean(errors[field])}
+              helperText={errors[field]}
+              disabled={isSubmitting}
+              slotProps={{ htmlInput: { min: 0, step: 1 } }}
+            />
+          ))}
+        </Box>
+
+        {/* Live estimate keeps calories honest as macros are typed. */}
+        <Stack sx={styles.estimateRow}>
+          {estimatedKcal > 0 && (
+            <>
+              <Typography variant="caption" color="text.secondary">
+                {S.estimate(estimatedKcal)}
+              </Typography>
+              <Chip
+                label={S.useEstimate}
+                size="small"
+                variant="outlined"
+                color="primary"
+                onClick={() => setForm((prev) => ({ ...prev, calories: estimatedKcal }))}
                 disabled={isSubmitting}
-                slotProps={{ htmlInput: { min: 0, step: 1 } }}
               />
-            ))}
-          </Box>
+            </>
+          )}
+        </Stack>
 
-          {/* Live estimate keeps calories honest as macros are typed. */}
-          <Stack sx={styles.estimateRow}>
-            {estimatedKcal > 0 && (
-              <>
-                <Typography variant="caption" color="text.secondary">
-                  {S.estimate(estimatedKcal)}
-                </Typography>
+        <Box>
+          <Typography variant="body2" sx={styles.typeLabel}>
+            {S.mealType}
+          </Typography>
+          <Stack sx={styles.typeRow}>
+            {MEAL_TYPE_OPTIONS.map((option) => {
+              const Icon = option.icon;
+              return (
                 <Chip
-                  label={S.useEstimate}
-                  size="small"
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => setForm((prev) => ({ ...prev, calories: estimatedKcal }))}
+                  key={option.value}
+                  icon={<Icon />}
+                  label={option.label}
+                  color={form.meal_type === option.value ? 'primary' : 'default'}
+                  variant={form.meal_type === option.value ? 'filled' : 'outlined'}
+                  onClick={() => setForm((prev) => ({ ...prev, meal_type: option.value }))}
                   disabled={isSubmitting}
                 />
-              </>
-            )}
+              );
+            })}
           </Stack>
+        </Box>
 
-          <Box>
-            <Typography variant="body2" sx={styles.typeLabel}>
-              {S.mealType}
-            </Typography>
-            <Stack sx={styles.typeRow}>
-              {MEAL_TYPE_OPTIONS.map((option) => {
-                const Icon = option.icon;
-                return (
-                  <Chip
-                    key={option.value}
-                    icon={<Icon />}
-                    label={option.label}
-                    color={form.meal_type === option.value ? 'primary' : 'default'}
-                    variant={form.meal_type === option.value ? 'filled' : 'outlined'}
-                    onClick={() => setForm((prev) => ({ ...prev, meal_type: option.value }))}
-                    disabled={isSubmitting}
-                  />
-                );
-              })}
-            </Stack>
-          </Box>
-
-          <Button
-            type="submit"
-            variant="contained"
-            size="large"
-            fullWidth
-            disabled={isSubmitting}
-            startIcon={isSubmitting ? <CircularProgress size={18} color="inherit" /> : null}
-            sx={styles.submit}
-          >
-            {isSubmitting ? S.submitting : S.submit}
-          </Button>
-        </Stack>
-      </Box>
-    </SectionCard>
+        <Button
+          type="submit"
+          variant="contained"
+          size="large"
+          fullWidth
+          disabled={isSubmitting}
+          startIcon={isSubmitting ? <CircularProgress size={18} color="inherit" /> : null}
+          sx={styles.submit}
+        >
+          {isSubmitting ? S.submitting : S.submit}
+        </Button>
+      </Stack>
+    </Box>
   );
 }

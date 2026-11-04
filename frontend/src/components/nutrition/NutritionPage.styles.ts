@@ -4,8 +4,13 @@ export const nutritionPageStyles = {
   grid: {
     display: 'grid',
     gap: 2,
-    gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: '5fr 7fr' },
+    gridTemplateColumns: { xs: 'minmax(0, 1fr)', lg: '6fr 5fr' },
     alignItems: 'start',
+  },
+  leftColumn: {
+    display: 'grid',
+    gap: 2,
+    minWidth: 0,
   },
   rightColumn: {
     display: 'grid',
