@@ -2,6 +2,7 @@ import logging
 from typing import Optional
 
 import certifi
+from pymongo.errors import OperationFailure
 
 from app.config.settings import get_settings
 
@@ -87,6 +88,10 @@ _INDEXES = {
 }
 
 
+# MongoDB error codes for "an index on these keys exists with other options/name".
+_INDEX_EXISTS_CODES = {85, 86}
+
+
 async def ensure_indexes(database) -> None:
     """Create the app's indexes (idempotent; safe to run on every startup).
 
@@ -97,6 +102,17 @@ async def ensure_indexes(database) -> None:
         for keys, options in specs:
             try:
                 await database[collection].create_index(keys, **options)
+            except OperationFailure as e:
+                if e.code in _INDEX_EXISTS_CODES:
+                    # An older index on the same keys has different options (e.g.
+                    # created before it was unique). It still works for lookups;
+                    # changing it needs a manual migration, so leave it alone.
+                    logger.info(
+                        "Index %s on %s already exists with different options; left unchanged",
+                        keys, collection,
+                    )
+                    continue
+                logger.warning("Could not create index %s on %s: %s", keys, collection, e)
             except Exception as e:
                 logger.warning("Could not create index %s on %s: %s", keys, collection, e)
     logger.info("Ensured MongoDB indexes")
