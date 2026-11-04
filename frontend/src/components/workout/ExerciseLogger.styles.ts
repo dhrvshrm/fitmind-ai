@@ -1,13 +1,14 @@
-import type { SxProps, Theme } from '@mui/material';
+import { alpha, type SxProps, type Theme } from '@mui/material';
 
 export const exerciseLoggerStyles = {
-  card: (completed: boolean): SxProps<Theme> => ({
-    p: 1.75,
-    borderRadius: 2.5,
-    borderColor: completed ? 'success.main' : 'divider',
-    bgcolor: completed ? 'rgba(22, 163, 74, 0.05)' : 'background.paper',
-    transition: 'border-color 0.2s ease, background-color 0.2s ease',
-  }),
+  card:
+    (completed: boolean): SxProps<Theme> =>
+    (theme) => ({
+      p: 1.75,
+      borderColor: completed ? 'success.main' : 'divider',
+      bgcolor: completed ? alpha(theme.palette.success.main, 0.06) : 'background.paper',
+      transition: 'border-color 0.2s ease, background-color 0.2s ease',
+    }),
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -16,11 +17,9 @@ export const exerciseLoggerStyles = {
   },
   name: (completed: boolean): SxProps<Theme> => ({
     fontWeight: 600,
+    minWidth: 0,
     textDecoration: completed ? 'line-through' : 'none',
   }),
-  doneChip: {
-    fontWeight: 700,
-  },
   metaRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -29,8 +28,9 @@ export const exerciseLoggerStyles = {
     mt: 0.5,
   },
   setsReps: {
-    fontWeight: 700,
+    fontWeight: 600,
     color: 'primary.main',
+    fontVariantNumeric: 'tabular-nums',
   },
   setsRow: {
     flexDirection: 'row',

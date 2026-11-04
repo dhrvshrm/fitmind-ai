@@ -20,7 +20,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   return (
     <Stack sx={styles.row(isUser)}>
       {!isUser && (
-        <Avatar sx={styles.avatar}>
+        <Avatar sx={styles.avatar(isUser)}>
           <SmartToyRounded fontSize="small" />
         </Avatar>
       )}
@@ -34,7 +34,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
               <Box sx={styles.dot(0.3)} />
             </Stack>
           ) : isUser ? (
-            // User text is plain — preserve it exactly (pre-wrap on the bubble).
+            // User text is plain; preserve it exactly (pre-wrap on the bubble).
             <Typography variant="body2" component="span">
               {message.content}
             </Typography>
@@ -54,7 +54,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       </Box>
 
       {isUser && (
-        <Avatar sx={styles.avatar}>
+        <Avatar sx={styles.avatar(isUser)}>
           <PersonRounded fontSize="small" />
         </Avatar>
       )}

@@ -40,7 +40,7 @@ export function ExerciseLogger({ exercise, doneSets, onToggleSet }: ExerciseLogg
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: 'spring', stiffness: 400, damping: 18 }}
             >
-              <Chip label={S.logger.exerciseDone} color="success" size="small" sx={styles.doneChip} />
+              <Chip label={S.logger.exerciseDone} color="success" size="small" />
             </motion.div>
           )}
         </Stack>
@@ -49,7 +49,7 @@ export function ExerciseLogger({ exercise, doneSets, onToggleSet }: ExerciseLogg
           <Typography variant="body2" sx={styles.setsReps}>
             {S.exercise.setsReps(exercise.sets, exercise.reps)}
           </Typography>
-          <Chip label={`${S.exercise.restLabel} ${exercise.rest}`} size="small" variant="outlined" />
+          <Chip label={S.exercise.rest(exercise.rest)} size="small" variant="outlined" />
           <Chip
             label={exercise.difficulty}
             size="small"

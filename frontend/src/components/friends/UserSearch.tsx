@@ -5,7 +5,6 @@ import {
   Chip,
   CircularProgress,
   IconButton,
-  Paper,
   Stack,
   TextField,
   Typography,
@@ -14,7 +13,9 @@ import { PersonSearchRounded } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import { friendService } from "../../services/friendService";
 import { isNotFoundError, resolveApiError } from "../../lib/apiClient";
+import { useSendFriendRequest } from "../../hooks/queries/useFriendQueries";
 import { STRINGS } from "../../constants/strings";
+import { SectionCard } from "../ui/SectionCard";
 import type { UserSearchResult } from "../../types/friend";
 import { userSearchStyles as styles } from "./UserSearch.styles";
 
@@ -26,7 +27,8 @@ export function UserSearch() {
   const [result, setResult] = useState<UserSearchResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [isRequesting, setIsRequesting] = useState(false);
+  const sendRequest = useSendFriendRequest();
+  const isRequesting = sendRequest.isPending;
 
   async function handleSearch(event: FormEvent) {
     event.preventDefault();
@@ -49,25 +51,18 @@ export function UserSearch() {
 
   async function handleAddFriend() {
     if (!result) return;
-    setIsRequesting(true);
     try {
-      await friendService.sendRequest(result.username);
+      await sendRequest.mutateAsync(result.username);
       toast.success(S.requestSent);
       // Optimistic: flips the button to "pending" without a re-search.
       setResult({ ...result, friendship_status: "pending" });
     } catch (err) {
       toast.error(resolveApiError(err, S.requestError));
-    } finally {
-      setIsRequesting(false);
     }
   }
 
   return (
-    <Paper variant="outlined" sx={styles.card}>
-      <Typography variant="h6" sx={styles.title}>
-        {S.title}
-      </Typography>
-
+    <SectionCard title={S.title}>
       <Stack component="form" onSubmit={handleSearch} sx={styles.form}>
         <TextField
           value={query}
@@ -132,6 +127,6 @@ export function UserSearch() {
           )}
         </Stack>
       )}
-    </Paper>
+    </SectionCard>
   );
 }

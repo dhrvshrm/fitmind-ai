@@ -37,7 +37,7 @@ export function ExerciseCard({ exercise, checked = false, onToggle }: ExerciseCa
           <Typography variant="body2" sx={styles.setsReps}>
             {S.setsReps(exercise.sets, exercise.reps)}
           </Typography>
-          <Chip label={`${S.restLabel} ${exercise.rest}`} size="small" variant="outlined" />
+          <Chip label={S.rest(exercise.rest)} size="small" variant="outlined" />
           <Chip
             label={exercise.difficulty}
             size="small"

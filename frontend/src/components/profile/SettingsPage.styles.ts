@@ -4,41 +4,52 @@ export const settingsPageStyles = {
   root: {
     display: "flex",
     flexDirection: "column",
-    gap: 3,
+    gap: 2,
     maxWidth: 720,
   },
-  header: {
-    fontWeight: 800,
+  modeGroup: {
+    flexWrap: "wrap",
   },
-  subtitle: {
-    mb: 1,
+  modeButton: {
+    gap: 1,
+    px: 2,
+    textTransform: "none",
+    fontWeight: 600,
   },
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
+  prefsSkeleton: {
+    height: 220,
   },
-  sectionTitle: {
-    fontWeight: 700,
-  },
-  sectionSubtitle: {
-    mb: 1.5,
+  toggleList: {
+    display: "flex",
+    flexDirection: "column",
   },
   toggleRow: {
+    mx: 0,
     py: 0.5,
+    justifyContent: "space-between",
+    gap: 2,
+    "&:not(:last-of-type)": {
+      borderBottom: 1,
+      borderColor: "divider",
+    },
   },
-  dangerCard: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
-    borderColor: "error.main",
-  },
-  dangerTitle: {
-    fontWeight: 700,
-    color: "error.main",
+  /* Tints the danger-zone card border without restyling SectionCard itself. */
+  dangerWrap: {
+    "& > .MuiCard-root": {
+      borderColor: "error.main",
+    },
+    "& h2": {
+      color: "error.main",
+    },
   },
   dangerBody: {
-    my: 1.5,
+    mb: 2,
   },
   confirmField: {
     mt: 2,
+  },
+  dialogActions: {
+    px: 3,
+    pb: 2,
   },
 } satisfies Record<string, SxProps<Theme>>;

@@ -5,15 +5,7 @@ export const coachPageStyles = {
     display: 'flex',
     flexDirection: 'column',
     height: 'calc(100svh - 112px)',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    mb: 1.5,
-  },
-  title: {
-    fontWeight: 700,
+    minHeight: 420,
   },
   statusChip: {
     fontWeight: 600,
@@ -23,7 +15,6 @@ export const coachPageStyles = {
     minHeight: 0,
     display: 'flex',
     flexDirection: 'column',
-    borderRadius: 3,
     overflow: 'hidden',
   },
   footer: {

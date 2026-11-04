@@ -1,35 +1,43 @@
-import { Alert, Paper, Skeleton, Stack, Typography } from '@mui/material';
+import { Skeleton, Stack, Typography } from '@mui/material';
+import { MonitorHeartRounded } from '@mui/icons-material';
 import { STRINGS } from '../../constants/strings';
 import { getScoreColorToken } from '../../utils/recovery';
-import type { RecoveryScoreData } from '../../types/recovery';
+import { useRecoveryScore } from '../../hooks/queries/useRecoveryQueries';
+import { queryErrorMessage } from '../../hooks/queries/queryHelpers';
+import { SectionCard } from '../ui/SectionCard';
+import { EmptyState } from '../ui/EmptyState';
+import { ErrorState } from '../ui/ErrorState';
 import { recoveryScoreCardStyles as styles } from './RecoveryScoreCard.styles';
 
 const S = STRINGS.recovery.score;
 
-type RecoveryScoreCardProps = {
-  data: RecoveryScoreData | null;
-  loading: boolean;
-  error: string | null;
-};
-
 /**
- * Large color-coded recovery score (0–100) with the backend's recommendation
- * and explanation. Band colors: red <40, yellow 40–70, green >70.
+ * Large color-coded recovery score (0 to 100) with the backend's recommendation
+ * and explanation. Band colors: red below 40, amber 40 to 70, green above 70;
+ * the recommendation text always accompanies the color.
  */
-export function RecoveryScoreCard({ data, loading, error }: RecoveryScoreCardProps) {
+export function RecoveryScoreCard() {
+  const score = useRecoveryScore();
+  const data = score.data;
+  const error = queryErrorMessage(score.error, S.error);
   const color = data ? getScoreColorToken(data.score) : 'text.primary';
 
   return (
-    <Paper variant="outlined" sx={styles.card}>
-      <Typography variant="h6" sx={styles.title}>
-        {S.title}
-      </Typography>
+    <SectionCard title={S.title}>
+      {score.isPending && (
+        <>
+          <Skeleton variant="text" sx={styles.skeletonScore} />
+          <Skeleton variant="text" sx={styles.skeletonLine} />
+        </>
+      )}
 
-      {loading && <Skeleton variant="text" sx={styles.skeletonScore} />}
+      {error && <ErrorState message={error} onRetry={() => score.refetch()} />}
 
-      {!loading && error && <Alert severity="error">{error}</Alert>}
+      {score.isSuccess && !data && (
+        <EmptyState icon={MonitorHeartRounded} title={S.emptyTitle} description={S.empty} compact />
+      )}
 
-      {!loading && !error && data && (
+      {data && (
         <>
           <Stack sx={styles.scoreRow}>
             <Typography component="span" sx={styles.score(color)}>
@@ -47,6 +55,6 @@ export function RecoveryScoreCard({ data, loading, error }: RecoveryScoreCardPro
           </Typography>
         </>
       )}
-    </Paper>
+    </SectionCard>
   );
 }

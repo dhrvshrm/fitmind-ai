@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Box, Chip, Paper, Typography } from '@mui/material';
+import { Box, Card, Chip } from '@mui/material';
 import toast from 'react-hot-toast';
 import { ChatContainer } from './ChatContainer';
 import { QuickPrompts } from './QuickPrompts';
@@ -10,6 +10,7 @@ import { STRINGS } from '../../constants/strings';
 import { PING_INTERVAL_MS } from '../../constants/chat';
 import { generateMessageId, loadChatHistory, saveChatHistory } from '../../utils/chat';
 import type { ChatMessage, ConnectionStatus, ServerFrame } from '../../types/chat';
+import { PageHeader } from '../ui/PageHeader';
 import { coachPageStyles as styles } from './CoachPage.styles';
 
 const S = STRINGS.coach;
@@ -128,30 +129,27 @@ export function CoachPage() {
 
   return (
     <Box sx={styles.root}>
-      <Box sx={styles.headerRow}>
-        <Box>
-          <Typography variant="h5" sx={styles.title}>
-            {S.title}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {S.subtitle}
-          </Typography>
-        </Box>
-        <Chip
-          label={S.connection[status]}
-          color={STATUS_CHIP_COLOR[status]}
-          size="small"
-          sx={styles.statusChip}
-        />
-      </Box>
+      <PageHeader
+        title={S.title}
+        subtitle={S.subtitle}
+        actions={
+          <Chip
+            label={S.connection[status]}
+            color={STATUS_CHIP_COLOR[status]}
+            variant="outlined"
+            size="small"
+            sx={styles.statusChip}
+          />
+        }
+      />
 
-      <Paper variant="outlined" sx={styles.card}>
+      <Card sx={styles.card}>
         <ChatContainer messages={messages} />
         <Box sx={styles.footer}>
           <QuickPrompts onSelect={handleSend} disabled={inputDisabled} />
           <InputBox onSend={handleSend} disabled={inputDisabled} />
         </Box>
-      </Paper>
+      </Card>
     </Box>
   );
 }

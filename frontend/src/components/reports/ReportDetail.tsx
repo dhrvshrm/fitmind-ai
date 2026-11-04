@@ -29,7 +29,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
       try {
         await navigator.share({ title: STRINGS.reports.title, text });
       } catch {
-        // User cancelled the native share sheet — not an error worth surfacing.
+        // User cancelled the native share sheet; not an error worth surfacing.
       }
       return;
     }
@@ -47,7 +47,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `fitmind-report-${report.week_start}.txt`;
+    link.download = S.downloadFileName(report.week_start);
     link.click();
     URL.revokeObjectURL(url);
     toast.success(S.downloaded);
@@ -76,7 +76,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
             {S.workoutsLabel}
           </Typography>
           <Typography sx={styles.statValue}>
-            {report.workouts_completed}/{report.workouts_planned}
+            {S.workoutsValue(report.workouts_completed, report.workouts_planned)}
           </Typography>
           <LinearProgress
             variant="determinate"
@@ -96,7 +96,7 @@ export function ReportDetail({ report }: ReportDetailProps) {
           <Typography variant="caption" color="text.secondary" sx={styles.statLabel}>
             {S.caloriesLabel}
           </Typography>
-          <Typography sx={styles.statValue}>{report.avg_calories} kcal</Typography>
+          <Typography sx={styles.statValue}>{S.kcal(report.avg_calories)}</Typography>
         </Box>
 
         <Box sx={styles.statCard}>
@@ -105,13 +105,13 @@ export function ReportDetail({ report }: ReportDetailProps) {
           </Typography>
           <Stack sx={styles.macroRow}>
             <Box component="span" sx={styles.macroChip(chart.protein)}>
-              P{report.avg_protein}
+              {S.macroShort.protein(report.avg_protein)}
             </Box>
             <Box component="span" sx={styles.macroChip(chart.carbs)}>
-              C{report.avg_carbs}
+              {S.macroShort.carbs(report.avg_carbs)}
             </Box>
             <Box component="span" sx={styles.macroChip(chart.fats)}>
-              F{report.avg_fats}
+              {S.macroShort.fats(report.avg_fats)}
             </Box>
           </Stack>
         </Box>

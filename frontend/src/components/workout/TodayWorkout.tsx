@@ -1,31 +1,34 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from 'react';
 import {
-  Alert,
   Box,
   Button,
   Chip,
   IconButton,
   LinearProgress,
-  Paper,
   Skeleton,
   Stack,
   Typography,
-} from "@mui/material";
+} from '@mui/material';
 import {
   CheckCircleRounded,
   FlagRounded,
+  HotelRounded,
   PauseRounded,
   PlayArrowRounded,
-} from "@mui/icons-material";
-import { AnimatePresence, motion } from "framer-motion";
-import { ExerciseLogger } from "./ExerciseLogger";
-import { WorkoutCompletion } from "./WorkoutCompletion";
-import { useWorkoutTimer } from "../../hooks/useWorkoutTimer";
-import { workoutService } from "../../services/workoutService";
-import { STRINGS } from "../../constants/strings";
-import { formatDuration } from "../../utils/date";
-import type { Exercise, WorkoutLogResult } from "../../types/workout";
-import { todayWorkoutStyles as styles } from "./TodayWorkout.styles";
+} from '@mui/icons-material';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ExerciseLogger } from './ExerciseLogger';
+import { WorkoutCompletion } from './WorkoutCompletion';
+import { useWorkoutTimer } from '../../hooks/useWorkoutTimer';
+import { useCompleteExercise } from '../../hooks/queries/useWorkoutQueries';
+import { STRINGS } from '../../constants/strings';
+import { formatDuration } from '../../utils/date';
+import type { Exercise, WorkoutLogResult } from '../../types/workout';
+import { SectionCard } from '../ui/SectionCard';
+import { EmptyState } from '../ui/EmptyState';
+import { ErrorState } from '../ui/ErrorState';
+import { IconBadge } from '../ui/IconBadge';
+import { todayWorkoutStyles as styles } from './TodayWorkout.styles';
 
 const S = STRINGS.workout;
 const CELEBRATION_MS = 2200;
@@ -34,9 +37,10 @@ type TodayWorkoutProps = {
   exercises: Exercise[];
   loading: boolean;
   error: string | null;
-  /** True when today's workout has already been saved - locks the logger. */
+  onRetry: () => void;
+  /** True when today's workout has already been saved; locks the logger. */
   alreadyLogged: boolean;
-  /** Called after the workout is saved on the backend. */
+  /** Called after the workout is saved, to mark today complete right away. */
   onLogged: (result: WorkoutLogResult) => void;
 };
 
@@ -48,10 +52,12 @@ export function TodayWorkout({
   exercises,
   loading,
   error,
+  onRetry,
   alreadyLogged,
   onLogged,
 }: TodayWorkoutProps) {
   const timer = useWorkoutTimer();
+  const completeExercise = useCompleteExercise();
   const [doneSets, setDoneSets] = useState<Record<string, Set<number>>>({});
   const [completionOpen, setCompletionOpen] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
@@ -59,8 +65,7 @@ export function TodayWorkout({
   const syncedRef = useRef<Set<string>>(new Set());
 
   const totalSets = useMemo(
-    () =>
-      exercises.reduce((sum, exercise) => sum + Math.max(1, exercise.sets), 0),
+    () => exercises.reduce((sum, exercise) => sum + Math.max(1, exercise.sets), 0),
     [exercises],
   );
   const doneCount = useMemo(
@@ -80,7 +85,7 @@ export function TodayWorkout({
       const setCount = Math.max(1, exercise.sets);
       if (current.size >= setCount && !syncedRef.current.has(exercise.name)) {
         syncedRef.current.add(exercise.name);
-        workoutService.completeExercise(exercise.name).catch(() => {
+        completeExercise.mutateAsync(exercise.name).catch(() => {
           // Non-fatal: the final log still records completion.
           syncedRef.current.delete(exercise.name);
         });
@@ -88,10 +93,7 @@ export function TodayWorkout({
 
       // Full-workout celebration the moment the last set is ticked.
       const total = exercises.reduce((sum, e) => sum + Math.max(1, e.sets), 0);
-      const done = Object.values(next).reduce(
-        (sum, sets) => sum + sets.size,
-        0,
-      );
+      const done = Object.values(next).reduce((sum, sets) => sum + sets.size, 0);
       if (total > 0 && done >= total) {
         setCelebrating(true);
         window.setTimeout(() => setCelebrating(false), CELEBRATION_MS);
@@ -105,12 +107,118 @@ export function TodayWorkout({
     onLogged(result);
   }
 
-  const showLogger =
-    exercises.length > 0 && !loading && !error && !alreadyLogged;
-  const showDonePanel = !loading && !error && alreadyLogged;
+  const ready = !loading && !error;
+  const showLogger = ready && exercises.length > 0 && !alreadyLogged;
+  const showDonePanel = ready && alreadyLogged;
+  const showRestDay = ready && !alreadyLogged && exercises.length === 0;
 
   return (
-    <Paper variant="outlined" sx={styles.card}>
+    <Box sx={styles.root}>
+      <SectionCard
+        title={S.today.title}
+        action={
+          showLogger && (
+            <Chip
+              label={S.today.progress(doneCount, totalSets)}
+              color={allDone ? 'success' : 'primary'}
+              variant="outlined"
+              size="small"
+              sx={styles.progressChip}
+            />
+          )
+        }
+      >
+        {showLogger && (
+          <>
+            <LinearProgress
+              variant="determinate"
+              value={totalSets === 0 ? 0 : (doneCount / totalSets) * 100}
+              color={allDone ? 'success' : 'primary'}
+              sx={styles.progressBar}
+            />
+            <Stack sx={styles.timerRow}>
+              {timer.status === 'idle' ? (
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<PlayArrowRounded />}
+                  onClick={timer.start}
+                >
+                  {S.timer.start}
+                </Button>
+              ) : (
+                <>
+                  <Typography variant="h6" component="p" sx={styles.timerText}>
+                    {formatDuration(timer.seconds)}
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    color="primary"
+                    aria-label={timer.status === 'running' ? S.timer.pause : S.timer.resume}
+                    onClick={timer.status === 'running' ? timer.pause : timer.resume}
+                  >
+                    {timer.status === 'running' ? <PauseRounded /> : <PlayArrowRounded />}
+                  </IconButton>
+                </>
+              )}
+            </Stack>
+          </>
+        )}
+
+        {loading && <Skeleton variant="rounded" sx={styles.skeleton} />}
+        {!loading && error && <ErrorState message={error} onRetry={onRetry} />}
+
+        {/* Already saved today: lock the logger so it can't be logged twice. */}
+        {showDonePanel && (
+          <Box sx={styles.donePanel}>
+            <IconBadge icon={CheckCircleRounded} tone="success" size="large" />
+            <Typography variant="subtitle1" sx={styles.doneTitle}>
+              {S.today.alreadyDoneTitle}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {S.today.alreadyDoneBody}
+            </Typography>
+          </Box>
+        )}
+
+        {showRestDay && (
+          <EmptyState
+            icon={HotelRounded}
+            title={S.today.restDayTitle}
+            description={S.today.restDay}
+            compact
+          />
+        )}
+
+        {showLogger && (
+          <>
+            <Box sx={styles.list}>
+              {exercises.map((exercise) => (
+                <ExerciseLogger
+                  key={exercise.name}
+                  exercise={exercise}
+                  doneSets={doneSets[exercise.name] ?? new Set()}
+                  onToggleSet={(setIndex) => toggleSet(exercise, setIndex)}
+                />
+              ))}
+            </Box>
+
+            <Button
+              variant="contained"
+              fullWidth
+              size="large"
+              color={allDone ? 'success' : 'primary'}
+              startIcon={<FlagRounded />}
+              onClick={() => setCompletionOpen(true)}
+              disabled={doneCount === 0}
+              sx={styles.finishButton}
+            >
+              {S.today.finish}
+            </Button>
+          </>
+        )}
+      </SectionCard>
+
       {/* Celebration overlay when every set is done. */}
       <AnimatePresence>
         {celebrating && (
@@ -122,128 +230,17 @@ export function TodayWorkout({
             sx={styles.celebrationOverlay}
           >
             <motion.div
-              initial={{ scale: 0.4, rotate: -8 }}
-              animate={{ scale: [0.4, 1.15, 1], rotate: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
+              initial={{ scale: 0.6 }}
+              animate={{ scale: [0.6, 1.08, 1] }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
             >
-              <Typography variant="h4" sx={styles.celebrationText}>
+              <Typography variant="h4" component="p" sx={styles.celebrationText}>
                 {S.today.celebration}
               </Typography>
             </motion.div>
           </Box>
         )}
       </AnimatePresence>
-
-      <Stack sx={styles.headerRow}>
-        <Typography variant="h6" sx={styles.title}>
-          {S.today.title}
-        </Typography>
-        {showLogger && (
-          <Chip
-            label={S.today.progress(doneCount, totalSets)}
-            color={allDone ? "success" : "primary"}
-            variant="outlined"
-            sx={styles.progressChip}
-          />
-        )}
-      </Stack>
-
-      {showLogger && (
-        <LinearProgress
-          variant="determinate"
-          value={totalSets === 0 ? 0 : (doneCount / totalSets) * 100}
-          color={allDone ? "success" : "primary"}
-          sx={styles.progressBar}
-        />
-      )}
-
-      {showLogger && (
-        <Stack sx={styles.timerRow}>
-          {timer.status === "idle" && (
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<PlayArrowRounded />}
-              onClick={timer.start}
-            >
-              {S.timer.start}
-            </Button>
-          )}
-          {timer.status !== "idle" && (
-            <>
-              <Typography variant="h6" sx={styles.timerText}>
-                {formatDuration(timer.seconds)}
-              </Typography>
-              <IconButton
-                size="small"
-                color="primary"
-                aria-label={
-                  timer.status === "running" ? S.timer.pause : S.timer.resume
-                }
-                onClick={
-                  timer.status === "running" ? timer.pause : timer.resume
-                }
-              >
-                {timer.status === "running" ? (
-                  <PauseRounded />
-                ) : (
-                  <PlayArrowRounded />
-                )}
-              </IconButton>
-            </>
-          )}
-        </Stack>
-      )}
-
-      {loading && <Skeleton variant="rounded" height={220} />}
-      {!loading && error && <Alert severity="error">{error}</Alert>}
-
-      {/* Already saved today: lock the logger so it can't be logged twice. */}
-      {showDonePanel && (
-        <Box sx={styles.donePanel}>
-          <CheckCircleRounded sx={styles.doneIcon} />
-          <Typography variant="h6" sx={styles.doneTitle}>
-            {S.today.alreadyDoneTitle}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {S.today.alreadyDoneBody}
-          </Typography>
-        </Box>
-      )}
-
-      {!loading && !error && !alreadyLogged && exercises.length === 0 && (
-        <Typography variant="body2" color="text.secondary" sx={styles.restDay}>
-          {S.today.restDay}
-        </Typography>
-      )}
-
-      {showLogger && (
-        <>
-          <Box sx={styles.list}>
-            {exercises.map((exercise) => (
-              <ExerciseLogger
-                key={exercise.name}
-                exercise={exercise}
-                doneSets={doneSets[exercise.name] ?? new Set()}
-                onToggleSet={(setIndex) => toggleSet(exercise, setIndex)}
-              />
-            ))}
-          </Box>
-
-          <Button
-            variant="contained"
-            fullWidth
-            size="large"
-            color={allDone ? "success" : "primary"}
-            startIcon={<FlagRounded />}
-            onClick={() => setCompletionOpen(true)}
-            disabled={doneCount === 0}
-            sx={styles.finishButton}
-          >
-            {S.today.finish}
-          </Button>
-        </>
-      )}
 
       <WorkoutCompletion
         open={completionOpen}
@@ -253,6 +250,6 @@ export function TodayWorkout({
         durationSeconds={timer.seconds}
         onLogged={handleLogged}
       />
-    </Paper>
+    </Box>
   );
 }

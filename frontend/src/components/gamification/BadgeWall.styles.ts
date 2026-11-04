@@ -1,63 +1,53 @@
-import type { SxProps, Theme } from '@mui/material';
+import { alpha, type SxProps, type Theme } from '@mui/material';
 
 export const badgeWallStyles = {
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  hint: {
     mb: 2,
-  },
-  title: {
-    fontWeight: 700,
-  },
-  countChip: {
-    fontWeight: 700,
   },
   grid: {
     display: 'grid',
     gap: 1.5,
     gridTemplateColumns: {
-      xs: 'repeat(2, 1fr)',
-      sm: 'repeat(3, 1fr)',
-      md: 'repeat(6, 1fr)',
+      xs: 'repeat(2, minmax(0, 1fr))',
+      sm: 'repeat(3, minmax(0, 1fr))',
+      md: 'repeat(6, minmax(0, 1fr))',
     },
   },
-  badgeCard: (earned: boolean): SxProps<Theme> => ({
-    p: 2,
-    borderRadius: 2.5,
-    textAlign: 'center',
-    cursor: 'pointer',
-    opacity: earned ? 1 : 0.6,
-    filter: earned ? 'none' : 'grayscale(0.6)',
-    borderColor: earned ? 'rgba(170, 59, 255, 0.28)' : 'divider',
-    bgcolor: earned ? 'rgba(170, 59, 255, 0.04)' : 'background.paper',
-    transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-    '&:hover': {
-      transform: 'translateY(-3px)',
-      boxShadow: 4,
-    },
-  }),
+  badgeCard:
+    (earned: boolean): SxProps<Theme> =>
+    (theme) => ({
+      p: 2,
+      height: '100%',
+      borderRadius: 1,
+      textAlign: 'center',
+      cursor: 'pointer',
+      borderColor: earned ? alpha(theme.palette.primary.main, 0.35) : 'divider',
+      bgcolor: earned ? alpha(theme.palette.primary.main, 0.06) : 'background.paper',
+      transition: theme.transitions.create(['border-color', 'background-color'], {
+        duration: theme.transitions.duration.shorter,
+      }),
+      '&:hover': {
+        borderColor: earned ? 'primary.main' : 'text.disabled',
+        bgcolor: earned ? alpha(theme.palette.primary.main, 0.1) : 'action.hover',
+      },
+    }),
   iconWrap: (earned: boolean): SxProps<Theme> => ({
-    width: 56,
-    height: 56,
+    width: 52,
+    height: 52,
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     mx: 'auto',
     mb: 1,
-    color: earned ? '#fff' : 'text.disabled',
-    bgcolor: earned ? undefined : 'action.hover',
-    background: earned ? 'linear-gradient(150deg, #aa3bff 0%, #7a1fd0 100%)' : undefined,
+    color: earned ? 'primary.contrastText' : 'text.disabled',
+    bgcolor: earned ? 'primary.main' : 'action.disabledBackground',
   }),
-  badgeName: {
+  badgeName: (earned: boolean): SxProps<Theme> => ({
     fontWeight: 600,
     fontSize: '0.8rem',
-  },
+    color: earned ? 'text.primary' : 'text.secondary',
+  }),
   newChip: {
     mt: 0.75,
   },

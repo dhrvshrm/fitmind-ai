@@ -4,100 +4,71 @@ export const profilePageStyles = {
   root: {
     display: "flex",
     flexDirection: "column",
-    gap: 3,
+    gap: 2,
     maxWidth: 900,
-  },
-  header: {
-    fontWeight: 800,
-  },
-  subtitle: {
-    mb: 1,
-  },
-  heroCard: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
-    background: "linear-gradient(150deg, #ffffff 0%, #faf7ff 100%)",
-    borderColor: "rgba(170, 59, 255, 0.14)",
   },
   heroRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 2,
-    flexWrap: "wrap",
+  },
+  heroText: {
+    minWidth: 0,
   },
   avatar: {
-    width: 72,
-    height: 72,
-    fontSize: 30,
-    fontWeight: 800,
-    background: "linear-gradient(150deg, #aa3bff 0%, #7a1fd0 100%)",
-    boxShadow: "0px 8px 18px rgba(170, 59, 255, 0.35)",
+    width: 64,
+    height: 64,
+    fontSize: 26,
+    fontWeight: 700,
+    bgcolor: "primary.main",
+    color: "primary.contrastText",
   },
   username: {
-    fontWeight: 700,
+    overflowWrap: "anywhere",
   },
   levelChip: {
-    mt: 0.5,
-    fontWeight: 600,
+    mt: 0.75,
   },
   xpSection: {
     mt: 2.5,
   },
-  xpBar: {
-    height: 10,
-    borderRadius: 5,
-    mt: 0.5,
-  },
   xpMeta: {
-    mt: 0.5,
+    mt: 0.75,
     display: "flex",
     justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: 1,
   },
   statsGrid: {
     display: "grid",
     gap: 2,
-    gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(4, 1fr)" },
-  },
-  statCard: {
-    p: 2,
-    borderRadius: 3,
-    textAlign: "center",
-  },
-  statValue: {
-    fontWeight: 800,
-    lineHeight: 1.1,
-  },
-  sectionTitle: {
-    fontWeight: 700,
-    mb: 1.5,
+    gridTemplateColumns: { xs: "repeat(2, minmax(0, 1fr))", sm: "repeat(4, minmax(0, 1fr))" },
   },
   badgeGrid: {
     display: "grid",
     gap: 1.5,
-    gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(3, 1fr)" },
+    gridTemplateColumns: { xs: "repeat(2, minmax(0, 1fr))", sm: "repeat(3, minmax(0, 1fr))" },
   },
-  badge: {
+  badge: (earned: boolean): SxProps<Theme> => ({
     p: 2,
-    borderRadius: 3,
+    border: 1,
+    borderColor: "divider",
+    borderRadius: 1,
     textAlign: "center",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: 0.5,
-  },
-  badgeLocked: {
-    opacity: 0.45,
-    filter: "grayscale(1)",
-  },
-  badgeIcon: {
-    fontSize: 34,
-    lineHeight: 1,
-  },
+    gap: 0.75,
+    minWidth: 0,
+    opacity: earned ? 1 : 0.55,
+  }),
   badgeName: {
-    fontWeight: 700,
+    fontWeight: 600,
   },
   skeleton: {
-    borderRadius: 3,
     height: 160,
   },
-} satisfies Record<string, SxProps<Theme>>;
+  statSkeleton: {
+    height: 104,
+  },
+};

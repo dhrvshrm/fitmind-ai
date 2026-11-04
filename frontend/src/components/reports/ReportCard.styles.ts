@@ -2,8 +2,7 @@ import type { SxProps, Theme } from "@mui/material";
 
 export const reportCardStyles = {
   card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
+    p: { xs: 2, sm: 2.5 },
   },
   headerRow: {
     flexDirection: "row",
@@ -16,9 +15,6 @@ export const reportCardStyles = {
     flex: 1,
     minWidth: 0,
   },
-  weekRange: {
-    fontWeight: 700,
-  },
   created: {
     display: "block",
     mt: 0.25,
@@ -26,7 +22,7 @@ export const reportCardStyles = {
   chipRow: {
     flexDirection: "row",
     gap: 1,
-    mt: 1,
+    mt: 1.25,
     flexWrap: "wrap",
   },
   expandIcon: (expanded: boolean): SxProps<Theme> => ({

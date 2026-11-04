@@ -1,101 +1,62 @@
-import { useCallback, useEffect, useState } from "react";
-import { Alert, Box, Button, CircularProgress, Paper, Skeleton, Stack, Typography } from "@mui/material";
+import { Box, Button, Card, CircularProgress, Skeleton } from "@mui/material";
 import { AutoAwesomeRounded, SummarizeRounded } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import { ReportArchive } from "./ReportArchive";
-import { reportService } from "../../services/reportService";
+import { useGenerateReport, useReportHistory } from "../../hooks/queries/useReportQueries";
+import { queryErrorMessage } from "../../hooks/queries/queryHelpers";
 import { resolveApiError } from "../../lib/apiClient";
 import { STRINGS } from "../../constants/strings";
-import type { WeeklyReport } from "../../types/report";
+import { PageHeader } from "../ui/PageHeader";
+import { ErrorState } from "../ui/ErrorState";
+import { EmptyState } from "../ui/EmptyState";
 import { reportsPageStyles as styles } from "./ReportsPage.styles";
 
 const S = STRINGS.reports;
 
 export function ReportsPage() {
-  const [reports, setReports] = useState<WeeklyReport[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const history = useReportHistory();
+  const generate = useGenerateReport();
+  const reports = history.data ?? [];
+  const error = queryErrorMessage(history.error, S.loadError);
+  const isGenerating = generate.isPending;
 
-  const loadReports = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      setReports(await reportService.getHistory());
-    } catch (err) {
-      setError(resolveApiError(err, S.loadError));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    // Deferred so the effect body itself schedules no state updates synchronously.
-    queueMicrotask(() => {
-      loadReports();
+  function handleGenerate() {
+    generate.mutate(undefined, {
+      onSuccess: () => toast.success(S.generated),
+      onError: (err) => toast.error(resolveApiError(err, S.generateError)),
     });
-  }, [loadReports]);
-
-  async function handleGenerate() {
-    setIsGenerating(true);
-    try {
-      const fresh = await reportService.generate();
-      setReports((prev) => [fresh, ...prev]);
-      toast.success(S.generated);
-    } catch (err) {
-      toast.error(resolveApiError(err, S.generateError));
-    } finally {
-      setIsGenerating(false);
-    }
   }
+
+  const generateButton = (
+    <Button
+      variant="contained"
+      onClick={handleGenerate}
+      disabled={isGenerating}
+      startIcon={isGenerating ? <CircularProgress size={18} color="inherit" /> : <AutoAwesomeRounded />}
+    >
+      {isGenerating ? S.generating : S.generate}
+    </Button>
+  );
 
   return (
     <Box>
-      <Stack sx={styles.headerRow}>
-        <Box>
-          <Typography variant="h5" sx={styles.title}>
-            {S.title}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {S.subtitle}
-          </Typography>
+      <PageHeader title={S.title} subtitle={S.subtitle} actions={generateButton} />
+
+      {history.isPending && (
+        <Box sx={styles.skeletonList}>
+          <Skeleton variant="rounded" sx={styles.skeleton} />
+          <Skeleton variant="rounded" sx={styles.skeleton} />
         </Box>
-        <Button
-          variant="contained"
-          onClick={handleGenerate}
-          disabled={isGenerating}
-          startIcon={
-            isGenerating ? (
-              <CircularProgress size={18} color="inherit" />
-            ) : (
-              <AutoAwesomeRounded />
-            )
-          }
-        >
-          {isGenerating ? S.generating : S.generate}
-        </Button>
-      </Stack>
+      )}
+      {error && <ErrorState message={error} onRetry={() => history.refetch()} />}
 
-      {loading && <Skeleton variant="rounded" sx={styles.skeleton} />}
-      {!loading && error && (
-        <Alert severity="error" sx={styles.errorAlert}>
-          {error}
-        </Alert>
+      {history.isSuccess && reports.length === 0 && (
+        <Card>
+          <EmptyState icon={SummarizeRounded} title={S.noReportsTitle} description={S.noReportsBody} />
+        </Card>
       )}
 
-      {!loading && !error && reports.length === 0 && (
-        <Paper variant="outlined" sx={styles.emptyCard}>
-          <SummarizeRounded sx={styles.emptyIcon} />
-          <Typography variant="h6" sx={styles.emptyTitle}>
-            {S.noReportsTitle}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {S.noReportsBody}
-          </Typography>
-        </Paper>
-      )}
-
-      {!loading && !error && reports.length > 0 && <ReportArchive reports={reports} />}
+      {history.isSuccess && reports.length > 0 && <ReportArchive reports={reports} />}
     </Box>
   );
 }

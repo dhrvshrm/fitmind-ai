@@ -1,22 +1,16 @@
 import type { SxProps, Theme } from "@mui/material";
 
 export const friendsRequestListStyles = {
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
-  },
-  title: {
-    fontWeight: 700,
-    mb: 1.5,
-  },
   row: {
     flexDirection: "row",
     alignItems: "center",
+    flexWrap: "wrap",
     gap: 1.5,
-    py: 1,
+    py: 1.25,
   },
   avatar: {
     bgcolor: "primary.main",
+    color: "primary.contrastText",
     fontWeight: 700,
   },
   body: {
@@ -24,14 +18,16 @@ export const friendsRequestListStyles = {
     minWidth: 0,
   },
   username: {
-    fontWeight: 700,
+    fontWeight: 600,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
   actions: {
     flexDirection: "row",
     gap: 1,
   },
-  empty: {
-    py: 2,
-    textAlign: "center",
+  skeleton: {
+    height: 72,
   },
 } satisfies Record<string, SxProps<Theme>>;

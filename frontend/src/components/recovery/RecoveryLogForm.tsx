@@ -3,25 +3,23 @@ import {
   Box,
   Button,
   CircularProgress,
-  Paper,
   Slider,
   Stack,
   Typography,
 } from "@mui/material";
 import { CheckCircleRounded } from "@mui/icons-material";
 import toast from "react-hot-toast";
-import { recoveryService } from "../../services/recoveryService";
+import { useLogRecovery } from "../../hooks/queries/useRecoveryQueries";
 import { resolveApiError } from "../../lib/apiClient";
 import { STRINGS } from "../../constants/strings";
-import type {
-  RecoveryLogPayload,
-  RecoveryLogResult,
-} from "../../types/recovery";
+import type { RecoveryLogPayload } from "../../types/recovery";
+import { SectionCard } from "../ui/SectionCard";
+import { IconBadge } from "../ui/IconBadge";
 import { recoveryLogFormStyles as styles } from "./RecoveryLogForm.styles";
 
 const S = STRINGS.recovery.form;
 
-/** Slider bounds; ratings share the backend's 1–5 scale. */
+/** Slider bounds; ratings share the backend's 1 to 5 scale. */
 const SLEEP_MAX = 12;
 const RATING_MARKS = [1, 2, 3, 4, 5].map((value) => ({
   value,
@@ -29,7 +27,7 @@ const RATING_MARKS = [1, 2, 3, 4, 5].map((value) => ({
 }));
 const SLEEP_MARKS = [0, 4, 8, 12].map((value) => ({
   value,
-  label: `${value}h`,
+  label: S.hoursValue(value),
 }));
 
 const DEFAULTS: RecoveryLogPayload = {
@@ -90,71 +88,58 @@ function SliderField({
         valueLabelDisplay="auto"
         disabled={disabled}
         sx={styles.slider}
+        aria-label={label}
       />
     </Box>
   );
 }
 
 type RecoveryLogFormProps = {
-  /** True when today's check-in already exists - locks the form. */
+  /** True when today's check-in already exists; locks the form. */
   alreadyLogged: boolean;
-  /** Called with the fresh result after a successful log. */
-  onLogged: (result: RecoveryLogResult) => void;
 };
 
-export function RecoveryLogForm({
-  alreadyLogged,
-  onLogged,
-}: RecoveryLogFormProps) {
+/** Daily recovery check-in. Logging refreshes the score, history and dashboard. */
+export function RecoveryLogForm({ alreadyLogged }: RecoveryLogFormProps) {
   const [form, setForm] = useState<RecoveryLogPayload>(DEFAULTS);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const logRecovery = useLogRecovery();
+  const isSubmitting = logRecovery.isPending;
 
   function patch(field: keyof RecoveryLogPayload) {
     return (value: number) => setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   async function handleSubmit() {
-    setIsSubmitting(true);
     try {
-      const result = await recoveryService.logRecovery(form);
+      await logRecovery.mutateAsync(form);
       toast.success(S.success);
-      onLogged(result);
     } catch (error) {
       toast.error(resolveApiError(error, S.error));
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
   if (alreadyLogged) {
     return (
-      <Paper variant="outlined" sx={styles.card}>
-        <Typography variant="h6" sx={styles.title}>
-          {S.title}
-        </Typography>
+      <SectionCard title={S.title}>
         <Box sx={styles.donePanel}>
-          <CheckCircleRounded sx={styles.doneIcon} />
-          <Typography variant="h6" sx={styles.doneTitle}>
+          <IconBadge icon={CheckCircleRounded} tone="success" size="large" />
+          <Typography variant="subtitle1" sx={styles.doneTitle}>
             {S.alreadyDoneTitle}
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {S.alreadyDoneBody}
           </Typography>
         </Box>
-      </Paper>
+      </SectionCard>
     );
   }
 
   return (
-    <Paper variant="outlined" sx={styles.card}>
-      <Typography variant="h6" sx={styles.title}>
-        {S.title}
-      </Typography>
-
+    <SectionCard title={S.title}>
       <SliderField
         label={S.sleepHours}
         value={form.sleep_hours}
-        displayValue={`${form.sleep_hours}h`}
+        displayValue={S.hoursValue(form.sleep_hours)}
         onChange={patch("sleep_hours")}
         min={0}
         max={SLEEP_MAX}
@@ -212,6 +197,6 @@ export function RecoveryLogForm({
       >
         {isSubmitting ? S.submitting : S.submit}
       </Button>
-    </Paper>
+    </SectionCard>
   );
 }

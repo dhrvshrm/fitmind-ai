@@ -1,9 +1,14 @@
+/*
+ * Global base styles. Colors come from the MUI theme (CssBaseline); the
+ * values below only cover the first paint before React mounts, matched to
+ * the theme's background tokens so dark-mode users don't see a white flash.
+ */
 :root {
-  color-scheme: light;
   font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  color-scheme: light dark;
 }
 
 html,
@@ -14,24 +19,22 @@ body,
 }
 
 body {
-  background: #f6f5fb;
+  background: #f7f7fa;
 }
 
-/* Subtle, branded scrollbar to match the app chrome. */
-* {
-  scrollbar-color: #d9d2ec transparent;
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #0f0d15;
+  }
 }
+
 *::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
+
 *::-webkit-scrollbar-thumb {
-  background: #d9d2ec;
   border-radius: 8px;
   border: 2px solid transparent;
-  background-clip: padding-box;
-}
-*::-webkit-scrollbar-thumb:hover {
-  background: #c3b8e0;
   background-clip: padding-box;
 }

@@ -1,8 +1,9 @@
-import { Box, Paper, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import { XPBar } from './XPBar';
 import { STRINGS } from '../../constants/strings';
 import type { GamificationProfile } from '../../types/gamification';
+import { SectionCard } from '../ui/SectionCard';
 import { levelCardStyles as styles } from './LevelCard.styles';
 
 const S = STRINGS.gamification.level;
@@ -14,7 +15,7 @@ type LevelCardProps = {
 /** Large level display with title, total XP, and progress to the next tier. */
 export function LevelCard({ profile }: LevelCardProps) {
   return (
-    <Paper variant="outlined" sx={styles.card}>
+    <SectionCard>
       <Stack sx={styles.headerRow}>
         <motion.div
           key={profile.level}
@@ -23,14 +24,17 @@ export function LevelCard({ profile }: LevelCardProps) {
           transition={{ type: 'spring', stiffness: 260, damping: 20 }}
         >
           <Box sx={styles.levelBadge}>
-            <Typography variant="h3" sx={styles.levelNumber}>
+            <Typography variant="h3" component="span" sx={styles.levelNumber}>
               {profile.level}
             </Typography>
           </Box>
         </motion.div>
 
         <Box sx={styles.titleBlock}>
-          <Typography variant="h5" sx={styles.levelTitle}>
+          <Typography variant="overline" color="text.secondary" sx={styles.levelLabel}>
+            {S.title(profile.level)}
+          </Typography>
+          <Typography variant="h5" component="h2">
             {profile.title}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={styles.totalXp}>
@@ -44,6 +48,6 @@ export function LevelCard({ profile }: LevelCardProps) {
         xpToNext={profile.xp_to_next}
         isMaxLevel={profile.next_title === null}
       />
-    </Paper>
+    </SectionCard>
   );
 }

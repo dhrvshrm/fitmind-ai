@@ -1,47 +1,36 @@
 import { useState } from "react";
-import {
-  Alert,
-  Avatar,
-  Divider,
-  Paper,
-  Skeleton,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Avatar, Divider, Skeleton, Stack, Typography } from "@mui/material";
+import { GroupRounded } from "@mui/icons-material";
 import { FriendProfilePreview } from "./FriendProfilePreview";
+import { useFriends } from "../../hooks/queries/useFriendQueries";
+import { queryErrorMessage } from "../../hooks/queries/queryHelpers";
 import { STRINGS } from "../../constants/strings";
 import type { Friend } from "../../types/friend";
+import { SectionCard } from "../ui/SectionCard";
+import { EmptyState } from "../ui/EmptyState";
+import { ErrorState } from "../ui/ErrorState";
 import { friendsListStyles as styles } from "./FriendsList.styles";
 
 const S = STRINGS.friends.list;
 
-type FriendsListProps = {
-  friends: Friend[];
-  loading: boolean;
-  error: string | null;
-};
-
 /** Accepted friends with level/streak; click a row for a profile preview. */
-export function FriendsList({ friends, loading, error }: FriendsListProps) {
+export function FriendsList() {
+  const friendsQuery = useFriends();
   const [selected, setSelected] = useState<Friend | null>(null);
 
+  const friends = friendsQuery.data ?? [];
+  const error = queryErrorMessage(friendsQuery.error, S.error);
+
   return (
-    <Paper variant="outlined" sx={styles.card}>
-      <Typography variant="h6" sx={styles.title}>
-        {S.title}
-      </Typography>
+    <SectionCard title={S.title}>
+      {friendsQuery.isPending && <Skeleton variant="rounded" sx={styles.skeleton} />}
+      {error && <ErrorState message={error} onRetry={() => friendsQuery.refetch()} />}
 
-      {loading && <Skeleton variant="rounded" height={72} />}
-      {!loading && error && <Alert severity="error">{error}</Alert>}
-
-      {!loading && !error && friends.length === 0 && (
-        <Typography variant="body2" color="text.secondary" sx={styles.empty}>
-          {S.empty}
-        </Typography>
+      {friendsQuery.isSuccess && friends.length === 0 && (
+        <EmptyState icon={GroupRounded} title={S.emptyTitle} description={S.empty} compact />
       )}
 
-      {!loading &&
-        !error &&
+      {friendsQuery.isSuccess &&
         friends.map((friend, index) => (
           <Stack key={friend.id}>
             {index > 0 && <Divider />}
@@ -57,7 +46,7 @@ export function FriendsList({ friends, loading, error }: FriendsListProps) {
               <Stack sx={styles.body}>
                 <Typography sx={styles.username}>{friend.username}</Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {S.level(friend.level)} · {S.streak(friend.current_streak)}
+                  {S.meta(friend.level, friend.current_streak)}
                 </Typography>
               </Stack>
             </Stack>
@@ -68,6 +57,6 @@ export function FriendsList({ friends, loading, error }: FriendsListProps) {
         friend={selected}
         onClose={() => setSelected(null)}
       />
-    </Paper>
+    </SectionCard>
   );
 }

@@ -11,18 +11,7 @@ export const chatContainerStyles = {
   empty: {
     height: '100%',
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    textAlign: 'center',
-    px: 2,
-  },
-  emptyIcon: {
-    fontSize: 40,
-    color: 'primary.main',
-    mb: 1,
-  },
-  emptyTitle: {
-    fontWeight: 700,
   },
 } satisfies Record<string, SxProps<Theme>>;

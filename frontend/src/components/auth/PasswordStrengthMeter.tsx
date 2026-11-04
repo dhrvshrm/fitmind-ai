@@ -3,7 +3,7 @@ import { STRINGS } from '../../constants/strings';
 import { getPasswordStrength } from '../../utils/validation';
 import { passwordStrengthStyles as styles } from './PasswordStrengthMeter.styles';
 
-/** Maps strength score (0–4) to a MUI progress color. */
+/** Maps strength score (0 to 4) to a MUI progress color. */
 const SCORE_COLORS = ['error', 'error', 'warning', 'info', 'success'] as const;
 
 type PasswordStrengthMeterProps = {

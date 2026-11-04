@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { Alert, Box, Paper, Skeleton, Typography } from '@mui/material';
+import { Box, Skeleton } from '@mui/material';
+import { ShowChartRounded } from '@mui/icons-material';
 import {
   CartesianGrid,
   Line,
@@ -11,49 +12,42 @@ import {
 } from 'recharts';
 import { STRINGS } from '../../constants/strings';
 import { formatDateLabel } from '../../utils/date';
-import type { RecoveryHistoryItem } from '../../types/recovery';
-import {
-  recoveryChartTheme as chart,
-  recoveryHistoryStyles as styles,
-} from './RecoveryHistory.styles';
+import { useChartTheme } from '../../hooks/useChartTheme';
+import { useRecoveryHistory } from '../../hooks/queries/useRecoveryQueries';
+import { queryErrorMessage } from '../../hooks/queries/queryHelpers';
+import { SectionCard } from '../ui/SectionCard';
+import { EmptyState } from '../ui/EmptyState';
+import { ErrorState } from '../ui/ErrorState';
+import { recoveryHistoryStyles as styles } from './RecoveryHistory.styles';
 
 const S = STRINGS.recovery.history;
 
-type RecoveryHistoryProps = {
-  /** History items as returned by the API (newest first). */
-  items: RecoveryHistoryItem[];
-  loading: boolean;
-  error: string | null;
-};
+/** Single-series line chart of recovery scores over the last 14 days (the hook default). */
+export function RecoveryHistory() {
+  const chart = useChartTheme();
+  const history = useRecoveryHistory();
+  const error = queryErrorMessage(history.error, S.error);
 
-/** Line chart of recovery scores over the requested window (single series). */
-export function RecoveryHistory({ items, loading, error }: RecoveryHistoryProps) {
   // Chart reads left->right, so flip the newest-first API order.
   const data = useMemo(
     () =>
-      [...items]
+      [...(history.data ?? [])]
         .reverse()
         .map((item) => ({ ...item, label: formatDateLabel(item.date) })),
-    [items],
+    [history.data],
   );
 
   return (
-    <Paper variant="outlined" sx={styles.card}>
-      <Typography variant="h6" sx={styles.title}>
-        {S.title}
-      </Typography>
+    <SectionCard title={S.title}>
+      {history.isPending && <Skeleton variant="rounded" sx={styles.chartWrap} />}
 
-      {loading && <Skeleton variant="rounded" sx={styles.chartWrap} />}
+      {error && <ErrorState message={error} onRetry={() => history.refetch()} />}
 
-      {!loading && error && <Alert severity="error">{error}</Alert>}
-
-      {!loading && !error && data.length === 0 && (
-        <Typography variant="body2" color="text.secondary" sx={styles.empty}>
-          {S.empty}
-        </Typography>
+      {history.isSuccess && data.length === 0 && (
+        <EmptyState icon={ShowChartRounded} title={S.emptyTitle} description={S.empty} compact />
       )}
 
-      {!loading && !error && data.length > 0 && (
+      {data.length > 0 && (
         <Box sx={styles.chartWrap}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data} margin={{ top: 8, right: 12, left: -8, bottom: 0 }}>
@@ -74,20 +68,22 @@ export function RecoveryHistory({ items, loading, error }: RecoveryHistoryProps)
               />
               <Tooltip
                 contentStyle={chart.tooltip}
+                labelStyle={chart.tooltipLabel}
+                itemStyle={chart.tooltipItem}
                 formatter={(value) => [value as number, S.tooltipLabel]}
               />
               <Line
                 type="monotone"
                 dataKey="score"
-                stroke={chart.line}
+                stroke={chart.purple}
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 5 }}
+                activeDot={{ r: 5, stroke: chart.surface, strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>
         </Box>
       )}
-    </Paper>
+    </SectionCard>
   );
 }

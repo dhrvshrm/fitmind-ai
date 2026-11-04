@@ -4,19 +4,20 @@ export const reportArchiveStyles = {
   controlsRow: {
     flexDirection: { xs: "column", sm: "row" },
     gap: 1.5,
-    mb: 1,
+    mb: 1.5,
   },
   searchField: {
     flex: 1,
   },
   searchIcon: {
     mr: 1,
+    color: "text.secondary",
   },
   sortControl: {
-    minWidth: 160,
+    minWidth: { sm: 160 },
   },
   filterControl: {
-    minWidth: 140,
+    minWidth: { sm: 140 },
   },
   resultCount: {
     display: "block",
@@ -25,9 +26,5 @@ export const reportArchiveStyles = {
   list: {
     display: "grid",
     gap: 2,
-  },
-  empty: {
-    py: 4,
-    textAlign: "center",
   },
 } satisfies Record<string, SxProps<Theme>>;

@@ -1,7 +1,8 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
-import { Box, Button, Paper, Typography } from "@mui/material";
+import { Box, Button, Card, Typography } from "@mui/material";
 import { ErrorOutlineRounded } from "@mui/icons-material";
 import { STRINGS } from "../../constants/strings";
+import { IconBadge } from "../ui/IconBadge";
 import { errorBoundaryStyles as styles } from "./ErrorBoundary.styles";
 
 type ErrorBoundaryProps = {
@@ -30,7 +31,7 @@ export class ErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    // Surface the error for debugging; a real app would report to Sentry etc.
+    // Surface the error for debugging; a real app would report to Sentry or similar.
     console.error("ErrorBoundary caught an error:", error, info.componentStack);
   }
 
@@ -45,9 +46,9 @@ export class ErrorBoundary extends Component<
 
     return (
       <Box sx={styles.root}>
-        <Paper elevation={0} sx={styles.card}>
-          <ErrorOutlineRounded sx={styles.icon} />
-          <Typography variant="h5" sx={styles.title}>
+        <Card sx={styles.card}>
+          <IconBadge icon={ErrorOutlineRounded} tone="error" size="large" />
+          <Typography variant="h5" component="h1" sx={styles.title}>
             {S.title}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={styles.body}>
@@ -56,7 +57,7 @@ export class ErrorBoundary extends Component<
           <Button variant="contained" onClick={this.handleReload}>
             {S.reload}
           </Button>
-        </Paper>
+        </Card>
       </Box>
     );
   }

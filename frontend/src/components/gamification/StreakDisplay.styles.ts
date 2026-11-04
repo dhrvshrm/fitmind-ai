@@ -1,36 +1,29 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const streakDisplayStyles = {
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
-    height: '100%',
-  },
-  title: {
-    fontWeight: 700,
-    mb: 2,
-  },
   grid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: 2,
+    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+    gap: 1.5,
   },
   stat: {
     textAlign: 'center',
     p: 2,
-    borderRadius: 2.5,
+    borderRadius: 1,
     bgcolor: 'action.hover',
   },
   icon: (active: boolean): SxProps<Theme> => ({
-    fontSize: 32,
-    color: active ? 'warning.main' : 'action.disabled',
+    fontSize: 28,
+    color: active ? 'warning.main' : 'text.disabled',
   }),
   value: {
-    fontWeight: 800,
+    fontWeight: 700,
     lineHeight: 1.1,
     mt: 0.5,
+    fontVariantNumeric: 'tabular-nums',
   },
   label: {
+    display: 'block',
     mt: 0.25,
   },
 };

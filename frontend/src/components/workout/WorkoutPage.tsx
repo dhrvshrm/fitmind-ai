@@ -1,173 +1,123 @@
-import { useCallback, useEffect, useState } from 'react';
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Paper,
-  Skeleton,
-  Stack,
-  Typography,
-} from '@mui/material';
-import { AutoAwesomeRounded } from '@mui/icons-material';
+import { useMemo, useState } from 'react';
+import { Box, Button, CircularProgress, Skeleton, Typography } from '@mui/material';
+import { AutoAwesomeRounded, CalendarMonthRounded } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import { WeeklyPlanView } from './WeeklyPlanView';
 import { TodayWorkout } from './TodayWorkout';
 import { WorkoutHistory } from './WorkoutHistory';
-import { workoutService } from '../../services/workoutService';
+import {
+  useGeneratePlan,
+  useTodayWorkout,
+  useWeeklyPlan,
+  useWorkoutHistory,
+} from '../../hooks/queries/useWorkoutQueries';
+import { queryErrorMessage } from '../../hooks/queries/queryHelpers';
 import { resolveApiError } from '../../lib/apiClient';
 import { STRINGS } from '../../constants/strings';
 import { getCompletedDates, markDateCompleted } from '../../utils/workout';
 import { toIsoDate } from '../../utils/date';
-import type { Exercise, WeeklyPlan } from '../../types/workout';
+import { PageHeader } from '../ui/PageHeader';
+import { SectionCard } from '../ui/SectionCard';
+import { EmptyState } from '../ui/EmptyState';
+import { ErrorState } from '../ui/ErrorState';
 import { workoutPageStyles as styles } from './WorkoutPage.styles';
 
 const S = STRINGS.workout;
+/** A year of history covers the month calendar and the streak. */
+const COMPLETION_HISTORY_DAYS = 365;
 
 export function WorkoutPage() {
-  const [plan, setPlan] = useState<WeeklyPlan | null>(null);
-  const [planLoading, setPlanLoading] = useState(true);
-  const [planError, setPlanError] = useState<string | null>(null);
-
-  const [todayExercises, setTodayExercises] = useState<Exercise[]>([]);
-  const [todayLoading, setTodayLoading] = useState(true);
-  const [todayError, setTodayError] = useState<string | null>(null);
-
-  const [isGenerating, setIsGenerating] = useState(false);
+  const plan = useWeeklyPlan();
+  const today = useTodayWorkout();
+  const history = useWorkoutHistory(COMPLETION_HISTORY_DAYS);
+  const generatePlan = useGeneratePlan();
 
   /**
-   * Completed-workout dates. Backend (`GET /workouts/history`) is the source
-   * of truth so the lock/calendar work across devices; localStorage seeds the
-   * initial render and serves as the offline fallback.
+   * Local mirror of completed dates. It seeds the first render, serves as the
+   * offline fallback when history fails to load, and lights up today the
+   * moment a workout is saved (before the history refetch lands).
    */
-  const [completedDates, setCompletedDates] = useState<string[]>(() => getCompletedDates());
+  const [localDates, setLocalDates] = useState<string[]>(() => getCompletedDates());
+  const [loggedNow, setLoggedNow] = useState<string | null>(null);
 
-  const loadCompletions = useCallback(async () => {
-    try {
-      const history = await workoutService.getWorkoutHistory(365);
-      const dates = [...new Set(history.map((log) => log.date))].sort();
-      setCompletedDates(dates);
-    } catch {
-      // Offline/unauthenticated: keep the local mirror.
-      setCompletedDates(getCompletedDates());
-    }
-  }, []);
+  // Backend history (`GET /workouts/history`) is the source of truth so the
+  // lock and calendar work across devices.
+  const completedDates = useMemo(() => {
+    if (!history.data) return localDates;
+    const dates = new Set(history.data.map((log) => log.date));
+    if (loggedNow) dates.add(loggedNow);
+    return [...dates].sort();
+  }, [history.data, localDates, loggedNow]);
 
-  const loadToday = useCallback(async () => {
-    setTodayLoading(true);
-    setTodayError(null);
-    try {
-      setTodayExercises(await workoutService.getTodayWorkout());
-    } catch (error) {
-      setTodayError(resolveApiError(error, S.today.error));
-    } finally {
-      setTodayLoading(false);
-    }
-  }, []);
-
-  const loadPlan = useCallback(async () => {
-    setPlanLoading(true);
-    setPlanError(null);
-    try {
-      setPlan(await workoutService.getWeeklyPlan());
-    } catch (error) {
-      setPlanError(resolveApiError(error, S.planError));
-    } finally {
-      setPlanLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    // Deferred a microtask so the effect body itself schedules no state updates.
-    queueMicrotask(() => {
-      loadPlan();
-      loadToday();
-      loadCompletions();
-    });
-  }, [loadPlan, loadToday, loadCompletions]);
+  const planError = queryErrorMessage(plan.error, S.planError);
+  const todayError = queryErrorMessage(today.error, S.today.error);
+  const isGenerating = generatePlan.isPending;
 
   /** Plan generation can take several seconds (AI call server-side). */
   async function handleGenerate() {
-    setIsGenerating(true);
     try {
-      const fresh = await workoutService.generateWorkoutPlan();
-      setPlan(fresh);
-      setPlanError(null);
+      await generatePlan.mutateAsync({});
       toast.success(S.generated);
-      loadToday();
     } catch (error) {
       toast.error(resolveApiError(error, S.generateError));
-    } finally {
-      setIsGenerating(false);
     }
   }
 
-  /**
-   * After a save: light up today immediately (optimistic + local fallback
-   * mirror), then re-sync the real dates from the backend.
-   */
+  /** After a save: light up today immediately; the history query re-syncs behind it. */
   function handleWorkoutLogged() {
-    setCompletedDates(markDateCompleted(toIsoDate(new Date())));
-    loadCompletions();
+    const todayIso = toIsoDate(new Date());
+    setLocalDates(markDateCompleted(todayIso));
+    setLoggedNow(todayIso);
   }
 
-  const showEmptyState = !planLoading && !planError && !plan;
+  const showEmptyState = !plan.isPending && !planError && !plan.data;
 
   return (
     <Box>
-      <Stack sx={styles.headerRow}>
-        <Box>
-          <Typography variant="h5" sx={styles.title}>
-            {S.title}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {S.subtitle}
-          </Typography>
-        </Box>
-        <Box>
-          <Button
-            variant="contained"
-            size="large"
-            onClick={handleGenerate}
-            disabled={isGenerating}
-            startIcon={
-              isGenerating ? (
-                <CircularProgress size={18} color="inherit" />
-              ) : (
-                <AutoAwesomeRounded />
-              )
-            }
-          >
-            {isGenerating ? S.generating : S.generate}
-          </Button>
-          <Typography variant="caption" color="text.secondary" sx={styles.generateHint}>
-            {S.generateHint}
-          </Typography>
-        </Box>
-      </Stack>
+      <PageHeader
+        title={S.title}
+        subtitle={S.subtitle}
+        actions={
+          <Box sx={styles.generateBox}>
+            <Button
+              variant="contained"
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              startIcon={
+                isGenerating ? (
+                  <CircularProgress size={18} color="inherit" />
+                ) : (
+                  <AutoAwesomeRounded />
+                )
+              }
+            >
+              {isGenerating ? S.generating : S.generate}
+            </Button>
+            <Typography variant="caption" color="text.secondary" sx={styles.generateHint}>
+              {S.generateHint}
+            </Typography>
+          </Box>
+        }
+      />
 
       <Box sx={styles.content}>
-        {planLoading && <Skeleton variant="rounded" sx={styles.planSkeleton} />}
-        {!planLoading && planError && <Alert severity="error">{planError}</Alert>}
+        {plan.isPending && <Skeleton variant="rounded" sx={styles.planSkeleton} />}
+        {planError && <ErrorState message={planError} onRetry={() => plan.refetch()} />}
 
         {showEmptyState && (
-          <Paper variant="outlined" sx={styles.emptyCard}>
-            <Typography variant="h6" sx={styles.emptyTitle}>
-              {S.noPlanTitle}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {S.noPlanBody}
-            </Typography>
-          </Paper>
+          <SectionCard>
+            <EmptyState icon={CalendarMonthRounded} title={S.noPlanTitle} description={S.noPlanBody} />
+          </SectionCard>
         )}
 
-        {plan && <WeeklyPlanView week={plan.week} />}
+        {plan.data && <WeeklyPlanView week={plan.data.week} />}
 
         <Box sx={styles.splitRow}>
           <TodayWorkout
-            exercises={todayExercises}
-            loading={todayLoading}
+            exercises={today.data ?? []}
+            loading={today.isPending}
             error={todayError}
+            onRetry={() => today.refetch()}
             alreadyLogged={completedDates.includes(toIsoDate(new Date()))}
             onLogged={handleWorkoutLogged}
           />

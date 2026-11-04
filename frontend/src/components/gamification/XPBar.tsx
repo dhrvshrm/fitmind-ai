@@ -2,6 +2,8 @@ import { Box, LinearProgress, Stack, Typography } from '@mui/material';
 import { STRINGS } from '../../constants/strings';
 import { xpBarStyles as styles } from './XPBar.styles';
 
+const S = STRINGS.gamification;
+
 type XPBarProps = {
   xpIntoLevel: number;
   xpToNext: number;
@@ -9,7 +11,7 @@ type XPBarProps = {
   isMaxLevel: boolean;
 };
 
-/** 0–100% progress bar toward the next level, with the percentage labeled. */
+/** 0 to 100% progress bar toward the next level, with the percentage labeled. */
 export function XPBar({ xpIntoLevel, xpToNext, isMaxLevel }: XPBarProps) {
   const levelSpan = xpIntoLevel + xpToNext;
   const percent = isMaxLevel || levelSpan <= 0
@@ -20,12 +22,10 @@ export function XPBar({ xpIntoLevel, xpToNext, isMaxLevel }: XPBarProps) {
     <Box sx={styles.root}>
       <Stack sx={styles.labelRow}>
         <Typography variant="body2" color="text.secondary">
-          {isMaxLevel
-            ? STRINGS.gamification.level.maxTitle
-            : STRINGS.gamification.level.xpToNext(xpToNext)}
+          {isMaxLevel ? S.level.maxTitle : S.level.xpToNext(xpToNext)}
         </Typography>
         <Typography variant="body2" sx={styles.percentLabel}>
-          {percent}%
+          {S.level.percent(percent)}
         </Typography>
       </Stack>
       <LinearProgress
@@ -33,7 +33,7 @@ export function XPBar({ xpIntoLevel, xpToNext, isMaxLevel }: XPBarProps) {
         value={percent}
         color={isMaxLevel ? 'success' : 'primary'}
         sx={styles.track}
-        aria-label={STRINGS.gamification.xpBar.ariaLabel}
+        aria-label={S.xpBar.ariaLabel}
       />
     </Box>
   );

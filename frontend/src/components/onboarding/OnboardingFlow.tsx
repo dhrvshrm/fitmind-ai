@@ -102,10 +102,10 @@ export function OnboardingFlow() {
 
   return (
     <Box sx={styles.root}>
-      <Card elevation={8} sx={styles.card}>
+      <Card sx={styles.card}>
         <CardContent sx={styles.content}>
-          <Stack spacing={0.5} sx={styles.header}>
-            <Typography variant="overline" color="primary" sx={styles.brand}>
+          <Stack sx={styles.header}>
+            <Typography variant="overline" color="primary">
               {ONBOARDING_STRINGS.title}
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -116,6 +116,7 @@ export function OnboardingFlow() {
           <LinearProgress
             variant="determinate"
             value={progress}
+            aria-label={ONBOARDING_STRINGS.stepCounter(stepIndex + 1, TOTAL)}
             sx={styles.progress}
           />
 
@@ -127,7 +128,7 @@ export function OnboardingFlow() {
 
           <StepComponent data={data} errors={errors} onChange={handleChange} />
 
-          <Stack direction="row" spacing={2} sx={styles.actions}>
+          <Stack sx={styles.actions}>
             <Button
               variant="outlined"
               onClick={handleBack}

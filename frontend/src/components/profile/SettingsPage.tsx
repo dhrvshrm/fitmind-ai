@@ -1,32 +1,39 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
-  Alert,
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Divider,
   FormControlLabel,
-  Paper,
   Skeleton,
   Switch,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { settingsService } from "../../services/settingsService";
 import { useAuth } from "../../hooks/useAuth";
+import {
+  useDeleteAccount,
+  useNotificationPreferences,
+  useUpdateNotificationPreferences,
+} from "../../hooks/queries/useProfileQueries";
+import { queryErrorMessage } from "../../hooks/queries/queryHelpers";
 import { resolveApiError } from "../../lib/apiClient";
 import { STRINGS } from "../../constants/strings";
 import { ROUTES } from "../../constants/routes";
-import type {
-  NotificationPreferenceKey,
-  NotificationPreferences,
-} from "../../types/settings";
+import { COLOR_MODE_OPTIONS } from "../../constants/appearance";
+import { usePreferencesStore, type ColorModePreference } from "../../store/preferencesStore";
+import type { NotificationPreferenceKey } from "../../types/settings";
+import { PageHeader } from "../ui/PageHeader";
+import { SectionCard } from "../ui/SectionCard";
+import { ErrorState } from "../ui/ErrorState";
 import { ChangePasswordForm } from "./ChangePasswordForm";
 import { settingsPageStyles as styles } from "./SettingsPage.styles";
 
@@ -42,127 +49,129 @@ const PREFERENCE_KEYS: NotificationPreferenceKey[] = [
   "streak_warning",
 ];
 
-/** Settings: notification toggles, change password, and account deletion. */
+/** Settings: appearance, notification toggles, change password, and account deletion. */
 export function SettingsPage() {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
-  const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
-  const [prefsError, setPrefsError] = useState<string | null>(null);
+  const colorMode = usePreferencesStore((s) => s.colorMode);
+  const setColorMode = usePreferencesStore((s) => s.setColorMode);
+
+  const prefsQuery = useNotificationPreferences();
+  const updatePrefs = useUpdateNotificationPreferences();
+  const deleteAccount = useDeleteAccount();
+
+  const prefs = prefsQuery.data;
+  const prefsError = queryErrorMessage(prefsQuery.error, S.notifications.loadError);
+
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmText, setConfirmText] = useState("");
-  const [deleting, setDeleting] = useState(false);
+  const deleting = deleteAccount.isPending;
 
-  useEffect(() => {
-    let active = true;
-    settingsService
-      .getNotificationPreferences()
-      .then((data) => {
-        if (active) setPrefs(data);
-      })
-      .catch((err: unknown) => {
-        if (active) setPrefsError(resolveApiError(err, S.notifications.loadError));
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
+  function handleColorMode(_event: unknown, value: ColorModePreference | null) {
+    // Exclusive group: clicking the active option yields null; keep the current choice.
+    if (value) setColorMode(value);
+  }
 
-  async function handleToggle(key: NotificationPreferenceKey, value: boolean) {
-    if (!prefs) return;
-    const previous = prefs;
-    setPrefs({ ...prefs, [key]: value }); // optimistic
-    try {
-      await settingsService.updateNotificationPreferences({ [key]: value });
-      toast.success(S.notifications.saved);
-    } catch (error) {
-      setPrefs(previous); // revert
-      toast.error(resolveApiError(error, S.notifications.error));
-    }
+  function handleToggle(key: NotificationPreferenceKey, value: boolean) {
+    // Optimistic: the hook flips the cached value now and reverts on failure.
+    updatePrefs.mutate(
+      { [key]: value },
+      {
+        onSuccess: () => toast.success(S.notifications.saved),
+        onError: (error) => toast.error(resolveApiError(error, S.notifications.error)),
+      },
+    );
   }
 
   async function handleDelete() {
-    setDeleting(true);
     try {
-      await settingsService.deleteAccount();
+      await deleteAccount.mutateAsync();
       toast.success(S.danger.deleted);
       logout();
       navigate(ROUTES.LOGIN, { replace: true });
     } catch (error) {
       toast.error(resolveApiError(error, S.danger.error));
-      setDeleting(false);
     }
   }
 
   return (
     <Box sx={styles.root}>
-      <Box>
-        <Typography variant="h4" sx={styles.header}>
-          {S.title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={styles.subtitle}>
-          {S.subtitle}
-        </Typography>
-      </Box>
+      <PageHeader title={S.title} subtitle={S.subtitle} />
+
+      {/* Appearance */}
+      <SectionCard title={S.appearance.title} subtitle={S.appearance.subtitle}>
+        <ToggleButtonGroup
+          exclusive
+          color="primary"
+          size="small"
+          value={colorMode}
+          onChange={handleColorMode}
+          aria-label={S.appearance.title}
+          sx={styles.modeGroup}
+        >
+          {COLOR_MODE_OPTIONS.map((option) => {
+            const Icon = option.icon;
+            return (
+              <ToggleButton key={option.value} value={option.value} sx={styles.modeButton}>
+                <Icon fontSize="small" />
+                {option.label}
+              </ToggleButton>
+            );
+          })}
+        </ToggleButtonGroup>
+      </SectionCard>
 
       {/* Notifications */}
-      <Paper elevation={0} variant="outlined" sx={styles.card}>
-        <Typography variant="h6" sx={styles.sectionTitle}>
-          {S.notifications.title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={styles.sectionSubtitle}>
-          {S.notifications.subtitle}
-        </Typography>
+      <SectionCard title={S.notifications.title} subtitle={S.notifications.subtitle}>
+        {prefsError && <ErrorState message={prefsError} onRetry={() => prefsQuery.refetch()} />}
 
-        {prefsError && <Alert severity="error">{prefsError}</Alert>}
-
-        {!prefs && !prefsError && (
-          <Skeleton variant="rounded" height={220} sx={{ borderRadius: 2 }} />
-        )}
+        {prefsQuery.isPending && <Skeleton variant="rounded" sx={styles.prefsSkeleton} />}
 
         {prefs && (
-          <Box>
+          <Box sx={styles.toggleList}>
             {PREFERENCE_KEYS.map((key) => (
-              <Box key={key} sx={styles.toggleRow}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={prefs[key]}
-                      onChange={(e) => handleToggle(key, e.target.checked)}
-                    />
-                  }
-                  label={S.notifications.labels[key]}
-                />
-              </Box>
+              <FormControlLabel
+                key={key}
+                control={
+                  <Switch
+                    checked={prefs[key]}
+                    onChange={(e) => handleToggle(key, e.target.checked)}
+                  />
+                }
+                label={S.notifications.labels[key]}
+                labelPlacement="start"
+                sx={styles.toggleRow}
+              />
             ))}
           </Box>
         )}
-      </Paper>
+      </SectionCard>
 
       {/* Change password */}
-      <Paper elevation={0} variant="outlined" sx={styles.card}>
-        <Typography variant="h6" sx={styles.sectionTitle}>
-          {S.password.title}
-        </Typography>
-        <Divider sx={{ my: 1.5 }} />
+      <SectionCard title={S.password.title} subtitle={S.password.subtitle}>
         <ChangePasswordForm />
-      </Paper>
+      </SectionCard>
 
       {/* Danger zone */}
-      <Paper elevation={0} variant="outlined" sx={styles.dangerCard}>
-        <Typography variant="h6" sx={styles.dangerTitle}>
-          {S.danger.title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={styles.dangerBody}>
-          {S.danger.description}
-        </Typography>
-        <Button color="error" variant="outlined" onClick={() => setConfirmOpen(true)}>
-          {S.danger.deleteButton}
-        </Button>
-      </Paper>
+      <Box sx={styles.dangerWrap}>
+        <SectionCard title={S.danger.title}>
+          <Typography variant="body2" color="text.secondary" sx={styles.dangerBody}>
+            {S.danger.description}
+          </Typography>
+          <Button color="error" variant="outlined" onClick={() => setConfirmOpen(true)}>
+            {S.danger.deleteButton}
+          </Button>
+        </SectionCard>
+      </Box>
 
-      {/* Delete confirmation */}
-      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+      {/* Delete confirmation: typed keyword, deliberately stronger than ConfirmDialog */}
+      <Dialog
+        open={confirmOpen}
+        onClose={deleting ? undefined : () => setConfirmOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
         <DialogTitle>{S.danger.confirmTitle}</DialogTitle>
         <DialogContent>
           <DialogContentText>{S.danger.confirmBody}</DialogContentText>
@@ -175,13 +184,16 @@ export function SettingsPage() {
             autoFocus
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setConfirmOpen(false)}>{S.danger.cancel}</Button>
+        <DialogActions sx={styles.dialogActions}>
+          <Button color="inherit" onClick={() => setConfirmOpen(false)} disabled={deleting}>
+            {S.danger.cancel}
+          </Button>
           <Button
             color="error"
             variant="contained"
             disabled={confirmText !== S.danger.confirmKeyword || deleting}
             onClick={handleDelete}
+            startIcon={deleting ? <CircularProgress size={16} color="inherit" /> : null}
           >
             {S.danger.confirmButton}
           </Button>

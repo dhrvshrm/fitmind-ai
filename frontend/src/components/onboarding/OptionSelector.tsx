@@ -48,11 +48,11 @@ export function OptionSelector<T extends string>({
             elevation={0}
             sx={styles.card(selected)}
           >
-            <Icon color={selected ? 'primary' : 'inherit'} sx={styles.icon} />
-            <Stack spacing={0.25}>
+            <Icon sx={styles.icon(selected)} />
+            <Stack spacing={0.25} sx={styles.text}>
               <Typography sx={styles.label}>{option.label}</Typography>
               {option.description && (
-                <Typography variant="body2" sx={styles.description(selected)}>
+                <Typography variant="body2" sx={styles.description}>
                   {option.description}
                 </Typography>
               )}

@@ -3,7 +3,6 @@ import type { SxProps, Theme } from '@mui/material';
 export const exerciseCardStyles = {
   card: (done: boolean): SxProps<Theme> => ({
     p: 1.75,
-    borderRadius: 2.5,
     display: 'flex',
     alignItems: 'center',
     gap: 1.5,
@@ -26,7 +25,8 @@ export const exerciseCardStyles = {
     mt: 0.75,
   },
   setsReps: {
-    fontWeight: 700,
+    fontWeight: 600,
     color: 'primary.main',
+    fontVariantNumeric: 'tabular-nums',
   },
 };

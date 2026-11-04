@@ -28,9 +28,10 @@ export const workoutCompletionStyles = {
     py: 3,
   },
   xpText: {
-    fontWeight: 800,
+    fontWeight: 700,
     color: 'primary.main',
-    fontSize: '2.6rem',
+    fontSize: '2.5rem',
+    fontVariantNumeric: 'tabular-nums',
     lineHeight: 1.1,
   },
   totalXp: {

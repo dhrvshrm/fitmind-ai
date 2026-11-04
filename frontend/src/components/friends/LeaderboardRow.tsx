@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { CampaignRounded } from "@mui/icons-material";
 import { STRINGS } from "../../constants/strings";
-import { getRankMedalColor } from "../../constants/friend";
+import { getRankMedalTone } from "../../constants/friend";
 import type { LeaderboardEntry } from "../../types/friend";
 import { leaderboardRowStyles as styles } from "./LeaderboardRow.styles";
 
@@ -27,11 +27,11 @@ export function LeaderboardRow({
   onNudge,
   isNudging,
 }: LeaderboardRowProps) {
-  const medalColor = getRankMedalColor(entry.rank);
+  const medalTone = getRankMedalTone(entry.rank);
 
   return (
     <Stack sx={styles.row(entry.is_me)}>
-      <Box sx={styles.rankBadge(medalColor)}>
+      <Box sx={styles.rankBadge(medalTone)}>
         <Typography component="span" sx={styles.rankText}>
           {entry.rank}
         </Typography>

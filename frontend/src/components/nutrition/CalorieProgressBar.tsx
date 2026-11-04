@@ -1,4 +1,4 @@
-import { Box, LinearProgress, Stack, Typography } from '@mui/material';
+import { LinearProgress, Stack, Typography } from '@mui/material';
 import { STRINGS } from '../../constants/strings';
 import { useChartTheme } from '../../hooks/useChartTheme';
 import type { MacroTotals } from '../../types/nutrition';
@@ -41,15 +41,9 @@ export function CalorieProgressBar({ totals, goals, remaining }: CalorieProgress
       </Typography>
 
       <Stack sx={styles.macros}>
-        <Box>
-          <ProgressRow label={M.protein} value={totals.protein} goal={goals.protein} unit={S.grams} color={chart.protein} />
-        </Box>
-        <Box>
-          <ProgressRow label={M.carbs} value={totals.carbs} goal={goals.carbs} unit={S.grams} color={chart.carbs} />
-        </Box>
-        <Box>
-          <ProgressRow label={M.fats} value={totals.fats} goal={goals.fats} unit={S.grams} color={chart.fats} />
-        </Box>
+        <ProgressRow label={M.protein} value={totals.protein} goal={goals.protein} unit={S.grams} color={chart.protein} />
+        <ProgressRow label={M.carbs} value={totals.carbs} goal={goals.carbs} unit={S.grams} color={chart.carbs} />
+        <ProgressRow label={M.fats} value={totals.fats} goal={goals.fats} unit={S.grams} color={chart.fats} />
       </Stack>
     </SectionCard>
   );

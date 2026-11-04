@@ -1,25 +1,20 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const gamificationPageStyles = {
-  title: {
-    fontWeight: 700,
-  },
   topGrid: {
     display: 'grid',
-    gap: 3,
-    gridTemplateColumns: { xs: '1fr', md: '7fr 5fr' },
-    mt: 3,
+    gap: 2,
+    gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: '7fr 5fr' },
     alignItems: 'stretch',
   },
   badgeWallWrap: {
-    mt: 3,
+    mt: 2,
   },
-  skeleton: {
-    borderRadius: 3,
-    height: 180,
-    mt: 3,
+  skeletonTop: {
+    height: 200,
   },
-  errorAlert: {
-    mt: 3,
+  skeletonBadges: {
+    height: 240,
+    mt: 2,
   },
 } satisfies Record<string, SxProps<Theme>>;

@@ -170,7 +170,7 @@ export const ONBOARDING_STRINGS = {
     injuries: {
       title: "Any injuries or limitations?",
       helper:
-        "Optional - pick from suggestions or type your own. Leave empty if none.",
+        "Optional. Pick from suggestions or type your own. Leave empty if none.",
       placeholder: "e.g. Lower back, Knee…",
     },
   },
@@ -186,7 +186,7 @@ export const ONBOARDING_STRINGS = {
     experienceRequired: "Choose your experience level",
     equipmentRequired: "Select at least one option",
   },
-  success: "Profile complete! Let’s get started.",
+  success: "Profile complete. Let's get started.",
   error: "Could not save your profile. Please try again.",
 } as const;
 

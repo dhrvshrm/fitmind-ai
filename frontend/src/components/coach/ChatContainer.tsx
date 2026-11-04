@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { SmartToyRounded } from '@mui/icons-material';
 import { MessageBubble } from './MessageBubble';
+import { EmptyState } from '../ui/EmptyState';
 import { STRINGS } from '../../constants/strings';
 import type { ChatMessage } from '../../types/chat';
 import { chatContainerStyles as styles } from './ChatContainer.styles';
@@ -24,13 +25,7 @@ export function ChatContainer({ messages }: ChatContainerProps) {
     return (
       <Box sx={styles.root}>
         <Box sx={styles.empty}>
-          <SmartToyRounded sx={styles.emptyIcon} />
-          <Typography variant="h6" sx={styles.emptyTitle}>
-            {S.emptyTitle}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {S.emptyBody}
-          </Typography>
+          <EmptyState icon={SmartToyRounded} title={S.emptyTitle} description={S.emptyBody} />
         </Box>
       </Box>
     );

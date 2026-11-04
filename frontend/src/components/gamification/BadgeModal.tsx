@@ -7,7 +7,7 @@ import {
   DialogContent,
   Typography,
 } from '@mui/material';
-import { LockRounded } from '@mui/icons-material';
+import { CheckCircleRounded, LockRounded } from '@mui/icons-material';
 import { STRINGS } from '../../constants/strings';
 import { BadgeIcon } from './BadgeIcon';
 import type { Badge } from '../../types/gamification';
@@ -38,14 +38,16 @@ export function BadgeModal({ badge, earned, earnedDateLabel, onClose }: BadgeMod
           )}
         </Box>
 
-        <Typography variant="h6" sx={styles.name}>
+        <Typography variant="h6" component="h2">
           {badge.name}
         </Typography>
 
         <Chip
+          icon={earned ? <CheckCircleRounded /> : <LockRounded />}
           label={earned && earnedDateLabel ? S.earnedOn(earnedDateLabel) : S.locked}
           color={earned ? 'success' : 'default'}
-          variant={earned ? 'filled' : 'outlined'}
+          variant="outlined"
+          size="small"
           sx={styles.statusChip}
         />
 
@@ -56,7 +58,7 @@ export function BadgeModal({ badge, earned, earnedDateLabel, onClose }: BadgeMod
           {badge.description}
         </Typography>
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={styles.actions}>
         <Button onClick={onClose} fullWidth variant="contained">
           {S.close}
         </Button>

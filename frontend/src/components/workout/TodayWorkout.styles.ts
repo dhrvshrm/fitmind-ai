@@ -1,27 +1,15 @@
-import type { SxProps, Theme } from '@mui/material';
+import { alpha, type SxProps, type Theme } from '@mui/material';
+import { RADIUS } from '../../theme';
 
 export const todayWorkoutStyles = {
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
+  root: {
     position: 'relative',
-    overflow: 'hidden',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    mb: 1.5,
-  },
-  title: {
-    fontWeight: 700,
+    minWidth: 0,
   },
   progressChip: {
-    fontWeight: 700,
+    fontVariantNumeric: 'tabular-nums',
   },
   progressBar: {
-    height: 8,
-    borderRadius: 4,
     mb: 2,
   },
   timerRow: {
@@ -31,7 +19,6 @@ export const todayWorkoutStyles = {
     mb: 2,
   },
   timerText: {
-    fontWeight: 700,
     fontVariantNumeric: 'tabular-nums',
     minWidth: 56,
   },
@@ -39,36 +26,35 @@ export const todayWorkoutStyles = {
     display: 'grid',
     gap: 1.5,
   },
-  restDay: {
-    py: 4,
-    textAlign: 'center',
-  },
   donePanel: {
     py: 4,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
     textAlign: 'center',
-  },
-  doneIcon: {
-    fontSize: 48,
-    color: 'success.main',
-    mb: 1,
+    gap: 1,
   },
   doneTitle: {
-    fontWeight: 700,
+    mt: 1,
   },
   finishButton: {
     mt: 2,
   },
-  celebrationOverlay: {
+  skeleton: {
+    height: 220,
+  },
+  celebrationOverlay: (theme: Theme) => ({
     position: 'absolute',
     inset: 0,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    bgcolor: 'rgba(255, 255, 255, 0.88)',
+    borderRadius: `${RADIUS.lg}px`,
+    bgcolor: alpha(theme.palette.background.paper, 0.9),
     zIndex: 2,
-  },
+  }),
   celebrationText: {
-    fontWeight: 800,
     textAlign: 'center',
+    color: 'success.main',
   },
 } satisfies Record<string, SxProps<Theme>>;

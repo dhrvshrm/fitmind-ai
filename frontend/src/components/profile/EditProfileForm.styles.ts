@@ -1,21 +1,17 @@
 import type { SxProps, Theme } from "@mui/material";
 
 export const editProfileFormStyles = {
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
-  },
-  title: {
-    fontWeight: 700,
-    mb: 2,
-  },
   grid: {
     display: "grid",
     gap: 2,
-    gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" },
+    gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "repeat(2, minmax(0, 1fr))" },
   },
   fullWidth: {
     gridColumn: { xs: "auto", sm: "1 / -1" },
+  },
+  goalIcon: {
+    mr: 1,
+    verticalAlign: "middle",
   },
   actions: {
     mt: 3,

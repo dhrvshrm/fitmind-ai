@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, CircularProgress, TextField } from "@mui/material";
 import toast from "react-hot-toast";
-import { settingsService } from "../../services/settingsService";
+import { useChangePassword } from "../../hooks/queries/useProfileQueries";
 import { resolveApiError } from "../../lib/apiClient";
 import { STRINGS } from "../../constants/strings";
 import { changePasswordFormStyles as styles } from "./ChangePasswordForm.styles";
@@ -22,7 +22,8 @@ const EMPTY: FormState = { current: "", next: "", confirm: "" };
 export function ChangePasswordForm() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [submitting, setSubmitting] = useState(false);
+  const changePassword = useChangePassword();
+  const submitting = changePassword.isPending;
 
   function update(patch: Partial<FormState>) {
     setForm((prev) => ({ ...prev, ...patch }));
@@ -41,9 +42,8 @@ export function ChangePasswordForm() {
     event.preventDefault();
     if (!validate()) return;
 
-    setSubmitting(true);
     try {
-      await settingsService.changePassword({
+      await changePassword.mutateAsync({
         current_password: form.current,
         new_password: form.next,
       });
@@ -52,8 +52,6 @@ export function ChangePasswordForm() {
       toast.success(S.success);
     } catch (error) {
       toast.error(resolveApiError(error, S.error));
-    } finally {
-      setSubmitting(false);
     }
   }
 
@@ -90,7 +88,12 @@ export function ChangePasswordForm() {
         fullWidth
       />
       <Box sx={styles.actions}>
-        <Button type="submit" variant="contained" disabled={submitting}>
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={submitting}
+          startIcon={submitting ? <CircularProgress size={16} color="inherit" /> : null}
+        >
           {submitting ? S.submitting : S.submit}
         </Button>
       </Box>

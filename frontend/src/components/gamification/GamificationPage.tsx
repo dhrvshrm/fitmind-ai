@@ -1,92 +1,80 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Alert, Box, Skeleton, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Box, Skeleton } from '@mui/material';
 import toast from 'react-hot-toast';
 import { LevelCard } from './LevelCard';
 import { StreakDisplay } from './StreakDisplay';
 import { BadgeWall } from './BadgeWall';
 import { BadgeModal } from './BadgeModal';
-import { gamificationService } from '../../services/gamificationService';
-import { resolveApiError } from '../../lib/apiClient';
+import { useBadges, useGamificationProfile } from '../../hooks/queries/useGamificationQueries';
+import { queryErrorMessage } from '../../hooks/queries/queryHelpers';
 import { STRINGS } from '../../constants/strings';
 import { formatDateLabel } from '../../utils/date';
 import { syncEarnedBadgeDates } from '../../utils/gamification';
-import type { Badge, BadgesResponse, GamificationProfile } from '../../types/gamification';
+import type { Badge } from '../../types/gamification';
+import { PageHeader } from '../ui/PageHeader';
+import { ErrorState } from '../ui/ErrorState';
 import { gamificationPageStyles as styles } from './GamificationPage.styles';
 
 const S = STRINGS.gamification;
 
+type BadgeSyncState = {
+  dates: Record<string, string>;
+  newlyEarnedIds: ReadonlySet<string>;
+};
+
 export function GamificationPage() {
-  const [profile, setProfile] = useState<GamificationProfile | null>(null);
-  const [badges, setBadges] = useState<BadgesResponse | null>(null);
-  const [earnedDates, setEarnedDates] = useState<Record<string, string>>({});
-  const [newlyEarnedIds, setNewlyEarnedIds] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const profileQuery = useGamificationProfile();
+  const badgesQuery = useBadges();
+  const profile = profileQuery.data;
+  const badges = badgesQuery.data;
+
+  const [badgeSync, setBadgeSync] = useState<BadgeSyncState>({ dates: {}, newlyEarnedIds: new Set() });
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
 
-  const load = useCallback(async () => {
-    setError(null);
-    try {
-      const [profileResult, badgesResult] = await Promise.all([
-        gamificationService.getProfile(),
-        gamificationService.getBadges(),
-      ]);
-      setProfile(profileResult);
-      setBadges(badgesResult);
-
-      const { dates, newlyEarnedIds: fresh } = syncEarnedBadgeDates(
-        badgesResult.earned.map((badge) => badge.id),
-      );
-      setEarnedDates(dates);
-      setNewlyEarnedIds(new Set(fresh));
-
-      for (const id of fresh) {
-        const badge = badgesResult.earned.find((b) => b.id === id);
-        if (badge) toast.success(S.badges.newBadgeToast(badge.name));
-      }
-    } catch (err) {
-      setError(resolveApiError(err, S.loadError));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
+  // Reconcile earned badges with the locally stored earned dates whenever the
+  // badge data changes, and announce any badge unlocked since the last visit.
   useEffect(() => {
+    if (!badges) return;
+    const { dates, newlyEarnedIds: fresh } = syncEarnedBadgeDates(badges.earned.map((badge) => badge.id));
+    for (const id of fresh) {
+      const badge = badges.earned.find((b) => b.id === id);
+      if (badge) toast.success(S.badges.newBadgeToast(badge.name));
+    }
     // Deferred a microtask so the effect body itself schedules no state updates.
     queueMicrotask(() => {
-      load();
+      setBadgeSync((prev) => ({ dates, newlyEarnedIds: new Set([...prev.newlyEarnedIds, ...fresh]) }));
     });
-  }, [load]);
+  }, [badges]);
+
+  const isPending = profileQuery.isPending || badgesQuery.isPending;
+  const error = queryErrorMessage(profileQuery.error ?? badgesQuery.error, S.loadError);
+
+  function retry() {
+    profileQuery.refetch();
+    badgesQuery.refetch();
+  }
 
   const earnedIds = new Set((badges?.earned ?? []).map((badge) => badge.id));
   const selectedEarned = selectedBadge ? earnedIds.has(selectedBadge.id) : false;
-  const selectedEarnedDate = selectedBadge && earnedDates[selectedBadge.id]
-    ? formatDateLabel(earnedDates[selectedBadge.id])
-    : null;
+  const selectedEarnedDate =
+    selectedBadge && badgeSync.dates[selectedBadge.id] ? formatDateLabel(badgeSync.dates[selectedBadge.id]) : null;
 
   return (
     <Box>
-      <Typography variant="h5" sx={styles.title}>
-        {S.title}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {S.subtitle}
-      </Typography>
+      <PageHeader title={S.title} subtitle={S.subtitle} />
 
-      {loading && <Skeleton variant="rounded" sx={styles.skeleton} />}
-      {!loading && error && (
-        <Alert severity="error" sx={styles.errorAlert}>
-          {error}
-        </Alert>
+      {isPending && !error && (
+        <>
+          <Skeleton variant="rounded" sx={styles.skeletonTop} />
+          <Skeleton variant="rounded" sx={styles.skeletonBadges} />
+        </>
       )}
+      {error && <ErrorState message={error} onRetry={retry} />}
 
       {profile && (
         <Box sx={styles.topGrid}>
           <LevelCard profile={profile} />
-          <StreakDisplay
-            currentStreak={profile.current_streak}
-            longestStreak={profile.longest_streak}
-          />
+          <StreakDisplay currentStreak={profile.current_streak} longestStreak={profile.longest_streak} />
         </Box>
       )}
 
@@ -95,7 +83,7 @@ export function GamificationPage() {
           <BadgeWall
             allBadges={badges.all_badges}
             earnedIds={earnedIds}
-            newlyEarnedIds={newlyEarnedIds}
+            newlyEarnedIds={badgeSync.newlyEarnedIds}
             onSelect={setSelectedBadge}
           />
         </Box>

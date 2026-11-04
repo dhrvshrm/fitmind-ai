@@ -34,7 +34,7 @@ export function FriendProfilePreview({
     <Dialog open={Boolean(friend)} onClose={onClose} fullWidth maxWidth="xs">
       <DialogContent sx={styles.content}>
         <Avatar sx={styles.avatar}>{friend.username[0]?.toUpperCase()}</Avatar>
-        <Typography variant="h6" sx={styles.username}>
+        <Typography variant="h6" component="h2">
           {friend.username}
         </Typography>
 
@@ -52,7 +52,7 @@ export function FriendProfilePreview({
           />
         </Stack>
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={styles.actions}>
         <Button onClick={onClose} fullWidth variant="contained">
           {S.profilePreview.close}
         </Button>

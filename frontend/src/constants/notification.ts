@@ -1,38 +1,38 @@
 import { ROUTES } from "./routes";
 import type { NotificationType } from "../types/notification";
 
+/** Theme palette keys a notification type can be tinted with. */
+export type NotificationTone = "primary" | "secondary" | "success" | "warning" | "error" | "info";
+
 /**
- * Per-type accent color (icon tint + unread indicator), matched against the
- * backend's notification types. The icons themselves live in
- * `NotificationTypeIcon` - the React Compiler lint rule forbids rendering a
- * component reference picked out of a lookup map, so that file uses a
- * literal switch instead; keep the two in sync when adding a type.
+ * Per-type accent (icon tint), as a theme palette key so it resolves to the
+ * right shade in light and dark mode at render time. The icons themselves
+ * live in `NotificationTypeIcon`; the React Compiler lint rule forbids
+ * rendering a component reference picked out of a lookup map, so that file
+ * uses a literal switch instead. Keep the two in sync when adding a type.
  */
-export const NOTIFICATION_TYPE_COLOR: Record<NotificationType, string> = {
-  follow: "#6366f1",
-  friend_request: "#6366f1",
-  friend_accepted: "#12b8a6",
-  nudge: "#f59e0b",
-  badge_earned: "#aa3bff",
-  streak_warning: "#ef4444",
-  workout_logged: "#6366f1",
-  level_up: "#aa3bff",
-  weekly_report: "#12b8a6",
-  leaderboard_change: "#f59e0b",
+export const NOTIFICATION_TYPE_TONE: Record<NotificationType, NotificationTone> = {
+  follow: "info",
+  friend_request: "info",
+  friend_accepted: "secondary",
+  nudge: "warning",
+  badge_earned: "primary",
+  streak_warning: "error",
+  workout_logged: "info",
+  level_up: "primary",
+  weekly_report: "secondary",
+  leaderboard_change: "warning",
 };
 
-export const DEFAULT_NOTIFICATION_COLOR = "#aa3bff";
+export const DEFAULT_NOTIFICATION_TONE: NotificationTone = "primary";
 
-export function getNotificationTypeColor(type: string): string {
-  return (
-    NOTIFICATION_TYPE_COLOR[type as NotificationType] ??
-    DEFAULT_NOTIFICATION_COLOR
-  );
+export function getNotificationTypeTone(type: string): NotificationTone {
+  return NOTIFICATION_TYPE_TONE[type as NotificationType] ?? DEFAULT_NOTIFICATION_TONE;
 }
 
 /**
  * Types worth interrupting the user with a toast when they arrive live.
- * Everything else still updates the bell badge, but silently - a "you
+ * Everything else still updates the bell badge, but silently; a "you
  * gained a follower" shouldn't pop over whatever the user is doing.
  */
 export const TOAST_NOTIFICATION_TYPES: ReadonlySet<string> =

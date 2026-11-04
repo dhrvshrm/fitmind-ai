@@ -1,31 +1,34 @@
 import { useState } from "react";
-import { Alert, Paper, Skeleton, Typography } from "@mui/material";
+import { Skeleton } from "@mui/material";
+import { LeaderboardRounded } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import { LeaderboardRow } from "./LeaderboardRow";
-import { friendService } from "../../services/friendService";
+import { useLeaderboard, useNudgeFriend } from "../../hooks/queries/useFriendQueries";
+import { queryErrorMessage } from "../../hooks/queries/queryHelpers";
 import { resolveApiError } from "../../lib/apiClient";
 import { STRINGS } from "../../constants/strings";
 import { LEADERBOARD_LIMIT } from "../../constants/friend";
 import type { LeaderboardEntry } from "../../types/friend";
+import { SectionCard } from "../ui/SectionCard";
+import { EmptyState } from "../ui/EmptyState";
+import { ErrorState } from "../ui/ErrorState";
 import { leaderboardStyles as styles } from "./Leaderboard.styles";
 
 const S = STRINGS.friends.leaderboard;
 
-type LeaderboardProps = {
-  entries: LeaderboardEntry[];
-  loading: boolean;
-  error: string | null;
-};
-
 /** Weekly XP leaderboard (top 10): ranked rows, your position highlighted, nudge per friend. */
-export function Leaderboard({ entries, loading, error }: LeaderboardProps) {
+export function Leaderboard() {
+  const leaderboardQuery = useLeaderboard();
+  const nudge = useNudgeFriend();
   const [nudgingUserId, setNudgingUserId] = useState<string | null>(null);
-  const visible = entries.slice(0, LEADERBOARD_LIMIT);
+
+  const visible = (leaderboardQuery.data ?? []).slice(0, LEADERBOARD_LIMIT);
+  const error = queryErrorMessage(leaderboardQuery.error, S.error);
 
   async function handleNudge(entry: LeaderboardEntry) {
     setNudgingUserId(entry.user_id);
     try {
-      await friendService.nudge(entry.user_id);
+      await nudge.mutateAsync(entry.user_id);
       toast.success(S.nudgeSent(entry.username));
     } catch (err) {
       toast.error(resolveApiError(err, S.nudgeError));
@@ -35,25 +38,15 @@ export function Leaderboard({ entries, loading, error }: LeaderboardProps) {
   }
 
   return (
-    <Paper variant="outlined" sx={styles.card}>
-      <Typography variant="h6" sx={styles.title}>
-        {S.title}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={styles.subtitle}>
-        {S.subtitle}
-      </Typography>
+    <SectionCard title={S.title} subtitle={S.subtitle}>
+      {leaderboardQuery.isPending && <Skeleton variant="rounded" sx={styles.skeleton} />}
+      {error && <ErrorState message={error} onRetry={() => leaderboardQuery.refetch()} />}
 
-      {loading && <Skeleton variant="rounded" height={240} />}
-      {!loading && error && <Alert severity="error">{error}</Alert>}
-
-      {!loading && !error && visible.length === 0 && (
-        <Typography variant="body2" color="text.secondary" sx={styles.empty}>
-          {S.empty}
-        </Typography>
+      {leaderboardQuery.isSuccess && visible.length === 0 && (
+        <EmptyState icon={LeaderboardRounded} title={S.emptyTitle} description={S.empty} compact />
       )}
 
-      {!loading &&
-        !error &&
+      {leaderboardQuery.isSuccess &&
         visible.map((entry) => (
           <LeaderboardRow
             key={entry.user_id}
@@ -62,6 +55,6 @@ export function Leaderboard({ entries, loading, error }: LeaderboardProps) {
             isNudging={nudgingUserId === entry.user_id}
           />
         ))}
-    </Paper>
+    </SectionCard>
   );
 }

@@ -1,22 +1,6 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const workoutHistoryStyles = {
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    mb: 2,
-  },
-  title: {
-    fontWeight: 700,
-  },
-  streakChip: {
-    fontWeight: 700,
-  },
   monthLabel: {
     fontWeight: 600,
     textAlign: 'center',
@@ -24,12 +8,12 @@ export const workoutHistoryStyles = {
   },
   calendarGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(7, 1fr)',
+    gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
     gap: 0.5,
   },
   weekday: {
     textAlign: 'center',
-    fontWeight: 700,
+    fontWeight: 600,
     color: 'text.secondary',
     pb: 0.5,
   },
@@ -38,11 +22,12 @@ export const workoutHistoryStyles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 2,
+    borderRadius: 1,
     cursor: 'pointer',
     fontWeight: state.completed ? 700 : 500,
     fontSize: '0.8rem',
-    color: state.completed ? '#fff' : 'text.primary',
+    fontVariantNumeric: 'tabular-nums',
+    color: state.completed ? 'primary.contrastText' : 'text.primary',
     bgcolor: state.completed ? 'primary.main' : 'transparent',
     border: 1,
     borderColor: state.selected

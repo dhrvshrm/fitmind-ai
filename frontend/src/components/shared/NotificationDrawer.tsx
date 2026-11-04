@@ -1,6 +1,7 @@
 import { Box, Button, Divider, Drawer, IconButton, Stack, Typography } from '@mui/material';
 import { CloseRounded, NotificationsNoneRounded } from '@mui/icons-material';
 import { NotificationItem } from './NotificationItem';
+import { EmptyState } from '../ui/EmptyState';
 import { useUiStore } from '../../store/uiStore';
 import { STRINGS } from '../../constants/strings';
 import { groupNotificationsByDate } from '../../utils/notification';
@@ -41,12 +42,12 @@ export function NotificationDrawer({
   return (
     <Drawer anchor="right" open={open} onClose={onClose} slotProps={{ paper: { sx: styles.paper } }}>
       <Stack sx={styles.headerRow}>
-        <Typography variant="h6" sx={styles.title}>
+        <Typography variant="h6" component="h2">
           {S.title}
         </Typography>
         <Stack sx={styles.headerActions}>
           {unreadCount > 0 && (
-            <Button size="small" onClick={onMarkAllRead} sx={styles.markAllButton}>
+            <Button size="small" onClick={onMarkAllRead}>
               {S.markAllRead}
             </Button>
           )}
@@ -59,16 +60,13 @@ export function NotificationDrawer({
       <Box sx={styles.list}>
         {sections.length === 0 ? (
           <Box sx={styles.empty}>
-            <NotificationsNoneRounded sx={styles.emptyIcon} />
-            <Typography variant="body2" color="text.secondary">
-              {S.empty}
-            </Typography>
+            <EmptyState icon={NotificationsNoneRounded} title={S.emptyTitle} description={S.empty} />
           </Box>
         ) : (
           sections.map((section, index) => (
             <Box key={section.label}>
               {index > 0 && <Divider />}
-              <Typography variant="caption" color="text.secondary" sx={styles.groupLabel}>
+              <Typography variant="overline" color="text.secondary" sx={styles.groupLabel}>
                 {section.label}
               </Typography>
               {section.items.map((notification) => (

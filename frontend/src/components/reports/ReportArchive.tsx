@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   Box,
+  Card,
   FormControl,
   InputLabel,
   MenuItem,
@@ -10,10 +11,11 @@ import {
   Typography,
   type SelectChangeEvent,
 } from "@mui/material";
-import { SearchRounded } from "@mui/icons-material";
+import { SearchOffRounded, SearchRounded } from "@mui/icons-material";
 import { ReportCard } from "./ReportCard";
 import { STRINGS } from "../../constants/strings";
 import { reportMatchesQuery } from "../../utils/report";
+import { EmptyState } from "../ui/EmptyState";
 import type { WeeklyReport } from "../../types/report";
 import { reportArchiveStyles as styles } from "./ReportArchive.styles";
 
@@ -23,7 +25,7 @@ type SortOption = "newest" | "oldest" | "mostXp" | "mostWorkouts";
 type FilterOption = "all" | "improving" | "stable" | "declining";
 
 type ReportArchiveProps = {
-  /** Non-empty report list — the caller handles the "no reports at all" state. */
+  /** Non-empty report list; the caller handles the "no reports at all" state. */
   reports: WeeklyReport[];
 };
 
@@ -102,9 +104,9 @@ export function ReportArchive({ reports }: ReportArchiveProps) {
       </Typography>
 
       {visible.length === 0 ? (
-        <Typography variant="body2" color="text.secondary" sx={styles.empty}>
-          {S.noMatches}
-        </Typography>
+        <Card>
+          <EmptyState icon={SearchOffRounded} title={S.noMatchesTitle} description={S.noMatches} compact />
+        </Card>
       ) : (
         <Box sx={styles.list}>
           {visible.map((report) => (

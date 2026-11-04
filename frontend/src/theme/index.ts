@@ -62,6 +62,8 @@ export function createAppTheme(mode: ColorMode): Theme {
         styleOverrides: {
           body: { backgroundColor: t.background.default },
           '*::selection': { backgroundColor: alpha(t.brand.main, 0.25) },
+          '*': { scrollbarColor: `${t.border} transparent` },
+          '*::-webkit-scrollbar-thumb': { backgroundColor: t.border },
         },
       },
       MuiButton: {

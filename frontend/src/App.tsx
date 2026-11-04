@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { lazy, Suspense, useMemo, type ComponentType } from 'react';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -11,20 +11,28 @@ import { ROUTES } from './constants/routes';
 import { LoginPage } from './components/auth/LoginPage';
 import { SignupPage } from './components/auth/SignupPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
-import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
 import { AppLayout } from './components/shared/AppLayout';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
-import { Dashboard } from './components/dashboard/Dashboard';
-import { RecoveryPage } from './components/recovery/RecoveryPage';
-import { VoiceCheckinPage } from './components/voicecheckin/VoiceCheckinPage';
-import { WorkoutPage } from './components/workout/WorkoutPage';
-import { NutritionPage } from './components/nutrition/NutritionPage';
-import { GamificationPage } from './components/gamification/GamificationPage';
-import { CoachPage } from './components/coach/CoachPage';
-import { FriendsPage } from './components/friends/FriendsPage';
-import { ReportsPage } from './components/reports/ReportsPage';
-import { ProfilePage } from './components/profile/ProfilePage';
-import { SettingsPage } from './components/profile/SettingsPage';
+import { PageLoader } from './components/ui/PageLoader';
+
+// Feature pages are split into their own chunks and loaded on first visit,
+// so the initial download only contains the shell and the current page.
+function lazyPage<K extends string>(load: () => Promise<Record<K, ComponentType>>, name: K) {
+  return lazy(() => load().then((module) => ({ default: module[name] })));
+}
+
+const Dashboard = lazyPage(() => import('./components/dashboard/Dashboard'), 'Dashboard');
+const RecoveryPage = lazyPage(() => import('./components/recovery/RecoveryPage'), 'RecoveryPage');
+const VoiceCheckinPage = lazyPage(() => import('./components/voicecheckin/VoiceCheckinPage'), 'VoiceCheckinPage');
+const WorkoutPage = lazyPage(() => import('./components/workout/WorkoutPage'), 'WorkoutPage');
+const NutritionPage = lazyPage(() => import('./components/nutrition/NutritionPage'), 'NutritionPage');
+const GamificationPage = lazyPage(() => import('./components/gamification/GamificationPage'), 'GamificationPage');
+const CoachPage = lazyPage(() => import('./components/coach/CoachPage'), 'CoachPage');
+const FriendsPage = lazyPage(() => import('./components/friends/FriendsPage'), 'FriendsPage');
+const ReportsPage = lazyPage(() => import('./components/reports/ReportsPage'), 'ReportsPage');
+const ProfilePage = lazyPage(() => import('./components/profile/ProfilePage'), 'ProfilePage');
+const SettingsPage = lazyPage(() => import('./components/profile/SettingsPage'), 'SettingsPage');
+const OnboardingFlow = lazyPage(() => import('./components/onboarding/OnboardingFlow'), 'OnboardingFlow');
 
 /** Declares the route tree. Runs the auth bootstrap once on mount. */
 function AppRoutes() {
@@ -32,34 +40,36 @@ function AppRoutes() {
   useAuthBootstrap();
 
   return (
-    <Routes>
-      <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-      <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+        <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
 
-      {/* Everything below requires authentication. */}
-      <Route element={<ProtectedRoute />}>
-        {/* Onboarding is a full-screen flow outside the app shell. */}
-        <Route path={ROUTES.ONBOARDING} element={<OnboardingFlow />} />
+        {/* Everything below requires authentication. */}
+        <Route element={<ProtectedRoute />}>
+          {/* Onboarding is a full-screen flow outside the app shell. */}
+          <Route path={ROUTES.ONBOARDING} element={<OnboardingFlow />} />
 
-        {/* Feature pages render inside the navbar + sidebar shell. */}
-        <Route element={<AppLayout />}>
-          <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
-          <Route path={ROUTES.COACH} element={<CoachPage />} />
-          <Route path={ROUTES.WORKOUTS} element={<WorkoutPage />} />
-          <Route path={ROUTES.RECOVERY} element={<RecoveryPage />} />
-          <Route path={ROUTES.VOICE_CHECKIN} element={<VoiceCheckinPage />} />
-          <Route path={ROUTES.NUTRITION} element={<NutritionPage />} />
-          <Route path={ROUTES.GAMIFICATION} element={<GamificationPage />} />
-          <Route path={ROUTES.REPORTS} element={<ReportsPage />} />
-          <Route path={ROUTES.FRIENDS} element={<FriendsPage />} />
-          <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
-          <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
+          {/* Feature pages render inside the navbar + sidebar shell. */}
+          <Route element={<AppLayout />}>
+            <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
+            <Route path={ROUTES.COACH} element={<CoachPage />} />
+            <Route path={ROUTES.WORKOUTS} element={<WorkoutPage />} />
+            <Route path={ROUTES.RECOVERY} element={<RecoveryPage />} />
+            <Route path={ROUTES.VOICE_CHECKIN} element={<VoiceCheckinPage />} />
+            <Route path={ROUTES.NUTRITION} element={<NutritionPage />} />
+            <Route path={ROUTES.GAMIFICATION} element={<GamificationPage />} />
+            <Route path={ROUTES.REPORTS} element={<ReportsPage />} />
+            <Route path={ROUTES.FRIENDS} element={<FriendsPage />} />
+            <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
+            <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
+          </Route>
         </Route>
-      </Route>
 
-      {/* Default + unknown paths go to the dashboard (which will bounce to login if needed). */}
-      <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
-    </Routes>
+        {/* Default + unknown paths go to the dashboard (which will bounce to login if needed). */}
+        <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+      </Routes>
+    </Suspense>
   );
 }
 

@@ -3,26 +3,23 @@ import type { SxProps, Theme } from "@mui/material";
 export const notificationDrawerStyles = {
   paper: {
     width: { xs: "100%", sm: 380 },
+    borderLeft: 1,
+    borderColor: "divider",
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 1,
     px: 2,
     py: 1.5,
     borderBottom: 1,
     borderColor: "divider",
   },
-  title: {
-    fontWeight: 700,
-  },
   headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 1,
-  },
-  markAllButton: {
-    textTransform: "none",
   },
   list: {
     flex: 1,
@@ -33,22 +30,12 @@ export const notificationDrawerStyles = {
     pt: 1.5,
     pb: 0.5,
     display: "block",
-    fontWeight: 700,
-    textTransform: "uppercase",
-    letterSpacing: "0.06em",
   },
   empty: {
     display: "flex",
-    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     height: "100%",
-    textAlign: "center",
-    px: 3,
-  },
-  emptyIcon: {
-    fontSize: 40,
-    color: "text.disabled",
-    mb: 1,
+    px: 1,
   },
 } satisfies Record<string, SxProps<Theme>>;

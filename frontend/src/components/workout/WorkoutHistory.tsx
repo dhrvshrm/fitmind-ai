@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
+import { Box, Chip, Typography } from '@mui/material';
 import { LocalFireDepartmentRounded } from '@mui/icons-material';
 import { STRINGS } from '../../constants/strings';
 import { getStreak } from '../../utils/workout';
 import { toIsoDate } from '../../utils/date';
+import { SectionCard } from '../ui/SectionCard';
 import { workoutHistoryStyles as styles } from './WorkoutHistory.styles';
 
 const S = STRINGS.workout.history;
@@ -36,7 +37,7 @@ function buildMonthCells(reference: Date): (DayCell | null)[] {
 
 /**
  * Month calendar highlighting completed workout days, with a streak counter.
- * Completion data is local until Day 8 wires real logging.
+ * Completed dates come from the backend history, with a local fallback.
  */
 export function WorkoutHistory({ completedDates }: WorkoutHistoryProps) {
   const [selected, setSelected] = useState<string | null>(null);
@@ -52,19 +53,18 @@ export function WorkoutHistory({ completedDates }: WorkoutHistoryProps) {
   const monthLabel = now.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 
   return (
-    <Paper variant="outlined" sx={styles.card}>
-      <Stack sx={styles.headerRow}>
-        <Typography variant="h6" sx={styles.title}>
-          {S.title}
-        </Typography>
+    <SectionCard
+      title={S.title}
+      action={
         <Chip
           icon={<LocalFireDepartmentRounded />}
           label={S.streak(streak)}
           color={streak > 0 ? 'warning' : 'default'}
           variant="outlined"
-          sx={styles.streakChip}
+          size="small"
         />
-      </Stack>
+      }
+    >
 
       <Typography variant="body2" sx={styles.monthLabel}>
         {monthLabel}
@@ -106,6 +106,6 @@ export function WorkoutHistory({ completedDates }: WorkoutHistoryProps) {
           {S.hint}
         </Typography>
       )}
-    </Paper>
+    </SectionCard>
   );
 }

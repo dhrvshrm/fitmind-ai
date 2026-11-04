@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import type { SvgIconProps } from '@mui/material';
+import type { Palette, SvgIconProps } from '@mui/material';
 import {
   SentimentDissatisfiedRounded,
   SentimentNeutralRounded,
@@ -42,14 +42,17 @@ export const MOOD_LABEL: Record<MoodSentiment, string> = {
 };
 
 /**
- * Chart dot colors per sentiment (status encoding; identity is also carried
- * by the tooltip's mood text, never color alone). All ≥3:1 on the light surface.
+ * Chart dot colors per sentiment, resolved from the active theme (status
+ * encoding; identity is also carried by the tooltip mood text and legend
+ * labels, never color alone).
  */
-export const MOOD_CHART_COLOR: Record<MoodSentiment, string> = {
-  positive: '#16a34a',
-  neutral: '#64748b',
-  low: '#ef4444',
-};
+export function getMoodChartColors(palette: Palette): Record<MoodSentiment, string> {
+  return {
+    positive: palette.success.main,
+    neutral: palette.text.secondary,
+    low: palette.error.main,
+  };
+}
 
 /** MUI palette token per sentiment, for non-chart UI accents. */
 export const MOOD_COLOR_TOKEN: Record<MoodSentiment, string> = {

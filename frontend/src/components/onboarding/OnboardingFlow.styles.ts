@@ -7,32 +7,28 @@ export const onboardingFlowStyles = {
     alignItems: 'center',
     justifyContent: 'center',
     p: 2,
-    background:
-      'radial-gradient(1100px 520px at 15% -10%, #f0e2ff 0%, rgba(240,226,255,0) 60%), linear-gradient(160deg, #f7f6fb 0%, #efe6fb 100%)',
+    bgcolor: 'background.default',
   },
   card: {
     width: '100%',
     maxWidth: 560,
-    borderRadius: 3,
   },
   content: {
     p: { xs: 3, sm: 4 },
   },
   header: {
+    gap: 0.5,
     mb: 2,
   },
-  brand: {
-    fontWeight: 700,
-  },
   progress: {
-    height: 8,
-    borderRadius: 4,
     mb: 3,
   },
   alert: {
     mb: 2,
   },
   actions: {
+    flexDirection: 'row',
+    gap: 2,
     mt: 4,
   },
 } satisfies Record<string, SxProps<Theme>>;

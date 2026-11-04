@@ -1,11 +1,9 @@
-import { useEffect, useState, type ComponentType } from "react";
+import type { ComponentType } from "react";
 import {
-  Alert,
   Avatar,
   Box,
   Chip,
   LinearProgress,
-  Paper,
   Skeleton,
   Stack,
   Typography,
@@ -13,22 +11,28 @@ import {
 } from "@mui/material";
 import {
   BedtimeRounded,
+  BoltRounded,
+  EmojiEventsRounded,
   LocalFireDepartmentRounded,
   MicRounded,
   MilitaryTechRounded,
   RestaurantRounded,
+  TrendingUpRounded,
   WaterDropRounded,
   WorkspacePremiumRounded,
 } from "@mui/icons-material";
-import { gamificationService } from "../../services/gamificationService";
-import { settingsService } from "../../services/settingsService";
-import { resolveApiError } from "../../lib/apiClient";
+import { useBadges, useGamificationProfile } from "../../hooks/queries/useGamificationQueries";
+import { useSettingsProfile } from "../../hooks/queries/useProfileQueries";
+import { queryErrorMessage } from "../../hooks/queries/queryHelpers";
 import { STRINGS } from "../../constants/strings";
-import type {
-  BadgesResponse,
-  GamificationProfile,
-} from "../../types/gamification";
-import type { FullUserProfile } from "../../types/settings";
+import type { GamificationProfile } from "../../types/gamification";
+import { PageHeader } from "../ui/PageHeader";
+import { SectionCard } from "../ui/SectionCard";
+import { StatTile } from "../ui/StatTile";
+import { ErrorState } from "../ui/ErrorState";
+import { EmptyState } from "../ui/EmptyState";
+import { IconBadge } from "../ui/IconBadge";
+import type { IconBadgeTone } from "../ui/IconBadge.styles";
 import { EditProfileForm } from "./EditProfileForm";
 import { profilePageStyles as styles } from "./ProfilePage.styles";
 
@@ -44,6 +48,20 @@ const BADGE_ICONS: Record<string, ComponentType<SvgIconProps>> = {
   hydration_hero: WaterDropRounded,
 };
 
+type StatConfig = {
+  label: string;
+  value: (profile: GamificationProfile) => number;
+  icon: ComponentType<SvgIconProps>;
+  tone: IconBadgeTone;
+};
+
+const STATS: StatConfig[] = [
+  { label: S.stats.totalXp, value: (p) => p.xp, icon: BoltRounded, tone: "primary" },
+  { label: S.stats.currentStreak, value: (p) => p.current_streak, icon: LocalFireDepartmentRounded, tone: "warning" },
+  { label: S.stats.longestStreak, value: (p) => p.longest_streak, icon: TrendingUpRounded, tone: "secondary" },
+  { label: S.stats.badges, value: (p) => p.badge_count, icon: EmojiEventsRounded, tone: "success" },
+];
+
 function xpBarValue(profile: GamificationProfile): number {
   const total = profile.xp_into_level + profile.xp_to_next;
   if (total <= 0) return 100;
@@ -52,42 +70,37 @@ function xpBarValue(profile: GamificationProfile): number {
 
 /** Profile overview: avatar, level + XP bar, stats, badge wall, edit form. */
 export function ProfilePage() {
-  const [gamification, setGamification] = useState<GamificationProfile | null>(
-    null,
-  );
-  const [badges, setBadges] = useState<BadgesResponse | null>(null);
-  const [profile, setProfile] = useState<FullUserProfile | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const gamificationQuery = useGamificationProfile();
+  const badgesQuery = useBadges();
+  const profileQuery = useSettingsProfile();
 
-  useEffect(() => {
-    let active = true;
-    Promise.all([
-      gamificationService.getProfile(),
-      gamificationService.getBadges(),
-      settingsService.getProfile(),
-    ])
-      .then(([g, b, p]) => {
-        if (!active) return;
-        setGamification(g);
-        setBadges(b);
-        setProfile(p);
-      })
-      .catch((err: unknown) => {
-        if (active) setError(resolveApiError(err, S.loadError));
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
+  const gamification = gamificationQuery.data;
+  const badges = badgesQuery.data;
+  const profile = profileQuery.data;
+
+  const failed = [gamificationQuery, badgesQuery, profileQuery].filter((q) => q.isError);
+  const error = queryErrorMessage(failed[0]?.error, S.loadError);
+  const retry = () => failed.forEach((q) => q.refetch());
 
   if (error) {
-    return <Alert severity="error">{error}</Alert>;
+    return (
+      <Box sx={styles.root}>
+        <PageHeader title={S.title} subtitle={S.subtitle} />
+        <ErrorState message={error} onRetry={retry} />
+      </Box>
+    );
   }
 
   if (!gamification || !badges || !profile) {
     return (
       <Box sx={styles.root}>
+        <PageHeader title={S.title} subtitle={S.subtitle} />
         <Skeleton variant="rounded" sx={styles.skeleton} />
+        <Box sx={styles.statsGrid}>
+          {STATS.map((stat) => (
+            <Skeleton key={stat.label} variant="rounded" sx={styles.statSkeleton} />
+          ))}
+        </Box>
         <Skeleton variant="rounded" sx={styles.skeleton} />
       </Box>
     );
@@ -98,25 +111,20 @@ export function ProfilePage() {
 
   return (
     <Box sx={styles.root}>
-      <Box>
-        <Typography variant="h4" sx={styles.header}>
-          {S.title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={styles.subtitle}>
-          {S.subtitle}
-        </Typography>
-      </Box>
+      <PageHeader title={S.title} subtitle={S.subtitle} />
 
-      {/* Hero: avatar, level, XP bar */}
-      <Paper elevation={0} variant="outlined" sx={styles.heroCard}>
+      {/* Identity: avatar, level, XP bar */}
+      <SectionCard>
         <Stack sx={styles.heroRow}>
           <Avatar sx={styles.avatar}>{initial}</Avatar>
-          <Box>
-            <Typography variant="h5" sx={styles.username}>
+          <Box sx={styles.heroText}>
+            <Typography variant="h5" component="p" sx={styles.username}>
               {profile.username}
             </Typography>
             <Chip
               color="primary"
+              variant="outlined"
+              size="small"
               label={S.level.label(gamification.level, gamification.title)}
               sx={styles.levelChip}
             />
@@ -128,96 +136,74 @@ export function ProfilePage() {
             variant="determinate"
             value={xpBarValue(gamification)}
             aria-label={S.level.xpBarAria}
-            sx={styles.xpBar}
           />
           <Box sx={styles.xpMeta}>
             <Typography variant="caption" color="text.secondary">
-              {S.level.progress(
-                gamification.xp_into_level,
-                gamification.xp_to_next,
-              )}
+              {S.level.progress(gamification.xp_into_level, gamification.xp_to_next)}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               {gamification.next_title
-                ? S.level.toNext(
-                    gamification.xp_to_next,
-                    gamification.next_title,
-                  )
+                ? S.level.toNext(gamification.xp_to_next, gamification.next_title)
                 : S.level.maxed}
             </Typography>
           </Box>
         </Box>
-      </Paper>
+      </SectionCard>
 
       {/* Stats summary */}
       <Box sx={styles.statsGrid}>
-        <Paper elevation={0} variant="outlined" sx={styles.statCard}>
-          <Typography variant="h5" sx={styles.statValue}>
-            {gamification.xp}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {S.stats.totalXp}
-          </Typography>
-        </Paper>
-        <Paper elevation={0} variant="outlined" sx={styles.statCard}>
-          <Typography variant="h5" sx={styles.statValue}>
-            {gamification.current_streak}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {S.stats.currentStreak}
-          </Typography>
-        </Paper>
-        <Paper elevation={0} variant="outlined" sx={styles.statCard}>
-          <Typography variant="h5" sx={styles.statValue}>
-            {gamification.longest_streak}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {S.stats.longestStreak}
-          </Typography>
-        </Paper>
-        <Paper elevation={0} variant="outlined" sx={styles.statCard}>
-          <Typography variant="h5" sx={styles.statValue}>
-            {gamification.badge_count}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {S.stats.badges}
-          </Typography>
-        </Paper>
+        {STATS.map((stat) => (
+          <StatTile
+            key={stat.label}
+            label={stat.label}
+            value={stat.value(gamification)}
+            icon={stat.icon}
+            tone={stat.tone}
+          />
+        ))}
       </Box>
 
       {/* Badge wall */}
-      <Box>
-        <Typography variant="h6" sx={styles.sectionTitle}>
-          {S.badges.title}
-        </Typography>
-        <Box sx={styles.badgeGrid}>
-          {badges.all_badges.map((badge) => {
-            const earned = earnedIds.has(badge.id);
-            return (
-              <Paper
-                key={badge.id}
-                elevation={0}
-                variant="outlined"
-                sx={{ ...styles.badge, ...(earned ? {} : styles.badgeLocked) }}
-              >
-                {(() => {
-                  const BadgeIcon = BADGE_ICONS[badge.id] ?? WorkspacePremiumRounded;
-                  return <BadgeIcon sx={styles.badgeIcon} color="primary" />;
-                })()}
-                <Typography variant="body2" sx={styles.badgeName}>
-                  {badge.name}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {badge.description}
-                </Typography>
-              </Paper>
-            );
-          })}
-        </Box>
-      </Box>
+      <SectionCard
+        title={S.badges.title}
+        action={
+          <Typography variant="body2" color="text.secondary">
+            {S.badges.earnedCount(earnedIds.size)}
+          </Typography>
+        }
+      >
+        {badges.all_badges.length === 0 ? (
+          <EmptyState
+            compact
+            icon={WorkspacePremiumRounded}
+            title={S.badges.emptyTitle}
+            description={S.badges.empty}
+          />
+        ) : (
+          <Box sx={styles.badgeGrid}>
+            {badges.all_badges.map((badge) => {
+              const earned = earnedIds.has(badge.id);
+              return (
+                <Box key={badge.id} sx={styles.badge(earned)}>
+                  <IconBadge
+                    icon={BADGE_ICONS[badge.id] ?? WorkspacePremiumRounded}
+                    tone={earned ? "primary" : "neutral"}
+                  />
+                  <Typography variant="body2" sx={styles.badgeName}>
+                    {badge.name}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {badge.description}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
+        )}
+      </SectionCard>
 
       {/* Edit form */}
-      <EditProfileForm profile={profile} onSaved={setProfile} />
+      <EditProfileForm profile={profile} />
     </Box>
   );
 }

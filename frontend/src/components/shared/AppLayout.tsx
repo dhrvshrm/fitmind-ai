@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { Box, Toolbar } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
 import { PageTransition } from './PageTransition';
+import { PageLoader } from '../ui/PageLoader';
 import { appLayoutStyles as styles } from './AppLayout.styles';
 
 /**
@@ -21,9 +22,12 @@ export function AppLayout() {
         {/* Spacer pushes content below the fixed navbar. */}
         <Toolbar />
         <Box sx={styles.content}>
-          <PageTransition>
-            <Outlet />
-          </PageTransition>
+          {/* Keeps the shell visible while a page's code chunk loads. */}
+          <Suspense fallback={<PageLoader />}>
+            <PageTransition>
+              <Outlet />
+            </PageTransition>
+          </Suspense>
         </Box>
       </Box>
     </Box>

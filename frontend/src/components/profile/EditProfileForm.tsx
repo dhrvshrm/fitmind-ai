@@ -1,29 +1,19 @@
 import { useState, type FormEvent } from "react";
-import {
-  Box,
-  Button,
-  MenuItem,
-  Paper,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Button, CircularProgress, MenuItem, TextField } from "@mui/material";
 import toast from "react-hot-toast";
-import { settingsService } from "../../services/settingsService";
+import { useUpdateProfile } from "../../hooks/queries/useProfileQueries";
 import { resolveApiError } from "../../lib/apiClient";
+import { SectionCard } from "../ui/SectionCard";
 import { GOAL_OPTIONS } from "../../constants/onboarding";
 import { STRINGS } from "../../constants/strings";
 import type { FitnessGoal } from "../../types/onboarding";
-import type {
-  FullUserProfile,
-  ProfileUpdatePayload,
-} from "../../types/settings";
+import type { FullUserProfile, ProfileUpdatePayload } from "../../types/settings";
 import { editProfileFormStyles as styles } from "./EditProfileForm.styles";
 
 const S = STRINGS.profile.edit;
 
 type EditProfileFormProps = {
   profile: FullUserProfile;
-  onSaved: (profile: FullUserProfile) => void;
 };
 
 type FormState = {
@@ -36,8 +26,11 @@ type FormState = {
 
 type FormErrors = Partial<Record<keyof FormState, string>>;
 
-/** Editable profile fields; PUTs changes to `/settings/profile`. */
-export function EditProfileForm({ profile, onSaved }: EditProfileFormProps) {
+/**
+ * Editable profile fields; PUTs changes to `/settings/profile`. A successful
+ * save refreshes the cached profile, so the page header updates on its own.
+ */
+export function EditProfileForm({ profile }: EditProfileFormProps) {
   const [form, setForm] = useState<FormState>({
     username: profile.username ?? "",
     age: profile.age?.toString() ?? "",
@@ -46,7 +39,8 @@ export function EditProfileForm({ profile, onSaved }: EditProfileFormProps) {
     fitness_goal: profile.fitness_goal ?? "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
-  const [saving, setSaving] = useState(false);
+  const updateProfile = useUpdateProfile();
+  const saving = updateProfile.isPending;
 
   function update(patch: Partial<FormState>) {
     setForm((prev) => ({ ...prev, ...patch }));
@@ -78,93 +72,84 @@ export function EditProfileForm({ profile, onSaved }: EditProfileFormProps) {
     if (form.height_cm) payload.height_cm = Number(form.height_cm);
     if (form.fitness_goal) payload.fitness_goal = form.fitness_goal;
 
-    setSaving(true);
     try {
-      const updated = await settingsService.updateProfile(payload);
-      onSaved(updated);
+      await updateProfile.mutateAsync(payload);
       toast.success(S.success);
     } catch (error) {
       toast.error(resolveApiError(error, S.error));
-    } finally {
-      setSaving(false);
     }
   }
 
   return (
-    <Paper
-      component="form"
-      elevation={0}
-      variant="outlined"
-      sx={styles.card}
-      onSubmit={handleSubmit}
-    >
-      <Typography variant="h6" sx={styles.title}>
-        {S.title}
-      </Typography>
+    <SectionCard title={S.title} subtitle={S.subtitle}>
+      <Box component="form" onSubmit={handleSubmit}>
+        <Box sx={styles.grid}>
+          <TextField
+            label={S.name}
+            value={form.username}
+            onChange={(e) => update({ username: e.target.value })}
+            error={Boolean(errors.username)}
+            helperText={errors.username}
+            sx={styles.fullWidth}
+            fullWidth
+          />
+          <TextField
+            label={S.age}
+            type="number"
+            value={form.age}
+            onChange={(e) => update({ age: e.target.value })}
+            error={Boolean(errors.age)}
+            helperText={errors.age}
+            fullWidth
+          />
+          <TextField
+            label={S.weight}
+            type="number"
+            value={form.weight_kg}
+            onChange={(e) => update({ weight_kg: e.target.value })}
+            error={Boolean(errors.weight_kg)}
+            helperText={errors.weight_kg}
+            fullWidth
+          />
+          <TextField
+            label={S.height}
+            type="number"
+            value={form.height_cm}
+            onChange={(e) => update({ height_cm: e.target.value })}
+            error={Boolean(errors.height_cm)}
+            helperText={errors.height_cm}
+            fullWidth
+          />
+          <TextField
+            label={S.goal}
+            select
+            value={form.fitness_goal}
+            onChange={(e) => update({ fitness_goal: e.target.value as FitnessGoal })}
+            fullWidth
+          >
+            {GOAL_OPTIONS.map((option) => {
+              const Icon = option.icon;
+              return (
+                <MenuItem key={option.value} value={option.value}>
+                  <Icon fontSize="small" sx={styles.goalIcon} />
+                  {option.label}
+                </MenuItem>
+              );
+            })}
+          </TextField>
+        </Box>
 
-      <Box sx={styles.grid}>
-        <TextField
-          label={S.name}
-          value={form.username}
-          onChange={(e) => update({ username: e.target.value })}
-          error={Boolean(errors.username)}
-          helperText={errors.username}
-          sx={styles.fullWidth}
-          fullWidth
-        />
-        <TextField
-          label={S.age}
-          type="number"
-          value={form.age}
-          onChange={(e) => update({ age: e.target.value })}
-          error={Boolean(errors.age)}
-          helperText={errors.age}
-          fullWidth
-        />
-        <TextField
-          label={S.weight}
-          type="number"
-          value={form.weight_kg}
-          onChange={(e) => update({ weight_kg: e.target.value })}
-          error={Boolean(errors.weight_kg)}
-          helperText={errors.weight_kg}
-          fullWidth
-        />
-        <TextField
-          label={S.height}
-          type="number"
-          value={form.height_cm}
-          onChange={(e) => update({ height_cm: e.target.value })}
-          error={Boolean(errors.height_cm)}
-          helperText={errors.height_cm}
-          fullWidth
-        />
-        <TextField
-          label={S.goal}
-          select
-          value={form.fitness_goal}
-          onChange={(e) =>
-            update({ fitness_goal: e.target.value as FitnessGoal })
-          }
-          fullWidth
-        >
-          {GOAL_OPTIONS.map((option) => {
-            const Icon = option.icon;
-            return (
-              <MenuItem key={option.value} value={option.value}>
-                <Icon fontSize="small" sx={{ mr: 1, verticalAlign: "middle" }} />
-                {option.label}
-              </MenuItem>
-            );
-          })}
-        </TextField>
+        <Box sx={styles.actions}>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={saving}
+            startIcon={saving ? <CircularProgress size={16} color="inherit" /> : null}
+          >
+            {saving ? S.saving : S.save}
+          </Button>
+        </Box>
       </Box>
-
-      <Box sx={styles.actions}>
-        <Button type="submit" variant="contained" disabled={saving}>
-          {saving ? S.saving : S.save}
-        </Button>
-      </Box>
-    </Paper>
+    </SectionCard>
   );
 }

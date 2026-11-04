@@ -8,14 +8,14 @@ export const xpBarStyles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'baseline',
-    mb: 0.5,
+    gap: 1,
+    mb: 0.75,
   },
   percentLabel: {
-    fontWeight: 700,
-    color: 'primary.main',
+    fontWeight: 600,
+    fontVariantNumeric: 'tabular-nums',
   },
   track: {
-    height: 12,
-    borderRadius: 6,
+    height: 10,
   },
 } satisfies Record<string, SxProps<Theme>>;

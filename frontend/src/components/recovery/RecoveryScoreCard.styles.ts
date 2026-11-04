@@ -1,23 +1,18 @@
 import type { SxProps, Theme } from '@mui/material';
+import { FONTS } from '../../theme';
 
 export const recoveryScoreCardStyles = {
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
-  },
-  title: {
-    fontWeight: 700,
-    mb: 1.5,
-  },
   scoreRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
     gap: 1,
   },
   score: (color: string): SxProps<Theme> => ({
-    fontWeight: 800,
+    fontFamily: FONTS.display,
+    fontWeight: 700,
     lineHeight: 1,
-    fontSize: { xs: '3rem', sm: '3.75rem' },
+    fontSize: { xs: '3rem', sm: '3.5rem' },
+    fontVariantNumeric: 'tabular-nums',
     color,
   }),
   outOf: {
@@ -25,7 +20,6 @@ export const recoveryScoreCardStyles = {
     fontWeight: 600,
   },
   recommendation: (color: string): SxProps<Theme> => ({
-    fontWeight: 700,
     mt: 1.5,
     color,
   }),
@@ -33,7 +27,10 @@ export const recoveryScoreCardStyles = {
     mt: 0.5,
   },
   skeletonScore: {
-    fontSize: '3.75rem',
+    fontSize: '3.5rem',
     maxWidth: 160,
+  },
+  skeletonLine: {
+    maxWidth: 240,
   },
 };

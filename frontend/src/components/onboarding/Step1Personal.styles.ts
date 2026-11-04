@@ -9,7 +9,9 @@ export const step1PersonalStyles = {
   },
   bmiBox: {
     p: 2,
-    borderRadius: 2,
+    borderRadius: 1,
+    border: 1,
+    borderColor: 'divider',
     bgcolor: 'action.hover',
     display: 'flex',
     alignItems: 'center',
@@ -18,5 +20,6 @@ export const step1PersonalStyles = {
   },
   bmiChip: {
     fontWeight: 700,
+    flexShrink: 0,
   },
 } satisfies Record<string, SxProps<Theme>>;

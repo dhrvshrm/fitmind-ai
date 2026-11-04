@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { animate, motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { workoutService } from '../../services/workoutService';
+import { useLogWorkout } from '../../hooks/queries/useWorkoutQueries';
 import { resolveApiError } from '../../lib/apiClient';
 import { STRINGS } from '../../constants/strings';
 import { formatDuration } from '../../utils/date';
@@ -79,7 +79,8 @@ export function WorkoutCompletion({
   onLogged,
 }: WorkoutCompletionProps) {
   const [intensity, setIntensity] = useState<Intensity>('medium');
-  const [isSaving, setIsSaving] = useState(false);
+  const logWorkout = useLogWorkout();
+  const isSaving = logWorkout.isPending;
   const [result, setResult] = useState<WorkoutLogResult | null>(null);
 
   const summary: LoggedExercise[] = exercises.map((exercise) => ({
@@ -89,9 +90,8 @@ export function WorkoutCompletion({
   }));
 
   async function handleSave() {
-    setIsSaving(true);
     try {
-      const logResult = await workoutService.logWorkout({
+      const logResult = await logWorkout.mutateAsync({
         exercises: summary,
         duration_minutes: Math.max(1, Math.round(durationSeconds / 60)),
         intensity,
@@ -101,8 +101,6 @@ export function WorkoutCompletion({
       onLogged(logResult);
     } catch (error) {
       toast.error(resolveApiError(error, S.saveError));
-    } finally {
-      setIsSaving(false);
     }
   }
 

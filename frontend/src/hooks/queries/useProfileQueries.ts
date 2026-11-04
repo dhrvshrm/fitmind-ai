@@ -1,8 +1,12 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from '../../constants/queryKeys';
 import { settingsService } from '../../services/settingsService';
 import { userService } from '../../services/userService';
-import type { ChangePasswordPayload, ProfileUpdatePayload } from '../../types/settings';
+import type {
+  ChangePasswordPayload,
+  NotificationPreferences,
+  ProfileUpdatePayload,
+} from '../../types/settings';
 import { useInvalidate } from './queryHelpers';
 
 export function useSettingsProfile() {
@@ -16,7 +20,31 @@ export function useUserProfile() {
 export function useNotificationPreferences() {
   return useQuery({
     queryKey: QUERY_KEYS.profile.notificationPreferences,
-    queryFn: settingsService.getNotificationPreferences,
+    // Wrapped: the service method reads `this`, so it can't be passed unbound.
+    queryFn: () => settingsService.getNotificationPreferences(),
+  });
+}
+
+/**
+ * Toggles notification preferences optimistically: the switch flips at once
+ * and reverts if the request fails.
+ */
+export function useUpdateNotificationPreferences() {
+  const queryClient = useQueryClient();
+  const key = QUERY_KEYS.profile.notificationPreferences;
+  return useMutation({
+    mutationFn: (changes: Partial<NotificationPreferences>) =>
+      settingsService.updateNotificationPreferences(changes),
+    onMutate: async (changes) => {
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<NotificationPreferences>(key);
+      if (previous) queryClient.setQueryData<NotificationPreferences>(key, { ...previous, ...changes });
+      return { previous };
+    },
+    onError: (_error, _changes, context) => {
+      if (context?.previous) queryClient.setQueryData(key, context.previous);
+    },
+    onSuccess: (preferences) => queryClient.setQueryData(key, preferences),
   });
 }
 

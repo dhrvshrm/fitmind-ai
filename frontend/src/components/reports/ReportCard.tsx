@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Chip, Collapse, IconButton, Paper, Stack, Typography } from "@mui/material";
+import { Box, Card, Chip, Collapse, IconButton, Stack, Typography } from "@mui/material";
 import { ExpandMoreRounded } from "@mui/icons-material";
 import { ReportDetail } from "./ReportDetail";
 import { STRINGS } from "../../constants/strings";
@@ -19,10 +19,10 @@ export function ReportCard({ report }: ReportCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <Paper variant="outlined" sx={styles.card}>
+    <Card sx={styles.card}>
       <Stack sx={styles.headerRow} onClick={() => setExpanded((v) => !v)}>
         <Box sx={styles.headerBody}>
-          <Typography variant="h6" sx={styles.weekRange}>
+          <Typography variant="h6" component="h2">
             {formatWeekRange(report)}
           </Typography>
           <Typography variant="caption" color="text.secondary" sx={styles.created}>
@@ -57,6 +57,6 @@ export function ReportCard({ report }: ReportCardProps) {
       <Collapse in={expanded} unmountOnExit>
         <ReportDetail report={report} />
       </Collapse>
-    </Paper>
+    </Card>
   );
 }

@@ -6,7 +6,6 @@ export const passwordStrengthStyles = {
   },
   bar: {
     height: 6,
-    borderRadius: 3,
   },
   labels: {
     mt: 0.5,

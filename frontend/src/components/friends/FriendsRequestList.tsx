@@ -1,41 +1,40 @@
 import { useState } from "react";
 import {
-  Alert,
   Avatar,
   Button,
   CircularProgress,
   Divider,
-  Paper,
   Skeleton,
   Stack,
   Typography,
 } from "@mui/material";
-import { CheckRounded, CloseRounded } from "@mui/icons-material";
+import { CheckRounded, CloseRounded, PersonAddAlt1Rounded } from "@mui/icons-material";
 import toast from "react-hot-toast";
-import { friendService } from "../../services/friendService";
+import {
+  useAcceptFriendRequest,
+  useDeclineFriendRequest,
+  useFriendRequests,
+} from "../../hooks/queries/useFriendQueries";
+import { queryErrorMessage } from "../../hooks/queries/queryHelpers";
 import { resolveApiError } from "../../lib/apiClient";
 import { STRINGS } from "../../constants/strings";
 import type { FriendRequest } from "../../types/friend";
+import { SectionCard } from "../ui/SectionCard";
+import { EmptyState } from "../ui/EmptyState";
+import { ErrorState } from "../ui/ErrorState";
 import { friendsRequestListStyles as styles } from "./FriendsRequestList.styles";
 
 const S = STRINGS.friends.requests;
 
-type FriendsRequestListProps = {
-  requests: FriendRequest[];
-  loading: boolean;
-  error: string | null;
-  /** Refetches requests/friends/leaderboard after an accept or decline. */
-  onChanged: () => void;
-};
-
 /** Pending incoming friend requests, with accept/decline actions per row. */
-export function FriendsRequestList({
-  requests,
-  loading,
-  error,
-  onChanged,
-}: FriendsRequestListProps) {
+export function FriendsRequestList() {
+  const requestsQuery = useFriendRequests();
+  const acceptRequest = useAcceptFriendRequest();
+  const declineRequest = useDeclineFriendRequest();
   const [actingIds, setActingIds] = useState<ReadonlySet<string>>(new Set());
+
+  const requests = requestsQuery.data ?? [];
+  const error = queryErrorMessage(requestsQuery.error, S.loadError);
 
   function setActing(id: string, acting: boolean) {
     setActingIds((prev) => {
@@ -49,9 +48,8 @@ export function FriendsRequestList({
   async function handleAccept(request: FriendRequest) {
     setActing(request.request_id, true);
     try {
-      await friendService.acceptRequest(request.request_id);
+      await acceptRequest.mutateAsync(request.request_id);
       toast.success(S.acceptedToast(request.username));
-      onChanged();
     } catch (err) {
       toast.error(resolveApiError(err, S.error));
     } finally {
@@ -62,9 +60,8 @@ export function FriendsRequestList({
   async function handleDecline(request: FriendRequest) {
     setActing(request.request_id, true);
     try {
-      await friendService.declineRequest(request.request_id);
+      await declineRequest.mutateAsync(request.request_id);
       toast.success(S.declinedToast);
-      onChanged();
     } catch (err) {
       toast.error(resolveApiError(err, S.error));
     } finally {
@@ -73,22 +70,15 @@ export function FriendsRequestList({
   }
 
   return (
-    <Paper variant="outlined" sx={styles.card}>
-      <Typography variant="h6" sx={styles.title}>
-        {S.title}
-      </Typography>
+    <SectionCard title={S.title}>
+      {requestsQuery.isPending && <Skeleton variant="rounded" sx={styles.skeleton} />}
+      {error && <ErrorState message={error} onRetry={() => requestsQuery.refetch()} />}
 
-      {loading && <Skeleton variant="rounded" height={72} />}
-      {!loading && error && <Alert severity="error">{error}</Alert>}
-
-      {!loading && !error && requests.length === 0 && (
-        <Typography variant="body2" color="text.secondary" sx={styles.empty}>
-          {S.empty}
-        </Typography>
+      {requestsQuery.isSuccess && requests.length === 0 && (
+        <EmptyState icon={PersonAddAlt1Rounded} title={S.emptyTitle} description={S.empty} compact />
       )}
 
-      {!loading &&
-        !error &&
+      {requestsQuery.isSuccess &&
         requests.map((request, index) => {
           const acting = actingIds.has(request.request_id);
           return (
@@ -136,6 +126,6 @@ export function FriendsRequestList({
             </Stack>
           );
         })}
-    </Paper>
+    </SectionCard>
   );
 }

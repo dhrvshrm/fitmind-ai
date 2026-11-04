@@ -1,16 +1,9 @@
 import type { SxProps, Theme } from "@mui/material";
 
 export const userSearchStyles = {
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
-  },
-  title: {
-    fontWeight: 700,
-    mb: 1.5,
-  },
   form: {
     flexDirection: "row",
+    alignItems: "center",
     gap: 1,
   },
   field: {
@@ -19,14 +12,16 @@ export const userSearchStyles = {
   resultRow: {
     flexDirection: "row",
     alignItems: "center",
+    flexWrap: "wrap",
     gap: 1.5,
     mt: 2,
     p: 1.5,
-    borderRadius: 2.5,
+    borderRadius: 1,
     bgcolor: "action.hover",
   },
   avatar: {
     bgcolor: "primary.main",
+    color: "primary.contrastText",
     fontWeight: 700,
   },
   resultBody: {
@@ -34,7 +29,10 @@ export const userSearchStyles = {
     minWidth: 0,
   },
   username: {
-    fontWeight: 700,
+    fontWeight: 600,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
   hint: {
     mt: 1.5,
