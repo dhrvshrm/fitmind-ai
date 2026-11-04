@@ -3,7 +3,6 @@ import type { SxProps, Theme } from "@mui/material";
 export const xpEarnedChartStyles = {
   card: {
     p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
     height: "100%",
   },
   headerRow: {

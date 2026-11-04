@@ -1,9 +1,8 @@
-import type { SxProps, Theme } from "@mui/material";
+import { alpha, type SxProps, type Theme } from "@mui/material";
 
 export const weightTrendChartStyles = {
   card: {
     p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
     height: "100%",
   },
   headerRow: {
@@ -47,7 +46,7 @@ export const weightTrendChartStyles = {
     width: 16,
     height: 0,
     borderTop: "2px dashed",
-    borderColor: "rgba(170, 59, 255, 0.35)",
+    borderColor: (theme: Theme) => alpha(theme.palette.primary.main, 0.4),
   },
   empty: {
     py: 5,

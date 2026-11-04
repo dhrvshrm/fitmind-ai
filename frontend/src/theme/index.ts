@@ -77,7 +77,11 @@ export function createAppTheme(mode: ColorMode): Theme {
       },
       MuiPaper: {
         defaultProps: { elevation: 0 },
-        styleOverrides: { root: { backgroundImage: 'none' } },
+        styleOverrides: {
+          root: { backgroundImage: 'none' },
+          // Outlined paper is the app's card surface; match Card's radius and border.
+          outlined: { borderRadius: RADIUS.lg, borderColor: t.border },
+        },
       },
       MuiCard: {
         defaultProps: { variant: 'outlined' },
