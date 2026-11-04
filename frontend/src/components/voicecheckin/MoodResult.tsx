@@ -1,5 +1,4 @@
-import { createElement } from 'react';
-import { Box, LinearProgress, Paper, Stack, Typography } from '@mui/material';
+import { Box, LinearProgress, Stack, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import { STRINGS } from '../../constants/strings';
 import { formatTimestamp } from '../../utils/date';
@@ -9,6 +8,7 @@ import {
   MOOD_ICON,
 } from '../../utils/voiceCheckin';
 import type { VoiceCheckinResult } from '../../types/voiceCheckin';
+import { SectionCard } from '../ui/SectionCard';
 import { moodResultStyles as styles } from './MoodResult.styles';
 
 const S = STRINGS.voiceCheckin.result;
@@ -18,29 +18,23 @@ type MoodResultProps = {
   result: VoiceCheckinResult;
 };
 
-/** Animated card showing the analysed mood, energy gauge, and transcript. */
+/** Card showing the analysed mood, energy gauge, and transcript. */
 export function MoodResult({ result }: MoodResultProps) {
   const sentiment = getMoodSentiment(result.mood);
+  const MoodIcon = MOOD_ICON[sentiment];
 
   return (
     <motion.div
       key={result.timestamp}
-      initial={{ opacity: 0, y: 18, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
     >
-      <Paper variant="outlined" sx={styles.card}>
-        <Typography variant="h6" sx={styles.title}>
-          {S.title}
-        </Typography>
-
+      <SectionCard title={S.title}>
         <Stack sx={styles.headerRow}>
-          {createElement(MOOD_ICON[sentiment], {
-            sx: styles.emoji,
-            "aria-hidden": true,
-          })}
-          <Box>
-            <Typography variant="h5" sx={styles.moodLabel(MOOD_COLOR_TOKEN[sentiment])}>
+          <MoodIcon sx={styles.moodIcon(MOOD_COLOR_TOKEN[sentiment])} aria-hidden />
+          <Box sx={styles.moodText}>
+            <Typography variant="h5" component="p" sx={styles.moodLabel(MOOD_COLOR_TOKEN[sentiment])}>
               {result.mood}
             </Typography>
             <Typography variant="caption" color="text.secondary" sx={styles.timestamp}>
@@ -61,7 +55,7 @@ export function MoodResult({ result }: MoodResultProps) {
           <LinearProgress
             variant="determinate"
             value={(result.energy_level / ENERGY_MAX) * 100}
-            sx={styles.energyBar}
+            aria-label={S.energyLabel}
           />
         </Box>
 
@@ -73,7 +67,7 @@ export function MoodResult({ result }: MoodResultProps) {
             {result.transcript || S.emptyTranscript}
           </Typography>
         </Box>
-      </Paper>
+      </SectionCard>
     </motion.div>
   );
 }

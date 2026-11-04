@@ -25,7 +25,7 @@ export const STRINGS = {
     subtitle: "Log in to continue your journey",
     submit: "Log in",
     submitting: "Logging in…",
-    switchPrompt: "Don't have an account? ",
+    switchPrompt: "Don't have an account?",
     switchAction: "Sign up",
   },
   signup: {
@@ -33,7 +33,7 @@ export const STRINGS = {
     subtitle: "Start training smarter today",
     submit: "Sign up",
     submitting: "Creating account…",
-    switchPrompt: "Already have an account? ",
+    switchPrompt: "Already have an account?",
     switchAction: "Log in",
   },
   fields: {
@@ -327,7 +327,6 @@ export const STRINGS = {
     },
     exercise: {
       setsReps: (sets: number, reps: string) => `${sets} × ${reps}`,
-      restLabel: "Rest",
       rest: (rest: string) => `Rest ${rest}`,
       videoAria: "Watch exercise video",
       doneAria: (name: string) => `Mark ${name} as done`,

@@ -1,17 +1,17 @@
-import { createElement, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
-  Alert,
   Box,
   Chip,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Paper,
   Skeleton,
   Stack,
   Typography,
+  useTheme,
 } from '@mui/material';
+import { MicRounded } from '@mui/icons-material';
 import {
   CartesianGrid,
   Line,
@@ -24,17 +24,21 @@ import {
 import { STRINGS } from '../../constants/strings';
 import { formatDateLabel } from '../../utils/date';
 import {
+  getMoodChartColors,
   getMoodSentiment,
-  MOOD_CHART_COLOR,
+  MOOD_COLOR_TOKEN,
   MOOD_ICON,
   MOOD_LABEL,
   type MoodSentiment,
 } from '../../utils/voiceCheckin';
 import type { VoiceHistoryItem } from '../../types/voiceCheckin';
-import {
-  moodChartTheme as chart,
-  moodHistoryStyles as styles,
-} from './MoodHistory.styles';
+import { useChartTheme } from '../../hooks/useChartTheme';
+import { useVoiceHistory } from '../../hooks/queries/useVoiceQueries';
+import { queryErrorMessage } from '../../hooks/queries/queryHelpers';
+import { SectionCard } from '../ui/SectionCard';
+import { EmptyState } from '../ui/EmptyState';
+import { ErrorState } from '../ui/ErrorState';
+import { moodHistoryStyles as styles } from './MoodHistory.styles';
 
 const S = STRINGS.voiceCheckin.history;
 const LIST_LIMIT = 7;
@@ -46,32 +50,33 @@ type DotProps = {
   cx?: number;
   cy?: number;
   payload?: ChartPoint;
+  colors: Record<MoodSentiment, string>;
+  ringColor: string;
 };
 
 /** Energy dot colored by that day's mood sentiment (mood text is in the tooltip). */
-function MoodDot({ cx, cy, payload }: DotProps) {
+function MoodDot({ cx, cy, payload, colors, ringColor }: DotProps) {
   if (cx === undefined || cy === undefined || !payload) return null;
   return (
     <circle
       cx={cx}
       cy={cy}
       r={5}
-      fill={MOOD_CHART_COLOR[payload.sentiment]}
-      stroke={chart.dotStroke}
+      fill={colors[payload.sentiment]}
+      stroke={ringColor}
       strokeWidth={2}
     />
   );
 }
 
-type MoodHistoryProps = {
-  /** History items as returned by the API (newest first). */
-  items: VoiceHistoryItem[];
-  loading: boolean;
-  error: string | null;
-};
-
 /** Energy-over-time chart with mood-colored points, plus a recent check-in list. */
-export function MoodHistory({ items, loading, error }: MoodHistoryProps) {
+export function MoodHistory() {
+  const chart = useChartTheme();
+  const moodColors = getMoodChartColors(useTheme().palette);
+  const history = useVoiceHistory();
+  const error = queryErrorMessage(history.error, S.error);
+  const items = useMemo(() => history.data ?? [], [history.data]);
+
   // Chart reads left->right, so flip the newest-first API order.
   const data = useMemo<ChartPoint[]>(
     () =>
@@ -84,23 +89,18 @@ export function MoodHistory({ items, loading, error }: MoodHistoryProps) {
   );
 
   const recent = items.slice(0, LIST_LIMIT);
+  const isEmpty = history.isSuccess && items.length === 0;
 
   return (
     <Box sx={styles.stack}>
-      <Paper variant="outlined" sx={styles.card}>
-        <Typography variant="h6" sx={styles.title}>
-          {S.chartTitle}
-        </Typography>
-
-        {loading && <Skeleton variant="rounded" sx={styles.chartWrap} />}
-        {!loading && error && <Alert severity="error">{error}</Alert>}
-        {!loading && !error && data.length === 0 && (
-          <Typography variant="body2" color="text.secondary" sx={styles.empty}>
-            {S.empty}
-          </Typography>
+      <SectionCard title={S.chartTitle}>
+        {history.isPending && <Skeleton variant="rounded" sx={styles.chartWrap} />}
+        {error && <ErrorState message={error} onRetry={() => history.refetch()} />}
+        {isEmpty && (
+          <EmptyState icon={MicRounded} title={S.emptyTitle} description={S.empty} compact />
         )}
 
-        {!loading && !error && data.length > 0 && (
+        {data.length > 0 && (
           <>
             <Box sx={styles.chartWrap}>
               <ResponsiveContainer width="100%" height="100%">
@@ -122,19 +122,21 @@ export function MoodHistory({ items, loading, error }: MoodHistoryProps) {
                   />
                   <Tooltip
                     contentStyle={chart.tooltip}
+                    labelStyle={chart.tooltipLabel}
+                    itemStyle={chart.tooltipItem}
                     formatter={(value, _name, entry) => {
                       const point = entry?.payload as ChartPoint | undefined;
-                      const mood = point ? ` · ${point.mood}` : '';
-                      return [`${value as number}${mood}`, S.tooltipEnergy];
+                      const energy = value as number;
+                      return [point ? S.tooltipValue(energy, point.mood) : energy, S.tooltipEnergy];
                     }}
                   />
                   <Line
                     type="monotone"
                     dataKey="energy"
-                    stroke={chart.line}
+                    stroke={chart.purple}
                     strokeWidth={2}
-                    dot={<MoodDot />}
-                    activeDot={{ r: 6 }}
+                    dot={<MoodDot colors={moodColors} ringColor={chart.surface} />}
+                    activeDot={{ r: 6, stroke: chart.surface, strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -144,7 +146,7 @@ export function MoodHistory({ items, loading, error }: MoodHistoryProps) {
             <Stack sx={styles.legendRow}>
               {SENTIMENTS.map((sentiment) => (
                 <Stack key={sentiment} sx={styles.legendItem}>
-                  <Box component="span" sx={styles.legendDot(MOOD_CHART_COLOR[sentiment])} />
+                  <Box component="span" sx={styles.legendDot(moodColors[sentiment])} />
                   <Typography variant="caption" color="text.secondary">
                     {MOOD_LABEL[sentiment]}
                   </Typography>
@@ -153,42 +155,36 @@ export function MoodHistory({ items, loading, error }: MoodHistoryProps) {
             </Stack>
           </>
         )}
-      </Paper>
+      </SectionCard>
 
-      <Paper variant="outlined" sx={styles.card}>
-        <Typography variant="h6" sx={styles.title}>
-          {S.listTitle}
-        </Typography>
-
-        {loading && <Skeleton variant="rounded" height={160} />}
-        {!loading && !error && recent.length === 0 && (
-          <Typography variant="body2" color="text.secondary" sx={styles.empty}>
-            {S.empty}
-          </Typography>
+      <SectionCard title={S.listTitle} flush={recent.length > 0}>
+        {history.isPending && <Skeleton variant="rounded" sx={styles.listSkeleton} />}
+        {error && <ErrorState message={error} onRetry={() => history.refetch()} />}
+        {isEmpty && (
+          <EmptyState icon={MicRounded} title={S.emptyTitle} description={S.empty} compact />
         )}
 
-        {!loading && !error && recent.length > 0 && (
-          <List disablePadding>
+        {recent.length > 0 && (
+          <List disablePadding sx={styles.list}>
             {recent.map((item, index) => {
               const sentiment = getMoodSentiment(item.mood);
+              const MoodIcon = MOOD_ICON[sentiment];
               return (
-                <ListItem key={`${item.date}-${index}`} divider={index < recent.length - 1}>
-                  <ListItemIcon>
-                    {createElement(MOOD_ICON[sentiment], {
-                      sx: styles.listEmoji,
-                      "aria-hidden": true,
-                    })}
+                <ListItem
+                  key={`${item.date}-${index}`}
+                  divider={index < recent.length - 1}
+                  sx={styles.item}
+                >
+                  <ListItemIcon sx={styles.listIconWrap}>
+                    <MoodIcon sx={styles.listIcon(MOOD_COLOR_TOKEN[sentiment])} aria-hidden />
                   </ListItemIcon>
                   <ListItemText
-                    primary={
-                      <Typography component="span" sx={styles.listMood}>
-                        {item.mood}
-                      </Typography>
-                    }
+                    primary={item.mood}
                     secondary={formatDateLabel(item.date)}
+                    slotProps={{ primary: { sx: styles.listMood } }}
                   />
                   <Chip
-                    label={`${item.energy}/10`}
+                    label={S.energyValue(item.energy)}
                     size="small"
                     color="primary"
                     variant="outlined"
@@ -199,7 +195,7 @@ export function MoodHistory({ items, loading, error }: MoodHistoryProps) {
             })}
           </List>
         )}
-      </Paper>
+      </SectionCard>
     </Box>
   );
 }

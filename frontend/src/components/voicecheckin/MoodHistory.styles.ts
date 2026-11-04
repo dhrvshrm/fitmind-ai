@@ -1,18 +1,10 @@
-import type { CSSProperties } from 'react';
 import type { SxProps, Theme } from '@mui/material';
 
 export const moodHistoryStyles = {
   stack: {
     display: 'grid',
-    gap: 3,
-  },
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
-  },
-  title: {
-    fontWeight: 700,
-    mb: 2,
+    gap: 2,
+    minWidth: 0,
   },
   chartWrap: {
     width: '100%',
@@ -21,7 +13,7 @@ export const moodHistoryStyles = {
   legendRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 1,
+    gap: 2,
     mt: 1.5,
   },
   legendDot: (color: string): SxProps<Theme> => ({
@@ -36,33 +28,30 @@ export const moodHistoryStyles = {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  empty: {
-    py: 5,
-    textAlign: 'center',
+  listSkeleton: {
+    height: 160,
   },
-  listEmoji: {
+  list: {
+    pt: 1,
+    pb: 0.5,
+  },
+  item: {
+    px: { xs: 2, sm: 2.5 },
+    py: 1.25,
+    gap: 1.5,
+  },
+  listIconWrap: {
+    minWidth: 0,
+  },
+  listIcon: (color: string): SxProps<Theme> => ({
     fontSize: 24,
-    lineHeight: 1,
-  },
+    color,
+  }),
   listMood: {
+    fontWeight: 500,
     textTransform: 'capitalize',
   },
   energyChip: {
-    fontWeight: 700,
+    fontVariantNumeric: 'tabular-nums',
   },
-} as const;
-
-/** Chart tokens: brand purple energy line, recessive grid/ticks, themed tooltip. */
-export const moodChartTheme = {
-  line: '#aa3bff',
-  grid: 'rgba(28, 21, 48, 0.08)',
-  tick: { fontSize: 12, fill: '#6b6484' },
-  dotStroke: '#ffffff',
-  tooltip: {
-    borderRadius: 10,
-    border: '1px solid rgba(28, 21, 48, 0.08)',
-    boxShadow: '0px 6px 16px rgba(76, 29, 149, 0.09)',
-    fontSize: 12,
-    fontFamily: 'inherit',
-  } satisfies CSSProperties,
-} as const;
+};

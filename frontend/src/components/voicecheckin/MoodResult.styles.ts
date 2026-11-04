@@ -1,26 +1,23 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const moodResultStyles = {
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
-  },
-  title: {
-    fontWeight: 700,
-    mb: 2,
-  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
   },
-  emoji: {
-    fontSize: 56,
+  moodIcon: (color: string): SxProps<Theme> => ({
+    fontSize: 48,
     lineHeight: 1,
+    flexShrink: 0,
+    color,
+  }),
+  moodText: {
+    minWidth: 0,
   },
   moodLabel: (color: string): SxProps<Theme> => ({
-    fontWeight: 700,
     textTransform: 'capitalize',
+    overflowWrap: 'anywhere',
     color,
   }),
   timestamp: {
@@ -39,12 +36,9 @@ export const moodResultStyles = {
     fontWeight: 600,
   },
   energyValue: {
-    fontWeight: 700,
+    fontWeight: 600,
     color: 'primary.main',
-  },
-  energyBar: {
-    height: 10,
-    borderRadius: 5,
+    fontVariantNumeric: 'tabular-nums',
   },
   transcriptBlock: {
     mt: 2.5,
@@ -55,8 +49,8 @@ export const moodResultStyles = {
   },
   transcript: {
     p: 1.5,
-    borderRadius: 2,
+    borderRadius: 1,
     bgcolor: 'action.hover',
     fontStyle: 'italic',
   },
-} as const;
+};

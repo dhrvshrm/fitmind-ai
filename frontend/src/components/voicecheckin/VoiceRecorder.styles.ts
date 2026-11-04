@@ -1,27 +1,25 @@
-import type { SxProps, Theme } from '@mui/material';
+import { alpha, type SxProps, type Theme } from '@mui/material';
+
+export const WAVEFORM_BAR_COUNT = 7;
 
 export const voiceRecorderStyles = {
-  card: {
-    p: { xs: 2.5, sm: 3 },
-    borderRadius: 3,
+  body: {
     textAlign: 'center',
-  },
-  title: {
-    fontWeight: 700,
   },
   hint: {
     mb: 2,
   },
-  promptBox: {
+  promptBox: (theme: Theme) => ({
     p: 1.5,
     mb: 2.5,
-    borderRadius: 2,
-    bgcolor: 'rgba(170, 59, 255, 0.06)',
-    border: '1px dashed rgba(170, 59, 255, 0.35)',
+    borderRadius: 1,
+    bgcolor: alpha(theme.palette.primary.main, theme.palette.mode === 'light' ? 0.06 : 0.1),
+    border: '1px dashed',
+    borderColor: alpha(theme.palette.primary.main, 0.35),
     textAlign: 'left',
-  },
+  }),
   promptLabel: {
-    fontWeight: 700,
+    fontWeight: 600,
     color: 'primary.main',
     display: 'block',
     mb: 0.5,
@@ -36,27 +34,33 @@ export const voiceRecorderStyles = {
     justifyContent: 'center',
     my: 1,
   },
+  pulseRing: (theme: Theme) => ({
+    position: 'absolute',
+    inset: -10,
+    borderRadius: '50%',
+    border: '3px solid',
+    borderColor: alpha(theme.palette.error.main, 0.45),
+    pointerEvents: 'none',
+  }),
   micButton: (recording: boolean): SxProps<Theme> => ({
     width: 88,
     height: 88,
-    color: '#fff',
-    background: recording
-      ? 'linear-gradient(150deg, #ef4444 0%, #b91c1c 100%)'
-      : 'linear-gradient(150deg, #aa3bff 0%, #7a1fd0 100%)',
-    boxShadow: recording
-      ? '0px 8px 22px rgba(239, 68, 68, 0.4)'
-      : '0px 8px 22px rgba(170, 59, 255, 0.36)',
+    borderRadius: '50%',
+    color: recording ? 'error.contrastText' : 'primary.contrastText',
+    bgcolor: recording ? 'error.main' : 'primary.main',
     '&:hover': {
-      background: recording
-        ? 'linear-gradient(150deg, #dc2626 0%, #991b1b 100%)'
-        : 'linear-gradient(150deg, #9b2ef2 0%, #6a15bd 100%)',
+      bgcolor: recording ? 'error.dark' : 'primary.dark',
+    },
+    '&.Mui-disabled': {
+      color: 'primary.contrastText',
+      bgcolor: 'primary.main',
+      opacity: 0.6,
     },
   }),
   micIcon: {
     fontSize: 36,
   },
   duration: {
-    fontWeight: 700,
     fontVariantNumeric: 'tabular-nums',
     mt: 1.5,
   },
@@ -71,18 +75,14 @@ export const voiceRecorderStyles = {
     height: 36,
     mt: 2,
   },
+  waveformBar: {
+    width: 5,
+    height: 28,
+    borderRadius: 0.25,
+    bgcolor: 'primary.main',
+  },
   alert: {
     mt: 2,
     textAlign: 'left',
   },
-} as const;
-
-/** Framer-motion waveform bar look (plain CSS, animated via motion props). */
-export const waveformBarStyle = {
-  width: 5,
-  height: 28,
-  borderRadius: 3,
-  background: 'linear-gradient(180deg, #aa3bff 0%, #7a1fd0 100%)',
-} as const;
-
-export const WAVEFORM_BAR_COUNT = 7;
+};
