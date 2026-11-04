@@ -32,6 +32,9 @@ ItemSource = Literal["INDB", "USDA", "custom", "ai_estimate", "unresolved"]
 UnresolvedReason = Literal["ai_not_configured", "ai_quota", "ai_failed"]
 Confidence = Literal["high", "medium", "low"]
 
+# Bump whenever the estimate prompt or schema changes, so old cached estimates are ignored.
+ESTIMATE_PROMPT_VERSION = 2
+
 # Sources whose numbers come from a published dataset or the user themselves.
 VERIFIED_SOURCES = {"INDB", "USDA", "custom"}
 
@@ -158,7 +161,9 @@ async def _ai_estimate(item: ParsedItem, user_id: Optional[str]) -> _AIFoodEstim
         system=_ESTIMATE_SYSTEM_PROMPT,
         temperature=0.2,
         user_id=user_id,
-        cache_key=cache.make_key("food-estimate", item.name, item.preparation or "", amount),
+        cache_key=cache.make_key(
+            f"food-estimate-v{ESTIMATE_PROMPT_VERSION}", item.name, item.preparation or "", amount
+        ),
     )
 
 

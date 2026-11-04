@@ -20,6 +20,8 @@ from app.nutrition.units import UNIT_ALIASES, UNIT_GRAMS, is_piece_unit, normali
 logger = logging.getLogger(__name__)
 
 MAX_ITEMS = 12
+# Bump whenever the parse prompt changes, so cached parses from the old prompt are ignored.
+PARSE_PROMPT_VERSION = 2
 
 
 class ParsedItem(BaseModel):
@@ -50,7 +52,9 @@ _PARSE_INSTRUCTIONS = """Split this meal description into foods.
 Rules:
 - One item per separately eaten food. Split combinations eaten as separate dishes:
   "rajma chawal" -> rajma curry + rice; "dal chawal" -> dal + rice; "chole bhature" -> chole + bhatura;
-  "vada pav" -> vada + pav; "pav bhaji" -> pav bhaji (the bhaji) + pav.
+  "vada pav" -> batata vada (potato) + pav; "pav bhaji" -> pav bhaji (the bhaji) + pav.
+- Name the specific regional dish when the combination implies it: the vada in vada pav is a
+  batata vada, the vada in sambar vada or medu vada is an urad dal vada.
 - Keep single dishes whole: "masala dosa", "aloo paratha", "chicken biryani", "paneer bhurji".
 - Put add-ons on their own line when they add real calories: "cheese pav bhaji" -> pav bhaji + pav + cheese.
 - quantity is a number (use 0.5 for half). Leave quantity and unit null when the text doesn't say.
@@ -77,7 +81,7 @@ async def parse_meal(text: str, user_id: Optional[str] = None) -> List[ParsedIte
             temperature=0.1,
             user_id=user_id,
             # Meal text isn't personal data; identical descriptions reuse the parse.
-            cache_key=cache.make_key("meal-parse", text),
+            cache_key=cache.make_key(f"meal-parse-v{PARSE_PROMPT_VERSION}", text),
         )
         return result.items
     except AIError as e:

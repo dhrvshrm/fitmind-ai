@@ -135,3 +135,16 @@ def test_butter_paratha_with_curd_resolves_without_ai(client, ai_providers):
     butter = data["items"][1]
     assert butter["quantity_assumed"] is True and butter["quantity"] == 2
     assert data["unresolved_count"] == 0
+
+
+def test_alcoholic_drinks_count_alcohol_energy(client, ai_providers):
+    """Whisky has ~0 protein, carbs and fat; its energy comes from alcohol (7 kcal/g)."""
+    headers, _ = register_and_login(client)
+    ai_providers.gemini = [
+        parsed(("scotch whisky", 240, "ml")),
+        json.dumps({"grams": 230, "kcal": 560, "protein": 0, "carbs": 0, "fat": 0, "fiber": 0,
+                    "alcohol": 76, "confidence": "high", "assumption": "40% ABV whisky."}),
+    ]
+    item = estimate(client, headers, "240 ml scotch whisky")["items"][0]
+    assert item["source"] == "ai_estimate"
+    assert item["nutrients"]["kcal"] == 560
