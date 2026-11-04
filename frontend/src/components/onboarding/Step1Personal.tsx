@@ -1,6 +1,7 @@
 import { Box, Chip, FormHelperText, Stack, TextField, Typography } from '@mui/material';
 import { StepHeader } from './StepHeader';
 import { OptionSelector } from './OptionSelector';
+import { HeightField } from '../ui/HeightField';
 import { GENDER_OPTIONS, ONBOARDING_STRINGS } from '../../constants/onboarding';
 import { computeBmi } from '../../utils/onboarding';
 import type { Gender, StepProps } from '../../types/onboarding';
@@ -43,17 +44,14 @@ export function Step1Personal({ data, errors, onChange }: StepProps) {
           helperText={errors.weight_kg}
           slotProps={{ htmlInput: { min: 30, max: 300, step: 0.1 } }}
         />
-        <TextField
-          label={S.fields.height}
-          type="number"
-          fullWidth
-          value={data.height_cm}
-          onChange={(e) => onChange({ height_cm: toNumberOrEmpty(e.target.value) })}
-          error={Boolean(errors.height_cm)}
-          helperText={errors.height_cm}
-          slotProps={{ htmlInput: { min: 100, max: 250, step: 0.1 } }}
-        />
       </Stack>
+
+      <HeightField
+        value={data.height_cm}
+        onChange={(height_cm) => onChange({ height_cm })}
+        error={Boolean(errors.height_cm)}
+        helperText={errors.height_cm}
+      />
 
       <Box>
         <Typography variant="subtitle2" sx={styles.genderLabel}>

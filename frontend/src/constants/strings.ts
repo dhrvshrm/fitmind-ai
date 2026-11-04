@@ -15,6 +15,16 @@ export const STRINGS = {
     cancel: "Cancel",
     noValue: "-",
     loadError: "Couldn't load this. Check your connection and try again.",
+    height: {
+      label: "Height",
+      unitAria: "Height unit",
+      ftIn: "ft in",
+      cm: "cm",
+      cmLabel: "Height (cm)",
+      feet: "Feet",
+      inches: "Inches",
+      converted: (cm: number) => `= ${cm} cm`,
+    },
   },
   aria: {
     showPassword: "Show password",

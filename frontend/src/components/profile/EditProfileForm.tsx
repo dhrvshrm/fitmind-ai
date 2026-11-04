@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { useUpdateProfile } from "../../hooks/queries/useProfileQueries";
 import { resolveApiError } from "../../lib/apiClient";
 import { SectionCard } from "../ui/SectionCard";
+import { HeightField } from "../ui/HeightField";
 import { GOAL_OPTIONS } from "../../constants/onboarding";
 import { STRINGS } from "../../constants/strings";
 import type { FitnessGoal } from "../../types/onboarding";
@@ -111,14 +112,11 @@ export function EditProfileForm({ profile }: EditProfileFormProps) {
             helperText={errors.weight_kg}
             fullWidth
           />
-          <TextField
-            label={S.height}
-            type="number"
-            value={form.height_cm}
-            onChange={(e) => update({ height_cm: e.target.value })}
+          <HeightField
+            value={form.height_cm === "" ? "" : Number(form.height_cm)}
+            onChange={(cm) => update({ height_cm: cm === "" ? "" : String(cm) })}
             error={Boolean(errors.height_cm)}
             helperText={errors.height_cm}
-            fullWidth
           />
           <TextField
             label={S.goal}
