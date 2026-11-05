@@ -34,6 +34,7 @@ import { EmptyState } from "../ui/EmptyState";
 import { IconBadge } from "../ui/IconBadge";
 import type { IconBadgeTone } from "../ui/IconBadge.styles";
 import { EditProfileForm } from "./EditProfileForm";
+import { PersonalisationCard } from "./PersonalisationCard";
 import { profilePageStyles as styles } from "./ProfilePage.styles";
 
 const S = STRINGS.profile;
@@ -203,6 +204,8 @@ export function ProfilePage() {
       </SectionCard>
 
       {/* Edit form */}
+      <PersonalisationCard />
+
       <EditProfileForm profile={profile} />
     </Box>
   );

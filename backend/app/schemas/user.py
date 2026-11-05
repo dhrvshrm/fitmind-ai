@@ -55,8 +55,85 @@ class UserResponse(BaseModel):
     level: int = 1
 
 
-class UserOnboarding(BaseModel):
-    """Payload collected during user onboarding."""
+# --- Personalisation (onboarding v2) ----------------------------------------
+# Every answer is optional: None means "not answered", never "no".
+
+GoalPace = Literal["gentle", "moderate", "aggressive"]
+ReproductiveStatus = Literal["none", "pregnant", "breastfeeding", "unknown"]
+WorkoutTime = Literal["early_morning", "morning", "afternoon", "evening", "night", "varies"]
+DietType = Literal["vegetarian", "eggetarian", "non_vegetarian", "vegan", "jain"]
+Cook = Literal["self", "family", "cook", "mess_or_canteen", "mixed"]
+EatOutFrequency = Literal["rarely", "weekly", "few_times_a_week", "daily"]
+WorkSchedule = Literal["day", "night_shift", "rotating_shifts", "student", "at_home", "other"]
+
+
+class FoodPreferences(BaseModel):
+    diet_type: Optional[DietType] = None
+    eats_eggs: Optional[bool] = None
+    eats_dairy: Optional[bool] = None
+    allergies: Optional[List[str]] = None
+    intolerances: Optional[List[str]] = None
+    likes: Optional[List[str]] = None
+    dislikes: Optional[List[str]] = None
+    excluded: Optional[List[str]] = None
+    cuisines: Optional[List[str]] = None
+
+    _clean = field_validator(
+        "allergies", "intolerances", "likes", "dislikes", "excluded", "cuisines"
+    )(_clean_list)
+
+
+class FoodAccess(BaseModel):
+    pantry: Optional[List[str]] = None
+    who_cooks: Optional[Cook] = None
+    eats_out: Optional[EatOutFrequency] = None
+    daily_budget_inr: Optional[int] = Field(None, ge=0, le=10000)
+    open_to_new_ingredients: Optional[bool] = None
+    region: Optional[str] = Field(None, max_length=60)
+
+    _clean = field_validator("pantry")(_clean_list)
+
+
+class Lifestyle(BaseModel):
+    wake_time: Optional[str] = Field(None, pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
+    sleep_time: Optional[str] = Field(None, pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
+    work_schedule: Optional[WorkSchedule] = None
+    meals_per_day: Optional[int] = Field(None, ge=1, le=8)
+    water_glasses_per_day: Optional[int] = Field(None, ge=0, le=30)
+
+
+class GoalDetails(BaseModel):
+    """Goal, pace and body details used for targets (all optional beyond the basics)."""
+
+    goal_pace: Optional[GoalPace] = None
+    target_weight_kg: Optional[float] = Field(None, ge=30, le=300)
+    body_fat_percent: Optional[float] = Field(None, ge=3, le=60)
+    reproductive_status: Optional[ReproductiveStatus] = None
+    workout_days_per_week: Optional[int] = Field(None, ge=0, le=7)
+    workout_time: Optional[WorkoutTime] = None
+
+
+class PersonalisationUpdate(GoalDetails):
+    """Partial update of the personalisation sections; omitted sections are untouched."""
+
+    food_preferences: Optional[FoodPreferences] = None
+    food_access: Optional[FoodAccess] = None
+    lifestyle: Optional[Lifestyle] = None
+
+
+class TargetsPreviewRequest(GoalDetails):
+    """Inputs for previewing targets before they're saved (onboarding review step)."""
+
+    age: int = Field(..., ge=13, le=100)
+    gender: Gender
+    weight_kg: float = Field(..., ge=30, le=300)
+    height_cm: float = Field(..., ge=100, le=250)
+    fitness_goal: str = Field(..., min_length=1, max_length=40)
+    activity_level: Optional[ActivityLevel] = None
+
+
+class UserOnboarding(PersonalisationUpdate):
+    """Payload collected during user onboarding (v2 sections optional)."""
 
     age: int = Field(..., ge=13, le=100)
     gender: Gender

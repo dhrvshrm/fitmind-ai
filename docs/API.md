@@ -50,9 +50,14 @@ curl $BASE/api/v1/auth/me -H "Authorization: Bearer $TOKEN"
 ### Onboarding & profile
 | Method | Path | Body |
 |---|---|---|
-| POST | `/users/onboarding` | `{age (13-100), gender (male/female/other), weight_kg (30-300), height_cm (100-250), fitness_goal, experience_level, available_equipment, injuries?, activity_level?, timezone?}` -> `{bmi, tdee, profile_created}` |
-| GET | `/users/profile` | (auth) full profile |
-| PUT | `/users/profile` | (auth) partial update |
+| POST | `/users/onboarding` | `{age (13-100), gender (male/female/other), weight_kg (30-300), height_cm (100-250), fitness_goal, experience_level, available_equipment, injuries?, activity_level?, timezone?, goal_pace?, target_weight_kg?, body_fat_percent?, reproductive_status?, workout_days_per_week?, workout_time?, food_preferences?, food_access?, lifestyle?}` -> `{bmi, tdee, targets, profile_created}`. Safe to repeat to update answers. |
+| GET | `/users/profile` | (auth) full profile, including answers and targets |
+| PUT | `/users/profile` | (auth) partial update; recomputes targets |
+| PUT | `/users/personalisation` | (auth) goal details and `food_preferences` / `food_access` / `lifestyle`; only sent fields change, recomputes targets |
+| GET | `/users/targets` | (auth) daily targets with explanation notes and safety flags, or `null` until age, gender, height and weight are known |
+| POST | `/users/targets/preview` | (auth) targets for unsaved answers; saves nothing |
+
+`fitness_goal` is one of `fat_loss`, `muscle_gain`, `recomposition`, `maintain`, `general_fitness`, `athletic_performance`. Older ids (`lose_weight`, `build_muscle`, `improve_endurance`) are still accepted and mapped. Targets are computed by formula (`backend/app/nutrition/targets.py`): Mifflin-St Jeor or Katch-McArdle BMR, activity factor, a goal-based deficit or surplus capped at about 1% of body weight a week, no deficit under 18 or during pregnancy/breastfeeding, a 1,200/1,500 kcal floor, and protein by g/kg of body weight.
 
 ### Recovery
 | Method | Path | Body |

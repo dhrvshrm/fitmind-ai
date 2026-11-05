@@ -31,4 +31,9 @@ export const onboardingFlowStyles = {
     gap: 2,
     mt: 4,
   },
+  skip: {
+    display: 'block',
+    mx: 'auto',
+    mt: 1.5,
+  },
 } satisfies Record<string, SxProps<Theme>>;

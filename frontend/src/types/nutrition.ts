@@ -1,3 +1,5 @@
+import type { Targets } from './onboarding';
+
 /** Nutrition types, aligned with the backend nutrition schemas. */
 
 export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
@@ -88,8 +90,12 @@ export type NutritionSummary = {
   macro_percentages: MacroPercentages;
   calories_remaining: number;
   water_ml: number;
+  /** Personal water target; null until the profile basics are known. */
+  water_goal_ml: number | null;
   meals_logged: number;
   meals: Meal[];
+  /** How the goals were worked out; null until the profile basics are known. */
+  targets: Targets | null;
 };
 
 /** `POST /nutrition/meal` -> data. */

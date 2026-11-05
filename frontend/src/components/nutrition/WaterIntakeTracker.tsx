@@ -13,13 +13,16 @@ const S = STRINGS.nutrition.water;
 type WaterIntakeTrackerProps = {
   /** Today's total from the summary. */
   waterMl: number;
+  /** Personal daily target in ml; falls back to 8 glasses when unknown. */
+  goalMl: number | null;
 };
 
 /** Glass counter synced with the backend; each glass is 250 ml. */
-export function WaterIntakeTracker({ waterMl }: WaterIntakeTrackerProps) {
+export function WaterIntakeTracker({ waterMl, goalMl }: WaterIntakeTrackerProps) {
+  const goalGlasses = goalMl ? Math.max(1, Math.round(goalMl / GLASS_ML)) : WATER_GOAL_GLASSES;
   const logWater = useLogWater();
   const glasses = Math.floor(waterMl / GLASS_ML);
-  const goalReached = glasses >= WATER_GOAL_GLASSES;
+  const goalReached = glasses >= goalGlasses;
 
   function adjust(deltaGlasses: 1 | -1) {
     logWater.mutate(deltaGlasses * GLASS_ML, {
@@ -30,7 +33,7 @@ export function WaterIntakeTracker({ waterMl }: WaterIntakeTrackerProps) {
   return (
     <SectionCard title={S.title}>
       <Stack sx={styles.glassesRow}>
-        {Array.from({ length: WATER_GOAL_GLASSES }, (_, index) => (
+        {Array.from({ length: goalGlasses }, (_, index) => (
           <LocalDrinkRounded key={index} sx={styles.glassIcon(index < glasses)} />
         ))}
       </Stack>
@@ -62,7 +65,7 @@ export function WaterIntakeTracker({ waterMl }: WaterIntakeTrackerProps) {
         color={goalReached ? 'success.main' : 'text.secondary'}
         sx={styles.goalText}
       >
-        {goalReached ? S.goalReached : S.goal(glasses, WATER_GOAL_GLASSES, waterMl)}
+        {goalReached ? S.goalReached : S.goal(glasses, goalGlasses, waterMl)}
       </Typography>
     </SectionCard>
   );

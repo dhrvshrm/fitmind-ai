@@ -41,8 +41,9 @@ export function useAuth() {
     async (credentials: Credentials) => {
       const { token: issued } = await authService.login(credentials);
       setAuth(issued, null);
-      await hydrateUser(credentials.email);
+      const current = await hydrateUser(credentials.email);
       toast.success(STRINGS.toast.loggedIn);
+      return current;
     },
     [setAuth, hydrateUser],
   );

@@ -8,6 +8,10 @@ export const calorieProgressBarStyles = {
   bar: {
     height: 10,
   },
+  howButton: {
+    mt: 1.5,
+    px: 0,
+  },
   remaining: {
     mt: 1,
     display: 'block',

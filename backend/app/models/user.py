@@ -6,6 +6,7 @@ from uuid import uuid4
 from pymongo import ReturnDocument
 
 from app.config.database import get_database
+from app.nutrition.targets import LEGACY_GOALS
 from app.utils.time import DEFAULT_TIMEZONE
 
 logger = logging.getLogger(__name__)
@@ -40,6 +41,23 @@ PROFILE_FIELDS = (
     "bmi",
     "tdee",
     "onboarding_completed",
+)
+
+# Onboarding v2 answers and computed targets. All optional: a missing value
+# means "not answered yet", never "no". Sub-documents (food_preferences,
+# food_access, lifestyle) are validated by the request schemas.
+PERSONALISATION_FIELDS = (
+    "goal_pace",
+    "target_weight_kg",
+    "body_fat_percent",
+    "reproductive_status",
+    "workout_days_per_week",
+    "workout_time",
+    "food_preferences",
+    "food_access",
+    "lifestyle",
+    "targets",
+    "targets_updated_at",
 )
 
 # In-memory fallback store used when MongoDB is unreachable. Keyed by user id.
@@ -81,6 +99,7 @@ class User:
         current_streak: int = 0,
         longest_streak: int = 0,
         notification_preferences: Optional[Dict[str, bool]] = None,
+        personalisation: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialise a user, generating an id and username when omitted."""
         self.id: str = id or str(uuid4())
@@ -110,6 +129,8 @@ class User:
         self.badges: List[str] = badges or []
         self.current_streak: int = current_streak
         self.longest_streak: int = longest_streak
+        for field in PERSONALISATION_FIELDS:
+            setattr(self, field, (personalisation or {}).get(field))
         self.notification_preferences: Dict[str, bool] = {
             **DEFAULT_NOTIFICATION_PREFERENCES,
             **(notification_preferences or {}),
@@ -143,6 +164,7 @@ class User:
             "current_streak": self.current_streak,
             "longest_streak": self.longest_streak,
             "notification_preferences": self.notification_preferences,
+            **{field: getattr(self, field) for field in PERSONALISATION_FIELDS},
         }
 
     def public_dict(self) -> dict:
@@ -167,7 +189,8 @@ class User:
             gender=data.get("gender"),
             weight_kg=data.get("weight_kg"),
             height_cm=data.get("height_cm"),
-            fitness_goal=data.get("fitness_goal"),
+            # Goal ids from before onboarding v2 are mapped to the current ones.
+            fitness_goal=LEGACY_GOALS.get(data.get("fitness_goal"), data.get("fitness_goal")),
             experience_level=data.get("experience_level"),
             available_equipment=data.get("available_equipment"),
             injuries=data.get("injuries"),
@@ -180,6 +203,7 @@ class User:
             current_streak=data.get("current_streak", 0),
             longest_streak=data.get("longest_streak", 0),
             notification_preferences=data.get("notification_preferences"),
+            personalisation={field: data.get(field) for field in PERSONALISATION_FIELDS},
         )
 
     async def save(self) -> "User":

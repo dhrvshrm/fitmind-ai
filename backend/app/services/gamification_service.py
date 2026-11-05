@@ -214,7 +214,7 @@ async def _count_voice_checkins(user_id: str) -> int:
 
 async def _count_clean_eating_days(user_id: str, user: User) -> int:
     """Count days where total calories fell within tolerance of the goal."""
-    goal = float(user.tdee or DEFAULT_TDEE)
+    goal = float((user.targets or {}).get("calories") or user.tdee or DEFAULT_TDEE)
     low, high = goal * (1 - CLEAN_EATER_TOLERANCE), goal * (1 + CLEAN_EATER_TOLERANCE)
     count = 0
     for day in await Meal.get_dates(user_id):

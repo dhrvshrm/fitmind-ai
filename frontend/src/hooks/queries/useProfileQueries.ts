@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from '../../constants/queryKeys';
 import { settingsService } from '../../services/settingsService';
-import { userService } from '../../services/userService';
+import { userService, type TargetsPreviewPayload } from '../../services/userService';
+import type { OnboardingPayload } from '../../types/onboarding';
 import type {
   ChangePasswordPayload,
   NotificationPreferences,
@@ -15,6 +16,27 @@ export function useSettingsProfile() {
 
 export function useUserProfile() {
   return useQuery({ queryKey: QUERY_KEYS.profile.user, queryFn: userService.getUserProfile });
+}
+
+export function useTargets() {
+  return useQuery({ queryKey: QUERY_KEYS.profile.targets, queryFn: userService.getTargets });
+}
+
+/** Saves onboarding (first time or updating answers); targets, nutrition and the dashboard follow. */
+export function useCompleteOnboarding() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: (payload: OnboardingPayload) => userService.completeOnboarding(payload),
+    onSuccess: () =>
+      invalidate(QUERY_KEYS.profile.all, QUERY_KEYS.nutrition.all, QUERY_KEYS.dashboard.all),
+  });
+}
+
+/** Targets for unsaved answers (onboarding review). */
+export function usePreviewTargets() {
+  return useMutation({
+    mutationFn: (payload: TargetsPreviewPayload) => userService.previewTargets(payload),
+  });
 }
 
 export function useNotificationPreferences() {

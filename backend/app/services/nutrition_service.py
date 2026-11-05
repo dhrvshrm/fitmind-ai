@@ -11,13 +11,13 @@ from app.models.user import User
 from app.nutrition import estimator, food_db
 from app.nutrition.food_db import Food, Nutrients, Serving
 from app.nutrition.text import normalize
-from app.services import gamification_service
+from app.services import gamification_service, user_service
 from app.utils.time import local_today, local_today_iso
 
 logger = logging.getLogger(__name__)
 
-# Default macro split (fraction of daily calories) and a TDEE fallback for
-# users who have not completed onboarding.
+# Fallback goals for users who haven't given age, sex, height and weight yet;
+# everyone else gets personalised targets (app/nutrition/targets.py).
 MACRO_SPLIT = {"protein": 0.30, "carbs": 0.40, "fats": 0.30}
 DEFAULT_TDEE = 2000
 # Suggested fiber: 14 g per 1,000 kcal (a common dietary-guideline ratio).
@@ -64,6 +64,17 @@ def _macro_goals(tdee: int) -> Dict[str, float]:
         "carbs": round(MACRO_SPLIT["carbs"] * tdee / CALS_PER_GRAM["carbs"], 1),
         "fats": round(MACRO_SPLIT["fats"] * tdee / CALS_PER_GRAM["fats"], 1),
         "fiber": round(tdee / 1000 * FIBER_PER_1000_KCAL, 1),
+    }
+
+
+def _goals_from_targets(targets: Dict[str, Any]) -> Dict[str, float]:
+    """The summary's goal shape from personalised targets."""
+    return {
+        "calories": float(targets["calories"]),
+        "protein": float(targets["protein"]),
+        "carbs": float(targets["carbs"]),
+        "fats": float(targets["fats"]),
+        "fiber": float(targets["fiber"]),
     }
 
 
@@ -249,8 +260,8 @@ async def get_nutrition_summary(
     }
 
     user = await User.get_by_id(user_id)
-    tdee = user.tdee if user and user.tdee else DEFAULT_TDEE
-    goals = _macro_goals(tdee)
+    targets = await user_service.get_targets(user) if user else None
+    goals = _goals_from_targets(targets) if targets else _macro_goals(DEFAULT_TDEE)
 
     water_ml = await get_water(user_id, day)
     return {
@@ -262,8 +273,11 @@ async def get_nutrition_summary(
         ),
         "calories_remaining": round(goals["calories"] - totals["calories"], 1),
         "water_ml": water_ml,
+        "water_goal_ml": targets["water_ml"] if targets else None,
         "meals_logged": len(meals),
         "meals": [m.public_dict() for m in meals],
+        # How the goals were worked out (None until the profile basics are known).
+        "targets": targets,
     }
 
 

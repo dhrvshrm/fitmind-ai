@@ -13,6 +13,8 @@ export const AUTH_ENDPOINTS = {
 export const USER_ENDPOINTS = {
   ONBOARDING: "/users/onboarding",
   PROFILE: "/users/profile",
+  TARGETS: "/users/targets",
+  TARGETS_PREVIEW: "/users/targets/preview",
 } as const;
 
 export const DASHBOARD_ENDPOINTS = {

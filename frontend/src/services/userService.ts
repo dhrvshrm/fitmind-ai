@@ -4,14 +4,31 @@ import type { ApiEnvelope } from '../types/auth';
 import type {
   OnboardingPayload,
   OnboardingResultData,
+  Targets,
   UserProfile,
 } from '../types/onboarding';
+
+/** Inputs for previewing targets before onboarding answers are saved. */
+export type TargetsPreviewPayload = Pick<
+  OnboardingPayload,
+  | 'age'
+  | 'gender'
+  | 'weight_kg'
+  | 'height_cm'
+  | 'fitness_goal'
+  | 'activity_level'
+  | 'goal_pace'
+  | 'body_fat_percent'
+  | 'reproductive_status'
+  | 'workout_days_per_week'
+>;
 
 /**
  * User profile + onboarding API. Each call unwraps the backend
  * `{ success, message, data }` envelope and returns just `data`.
  */
 export const userService = {
+  /** Saves onboarding answers and returns the computed targets. Safe to repeat to update answers. */
   async completeOnboarding(payload: OnboardingPayload): Promise<OnboardingResultData> {
     const { data } = await apiClient.post<ApiEnvelope<OnboardingResultData>>(
       USER_ENDPOINTS.ONBOARDING,
@@ -27,15 +44,20 @@ export const userService = {
     return data.data;
   },
 
-  /**
-   * No dedicated update endpoint exists yet, so profile edits reuse the
-   * onboarding endpoint (it accepts the same payload).
-   */
-  async updateProfile(payload: OnboardingPayload): Promise<OnboardingResultData> {
-    const { data } = await apiClient.post<ApiEnvelope<OnboardingResultData>>(
-      USER_ENDPOINTS.ONBOARDING,
+  /** Current daily targets, or null until age, sex, height and weight are known. */
+  async getTargets(): Promise<Targets | null> {
+    const { data } = await apiClient.get<ApiEnvelope<{ targets: Targets | null }>>(
+      USER_ENDPOINTS.TARGETS,
+    );
+    return data.data.targets;
+  },
+
+  /** Targets for unsaved answers; nothing is stored. */
+  async previewTargets(payload: TargetsPreviewPayload): Promise<Targets> {
+    const { data } = await apiClient.post<ApiEnvelope<{ targets: Targets }>>(
+      USER_ENDPOINTS.TARGETS_PREVIEW,
       payload,
     );
-    return data.data;
+    return data.data.targets;
   },
 };

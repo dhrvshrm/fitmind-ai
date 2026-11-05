@@ -37,10 +37,8 @@ export function LoginPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  /** Where to send the user after login: back to their intended page, or onboarding. */
-  const redirectTo =
-    (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ??
-    POST_AUTH_REDIRECT;
+  /** The page the user was trying to reach before being asked to log in, if any. */
+  const intendedPath = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname;
 
   function validate(): boolean {
     const errors: FieldErrors = {
@@ -58,8 +56,10 @@ export function LoginPage() {
 
     setIsSubmitting(true);
     try {
-      await login({ email: email.trim(), password });
-      navigate(redirectTo, { replace: true });
+      const user = await login({ email: email.trim(), password });
+      // Finished onboarding: back to where they were headed, else the dashboard.
+      const destination = user.onboarding_completed ? intendedPath ?? ROUTES.DASHBOARD : POST_AUTH_REDIRECT;
+      navigate(destination, { replace: true });
     } catch (error) {
       setSubmitError(resolveApiError(error, STRINGS.errors.loginFailed));
     } finally {

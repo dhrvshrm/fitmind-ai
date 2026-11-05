@@ -42,10 +42,15 @@ export function NutritionPage() {
 
           {summary && (
             <>
-              <CalorieProgressBar totals={summary.totals} goals={summary.goals} remaining={summary.calories_remaining} />
+              <CalorieProgressBar
+                totals={summary.totals}
+                goals={summary.goals}
+                remaining={summary.calories_remaining}
+                targets={summary.targets}
+              />
               <Box sx={styles.chartsRow}>
                 <MacroPieChart percentages={summary.macro_percentages} totals={summary.totals} />
-                <WaterIntakeTracker waterMl={summary.water_ml} />
+                <WaterIntakeTracker waterMl={summary.water_ml} goalMl={summary.water_goal_ml} />
               </Box>
               <MealHistory meals={summary.meals} />
             </>

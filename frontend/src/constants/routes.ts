@@ -16,5 +16,5 @@ export const ROUTES = {
   SETTINGS: '/settings',
 } as const;
 
-/** Where a freshly authenticated user lands. */
+/** Where a new user, or one who hasn't finished onboarding, lands after signing in. */
 export const POST_AUTH_REDIRECT = ROUTES.ONBOARDING;

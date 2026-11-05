@@ -56,6 +56,7 @@ export const QUERY_KEYS = {
     all: ['profile'] as const,
     settings: ['profile', 'settings'] as const,
     user: ['profile', 'user'] as const,
+    targets: ['profile', 'targets'] as const,
     notificationPreferences: ['profile', 'notification-preferences'] as const,
   },
 } as const;

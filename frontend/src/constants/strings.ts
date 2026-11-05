@@ -26,6 +26,58 @@ export const STRINGS = {
       converted: (cm: number) => `= ${cm} cm`,
     },
   },
+  targets: {
+    labels: {
+      calories: "Calories",
+      protein: "Protein",
+      carbs: "Carbs",
+      fats: "Fats",
+      fiber: "Fiber",
+      water: "Water",
+    },
+    values: {
+      kcal: (n: number) => `${n} kcal`,
+      grams: (n: number) => `${n} g`,
+      liters: (ml: number) => `${(ml / 1000).toFixed(ml % 1000 === 0 ? 0 : 1)} L`,
+    },
+    howTitle: "How these were set",
+    howButton: "How these were set",
+    close: "Close",
+    disclaimer:
+      "These are estimates from standard equations. Bodies vary, so we'll adjust them as your weight and logs build up over a few weeks.",
+    notes: {
+      bmr_mifflin: (v: Record<string, number | string>) =>
+        `At rest, your body burns about ${v.bmr} kcal a day (Mifflin-St Jeor equation).`,
+      bmr_katch: (v: Record<string, number | string>) =>
+        `At rest, your body burns about ${v.bmr} kcal a day, based on ${v.lean_mass} kg of lean mass (Katch-McArdle equation).`,
+      activity: (v: Record<string, number | string>) =>
+        `With your activity level, that comes to about ${v.tdee} kcal a day in total.`,
+      deficit: (v: Record<string, number | string>) =>
+        `We take off ${v.kcal} kcal a day, roughly ${v.kg_per_week} kg of fat a week.`,
+      surplus: (v: Record<string, number | string>) =>
+        `We add ${v.kcal} kcal a day to support muscle gain without much extra fat.`,
+      recomp: (v: Record<string, number | string>) =>
+        `A small ${v.kcal} kcal deficit lets you build muscle while slowly losing fat.`,
+      maintenance: () => "Calories are set at maintenance for your goal.",
+      floor: (v: Record<string, number | string>) =>
+        `Calories stay at ${v.kcal} kcal, the lowest we suggest without medical supervision.`,
+      protein: (v: Record<string, number | string>) =>
+        `Protein is ${v.per_kg} g per kg of body weight (${v.weight} kg), about ${v.grams} g a day.`,
+      macros: () => "Fat is about a quarter of your calories, and carbs make up the rest.",
+    },
+    flags: {
+      deficit_capped:
+        "Your chosen pace was eased so fat loss stays under about 1% of your body weight a week.",
+      no_deficit_minor:
+        "Because you're under 18, we don't set a calorie deficit. Focus on eating well and staying active, and talk to a doctor before dieting.",
+      no_deficit_pregnancy:
+        "During pregnancy and breastfeeding we don't set a deficit or surplus. Please follow your doctor's advice on calories and weight.",
+      protein_reference_weight:
+        "Protein is based on a healthy reference weight for your height rather than your current weight.",
+      activity_assumed:
+        "We assumed a moderate activity level. Tell us yours in your profile for a better estimate.",
+    },
+  },
   aria: {
     showPassword: "Show password",
     hidePassword: "Hide password",
@@ -751,6 +803,15 @@ export const STRINGS = {
     },
   },
   profile: {
+    personalisation: {
+      title: "Your targets and preferences",
+      completeness: (answered: number, total: number) =>
+        `${answered} of ${total} food and routine sections answered`,
+      update: "Update answers",
+      incompleteHint:
+        "Answer the food, kitchen and routine questions so diet suggestions fit what you actually eat and can get.",
+      noTargets: "Add your age, height and weight to see your daily targets.",
+    },
     title: "Profile",
     subtitle: "Your level, badges, and stats at a glance.",
     loadError: "Could not load your profile.",

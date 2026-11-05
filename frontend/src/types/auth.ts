@@ -12,6 +12,7 @@ export type User = {
   id: string;
   email: string;
   username?: string;
+  onboarding_completed?: boolean;
 };
 
 export type Credentials = {

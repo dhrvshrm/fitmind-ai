@@ -7,6 +7,10 @@ export const step1PersonalStyles = {
   genderError: {
     mt: 0.5,
   },
+  hint: {
+    display: 'block',
+    mt: 0.75,
+  },
   bmiBox: {
     p: 2,
     borderRadius: 1,
