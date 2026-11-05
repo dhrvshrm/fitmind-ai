@@ -265,8 +265,18 @@ async def stream_chat(
         raise AIError(f"chat stream failed: {e}") from e
 
 
-async def transcribe(audio_bytes: bytes, filename: str, *, user_id: Optional[str] = None) -> str:
+async def transcribe(
+    audio_bytes: bytes,
+    filename: str,
+    *,
+    user_id: Optional[str] = None,
+    language: Optional[str] = None,
+    prompt: Optional[str] = None,
+) -> str:
     """Transcribe audio with Groq Whisper.
+
+    ``language`` pins the output language (ISO code); ``prompt`` is example
+    vocabulary that steers spelling of words Whisper might otherwise mishear.
 
     Raises:
         AIError: if the quota is used up, Groq isn't configured, or the call fails.
@@ -281,7 +291,10 @@ async def transcribe(audio_bytes: bytes, filename: str, *, user_id: Optional[str
         client = AsyncGroq(api_key=settings.GROQ_API_KEY)
         result = await asyncio.wait_for(
             client.audio.transcriptions.create(
-                file=(filename, audio_bytes), model=settings.GROQ_WHISPER_MODEL
+                file=(filename, audio_bytes),
+                model=settings.GROQ_WHISPER_MODEL,
+                **({"language": language} if language else {}),
+                **({"prompt": prompt} if prompt else {}),
             ),
             settings.AI_TIMEOUT_SECONDS,
         )

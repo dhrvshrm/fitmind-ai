@@ -15,12 +15,15 @@ import { useLogMeal } from '../../hooks/queries/useNutritionQueries';
 import { resolveApiError } from '../../lib/apiClient';
 import type { EstimatedItem, MealEstimate, MealType } from '../../types/nutrition';
 import {
+  DEFAULT_MEAL_TIMES,
   currentTimeHHMM,
   mealNameFrom,
   mealTypeForTime,
+  mealTypesIn,
   sumNutrients,
   toMealItems,
 } from '../../utils/nutrition';
+import { DayReview } from './DayReview';
 import { EstimatedItemRow } from './EstimatedItemRow';
 import { estimateReviewStyles as styles } from './EstimateReview.styles';
 
@@ -32,12 +35,28 @@ type EstimateReviewProps = {
   onDone: () => void;
 };
 
-/** Review step: fix quantities or foods, then save the meal with its items. */
+/**
+ * Review step. A description covering several meals (breakfast, lunch...)
+ * is reviewed and saved as separate meals; otherwise as one meal.
+ */
 export function EstimateReview({ estimate, onDone }: EstimateReviewProps) {
+  if (mealTypesIn(estimate.items).length >= 2) {
+    return <DayReview estimate={estimate} onDone={onDone} />;
+  }
+  return <SingleMealReview estimate={estimate} onDone={onDone} />;
+}
+
+/** Fix quantities or foods, then save one meal with its items. */
+function SingleMealReview({ estimate, onDone }: EstimateReviewProps) {
   const [items, setItems] = useState<EstimatedItem[]>(estimate.items);
   const [name, setName] = useState(() => mealNameFrom(estimate.text));
-  const [mealType, setMealType] = useState<MealType>(() => mealTypeForTime());
-  const [eatenAt, setEatenAt] = useState(() => currentTimeHHMM());
+  // A meal or time named in the description ("lunch", "at 5 pm") wins over the clock.
+  const statedType = mealTypesIn(estimate.items)[0];
+  const statedTime = estimate.items.find((i) => i.eaten_at)?.eaten_at;
+  const [mealType, setMealType] = useState<MealType>(() => statedType ?? mealTypeForTime());
+  const [eatenAt, setEatenAt] = useState(
+    () => statedTime ?? (statedType ? DEFAULT_MEAL_TIMES[statedType] : currentTimeHHMM()),
+  );
   const logMeal = useLogMeal();
 
   const total = sumNutrients(items.map((i) => i.nutrients));

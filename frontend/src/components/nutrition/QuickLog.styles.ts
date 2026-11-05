@@ -11,6 +11,12 @@ export const quickLogStyles = {
   actions: {
     display: 'flex',
     justifyContent: 'flex-end',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 1,
     mt: 1.5,
+  },
+  status: {
+    mr: 'auto',
   },
 } satisfies Record<string, SxProps<Theme>>;

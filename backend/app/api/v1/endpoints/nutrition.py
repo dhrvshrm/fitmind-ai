@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 
 from app.api.v1.endpoints.auth import get_current_user
 from app.models.user import User
 from app.schemas.general import SuccessResponse
 from app.schemas.nutrition import (
     EstimateRequest,
+    MealBatchRequest,
     MealLogRequest,
     MealUpdateRequest,
     SavedMealCreate,
@@ -13,7 +14,7 @@ from app.schemas.nutrition import (
     WaterLogRequest,
 )
 from app.services import nutrition_service
-from app.services.nutrition_service import NutritionServiceError
+from app.services.nutrition_service import NutritionServiceError, TranscriptionError
 
 router = APIRouter(prefix="/nutrition", tags=["Nutrition"])
 
@@ -50,6 +51,23 @@ async def estimate_meal(
     """
     estimate = await nutrition_service.estimate_meal(current_user.id, payload.text)
     return {"success": True, "message": "Meal estimated", "data": estimate}
+
+
+@router.post("/transcribe", response_model=SuccessResponse)
+async def transcribe_meal(
+    audio: UploadFile = File(...), current_user: User = Depends(get_current_user)
+) -> dict:
+    """Turn a spoken description of what was eaten into text. Nothing is saved."""
+    if audio.content_type and not audio.content_type.startswith("audio/"):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Upload an audio recording")
+    data = await audio.read(nutrition_service.MAX_AUDIO_BYTES + 1)
+    try:
+        text = await nutrition_service.transcribe_meal_audio(
+            current_user.id, data, audio.filename or "meal.webm"
+        )
+    except TranscriptionError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    return {"success": True, "message": "Transcribed", "data": {"text": text}}
 
 
 @router.get("/foods/search", response_model=SuccessResponse)
@@ -100,6 +118,52 @@ async def log_meal(
         "success": True,
         "message": "Meal logged",
         "data": await _logged_response(current_user.id, meal),
+    }
+
+
+@router.post("/meals/batch", response_model=SuccessResponse)
+async def log_meals(
+    payload: MealBatchRequest, current_user: User = Depends(get_current_user)
+) -> dict:
+    """Log several meals at once (a whole day described together).
+
+    All dates are checked before anything is saved, so a bad entry doesn't
+    leave the day half-logged. Meal XP is awarded per meal, within the daily cap.
+    """
+    for meal in payload.meals:
+        try:
+            nutrition_service.validate_log_date(meal.log_date)
+        except NutritionServiceError as exc:
+            raise _not_found_or_bad(exc) from exc
+    logged, xp_earned, leveled_up, last_xp = [], 0, False, None
+    for meal in payload.meals:
+        saved = await nutrition_service.log_meal(
+            current_user.id,
+            name=meal.name,
+            calories=meal.calories,
+            protein=meal.protein,
+            carbs=meal.carbs,
+            fats=meal.fats,
+            fiber=meal.fiber,
+            meal_type=meal.meal_type,
+            eaten_at=meal.eaten_at,
+            items=[item.model_dump() for item in meal.items],
+            log_date=meal.log_date,
+        )
+        last_xp = await nutrition_service.award_xp_for_meal(current_user.id)
+        xp_earned += last_xp["xp_earned"]
+        leveled_up = leveled_up or last_xp["leveled_up"]
+        logged.append(saved.public_dict())
+    return {
+        "success": True,
+        "message": f"{len(logged)} meals logged",
+        "data": {
+            "meals": logged,
+            "xp_earned": xp_earned,
+            "total_xp": last_xp["total_xp"],
+            "new_level": last_xp["new_level"],
+            "leveled_up": leveled_up,
+        },
     }
 
 

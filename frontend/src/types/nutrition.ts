@@ -130,7 +130,19 @@ export type EstimatedItem = {
   note: string | null;
   /** Why the food couldn't be estimated (only for `unresolved` items). */
   unresolved_reason: 'ai_not_configured' | 'ai_quota' | 'ai_failed' | null;
+  /** The meal and time the description put this food in, when it said. */
+  meal_type: MealType | null;
+  eaten_at: string | null;
   alternatives: FoodAlternative[];
+};
+
+/** `POST /nutrition/meals/batch` -> data. */
+export type MealBatchResult = {
+  meals: Meal[];
+  xp_earned: number;
+  total_xp: number;
+  new_level: number;
+  leveled_up: boolean;
 };
 
 /** `POST /nutrition/estimate` -> data. */

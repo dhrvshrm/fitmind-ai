@@ -8,6 +8,8 @@ from app.models import audit
 from app.models.food_library import SavedMeal, UserFood
 from app.models.nutrition import Meal, add_water, get_water
 from app.models.user import User
+from app.ai import client as ai_client
+from app.ai.client import AIError, AIQuotaError
 from app.nutrition import estimator, food_db
 from app.nutrition.food_db import Food, Nutrients, Serving
 from app.nutrition.text import normalize
@@ -90,6 +92,11 @@ def _meal_source(items: List[Dict[str, Any]]) -> str:
     return "mixed"
 
 
+def validate_log_date(log_date: Optional[date_cls]) -> str:
+    """Public check used before batch logging; see :func:`_resolve_log_date`."""
+    return _resolve_log_date(log_date)
+
+
 def _resolve_log_date(log_date: Optional[date_cls]) -> str:
     """Validate a backfill date: today or up to a week back in the user's timezone."""
     today = local_today()
@@ -100,6 +107,47 @@ def _resolve_log_date(log_date: Optional[date_cls]) -> str:
             f"Meals can be logged for today or up to {MAX_BACKFILL_DAYS} days back"
         )
     return log_date.isoformat()
+
+
+# ---------------------------------------------------------------------------
+# Voice input
+# ---------------------------------------------------------------------------
+# Largest recording accepted for meal dictation (about 5 minutes of compressed speech).
+MAX_AUDIO_BYTES = 5 * 1024 * 1024
+# Example vocabulary so Whisper spells Indian dishes the way people type them.
+TRANSCRIBE_HINT = (
+    "Breakfast: poha, upma, 2 aloo paratha with dahi, chai. Lunch: dal, chawal, 2 roti, "
+    "rajma, chole, paneer sabzi, curd. Snack: samosa, vada pav, sprouts. Dinner: khichdi, "
+    "idli, dosa, sambar, chicken curry, biryani."
+)
+
+
+class TranscriptionError(Exception):
+    """Raised when a recording can't be turned into text."""
+
+
+async def transcribe_meal_audio(user_id: str, audio: bytes, filename: str) -> str:
+    """Turn a spoken meal description into text for the user to review.
+
+    Raises:
+        TranscriptionError: if the audio is empty or too large, or transcription fails.
+    """
+    if not audio:
+        raise TranscriptionError("The recording was empty")
+    if len(audio) > MAX_AUDIO_BYTES:
+        raise TranscriptionError("The recording is too long. Keep it under about 5 minutes.")
+    try:
+        # English output keeps Hinglish in Latin script ("do roti aur dal"), which the parser reads best.
+        text = await ai_client.transcribe(
+            audio, filename, user_id=user_id, language="en", prompt=TRANSCRIBE_HINT
+        )
+    except AIQuotaError as e:
+        raise TranscriptionError("Today's AI limit is used up. Type the meal instead.") from e
+    except AIError as e:
+        raise TranscriptionError("Couldn't transcribe the recording. Please try again or type it.") from e
+    if not text:
+        raise TranscriptionError("No speech was detected. Please try again.")
+    return text
 
 
 # ---------------------------------------------------------------------------

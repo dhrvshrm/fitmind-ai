@@ -63,6 +63,9 @@ class EstimatedItem(BaseModel):
     confidence: Confidence
     note: Optional[str] = None
     unresolved_reason: Optional[UnresolvedReason] = None
+    # Which meal and time the description put this food in (for whole-day logging).
+    meal_type: Optional[str] = None
+    eaten_at: Optional[str] = None
     alternatives: List[Alternative] = []
 
 
@@ -268,7 +271,13 @@ def split_addons(item: ParsedItem) -> List[ParsedItem]:
     for word in dict.fromkeys(addons):
         key = next(iter(food_db.correct_tokens(tokens(word)) & ADDONS.keys()))
         food_name, unit, per_piece = ADDONS[key]
-        split.append(ParsedItem(name=food_name, quantity=pieces * per_piece, unit=unit))
+        split.append(ParsedItem(
+            name=food_name,
+            quantity=pieces * per_piece,
+            unit=unit,
+            meal_type=item.meal_type,
+            eaten_at=item.eaten_at,
+        ))
     return split
 
 
@@ -286,6 +295,7 @@ async def estimate_meal(
     for original in parsed:
         for index, part in enumerate(split_addons(original)):
             item = await estimate_item(part, user_id, user_foods)
+            item.meal_type, item.eaten_at = part.meal_type, part.eaten_at
             if index > 0:  # A topping split off a bread: its amount is our assumption.
                 item.quantity_assumed = True
                 item.note = item.note or ADDON_NOTE

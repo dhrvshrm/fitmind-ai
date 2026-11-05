@@ -148,3 +148,25 @@ def test_alcoholic_drinks_count_alcohol_energy(client, ai_providers):
     item = estimate(client, headers, "240 ml scotch whisky")["items"][0]
     assert item["source"] == "ai_estimate"
     assert item["nutrients"]["kcal"] == 560
+
+
+def test_whole_day_description_keeps_meal_and_time_per_item(client, ai_providers):
+    headers, _ = register_and_login(client)
+    ai_providers.gemini = [json.dumps({"items": [
+        {"name": "poha", "quantity": 1, "unit": "bowl", "preparation": None, "meal_type": "breakfast", "eaten_at": None},
+        {"name": "roti", "quantity": 2, "unit": "roti", "preparation": None, "meal_type": "lunch", "eaten_at": None},
+        {"name": "dal", "quantity": None, "unit": None, "preparation": None, "meal_type": "lunch", "eaten_at": None},
+        {"name": "aloo butter paratha", "quantity": 2, "unit": None, "preparation": None, "meal_type": "dinner", "eaten_at": "20:30"},
+    ]})]
+    items = estimate(client, headers, "breakfast poha, lunch 2 roti dal, dinner 2 butter paratha at 8:30 pm")["items"]
+    assert [(i["meal_type"], i["name"]) for i in items] == [
+        ("breakfast", "Poha"), ("lunch", "Chapati"), ("lunch", "Mixed dal"),
+        ("dinner", "Potato parantha"), ("dinner", "Butter"),
+    ]
+    assert items[3]["eaten_at"] == "20:30" and items[4]["eaten_at"] == "20:30"
+
+
+def test_rule_parser_splits_a_hinglish_day_without_ai(client, ai_providers):
+    headers, _ = register_and_login(client)
+    items = estimate(client, headers, "subah 2 idli, dopahar ko dal chawal, raat ko khichdi")["items"]
+    assert {i["meal_type"] for i in items} == {"breakfast", "lunch", "dinner"}

@@ -115,3 +115,43 @@ export function mealTypeForTime(date = new Date()): MealType {
   if (hour >= 19 && hour < 23) return 'dinner';
   return 'snack';
 }
+
+/** Meals in the order they happen in a day. */
+export const MEAL_ORDER: MealType[] = ['breakfast', 'lunch', 'snack', 'dinner'];
+
+/** Typical times, used when a whole-day description doesn't say when a meal was. */
+export const DEFAULT_MEAL_TIMES: Record<MealType, string> = {
+  breakfast: '08:30',
+  lunch: '13:30',
+  snack: '17:00',
+  dinner: '20:30',
+};
+
+/** The different meals a description mentioned, in day order. */
+export function mealTypesIn(items: EstimatedItem[]): MealType[] {
+  const present = new Set(items.map((i) => i.meal_type).filter((t): t is MealType => Boolean(t)));
+  return MEAL_ORDER.filter((type) => present.has(type));
+}
+
+export type MealGroup = {
+  mealType: MealType;
+  eatenAt: string;
+  items: EstimatedItem[];
+};
+
+/**
+ * Splits a whole-day estimate into one group per meal. Foods the description
+ * didn't place in a meal go into `fallback` (the meal for the current time).
+ */
+export function groupByMeal(items: EstimatedItem[], fallback: MealType): MealGroup[] {
+  return MEAL_ORDER.map((mealType) => {
+    const groupItems = items.filter((i) => (i.meal_type ?? fallback) === mealType);
+    const stated = groupItems.find((i) => i.eaten_at)?.eaten_at;
+    return { mealType, eatenAt: stated ?? DEFAULT_MEAL_TIMES[mealType], items: groupItems };
+  }).filter((group) => group.items.length > 0);
+}
+
+/** "Poha, Chai" from a meal's foods, for naming a meal logged from a whole day. */
+export function nameFromItems(items: EstimatedItem[]): string {
+  return items.map((i) => i.name).join(', ');
+}

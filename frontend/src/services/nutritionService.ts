@@ -5,6 +5,7 @@ import type {
   Food,
   Meal,
   MealEstimate,
+  MealBatchResult,
   MealLogResult,
   MealPayload,
   MealType,
@@ -25,6 +26,29 @@ export const nutritionService = {
       payload,
     );
     return data.data;
+  },
+
+  /** Logs several meals at once (a whole day described together). */
+  async logMeals(meals: MealPayload[]): Promise<MealBatchResult> {
+    const { data } = await apiClient.post<ApiEnvelope<MealBatchResult>>(
+      NUTRITION_ENDPOINTS.MEALS_BATCH,
+      { meals },
+    );
+    return data.data;
+  },
+
+  /** Turns a spoken meal description into text for review. Saves nothing. */
+  async transcribe(audio: Blob): Promise<string> {
+    const form = new FormData();
+    const extension = audio.type.includes('ogg') ? 'ogg' : audio.type.includes('mp4') ? 'mp4' : 'webm';
+    form.append('audio', audio, `meal.${extension}`);
+    const { data } = await apiClient.post<ApiEnvelope<{ text: string }>>(
+      NUTRITION_ENDPOINTS.TRANSCRIBE,
+      form,
+      // Let the browser set the multipart boundary itself.
+      { headers: { 'Content-Type': undefined as unknown as string } },
+    );
+    return data.data.text;
   },
 
   async updateMeal(id: string, payload: MealUpdatePayload): Promise<Meal> {

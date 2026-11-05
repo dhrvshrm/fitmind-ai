@@ -7,7 +7,7 @@ produces nutrition numbers; those come from the food database.
 """
 import logging
 import re
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -19,9 +19,12 @@ from app.nutrition.units import UNIT_ALIASES, UNIT_GRAMS, is_piece_unit, normali
 
 logger = logging.getLogger(__name__)
 
-MAX_ITEMS = 12
+# A whole day described at once (breakfast, lunch, dinner and snacks) fits in this.
+MAX_ITEMS = 30
 # Bump whenever the parse prompt changes, so cached parses from the old prompt are ignored.
-PARSE_PROMPT_VERSION = 2
+PARSE_PROMPT_VERSION = 3
+
+MealType = Literal["breakfast", "lunch", "dinner", "snack"]
 
 
 class ParsedItem(BaseModel):
@@ -31,6 +34,9 @@ class ParsedItem(BaseModel):
     quantity: Optional[float] = Field(None, gt=0, le=3000)  # Large values are grams or ml.
     unit: Optional[str] = Field(None, max_length=30)
     preparation: Optional[str] = Field(None, max_length=80)
+    # Which meal it belonged to and when, when the description says so.
+    meal_type: Optional[MealType] = None
+    eaten_at: Optional[str] = Field(None, pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
 
     @field_validator("name")
     @classmethod
@@ -62,11 +68,23 @@ Rules:
   or the item itself for countable foods (roti, paratha, idli, dosa, egg).
 - name: the food in plain words, common Indian name preferred, no quantity in it.
 - preparation: cooking style only if stated (fried, grilled, with butter, less oil), else null.
+- The text may describe several meals or a whole day, possibly in Hinglish ("subah nashte mein",
+  "dopahar ko", "raat ko", "shaam ko"). Set meal_type on every item when the text says or clearly
+  implies which meal it was: breakfast, lunch, dinner, or snack (tea-time, evening snacks, in between).
+  Leave meal_type null if the text gives no meal at all.
+- eaten_at: 24-hour "HH:MM" only when a time is stated ("at 5 pm" -> "17:00"), else null.
+- Ignore words that aren't food (greetings, "today I had", "so far").
 
 Example: "2 rotis, dal and a bowl of rice" ->
-{"items": [{"name": "roti", "quantity": 2, "unit": "roti", "preparation": null},
-           {"name": "dal", "quantity": null, "unit": null, "preparation": null},
-           {"name": "rice", "quantity": 1, "unit": "bowl", "preparation": null}]}
+{"items": [{"name": "roti", "quantity": 2, "unit": "roti", "preparation": null, "meal_type": null, "eaten_at": null},
+           {"name": "dal", "quantity": null, "unit": null, "preparation": null, "meal_type": null, "eaten_at": null},
+           {"name": "rice", "quantity": 1, "unit": "bowl", "preparation": null, "meal_type": null, "eaten_at": null}]}
+
+Example: "breakfast mein poha, lunch was rajma chawal and at 5 pm a samosa" ->
+{"items": [{"name": "poha", "quantity": null, "unit": null, "preparation": null, "meal_type": "breakfast", "eaten_at": null},
+           {"name": "rajma curry", "quantity": null, "unit": null, "preparation": null, "meal_type": "lunch", "eaten_at": null},
+           {"name": "rice", "quantity": null, "unit": null, "preparation": null, "meal_type": "lunch", "eaten_at": null},
+           {"name": "samosa", "quantity": 1, "unit": "samosa", "preparation": null, "meal_type": "snack", "eaten_at": "17:00"}]}
 
 Meal description: """
 
@@ -140,9 +158,40 @@ def _parse_chunk(chunk: str) -> Optional[ParsedItem]:
     return ParsedItem(name=rest[:80], quantity=quantity, unit=unit)
 
 
+# Words that start a new meal in a whole-day description, in English and Hinglish.
+_MEAL_MARKERS = {
+    "breakfast": "breakfast", "nashta": "breakfast", "nashte": "breakfast", "subah": "breakfast",
+    "morning": "breakfast",
+    "lunch": "lunch", "dopahar": "lunch", "afternoon": "lunch",
+    "dinner": "dinner", "raat": "dinner", "night": "dinner", "supper": "dinner",
+    "snack": "snack", "snacks": "snack", "shaam": "snack", "evening": "snack",
+}
+_MEAL_MARKER_PATTERN = re.compile(r"\b(" + "|".join(_MEAL_MARKERS) + r")\b", re.IGNORECASE)
+# Filler that sits between a meal word and the food ("for lunch I had", "mein", "ko").
+_FILLER_PATTERN = re.compile(
+    r"\b(for|in|at|was|were|had|i|ate|then|mein|me|ko|ke|liye|tha|thi|maine|khaya|khayi|li)\b",
+    re.IGNORECASE,
+)
+
+
+def _segments(text: str) -> List[tuple]:
+    """Split a whole-day description into (meal_type or None, text) segments."""
+    parts = _MEAL_MARKER_PATTERN.split(text)
+    segments = [(None, parts[0])]
+    for i in range(1, len(parts), 2):
+        segments.append((_MEAL_MARKERS[parts[i].lower()], parts[i + 1] if i + 1 < len(parts) else ""))
+    return segments
+
+
 def parse_meal_rules(text: str) -> List[ParsedItem]:
-    """Split on separators and read a leading number and unit from each part."""
-    items = [item for chunk in _SPLIT_PATTERN.split(text) if (item := _parse_chunk(chunk))]
+    """Split on meal words and separators; read a leading number and unit from each part."""
+    items: List[ParsedItem] = []
+    for meal_type, segment in _segments(text):
+        segment = _FILLER_PATTERN.sub(" ", segment)
+        for chunk in _SPLIT_PATTERN.split(segment):
+            item = _parse_chunk(chunk)
+            if item:
+                items.append(item.model_copy(update={"meal_type": meal_type}))
     if not items:
         items = [ParsedItem(name=" ".join(text.split())[:80] or "meal")]
     return items[:MAX_ITEMS]

@@ -50,6 +50,12 @@ class MealLogRequest(BaseModel):
     log_date: Optional[date] = None
 
 
+class MealBatchRequest(BaseModel):
+    """Several meals logged together, e.g. a whole day described at once."""
+
+    meals: List[MealLogRequest] = Field(..., min_length=1, max_length=8)
+
+
 class MealUpdateRequest(BaseModel):
     """Partial edit of a logged meal; only provided fields change."""
 
@@ -67,7 +73,7 @@ class MealUpdateRequest(BaseModel):
 class EstimateRequest(BaseModel):
     """Free-text meal description, e.g. "2 aloo parathas with curd"."""
 
-    text: str = Field(..., min_length=2, max_length=300)
+    text: str = Field(..., min_length=2, max_length=1000)
 
 
 class SavedMealCreate(BaseModel):

@@ -56,6 +56,8 @@ export const NUTRITION_ENDPOINTS = {
   HISTORY: "/nutrition/history",
   WATER: "/nutrition/water",
   ESTIMATE: "/nutrition/estimate",
+  TRANSCRIBE: "/nutrition/transcribe",
+  MEALS_BATCH: "/nutrition/meals/batch",
   FOOD_SEARCH: "/nutrition/foods/search",
   food: (id: string) => `/nutrition/foods/${encodeURIComponent(id)}`,
   RECENT: "/nutrition/recent",

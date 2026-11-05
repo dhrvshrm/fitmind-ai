@@ -58,6 +58,20 @@ export function useLogMeal() {
   });
 }
 
+/** Logs several meals in one request; same refreshes as a single meal. */
+export function useLogMeals() {
+  const onSuccess = useMealInvalidation();
+  return useMutation({
+    mutationFn: (meals: MealPayload[]) => nutritionService.logMeals(meals),
+    onSuccess,
+  });
+}
+
+/** Speech to text for meal logging. Nothing is stored, so no caches change. */
+export function useTranscribeMeal() {
+  return useMutation({ mutationFn: (audio: Blob) => nutritionService.transcribe(audio) });
+}
+
 export function useUpdateMeal() {
   const onSuccess = useMealInvalidation();
   return useMutation({

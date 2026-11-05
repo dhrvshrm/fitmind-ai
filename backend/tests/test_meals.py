@@ -126,3 +126,38 @@ def test_saved_meals_and_foods_are_private(client):
     food = client.post(f"{API}/nutrition/my-foods", headers=owner,
                        json={"name": "Protein shake", "calories": 180, "protein": 25}).json()["data"]["food"]
     assert client.delete(f"{API}/nutrition/my-foods/{food['id']}", headers=other).status_code == 404
+
+
+def test_whole_day_logs_as_separate_meals_in_one_request(client):
+    headers, _ = register_and_login(client)
+    day = [
+        {**MEAL, "name": "Poha", "meal_type": "breakfast", "eaten_at": "08:30"},
+        {**MEAL, "name": "Rajma chawal", "meal_type": "lunch", "eaten_at": "13:30"},
+        {**MEAL, "name": "Khichdi", "meal_type": "dinner", "eaten_at": "20:30"},
+    ]
+    res = client.post(f"{API}/nutrition/meals/batch", headers=headers, json={"meals": day})
+    assert res.status_code == 200, res.text
+    assert [m["meal_type"] for m in res.json()["data"]["meals"]] == ["breakfast", "lunch", "dinner"]
+    assert res.json()["data"]["xp_earned"] == 60
+    today = client.get(f"{API}/nutrition/today", headers=headers).json()["data"]
+    assert today["meals_logged"] == 3
+
+
+def test_batch_with_an_invalid_date_saves_nothing(client):
+    headers, _ = register_and_login(client)
+    too_old = (local_today() - timedelta(days=30)).isoformat()
+    res = client.post(f"{API}/nutrition/meals/batch", headers=headers, json={"meals": [
+        {**MEAL, "name": "Poha"}, {**MEAL, "name": "Old", "log_date": too_old},
+    ]})
+    assert res.status_code == 400
+    assert client.get(f"{API}/nutrition/today", headers=headers).json()["data"]["meals_logged"] == 0
+
+
+def test_transcribe_rejects_non_audio_and_reports_missing_ai(client):
+    headers, _ = register_and_login(client)
+    res = client.post(f"{API}/nutrition/transcribe", headers=headers,
+                      files={"audio": ("notes.txt", b"hello", "text/plain")})
+    assert res.status_code == 400
+    res = client.post(f"{API}/nutrition/transcribe", headers=headers,
+                      files={"audio": ("meal.webm", b"\x1a\x45\xdf\xa3", "audio/webm")})
+    assert res.status_code == 400  # No Groq key in tests.
