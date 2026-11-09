@@ -107,6 +107,18 @@ Pipeline: R2 upload -> Groq Whisper transcription -> Gemini mood/energy analysis
 
 Meals carry a `source`: `verified` (all foods from a dataset or the user's own foods), `estimated` (AI), `mixed`, or `manual`. See `docs/DATA_SOURCES.md` for where the numbers come from.
 
+### Meal plans
+| Method | Path | Body |
+|---|---|---|
+| GET | `/diet-plans/current` | (auth) the active plan, or `data: null`. Includes `logged_today` (meal ids) and `stale` (targets or diet answers changed since it was made) |
+| POST | `/diet-plans` | (auth) create a plan, or replace the current one with different dishes. 400 until age, sex, height and weight are known; 503 when AI is unavailable |
+| POST | `/diet-plans/current/meals/{meal_id}/regenerate` | (auth) a different option for one meal; the rest of the day is kept |
+| GET | `/diet-plans/current/meals/{meal_id}/items/{index}/alternatives?q=` | (auth) allowed foods that could replace one item (same role, e.g. a grain for a grain), sized to about the same calories |
+| POST | `/diet-plans/current/meals/{meal_id}/items/{index}/swap` | (auth) `{food_id}`; 400 if the food isn't allowed for the user |
+| POST | `/diet-plans/current/meals/{meal_id}/log` | (auth) logs the planned meal for today -> meal, plan and XP; 400 if already logged today |
+
+Meal ids are `breakfast`, `mid_morning`, `lunch`, `evening_snack`, `dinner` and `bedtime`, depending on meals per day. The AI only chooses dishes, by id, from foods the user's diet, allergies and exclusions allow; every number comes from the food database and portions are fitted to the targets in code. Each change is stored as a new version (`version`, `change`).
+
 ### Gamification
 | Method | Path | Notes |
 |---|---|---|
