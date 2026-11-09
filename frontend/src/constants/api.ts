@@ -136,3 +136,13 @@ export const SETTINGS_ENDPOINTS = {
   PASSWORD: "/settings/password",
   ACCOUNT: "/settings/account",
 } as const;
+
+export const DIET_PLAN_ENDPOINTS = {
+  CURRENT: "/diet-plans/current",
+  CREATE: "/diet-plans",
+  regenerateMeal: (mealId: string) => `/diet-plans/current/meals/${mealId}/regenerate`,
+  alternatives: (mealId: string, index: number) =>
+    `/diet-plans/current/meals/${mealId}/items/${index}/alternatives`,
+  swap: (mealId: string, index: number) => `/diet-plans/current/meals/${mealId}/items/${index}/swap`,
+  logMeal: (mealId: string) => `/diet-plans/current/meals/${mealId}/log`,
+} as const;

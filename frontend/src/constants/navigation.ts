@@ -6,6 +6,7 @@ import {
   EmojiEventsRounded,
   FitnessCenterRounded,
   GroupRounded,
+  MenuBookRounded,
   MicRounded,
   MonitorHeartRounded,
   RestaurantRounded,
@@ -41,6 +42,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: STRINGS.nav.groups.track,
     items: [
       { label: STRINGS.nav.nutrition, path: ROUTES.NUTRITION, icon: RestaurantRounded },
+      { label: STRINGS.nav.mealPlan, path: ROUTES.MEAL_PLAN, icon: MenuBookRounded },
       { label: STRINGS.nav.workouts, path: ROUTES.WORKOUTS, icon: FitnessCenterRounded },
       { label: STRINGS.nav.recovery, path: ROUTES.RECOVERY, icon: MonitorHeartRounded },
       { label: STRINGS.nav.voiceCheckin, path: ROUTES.VOICE_CHECKIN, icon: MicRounded },

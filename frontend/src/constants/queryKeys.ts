@@ -20,6 +20,13 @@ export const QUERY_KEYS = {
     userFoods: ['nutrition', 'my-foods'] as const,
     foodSearch: (query: string) => ['nutrition', 'food-search', query] as const,
   },
+  dietPlan: {
+    all: ['diet-plan'] as const,
+    current: ['diet-plan', 'current'] as const,
+    swapRoot: ['diet-plan', 'swap'] as const,
+    swapOptions: (mealId: string, index: number, query: string) =>
+      ['diet-plan', 'swap', mealId, index, query] as const,
+  },
   workouts: {
     all: ['workouts'] as const,
     plan: ['workouts', 'plan'] as const,

@@ -26,6 +26,7 @@ const RecoveryPage = lazyPage(() => import('./components/recovery/RecoveryPage')
 const VoiceCheckinPage = lazyPage(() => import('./components/voicecheckin/VoiceCheckinPage'), 'VoiceCheckinPage');
 const WorkoutPage = lazyPage(() => import('./components/workout/WorkoutPage'), 'WorkoutPage');
 const NutritionPage = lazyPage(() => import('./components/nutrition/NutritionPage'), 'NutritionPage');
+const MealPlanPage = lazyPage(() => import('./components/mealplan/MealPlanPage'), 'MealPlanPage');
 const GamificationPage = lazyPage(() => import('./components/gamification/GamificationPage'), 'GamificationPage');
 const CoachPage = lazyPage(() => import('./components/coach/CoachPage'), 'CoachPage');
 const FriendsPage = lazyPage(() => import('./components/friends/FriendsPage'), 'FriendsPage');
@@ -58,6 +59,7 @@ function AppRoutes() {
             <Route path={ROUTES.RECOVERY} element={<RecoveryPage />} />
             <Route path={ROUTES.VOICE_CHECKIN} element={<VoiceCheckinPage />} />
             <Route path={ROUTES.NUTRITION} element={<NutritionPage />} />
+            <Route path={ROUTES.MEAL_PLAN} element={<MealPlanPage />} />
             <Route path={ROUTES.GAMIFICATION} element={<GamificationPage />} />
             <Route path={ROUTES.REPORTS} element={<ReportsPage />} />
             <Route path={ROUTES.FRIENDS} element={<FriendsPage />} />

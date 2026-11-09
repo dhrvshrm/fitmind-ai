@@ -9,6 +9,7 @@ export const ROUTES = {
   RECOVERY: '/recovery',
   VOICE_CHECKIN: '/voice-checkin',
   NUTRITION: '/nutrition',
+  MEAL_PLAN: '/meal-plan',
   GAMIFICATION: '/gamification',
   REPORTS: '/reports',
   FRIENDS: '/friends',
