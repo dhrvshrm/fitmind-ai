@@ -283,6 +283,14 @@ Complexity: S (days), M (about 1 week), L (2+ weeks). All costs are zero within 
 - **DB:** `workout_overrides`. Exercise entries gain target_muscles and instructions.
 - **Complexity:** M. **Category:** Implement Now.
 
+**Revised after Phase 5 (exercise data from a trusted source, like food):**
+
+- No official body publishes an "approved exercise" list. Authority exists for programming (how much, how often, how hard): the ACSM resistance training position stand (2026) and the WHO 2020 physical activity guidelines. The Ministry of AYUSH Common Yoga Protocol and the Fit India protocols are official Indian routines.
+- **Exercise catalogue:** free-exercise-db (public domain, 800+ exercises with force type, mechanic, level, equipment, primary and secondary muscles, instructions and start and end photos). A curated core set adds stabiliser muscles, grip, stance, form cues, common mistakes, breathing, easier and harder variations, and the joints each exercise loads. Curated entries are marked as drafts until a certified trainer reviews them.
+- **Sets, reps, rest and weekly volume come from code** following those guidelines. The AI only chooses exercises by id from the catalogue after it is filtered for equipment, injuries, level and recovery, the same pattern as the meal plan. Without AI, a rule-based picker builds the plan.
+- **Exercise detail:** demonstration (alternating start and end photos; optional embedded video per exercise), primary, secondary and stabiliser muscles on a highlighted body diagram (react-body-highlighter, MIT), setup, cues, mistakes and breathing.
+- ACSM and WHO don't approve exercises or apps; the app says "follows ACSM and WHO guidelines", never "approved by".
+
 ### 5.12 Progress analysis and adaptive nutrition
 
 - **What:** daily and weekly trends, goal progress, patterns, and adaptive targets.
@@ -321,10 +329,10 @@ Complexity: S (days), M (about 1 week), L (2+ weeks). All costs are zero within 
 
 Added after Phase 5. Most people with office or work schedules know roughly what to do; what stops them is time, energy, eating out and long sitting hours. These features target that directly.
 
-- **Time-boxed workouts.** "I have 15 minutes, at home, no equipment" produces a full session that fits, with recovery and injury caps. Builds on 5.11. Phase 7.
-- **Meal-time nudges and an easy restart.** Reminders at the user's own meal times (from the plan or routine), and after missed days a short "start again" message with one easy action, never guilt. Reuses notifications. Phase 6.
-- **"What should I order?"** The coach takes a restaurant or delivery menu (typed, pasted or a photo of the menu) and suggests the best options for the user's remaining calories and protein, with honest estimates. Phase 6.
-- **Shift-aware meal times.** Plan meal times follow night and rotating shifts instead of day defaults. Small fix, Phase 6.
+- **Time-boxed workouts.** "I have 15 minutes, at home, no equipment" produces a full session that fits, with recovery and injury caps. Builds on 5.11. Phase 6.
+- **Meal-time nudges and an easy restart.** Reminders at the user's own meal times (from the plan or routine), and after missed days a short "start again" message with one easy action, never guilt. Reuses notifications. Phase 7.
+- **"What should I order?"** The coach takes a restaurant or delivery menu (typed, pasted or a photo of the menu) and suggests the best options for the user's remaining calories and protein, with honest estimates. Phase 7.
+- **Shift-aware meal times.** Plan meal times follow night and rotating shifts instead of day defaults. Small fix, Phase 7.
 - **Activity and desk life.** Daily steps (manual entry first), a step target, short desk mobility and posture routines, and break reminders during work hours. Steps feed the activity estimate behind targets. **Constraint:** Google Health Connect is an on-device Android API and the Google Fit REST API is being shut down, so automatic step sync needs a native wrapper (for example Capacitor) and is a later step. Phase 12.
 - **Flexible days.** The user marks a weekend, festival, wedding or travel day as flexible; it can go over target on purpose and the week's remaining days are balanced gently, within the usual safety floors. Phase 11.
 - **Later ideas.** Family-style plans (the same dishes as the household with only the user's portions changed) and rough food prices so the budget becomes a real constraint, not a hint.
@@ -343,7 +351,7 @@ Added after Phase 5. Most people with office or work schedules know roughly what
 | Consent, data export and account deletion cascade | Health data responsibility; required by DPDP before real users. | Now (basic), Phase 14 (full) |
 | Audit log | Requested in the brief for plans, health and supplements. | Now |
 | AI evals | Detect regressions in food estimation, extraction and tool calling. | Now |
-| Reminders (meals, water, supplements) | Engagement; reuses notifications. | Meals in Phase 6 (see 5.17), others later |
+| Reminders (meals, water, supplements) | Engagement; reuses notifications. | Meals in Phase 7 (see 5.17), others later |
 | Dark mode | Expected in a modern app. | With the design system |
 | Hindi or Hinglish food names in search | India-first logging ("dal chawal", "rajma chawal"). | Now (aliases in the food DB) |
 
@@ -427,8 +435,8 @@ Each phase ends with tests passing, a demo of the user journeys it covers, and a
 | 3 | Nutrition core | Food DB import (INDB, USDA fallback), parse, match and quantify pipeline, dish cache, meal model upgrade with edit, delete and provenance, saved and recent meals, custom recipes, fast log UI, golden-set evals. | 3 |
 | 4 | Onboarding v2 and targets | Typed conditional questionnaire, food, budget and lifestyle profile, goal-based targets (g/kg protein), safety floors and flags, migration for existing users. | 2 (profile) |
 | 5 | AI diet plan | Constrained generation, DB re-costing, allergen filters, regenerate meal, swap ingredient, regenerate plan, versioning, log from plan. | 2 (plan) |
-| 6 | Action-taking coach | Chat persistence, tool registry, propose and confirm flow, backend-sourced confirmations, UI invalidation, model selection by eval. "What should I order?" from a menu, meal-time nudges and an easy restart after missed days, shift-aware plan meal times (5.17). | 8 |
-| 7 | Workout intelligence | Alternatives with day override, recovery and injury caps, time-boxed and no-equipment sessions (10, 15, 20 minutes), coach tool. | 7 |
+| 6 | Workout intelligence | Exercise catalogue (free-exercise-db plus a curated core set), sets, reps and volume from ACSM and WHO guidelines in code, AI choosing exercises only from the filtered catalogue with a rule-based fallback, exercise detail with demonstration and highlighted muscle map, exercise library, swaps with recovery and injury caps, time-boxed and no-equipment sessions (10, 15, 20 minutes) as a day override. | 7 |
+| 7 | Action-taking coach | Chat persistence, tool registry (including workout tools), propose and confirm flow, backend-sourced confirmations, UI invalidation, model selection by eval. "What should I order?" from a menu, meal-time nudges and an easy restart after missed days, shift-aware plan meal times (5.17). | 8 |
 | 8 | Manual health profile and consent | Consent flow, conditional health questionnaire, provenance, health context in plans and coach. | 5 |
 | 9 | Health report upload | Private storage, local and Gemini extraction, verification UI, biomarker history, safe explanations, delete. | 4 |
 | 10 | Supplements | Curated catalog, rule-based safety flags, personalised explanations, tracking and macros, coach tools. | 6.1 to 6.4 |
@@ -441,7 +449,7 @@ Why this order differs slightly from the brief:
 
 - Security fixes and the AI layer come first, because every later phase depends on them and health data must not land on an unauthenticated socket.
 - The design system comes early, so features are not built twice.
-- The coach follows nutrition because its tools are the nutrition services.
+- The coach follows nutrition and workouts because its tools are the nutrition and workout services. Workouts moved ahead of the coach so its workout tools are built on the trusted exercise catalogue.
 - The manual health profile comes before report upload because it is cheaper, safer, and builds the schema that reports will fill.
 - The working-day features (5.17) are folded into the phases they extend, so they don't wait for a separate phase. Activity gets its own phase because it adds a new kind of data.
 
