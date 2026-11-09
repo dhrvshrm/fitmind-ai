@@ -13,6 +13,7 @@ from .endpoints import (
     friends,
     reports,
     settings,
+    diet_plans,
 )
 
 router = APIRouter(prefix="/api/v1")
@@ -25,6 +26,7 @@ router.include_router(recovery.router)
 router.include_router(dashboard.router)
 router.include_router(voice_checkin.router)
 router.include_router(nutrition.router)
+router.include_router(diet_plans.router)
 router.include_router(gamification.router)
 router.include_router(notifications.router)
 router.include_router(friends.router)

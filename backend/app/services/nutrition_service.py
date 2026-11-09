@@ -167,20 +167,21 @@ def _user_food_to_food(doc: Dict[str, Any]) -> Food:
     )
 
 
-async def _user_foods(user_id: str) -> List[Food]:
+async def user_foods_as_foods(user_id: str) -> List[Food]:
+    """The user's own foods and recipes in the same shape as dataset foods."""
     return [_user_food_to_food(d) for d in await UserFood.list(user_id)]
 
 
 async def estimate_meal(user_id: str, text: str) -> Dict[str, Any]:
     """Estimate the nutrition of a free-text meal description."""
-    result = await estimator.estimate_meal(text, user_id, await _user_foods(user_id))
+    result = await estimator.estimate_meal(text, user_id, await user_foods_as_foods(user_id))
     return result.model_dump()
 
 
 async def search_foods(user_id: str, query: str, limit: int = 8) -> List[Dict[str, Any]]:
     """Search the user's own foods and the food datasets by name."""
     results = []
-    for food in await _user_foods(user_id):
+    for food in await user_foods_as_foods(user_id):
         score = max(food_db.name_score(query, n) for n in [food.name, *food.aliases])
         if score >= food_db.SUGGESTION_THRESHOLD:
             results.append((score + 0.05, food))  # Prefer the user's own entries.

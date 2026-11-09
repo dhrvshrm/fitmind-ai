@@ -4,6 +4,7 @@ from typing import Dict, List
 from app.config.database import get_database
 from app.models import (
     audit,
+    diet_plan,
     food_library,
     friend,
     notification,
@@ -40,6 +41,7 @@ USER_DATA_COLLECTIONS: Dict[str, List[str]] = {
     "ai_usage": ["user_id"],
     "saved_meals": ["user_id"],
     "user_foods": ["user_id"],
+    "diet_plans": ["user_id"],
 }
 
 
@@ -62,6 +64,7 @@ def _memory_stores() -> List[dict]:
         audit._MEMORY_STORE,
         food_library._SAVED_MEAL_MEMORY,
         food_library._USER_FOOD_MEMORY,
+        diet_plan._MEMORY_STORE,
     ]
 
 
