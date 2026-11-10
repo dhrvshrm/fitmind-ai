@@ -131,7 +131,7 @@ Takeaways:
 
 | Service | Free tier (approximate; verify in console) | Strengths | Caveats |
 |---|---|---|---|
-| **Gemini API** (Flash and Flash-Lite) | Free quota on Flash models. Published limits are inconsistent; third-party guides cite about 15 RPM and 1,500 RPD for Flash. | JSON and structured output, function calling, native PDF and image input. Good for report extraction, plans and structured parsing. | **Free tier data may be used to improve Google products and may be read by human reviewers.** This is acceptable for the demo with synthetic or own data. Real users' health reports must not go through the unpaid tier (see Phase 14). |
+| **Gemini API** (Flash and Flash-Lite) | Free quota on Flash models. Published limits are inconsistent; third-party guides cite about 15 RPM and 1,500 RPD for Flash. | JSON and structured output, function calling, native PDF and image input. Good for report extraction, plans and structured parsing. | **Free tier data may be used to improve Google products and may be read by human reviewers.** This is acceptable for the demo with synthetic or own data. Real users' health reports must not go through the unpaid tier (see Phase 16). |
 | **Groq** | Free, no card. Limits are per organization. Roughly 30 RPM; tokens per minute vary by model (gpt-oss-20b about 8K TPM according to one source). | Very fast streaming. Tool use on gpt-oss and Llama models. Whisper. | Low TPM limits long tool-calling conversations. Larger models have lower limits. |
 
 Implication: the AI layer needs a provider abstraction, caching, a per-user daily quota and deterministic fallbacks. Tool calling will be evaluated on Groq `gpt-oss-20b`, a larger Groq model, and Gemini Flash. The most reliable within free limits will be picked.
@@ -140,7 +140,7 @@ Implication: the AI layer needs a provider abstraction, caching, a per-user dail
 
 - **ICMR-NIN Dietary Guidelines for Indians (2024).** Protein RDA is 0.83 g/kg/day; average Indian intake is about 0.66 g/kg. Above about 1.6 g/kg there is no further gain from resistance training. Protein supplements are not advised for healthy people. Use this as the baseline and for safety framing.
 - **NIH Office of Dietary Supplements fact sheets** for supplement evidence, upper limits and interactions.
-- **DPDP Act 2023 and Rules 2025** (notified 13 Nov 2025, phased commencement). Health data needs explicit, informed consent, plus access, correction and erasure rights, and breach notification. Required before real users (Phase 14). This is not legal advice.
+- **DPDP Act 2023 and Rules 2025** (notified 13 Nov 2025, phased commencement). Health data needs explicit, informed consent, plus access, correction and erasure rights, and breach notification. Required before real users (Phase 16). This is not legal advice.
 
 ---
 
@@ -331,11 +331,25 @@ Added after Phase 5. Most people with office or work schedules know roughly what
 
 - **Time-boxed workouts.** "I have 15 minutes, at home, no equipment" produces a full session that fits, with recovery and injury caps. Builds on 5.11. Phase 6.
 - **Meal-time nudges and an easy restart.** Reminders at the user's own meal times (from the plan or routine), and after missed days a short "start again" message with one easy action, never guilt. Reuses notifications. Phase 7.
-- **"What should I order?"** The coach takes a restaurant or delivery menu (typed, pasted or a photo of the menu) and suggests the best options for the user's remaining calories and protein, with honest estimates. Phase 7.
-- **Shift-aware meal times.** Plan meal times follow night and rotating shifts instead of day defaults. Small fix, Phase 7.
-- **Activity and desk life.** Daily steps (manual entry first), a step target, short desk mobility and posture routines, and break reminders during work hours. Steps feed the activity estimate behind targets. **Constraint:** Google Health Connect is an on-device Android API and the Google Fit REST API is being shut down, so automatic step sync needs a native wrapper (for example Capacitor) and is a later step. Phase 12.
-- **Flexible days.** The user marks a weekend, festival, wedding or travel day as flexible; it can go over target on purpose and the week's remaining days are balanced gently, within the usual safety floors. Phase 11.
+- **"What should I order?"** The coach takes a restaurant or delivery menu (typed, pasted or a photo of the menu) and suggests the best options for the user's remaining calories and protein, with honest estimates. Phase 9.
+- **Shift-aware meal times.** Plan meal times follow night and rotating shifts instead of day defaults. Small fix, Phase 8.
+- **Activity and desk life.** Daily steps (manual entry first), a step target, short desk mobility and posture routines, and break reminders during work hours. Steps feed the activity estimate behind targets. **Constraint:** Google Health Connect is an on-device Android API and the Google Fit REST API is being shut down, so automatic step sync needs a native wrapper (for example Capacitor) and is a later step. Phase 11.
+- **Flexible days.** The user marks a weekend, festival, wedding or travel day as flexible; it can go over target on purpose and the week's remaining days are balanced gently, within the usual safety floors. Phase 10.
 - **Later ideas.** Family-style plans (the same dishes as the household with only the user's portions changed) and rough food prices so the budget becomes a real constraint, not a hint.
+
+### 5.18 Habit, India-first and retention features
+
+Added after Phase 6. The core features exist; what decides whether people keep using the app is how quickly they get a first win, whether it fits a normal day, and whether they see progress. Everything here uses free tools.
+
+- **Product analytics (measure first).** PostHog's free tier, events only (onboarding completed, meal logged, workout logged, plan created), never health values or personal details. Three numbers to watch: share of new users who log a meal on day 1, share still logging on day 7, and weekly active loggers. Phase 7.
+- **Instant setup after onboarding.** The last onboarding step creates the meal plan and workout plan automatically and lands the user on Today, instead of leaving them to find two "create" buttons. Phase 7.
+- **Today screen.** One screen for the day: next meal from the plan (one-tap log), today's workout (start or quick session), water, and what's left of the targets. Replaces hopping across four pages. Phase 7.
+- **Installable app with reminders.** A PWA (vite-plugin-pwa) that installs to the home screen, with Web Push (free VAPID keys) for meal times, the workout and water, plus the easy restart after missed days from 5.17. iOS supports push only for installed web apps (16.4 and later). Render's free tier sleeps, so scheduled sends need a free external cron ping. Phase 7.
+- **Fasting and festival modes.** Navratri, Ramadan, Ekadashi and Jain Paryushan as date-bound modes with their own food rules (for example sabudana, kuttu and sendha namak allowed; grains, onion and garlic excluded during Navratri), applied by the same diet-rules filter as allergies, and meal timings for Ramadan (sehri and iftar). Coverage of fasting dishes in INDB must be checked; missing ones fall back to labelled estimates. Phase 8.
+- **Grocery list from the meal plan.** The week's dishes and quantities combined into one list, grouped by aisle. Plan items are dishes, not ingredients, so version 1 maps common dishes to their main ingredients; approximate rupee costs come later with food prices (Phase 16). Phase 8.
+- **Waist size and progress photos.** Waist (and optionally hip) measurements alongside weight, because the scale moves slowly and misleads; private progress photos in R2 with signed URLs, never shared, included in the account deletion cascade. Phase 10.
+- **Friend challenges.** Short challenges between friends ("7-day protein target", "3 workouts this week") with progress computed from logs, reusing friends and XP. Phase 10.
+- **Shareable weekly summary.** A clean image or PDF of the week (consistency, workouts done, trend direction) to send to a trainer, dietitian or friends. The user chooses what to include; health details are off by default. Phase 10.
 
 ---
 
@@ -348,10 +362,10 @@ Added after Phase 5. Most people with office or work schedules know roughly what
 | Server-side chat history | Needed for context and for actions. | Now |
 | Per-user AI quota and caching | Survive free-tier limits and prevent abuse. | Now |
 | Safety guardrails | Calorie floor, rate-of-loss cap, minors, pregnancy, eating-disorder signals, crisis wording. | Now |
-| Consent, data export and account deletion cascade | Health data responsibility; required by DPDP before real users. | Now (basic), Phase 14 (full) |
+| Consent, data export and account deletion cascade | Health data responsibility; required by DPDP before real users. | Now (basic), Phase 16 (full) |
 | Audit log | Requested in the brief for plans, health and supplements. | Now |
 | AI evals | Detect regressions in food estimation, extraction and tool calling. | Now |
-| Reminders (meals, water, supplements) | Engagement; reuses notifications. | Meals in Phase 7 (see 5.17), others later |
+| Reminders (meals, water, supplements) | Engagement; reuses notifications. | Meals and workouts in Phase 7 (push notifications, see 5.18), supplements later |
 | Dark mode | Expected in a modern app. | With the design system |
 | Hindi or Hinglish food names in search | India-first logging ("dal chawal", "rajma chawal"). | Now (aliases in the food DB) |
 
@@ -366,7 +380,7 @@ Added after Phase 5. Most people with office or work schedules know roughly what
 5. **Atomic updates.** Use `$set` with only the changed fields and `$inc` for XP. Remove the client XP endpoint; XP is awarded by the server only, with deduplication.
 6. **Frontend data layer.** Adopt TanStack Query for server state, with query keys per domain, so coach actions can invalidate them.
 7. **Pin dependencies** and complete `render.yaml`. Move scheduled jobs to a timezone-aware design; note that Render free sleeps, so jobs may need a free external cron ping.
-8. **Testing.** Backend pytest with a real Mongo, either a local container or mongomock-motor. Frontend Vitest for utilities. Playwright for the 10 journeys in Phase 13.
+8. **Testing.** Backend pytest with a real Mongo, either a local container or mongomock-motor. Frontend Vitest for utilities. Playwright for the 10 journeys in Phase 15.
 
 ---
 
@@ -427,23 +441,25 @@ Migration: additive only. Existing documents remain valid. New fields default to
 
 Each phase ends with tests passing, a demo of the user journeys it covers, and a commit. Nothing is pushed without explicit approval.
 
-| Phase | Name | Main deliverables | Covers brief section |
-|---|---|---|---|
-| 0 | Audit (this document) | Assessment, research, feasibility, roadmap. | 1 |
-| 1 | Foundation and hardening | WebSocket auth; remove the client XP endpoint and deduplicate XP; atomic user updates; account deletion cascade; production DB fail-fast; JWT, DEBUG and CORS hardening; user timezone and local dates; async AI calls; AI layer (provider abstraction, structured output, quota, cache, style guide); audit log; pinned dependencies; test setup and tests for existing flows; injuries field and onboarding validation. | 11, 12 |
-| 2 | Design system and app shell | Tokens, light and dark themes, core components, TanStack Query adoption, layout and navigation cleanup, existing pages migrated without functional change. | 10 |
-| 3 | Nutrition core | Food DB import (INDB, USDA fallback), parse, match and quantify pipeline, dish cache, meal model upgrade with edit, delete and provenance, saved and recent meals, custom recipes, fast log UI, golden-set evals. | 3 |
-| 4 | Onboarding v2 and targets | Typed conditional questionnaire, food, budget and lifestyle profile, goal-based targets (g/kg protein), safety floors and flags, migration for existing users. | 2 (profile) |
-| 5 | AI diet plan | Constrained generation, DB re-costing, allergen filters, regenerate meal, swap ingredient, regenerate plan, versioning, log from plan. | 2 (plan) |
-| 6 | Workout intelligence | Exercise catalogue (free-exercise-db plus a curated core set), sets, reps and volume from ACSM and WHO guidelines in code, AI choosing exercises only from the filtered catalogue with a rule-based fallback, exercise detail with demonstration and highlighted muscle map, exercise library, swaps with recovery and injury caps, time-boxed and no-equipment sessions (10, 15, 20 minutes) as a day override. | 7 |
-| 7 | Action-taking coach | Chat persistence, tool registry (including workout tools), propose and confirm flow, backend-sourced confirmations, UI invalidation, model selection by eval. "What should I order?" from a menu, meal-time nudges and an easy restart after missed days, shift-aware plan meal times (5.17). | 8 |
-| 8 | Manual health profile and consent | Consent flow, conditional health questionnaire, provenance, health context in plans and coach. | 5 |
-| 9 | Health report upload | Private storage, local and Gemini extraction, verification UI, biomarker history, safe explanations, delete. | 4 |
-| 10 | Supplements | Curated catalog, rule-based safety flags, personalised explanations, tracking and macros, coach tools. | 6.1 to 6.4 |
-| 11 | Progress intelligence | Weight trend, adaptive TDEE suggestions, pattern detection, weekly insights, flexible days for weekends, festivals and travel, dashboard redesign. | 9 |
-| 12 | Activity and desk life | Daily steps (manual entry), step target, steps feeding the activity estimate, desk mobility and posture routines, work-hours break reminders. Automatic step sync (Health Connect via a native wrapper) is a later step. | 5.17 |
-| 13 | Demo readiness | Playwright E2E for the 10 journeys, failure-mode tests, demo seed data, free-tier tuning, error monitoring (Sentry free), README overview update. | 14 |
-| 14 | Real-user readiness (later) | DPDP compliance, paid or no-training AI tier for health data, field encryption, backups, reconsider barcode, photo logging, product discovery, water and supplement reminders, family-style plans, food prices for real budget limits. | 6.5, compliance |
+| Phase | Name | Main deliverables | Covers brief section | Status |
+|---|---|---|---|---|
+| 0 | Audit (this document) | Assessment, research, feasibility, roadmap. | 1 | Done |
+| 1 | Foundation and hardening | WebSocket auth; remove the client XP endpoint and deduplicate XP; atomic user updates; account deletion cascade; production DB fail-fast; JWT, DEBUG and CORS hardening; user timezone and local dates; async AI calls; AI layer (provider abstraction, structured output, quota, cache, style guide); audit log; pinned dependencies; test setup and tests for existing flows; injuries field and onboarding validation. | 11, 12 | Done |
+| 2 | Design system and app shell | Tokens, light and dark themes, core components, TanStack Query adoption, layout and navigation cleanup, existing pages migrated without functional change. | 10 | Done |
+| 3 | Nutrition core | Food DB import (INDB, USDA fallback), parse, match and quantify pipeline, dish cache, meal model upgrade with edit, delete and provenance, saved and recent meals, custom recipes, fast log UI, golden-set evals. | 3 | Done |
+| 4 | Onboarding v2 and targets | Typed conditional questionnaire, food, budget and lifestyle profile, goal-based targets (g/kg protein), safety floors and flags, migration for existing users. | 2 (profile) | Done |
+| 5 | AI diet plan | Constrained generation, DB re-costing, allergen filters, regenerate meal, swap ingredient, regenerate plan, versioning, log from plan. | 2 (plan) | Done |
+| 6 | Workout intelligence | Exercise catalogue (free-exercise-db plus a curated core set), sets, reps and volume from ACSM and WHO guidelines in code, AI choosing exercises only from the filtered catalogue with a rule-based fallback, exercise detail with demonstration and highlighted muscle map, exercise library, swaps with recovery and injury caps, time-boxed and no-equipment sessions (10, 15, 20 minutes) as a day override. | 7 | Done |
+| 7 | Daily habit loop | Product analytics (activation, day-7 retention, weekly active loggers); instant setup after onboarding (meal and workout plans created, land on Today); Today screen with one-tap logging; installable PWA with push reminders for meals, workouts and water; easy restart after missed days (5.17, 5.18). | Retention | Next |
+| 8 | India-first meal planning | Fasting and festival modes (Navratri, Ramadan, Ekadashi, Jain Paryushan) in plans and logging; grocery list from the meal plan; shift-aware plan meal times (5.17, 5.18). | 2, India-first | Planned |
+| 9 | Action-taking coach | Chat persistence, tool registry (nutrition, meal plan and workout tools), propose and confirm flow, backend-sourced confirmations, UI invalidation, model selection by eval; "What should I order?" from a menu (5.17). | 8 | Planned |
+| 10 | Progress and motivation | Weight trend, adaptive TDEE suggestions, pattern detection, weekly insights, flexible days for weekends, festivals and travel; waist size and private progress photos; friend challenges; shareable weekly summary; dashboard redesign (5.18). | 9 | Planned |
+| 11 | Activity and desk life | Daily steps (manual entry), step target, steps feeding the activity estimate, desk mobility and posture routines, work-hours break reminders. Automatic step sync (Health Connect via a native wrapper) is a later step. | 5.17 | Planned |
+| 12 | Manual health profile and consent | Consent flow, conditional health questionnaire, provenance, health context in plans and coach. | 5 | Planned |
+| 13 | Health report upload | Private storage, local and Gemini extraction, verification UI, biomarker history, safe explanations, delete. | 4 | Planned |
+| 14 | Supplements | Curated catalog, rule-based safety flags, personalised explanations, tracking and macros, coach tools, supplement reminders. | 6.1 to 6.4 | Planned |
+| 15 | Demo readiness | Playwright E2E for the 10 journeys, failure-mode tests, demo seed data, free-tier tuning, error monitoring (Sentry free), README overview update. | 14 | Planned |
+| 16 | Real-user readiness (later) | DPDP compliance, paid or no-training AI tier for health data, field encryption, backups, reconsider barcode, photo logging, product discovery, family-style plans, food prices for real budget limits and grocery costs. | 6.5, compliance | Later |
 
 Why this order differs slightly from the brief:
 
@@ -452,6 +468,9 @@ Why this order differs slightly from the brief:
 - The coach follows nutrition and workouts because its tools are the nutrition and workout services. Workouts moved ahead of the coach so its workout tools are built on the trusted exercise catalogue.
 - The manual health profile comes before report upload because it is cheaper, safer, and builds the schema that reports will fill.
 - The working-day features (5.17) are folded into the phases they extend, so they don't wait for a separate phase. Activity gets its own phase because it adds a new kind of data.
+- Restructured after Phase 6: the daily habit loop (Phase 7) comes next because retention, not missing features, is now the biggest risk, and analytics go in first so every later phase can be measured.
+- India-first meal planning (Phase 8) comes before the coach so the coach's food tools already know fasting rules and the grocery list.
+- Progress and motivation (Phase 10) moved ahead of the health features: it keeps people going after the second week, while health profile, reports and supplements need consent work and carry more risk, so they follow.
 
 ---
 
