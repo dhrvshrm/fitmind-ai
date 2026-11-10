@@ -15,6 +15,7 @@ from .endpoints import (
     settings,
     diet_plans,
     exercises,
+    tips,
 )
 
 router = APIRouter(prefix="/api/v1")
@@ -24,6 +25,7 @@ router.include_router(auth.router)
 router.include_router(users.router)
 router.include_router(workouts.router)
 router.include_router(exercises.router)
+router.include_router(tips.router)
 router.include_router(recovery.router)
 router.include_router(dashboard.router)
 router.include_router(voice_checkin.router)

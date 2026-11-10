@@ -168,6 +168,11 @@ export const STRINGS = {
   },
   dashboard: {
     welcome: (name: string) => `Welcome back, ${name}`,
+    tip: {
+      tipLabel: "Tip of the day",
+      factLabel: "Did you know?",
+      dismiss: "Hide until tomorrow",
+    },
     subtitle: "Here's where your training, recovery and progress stand today.",
     stats: {
       xp: "XP",

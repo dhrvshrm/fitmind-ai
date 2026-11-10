@@ -1,29 +1,21 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const mealPlanPageStyles = {
+  // One column, top to bottom: targets, notes, then the day. Wide enough for
+  // meal cards to breathe, narrow enough that lines stay readable.
   layout: {
     display: 'grid',
-    gap: 2,
-    gridTemplateColumns: { xs: 'minmax(0, 1fr)', lg: '2fr 1fr' },
-    alignItems: 'start',
-  },
-  meals: {
-    display: 'grid',
-    gap: 2,
-    minWidth: 0,
+    gap: 2.5,
+
   },
   grid: {
     display: 'grid',
     gap: 2,
     gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'repeat(2, minmax(0, 1fr))' },
-    alignItems: 'stretch',
   },
-  side: {
+  footer: {
     display: 'grid',
-    gap: 1.5,
-    minWidth: 0,
-    // On phones the day's totals come first, above the meals.
-    order: { xs: -1, lg: 0 },
+    gap: 0.5,
   },
   emptyActions: {
     display: 'flex',

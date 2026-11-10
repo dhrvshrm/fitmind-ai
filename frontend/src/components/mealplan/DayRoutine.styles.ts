@@ -10,6 +10,13 @@ const TONES: Record<RoutineKind, 'warning' | 'success' | 'primary' | 'info' | 's
 };
 
 export const dayRoutineStyles = {
+  header: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 2,
+    mb: 2,
+  },
   list: {
     listStyle: 'none',
     m: 0,
@@ -17,14 +24,22 @@ export const dayRoutineStyles = {
   },
   item: {
     display: 'grid',
-    gridTemplateColumns: '48px 32px minmax(0, 1fr)',
-    columnGap: 1.25,
+    // Phones drop the time column; times show inline instead.
+    gridTemplateColumns: { xs: '36px minmax(0, 1fr)', sm: '52px 36px minmax(0, 1fr)' },
+    columnGap: { xs: 1, sm: 1.5 },
   },
   time: {
-    pt: 0.6,
+    display: { xs: 'none', sm: 'block' },
+    pt: 0.75,
     fontWeight: 600,
     fontVariantNumeric: 'tabular-nums',
     color: 'text.secondary',
+  },
+  inlineTime: {
+    display: { xs: 'inline', sm: 'none' },
+    mr: 1,
+    color: 'text.secondary',
+    fontVariantNumeric: 'tabular-nums',
   },
   rail: {
     display: 'flex',
@@ -36,8 +51,8 @@ export const dayRoutineStyles = {
     (theme) => {
       const color = theme.palette[TONES[kind]].main;
       return {
-        width: 32,
-        height: 32,
+        width: 36,
+        height: 36,
         borderRadius: '50%',
         display: 'grid',
         placeItems: 'center',
@@ -47,7 +62,7 @@ export const dayRoutineStyles = {
       };
     },
   icon: {
-    fontSize: 18,
+    fontSize: 20,
   },
   line: {
     width: '2px',
@@ -56,15 +71,12 @@ export const dayRoutineStyles = {
     my: 0.5,
     bgcolor: 'divider',
   },
-  content: (last: boolean): SxProps<Theme> => ({
-    pb: last ? 0 : 2,
-    pt: 0.5,
+  content: (last: boolean, isMeal: boolean): SxProps<Theme> => ({
     minWidth: 0,
+    pb: last ? 0 : isMeal ? 2.5 : 2,
+    pt: isMeal ? 0 : 0.75,
   }),
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 1,
+  step: {
+    maxWidth: 560,
   },
 };

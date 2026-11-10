@@ -1,25 +1,38 @@
-import { useState } from 'react';
-import { Alert, Box, Button, CircularProgress, Skeleton, Typography } from '@mui/material';
-import { AutorenewRounded, MenuBookRounded, TuneRounded } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import { STRINGS } from '../../constants/strings';
-import { ROUTES } from '../../constants/routes';
-import { useCreateDietPlan, useDietPlan } from '../../hooks/queries/useDietPlanQueries';
-import { queryErrorMessage } from '../../hooks/queries/queryHelpers';
-import { resolveApiError } from '../../lib/apiClient';
-import { formatDateLabel } from '../../utils/date';
-import type { DietPlan } from '../../types/dietPlan';
-import { PageHeader } from '../ui/PageHeader';
-import { ErrorState } from '../ui/ErrorState';
-import { EmptyState } from '../ui/EmptyState';
-import { SectionCard } from '../ui/SectionCard';
-import { ConfirmDialog } from '../ui/ConfirmDialog';
-import { Reveal } from '../ui/Reveal';
-import { PlanSummary } from './PlanSummary';
-import { DayRoutine } from './DayRoutine';
-import { PlanMealCard } from './PlanMealCard';
-import { mealPlanPageStyles as styles } from './MealPlanPage.styles';
+import { useState } from "react";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Skeleton,
+  Typography,
+} from "@mui/material";
+import {
+  AutorenewRounded,
+  MenuBookRounded,
+  TuneRounded,
+} from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { STRINGS } from "../../constants/strings";
+import { ROUTES } from "../../constants/routes";
+import {
+  useCreateDietPlan,
+  useDietPlan,
+} from "../../hooks/queries/useDietPlanQueries";
+import { queryErrorMessage } from "../../hooks/queries/queryHelpers";
+import { resolveApiError } from "../../lib/apiClient";
+import { formatDateLabel } from "../../utils/date";
+import type { DietPlan } from "../../types/dietPlan";
+import { PageHeader } from "../ui/PageHeader";
+import { ErrorState } from "../ui/ErrorState";
+import { EmptyState } from "../ui/EmptyState";
+import { SectionCard } from "../ui/SectionCard";
+import { ConfirmDialog } from "../ui/ConfirmDialog";
+import { PlanSummary } from "./PlanSummary";
+import { DayRoutine } from "./DayRoutine";
+import { PlanMealCard } from "./PlanMealCard";
+import { mealPlanPageStyles as styles } from "./MealPlanPage.styles";
 
 const S = STRINGS.mealPlan;
 
@@ -27,7 +40,11 @@ function PlanNotes({ plan }: { plan: DietPlan }) {
   return (
     <>
       {plan.notes.map((note) => (
-        <Alert key={note.code} severity={note.code === 'medical_advice' ? 'warning' : 'info'} variant="outlined">
+        <Alert
+          key={note.code}
+          severity={note.code === "medical_advice" ? "warning" : "info"}
+          variant="outlined"
+        >
           {S.notes[note.code](note.values)}
         </Alert>
       ))}
@@ -55,11 +72,19 @@ export function MealPlanPage() {
   }
 
   const editPreferences = (
-    <Button color="inherit" startIcon={<TuneRounded />} onClick={() => navigate(`${ROUTES.ONBOARDING}?mode=update`)}>
+    <Button
+      color="inherit"
+      startIcon={<TuneRounded />}
+      onClick={() => navigate(`${ROUTES.ONBOARDING}?mode=update`)}
+    >
       {S.editPreferences}
     </Button>
   );
-  const createIcon = create.isPending ? <CircularProgress size={18} color="inherit" /> : <AutorenewRounded />;
+  const createIcon = create.isPending ? (
+    <CircularProgress size={18} color="inherit" />
+  ) : (
+    <AutorenewRounded />
+  );
 
   return (
     <Box>
@@ -70,7 +95,12 @@ export function MealPlanPage() {
           plan && (
             <>
               {editPreferences}
-              <Button variant="outlined" startIcon={createIcon} onClick={() => setConfirmOpen(true)} disabled={create.isPending}>
+              <Button
+                variant="outlined"
+                startIcon={createIcon}
+                onClick={() => setConfirmOpen(true)}
+                disabled={create.isPending}
+              >
                 {create.isPending ? S.creating : S.regenerate}
               </Button>
             </>
@@ -84,7 +114,9 @@ export function MealPlanPage() {
           <Skeleton variant="rounded" sx={styles.skeleton} />
         </Box>
       )}
-      {error && <ErrorState message={error} onRetry={() => planQuery.refetch()} />}
+      {error && (
+        <ErrorState message={error} onRetry={() => planQuery.refetch()} />
+      )}
 
       {planQuery.isSuccess && !plan && (
         <SectionCard>
@@ -99,7 +131,11 @@ export function MealPlanPage() {
                   variant="contained"
                   onClick={handleCreate}
                   disabled={create.isPending}
-                  startIcon={create.isPending ? <CircularProgress size={18} color="inherit" /> : null}
+                  startIcon={
+                    create.isPending ? (
+                      <CircularProgress size={18} color="inherit" />
+                    ) : null
+                  }
                 >
                   {create.isPending ? S.creating : S.create}
                 </Button>
@@ -111,38 +147,42 @@ export function MealPlanPage() {
 
       {plan && (
         <Box sx={styles.layout}>
-          <Box sx={styles.meals}>
-            {plan.stale && (
-              <Alert
-                severity="warning"
-                action={
-                  <Button color="inherit" size="small" onClick={() => setConfirmOpen(true)} disabled={create.isPending}>
-                    {S.regenerate}
-                  </Button>
-                }
-              >
-                {S.stale}
-              </Alert>
+          {plan.stale && (
+            <Alert
+              severity="warning"
+              action={
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={() => setConfirmOpen(true)}
+                  disabled={create.isPending}
+                >
+                  {S.regenerate}
+                </Button>
+              }
+            >
+              {S.stale}
+            </Alert>
+          )}
+          <PlanSummary plan={plan} />
+          <PlanNotes plan={plan} />
+          <DayRoutine
+            plan={plan}
+            renderMeal={(meal) => (
+              <PlanMealCard
+                key={`${plan.id}-${meal.id}`}
+                meal={meal}
+                logged={plan.logged_today.includes(meal.id)}
+                locked={create.isPending}
+              />
             )}
-            <Box sx={styles.grid}>
-              {plan.meals.map((meal, index) => (
-                <Reveal key={`${plan.id}-${meal.id}`} index={index} fill>
-                  <PlanMealCard
-                    meal={meal}
-                    logged={plan.logged_today.includes(meal.id)}
-                    locked={create.isPending}
-                  />
-                </Reveal>
-              ))}
-            </Box>
-          </Box>
-
-          <Box sx={styles.side}>
-            <DayRoutine plan={plan} />
-            <PlanSummary plan={plan} />
-            <PlanNotes plan={plan} />
+          />
+          <Box sx={styles.footer}>
             <Typography variant="caption" color="text.secondary">
-              {S.version(plan.version, formatDateLabel(plan.created_at.slice(0, 10)))}
+              {S.version(
+                plan.version,
+                formatDateLabel(plan.created_at.slice(0, 10)),
+              )}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               {S.disclaimer}

@@ -154,3 +154,7 @@ export const DIET_PLAN_ENDPOINTS = {
   swap: (mealId: string, index: number) => `/diet-plans/current/meals/${mealId}/items/${index}/swap`,
   logMeal: (mealId: string) => `/diet-plans/current/meals/${mealId}/log`,
 } as const;
+
+export const TIP_ENDPOINTS = {
+  TODAY: "/tips/today",
+} as const;

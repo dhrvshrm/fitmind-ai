@@ -34,6 +34,11 @@ export const planMealCardStyles = {
     mt: 1,
     p: 0,
     flex: 1,
+    // Wide screens: foods side by side, so a meal card stays short.
+    display: 'grid',
+    gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'repeat(2, minmax(0, 1fr))' },
+    columnGap: 4,
+    alignContent: 'start',
   },
   item: {
     flexDirection: 'row',

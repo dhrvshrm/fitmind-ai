@@ -1,3 +1,4 @@
+import { TipOfTheDay } from "./TipOfTheDay";
 import { firstName } from "../../utils/user";
 import {
   BoltRounded,
@@ -91,6 +92,7 @@ export function Dashboard() {
   return (
     <Box>
       <PageHeader title={S.welcome(name)} subtitle={S.subtitle} />
+      <TipOfTheDay />
 
       {summaryError && (
         <Box sx={styles.section}>

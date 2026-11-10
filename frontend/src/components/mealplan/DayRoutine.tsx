@@ -1,5 +1,5 @@
-import type { ComponentType } from 'react';
-import { Box, Button, Chip, Stack, Typography, type SvgIconProps } from '@mui/material';
+import type { ComponentType, ReactNode } from 'react';
+import { Box, Button, Stack, Typography, type SvgIconProps } from '@mui/material';
 import {
   BedtimeRounded,
   FitnessCenterRounded,
@@ -11,12 +11,11 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { STRINGS } from '../../constants/strings';
 import { ROUTES } from '../../constants/routes';
-import type { DietPlan, RoutineEvent, RoutineKind } from '../../types/dietPlan';
-import { SectionCard } from '../ui/SectionCard';
+import type { DietPlan, PlanMeal, RoutineEvent, RoutineKind } from '../../types/dietPlan';
+import { Reveal } from '../ui/Reveal';
 import { dayRoutineStyles as styles } from './DayRoutine.styles';
 
-const S = STRINGS.mealPlan;
-const R = S.routine;
+const R = STRINGS.mealPlan.routine;
 
 const ICONS: Record<RoutineKind, ComponentType<SvgIconProps>> = {
   wake: WbSunnyRounded,
@@ -26,7 +25,7 @@ const ICONS: Record<RoutineKind, ComponentType<SvgIconProps>> = {
   sleep: BedtimeRounded,
 };
 
-function describe(event: RoutineEvent, plan: DietPlan): { title: string; detail: string; role?: string } {
+function stepText(event: RoutineEvent): { title: string; detail: string } {
   const v = event.values;
   switch (event.kind) {
     case 'wake':
@@ -37,39 +36,51 @@ function describe(event: RoutineEvent, plan: DietPlan): { title: string; detail:
       return { title: R.windDown.title, detail: R.windDown.detail };
     case 'sleep':
       return { title: R.sleep.title, detail: R.sleep.detail(v.hours ?? 0) };
-    case 'meal': {
-      const meal = plan.meals.find((m) => m.id === event.meal_id);
-      const title = meal ? S.slots[meal.id] : R.mealFallback;
-      const items = meal ? meal.items.map((i) => i.name).join(', ') : '';
-      return {
-        title,
-        detail: R.meal.detail(v.kcal ?? 0, items),
-        role: meal?.workout_role ? S.workoutRole[meal.workout_role] : undefined,
-      };
-    }
+    default:
+      return { title: R.mealFallback, detail: '' };
   }
 }
 
-/** The day from waking to sleep: water, workout, each meal, wind-down and bedtime. */
-export function DayRoutine({ plan }: { plan: DietPlan }) {
+type DayRoutineProps = {
+  plan: DietPlan;
+  /** Renders the full card for a meal, placed at its time in the day. */
+  renderMeal: (meal: PlanMeal) => ReactNode;
+};
+
+/**
+ * The whole day in order, from waking to sleep: water, workout, each meal as
+ * its full card, wind-down and bedtime. One column, so nothing is repeated.
+ */
+export function DayRoutine({ plan, renderMeal }: DayRoutineProps) {
   const navigate = useNavigate();
-  if (!plan.routine?.length) return null;
+  // Plans saved before the routine existed still list their meals in order.
+  const events: RoutineEvent[] = plan.routine?.length
+    ? plan.routine
+    : plan.meals.map((m) => ({ time: m.time, kind: 'meal', meal_id: m.id, values: {} }));
 
   return (
-    <SectionCard
-      title={R.title}
-      subtitle={R.subtitle}
-      action={
+    <Box component="section">
+      <Stack sx={styles.header}>
+        <Box>
+          <Typography variant="h6" component="h2">
+            {R.title}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {R.subtitle}
+          </Typography>
+        </Box>
         <Button size="small" color="inherit" startIcon={<TuneRounded />} onClick={() => navigate(`${ROUTES.ONBOARDING}?mode=update`)}>
           {R.edit}
         </Button>
-      }
-    >
+      </Stack>
+
       <Box component="ol" sx={styles.list}>
-        {plan.routine.map((event, index) => {
+        {events.map((event, index) => {
+          const meal = event.kind === 'meal' ? plan.meals.find((m) => m.id === event.meal_id) : undefined;
+          if (event.kind === 'meal' && !meal) return null;
           const Icon = ICONS[event.kind];
-          const { title, detail, role } = describe(event, plan);
-          const last = index === plan.routine.length - 1;
+          const last = index === events.length - 1;
+          const text = meal ? null : stepText(event);
           return (
             <Box component="li" key={`${event.kind}-${event.time}-${event.meal_id ?? ''}`} sx={styles.item}>
               <Typography variant="body2" sx={styles.time}>
@@ -81,19 +92,29 @@ export function DayRoutine({ plan }: { plan: DietPlan }) {
                 </Box>
                 {!last && <Box sx={styles.line} />}
               </Box>
-              <Box sx={styles.content(last)}>
-                <Stack sx={styles.titleRow}>
-                  <Typography variant="subtitle2">{title}</Typography>
-                  {role && <Chip size="small" variant="outlined" color="primary" label={role} />}
-                </Stack>
-                <Typography variant="body2" color="text.secondary">
-                  {detail}
-                </Typography>
+              <Box sx={styles.content(last, Boolean(meal))}>
+                <Reveal index={index}>
+                  {meal ? (
+                    renderMeal(meal)
+                  ) : (
+                    <Box sx={styles.step}>
+                      <Typography variant="subtitle2">
+                        <Box component="span" sx={styles.inlineTime}>
+                          {event.time}
+                        </Box>
+                        {text?.title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {text?.detail}
+                      </Typography>
+                    </Box>
+                  )}
+                </Reveal>
               </Box>
             </Box>
           );
         })}
       </Box>
-    </SectionCard>
+    </Box>
   );
 }

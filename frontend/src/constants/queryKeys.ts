@@ -3,6 +3,9 @@
  * root (e.g. `QUERY_KEYS.nutrition.all`) refreshes every query under it.
  */
 export const QUERY_KEYS = {
+  tips: {
+    today: ['tips', 'today'] as const,
+  },
   dashboard: {
     all: ['dashboard'] as const,
     summary: ['dashboard', 'summary'] as const,
