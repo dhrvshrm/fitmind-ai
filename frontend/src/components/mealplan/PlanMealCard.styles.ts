@@ -2,6 +2,7 @@ import type { SxProps, Theme } from '@mui/material';
 
 export const planMealCardStyles = {
   card: {
+    height: '100%',
     px: { xs: 1.5, sm: 2 },
     pt: 1.5,
     pb: 1.25,

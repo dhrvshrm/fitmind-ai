@@ -1,39 +1,82 @@
-import { lazy, Suspense, useMemo, type ComponentType } from 'react';
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { createAppTheme } from './theme';
-import { queryClient } from './lib/queryClient';
-import { useAuthBootstrap } from './hooks/useAuth';
-import { useResolvedColorMode } from './hooks/useColorMode';
-import { AppToaster } from './components/ui/AppToaster';
-import { ROUTES } from './constants/routes';
-import { LoginPage } from './components/auth/LoginPage';
-import { SignupPage } from './components/auth/SignupPage';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
-import { AppLayout } from './components/shared/AppLayout';
-import { ErrorBoundary } from './components/shared/ErrorBoundary';
-import { PageLoader } from './components/ui/PageLoader';
+import { lazy, Suspense, useMemo, type ComponentType } from "react";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { MotionConfig } from "framer-motion";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { createAppTheme } from "./theme";
+import { queryClient } from "./lib/queryClient";
+import { useAuthBootstrap } from "./hooks/useAuth";
+import { useResolvedColorMode } from "./hooks/useColorMode";
+import { AppToaster } from "./components/ui/AppToaster";
+import { ROUTES } from "./constants/routes";
+import { LoginPage } from "./components/auth/LoginPage";
+import { SignupPage } from "./components/auth/SignupPage";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { AppLayout } from "./components/shared/AppLayout";
+import { ErrorBoundary } from "./components/shared/ErrorBoundary";
+import { PageLoader } from "./components/ui/PageLoader";
 
 // Feature pages are split into their own chunks and loaded on first visit,
 // so the initial download only contains the shell and the current page.
-function lazyPage<K extends string>(load: () => Promise<Record<K, ComponentType>>, name: K) {
+function lazyPage<K extends string>(
+  load: () => Promise<Record<K, ComponentType>>,
+  name: K,
+) {
   return lazy(() => load().then((module) => ({ default: module[name] })));
 }
 
-const Dashboard = lazyPage(() => import('./components/dashboard/Dashboard'), 'Dashboard');
-const RecoveryPage = lazyPage(() => import('./components/recovery/RecoveryPage'), 'RecoveryPage');
-const VoiceCheckinPage = lazyPage(() => import('./components/voicecheckin/VoiceCheckinPage'), 'VoiceCheckinPage');
-const WorkoutPage = lazyPage(() => import('./components/workout/WorkoutPage'), 'WorkoutPage');
-const NutritionPage = lazyPage(() => import('./components/nutrition/NutritionPage'), 'NutritionPage');
-const MealPlanPage = lazyPage(() => import('./components/mealplan/MealPlanPage'), 'MealPlanPage');
-const GamificationPage = lazyPage(() => import('./components/gamification/GamificationPage'), 'GamificationPage');
-const CoachPage = lazyPage(() => import('./components/coach/CoachPage'), 'CoachPage');
-const FriendsPage = lazyPage(() => import('./components/friends/FriendsPage'), 'FriendsPage');
-const ReportsPage = lazyPage(() => import('./components/reports/ReportsPage'), 'ReportsPage');
-const ProfilePage = lazyPage(() => import('./components/profile/ProfilePage'), 'ProfilePage');
-const SettingsPage = lazyPage(() => import('./components/profile/SettingsPage'), 'SettingsPage');
-const OnboardingFlow = lazyPage(() => import('./components/onboarding/OnboardingFlow'), 'OnboardingFlow');
+const Dashboard = lazyPage(
+  () => import("./components/dashboard/Dashboard"),
+  "Dashboard",
+);
+const RecoveryPage = lazyPage(
+  () => import("./components/recovery/RecoveryPage"),
+  "RecoveryPage",
+);
+const VoiceCheckinPage = lazyPage(
+  () => import("./components/voicecheckin/VoiceCheckinPage"),
+  "VoiceCheckinPage",
+);
+const WorkoutPage = lazyPage(
+  () => import("./components/workout/WorkoutPage"),
+  "WorkoutPage",
+);
+const NutritionPage = lazyPage(
+  () => import("./components/nutrition/NutritionPage"),
+  "NutritionPage",
+);
+const MealPlanPage = lazyPage(
+  () => import("./components/mealplan/MealPlanPage"),
+  "MealPlanPage",
+);
+const GamificationPage = lazyPage(
+  () => import("./components/gamification/GamificationPage"),
+  "GamificationPage",
+);
+const CoachPage = lazyPage(
+  () => import("./components/coach/CoachPage"),
+  "CoachPage",
+);
+const FriendsPage = lazyPage(
+  () => import("./components/friends/FriendsPage"),
+  "FriendsPage",
+);
+const ReportsPage = lazyPage(
+  () => import("./components/reports/ReportsPage"),
+  "ReportsPage",
+);
+const ProfilePage = lazyPage(
+  () => import("./components/profile/ProfilePage"),
+  "ProfilePage",
+);
+const SettingsPage = lazyPage(
+  () => import("./components/profile/SettingsPage"),
+  "SettingsPage",
+);
+const OnboardingFlow = lazyPage(
+  () => import("./components/onboarding/OnboardingFlow"),
+  "OnboardingFlow",
+);
 
 /** Declares the route tree. Runs the auth bootstrap once on mount. */
 function AppRoutes() {
@@ -82,13 +125,15 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
-        <CssBaseline enableColorScheme />
-        <AppToaster />
-        <ErrorBoundary>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </ErrorBoundary>
+        <MotionConfig reducedMotion="user">
+          <CssBaseline enableColorScheme />
+          <AppToaster />
+          <ErrorBoundary>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </ErrorBoundary>
+        </MotionConfig>
       </ThemeProvider>
     </QueryClientProvider>
   );

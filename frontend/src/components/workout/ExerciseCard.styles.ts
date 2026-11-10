@@ -1,4 +1,5 @@
 import type { SxProps, Theme } from '@mui/material';
+import { hoverLift } from '../ui/interactive.styles';
 
 export const exerciseCardStyles = {
   card: (done: boolean): SxProps<Theme> => ({
@@ -9,7 +10,7 @@ export const exerciseCardStyles = {
     gap: 2,
     borderRadius: 2,
     opacity: done ? 0.65 : 1,
-    transition: 'opacity 0.15s ease, border-color 0.15s ease',
+    ...hoverLift,
     '&:hover': { borderColor: 'primary.main' },
   }),
   thumb: {

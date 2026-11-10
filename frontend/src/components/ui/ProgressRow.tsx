@@ -1,4 +1,5 @@
 import { Box, LinearProgress, Typography } from '@mui/material';
+import { AnimatedNumber } from './AnimatedNumber';
 import { progressRowStyles as styles } from './ProgressRow.styles';
 
 type ProgressRowProps = {
@@ -20,7 +21,7 @@ export function ProgressRow({ label, value, goal, unit, color }: ProgressRowProp
           {label}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={styles.numbers}>
-          {Math.round(value)} / {Math.round(goal)} {unit}
+          <AnimatedNumber value={value} /> / {Math.round(goal)} {unit}
         </Typography>
       </Box>
       <LinearProgress variant="determinate" value={percent} sx={styles.bar(color)} />

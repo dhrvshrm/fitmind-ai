@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Card, CircularProgress, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import { AutorenewRounded, CheckCircleRounded, SwapHorizRounded } from '@mui/icons-material';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { STRINGS } from '../../constants/strings';
 import { MEAL_TYPE_OPTIONS } from '../../constants/nutrition';
@@ -113,10 +114,16 @@ export function PlanMealCard({ meal, logged, locked }: PlanMealCardProps) {
             {S.newOption}
           </Button>
           {logged ? (
-            <Stack sx={styles.logged}>
-              <CheckCircleRounded fontSize="small" />
-              <Typography variant="body2">{S.logged}</Typography>
-            </Stack>
+            <motion.div
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 420, damping: 20 }}
+            >
+              <Stack sx={styles.logged}>
+                <CheckCircleRounded fontSize="small" />
+                <Typography variant="body2">{S.logged}</Typography>
+              </Stack>
+            </motion.div>
           ) : (
             <Button
               size="small"

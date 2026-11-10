@@ -1,4 +1,5 @@
 import type { SxProps, Theme } from '@mui/material';
+import { hoverLift } from '../ui/interactive.styles';
 
 export const exerciseLibraryStyles = {
   filters: {
@@ -31,14 +32,13 @@ export const exerciseLibraryStyles = {
     cursor: 'pointer',
     display: 'flex',
     flexDirection: 'column',
-    transition: 'border-color 150ms ease',
+    ...hoverLift,
     '&:hover, &:focus-visible': { borderColor: 'primary.main' },
   },
   thumb: {
     width: '100%',
-    aspectRatio: '4 / 3',
-    objectFit: 'contain',
-    bgcolor: 'common.white',
+    aspectRatio: '3 / 2',
+    objectFit: 'cover',
     borderBottom: '1px solid',
     borderColor: 'divider',
   },

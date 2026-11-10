@@ -15,6 +15,7 @@ import { ErrorState } from '../ui/ErrorState';
 import { EmptyState } from '../ui/EmptyState';
 import { SectionCard } from '../ui/SectionCard';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { Reveal } from '../ui/Reveal';
 import { PlanSummary } from './PlanSummary';
 import { PlanMealCard } from './PlanMealCard';
 import { mealPlanPageStyles as styles } from './MealPlanPage.styles';
@@ -123,13 +124,14 @@ export function MealPlanPage() {
               </Alert>
             )}
             <Box sx={styles.grid}>
-              {plan.meals.map((meal) => (
-                <PlanMealCard
-                  key={`${plan.id}-${meal.id}`}
-                  meal={meal}
-                  logged={plan.logged_today.includes(meal.id)}
-                  locked={create.isPending}
-                />
+              {plan.meals.map((meal, index) => (
+                <Reveal key={`${plan.id}-${meal.id}`} index={index} fill>
+                  <PlanMealCard
+                    meal={meal}
+                    logged={plan.logged_today.includes(meal.id)}
+                    locked={create.isPending}
+                  />
+                </Reveal>
               ))}
             </Box>
           </Box>

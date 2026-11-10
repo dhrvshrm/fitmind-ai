@@ -1,4 +1,4 @@
-import { useDeferredValue, useState } from 'react';
+import { useDeferredValue, useState } from "react";
 import {
   Box,
   Chip,
@@ -10,26 +10,27 @@ import {
   Switch,
   TextField,
   Typography,
-} from '@mui/material';
-import { SearchOffRounded, VerifiedRounded } from '@mui/icons-material';
-import { STRINGS } from '../../constants/strings';
-import { MUSCLE_GROUPS } from '../../constants/exercises';
-import { useExerciseSearch } from '../../hooks/queries/useExerciseQueries';
-import { queryErrorMessage } from '../../hooks/queries/queryHelpers';
-import type { MuscleGroup } from '../../types/exercise';
-import { SectionCard } from '../ui/SectionCard';
-import { EmptyState } from '../ui/EmptyState';
-import { ErrorState } from '../ui/ErrorState';
-import { ExerciseDetailDialog } from './ExerciseDetailDialog';
-import { exerciseLibraryStyles as styles } from './ExerciseLibrary.styles';
+} from "@mui/material";
+import { SearchOffRounded, VerifiedRounded } from "@mui/icons-material";
+import { STRINGS } from "../../constants/strings";
+import { MUSCLE_GROUPS } from "../../constants/exercises";
+import { useExerciseSearch } from "../../hooks/queries/useExerciseQueries";
+import { queryErrorMessage } from "../../hooks/queries/queryHelpers";
+import type { MuscleGroup } from "../../types/exercise";
+import { SectionCard } from "../ui/SectionCard";
+import { EmptyState } from "../ui/EmptyState";
+import { ErrorState } from "../ui/ErrorState";
+import { Reveal } from "../ui/Reveal";
+import { ExerciseDetailDialog } from "./ExerciseDetailDialog";
+import { exerciseLibraryStyles as styles } from "./ExerciseLibrary.styles";
 
 const S = STRINGS.exercises;
 const SKELETON_COUNT = 8;
 
 /** Browse and search the exercise catalogue; any exercise opens its detail page. */
 export function ExerciseLibrary() {
-  const [query, setQuery] = useState('');
-  const [muscle, setMuscle] = useState<MuscleGroup | ''>('');
+  const [query, setQuery] = useState("");
+  const [muscle, setMuscle] = useState<MuscleGroup | "">("");
   const [curatedOnly, setCuratedOnly] = useState(true);
   const [openId, setOpenId] = useState<string | null>(null);
   const deferredQuery = useDeferredValue(query);
@@ -38,7 +39,10 @@ export function ExerciseLibrary() {
   const results = search.data?.exercises ?? [];
 
   return (
-    <SectionCard title={STRINGS.workout.tabs.library} subtitle={S.library.subtitle}>
+    <SectionCard
+      title={STRINGS.workout.tabs.library}
+      subtitle={S.library.subtitle}
+    >
       <Stack sx={styles.filters}>
         <TextField
           size="small"
@@ -52,7 +56,7 @@ export function ExerciseLibrary() {
           size="small"
           label={S.library.muscle}
           value={muscle}
-          onChange={(e) => setMuscle(e.target.value as MuscleGroup | '')}
+          onChange={(e) => setMuscle(e.target.value as MuscleGroup | "")}
           sx={styles.muscle}
         >
           <MenuItem value="">{S.library.allMuscles}</MenuItem>
@@ -63,7 +67,12 @@ export function ExerciseLibrary() {
           ))}
         </TextField>
         <FormControlLabel
-          control={<Switch checked={curatedOnly} onChange={(e) => setCuratedOnly(e.target.checked)} />}
+          control={
+            <Switch
+              checked={curatedOnly}
+              onChange={(e) => setCuratedOnly(e.target.checked)}
+            />
+          }
           label={S.library.curatedOnly}
         />
       </Stack>
@@ -72,37 +81,55 @@ export function ExerciseLibrary() {
 
       <Box sx={styles.grid}>
         {search.isPending &&
-          Array.from({ length: SKELETON_COUNT }, (_, i) => <Skeleton key={i} variant="rounded" sx={styles.skeleton} />)}
-        {results.map((exercise) => (
-          <Paper
-            key={exercise.id}
-            variant="outlined"
-            role="button"
-            tabIndex={0}
-            onClick={() => setOpenId(exercise.id)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setOpenId(exercise.id);
-              }
-            }}
-            sx={styles.card}
-          >
-            {exercise.image && (
-              <Box component="img" src={exercise.image} alt="" loading="lazy" sx={styles.thumb} />
-            )}
-            <Box sx={styles.cardText}>
-              <Typography variant="body2" sx={styles.name}>
-                {exercise.name}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {exercise.primary_muscles.map((m) => S.muscles[m] ?? m).join(', ')}
-              </Typography>
-              {exercise.curated && (
-                <Chip size="small" icon={<VerifiedRounded />} label={S.library.coached} color="success" variant="outlined" sx={styles.chip} />
+          Array.from({ length: SKELETON_COUNT }, (_, i) => (
+            <Skeleton key={i} variant="rounded" sx={styles.skeleton} />
+          ))}
+        {results.map((exercise, index) => (
+          <Reveal key={exercise.id} index={index} fill>
+            <Paper
+              variant="outlined"
+              role="button"
+              tabIndex={0}
+              onClick={() => setOpenId(exercise.id)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setOpenId(exercise.id);
+                }
+              }}
+              sx={styles.card}
+            >
+              {exercise.image && (
+                <Box
+                  component="img"
+                  src={exercise.image}
+                  alt=""
+                  loading="lazy"
+                  sx={styles.thumb}
+                />
               )}
-            </Box>
-          </Paper>
+              <Box sx={styles.cardText}>
+                <Typography variant="body2" sx={styles.name}>
+                  {exercise.name}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {exercise.primary_muscles
+                    .map((m) => S.muscles[m] ?? m)
+                    .join(", ")}
+                </Typography>
+                {exercise.curated && (
+                  <Chip
+                    size="small"
+                    icon={<VerifiedRounded />}
+                    label={S.library.coached}
+                    color="success"
+                    variant="outlined"
+                    sx={styles.chip}
+                  />
+                )}
+              </Box>
+            </Paper>
+          </Reveal>
         ))}
       </Box>
 
@@ -110,7 +137,11 @@ export function ExerciseLibrary() {
         <EmptyState icon={SearchOffRounded} title={S.library.empty} compact />
       )}
 
-      <ExerciseDetailDialog exerciseId={openId} onClose={() => setOpenId(null)} onOpenExercise={setOpenId} />
+      <ExerciseDetailDialog
+        exerciseId={openId}
+        onClose={() => setOpenId(null)}
+        onOpenExercise={setOpenId}
+      />
     </SectionCard>
   );
 }

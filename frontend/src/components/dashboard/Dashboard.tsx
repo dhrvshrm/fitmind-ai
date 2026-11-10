@@ -27,6 +27,7 @@ import type { DashboardSummary } from "../../types/dashboard";
 import { joinMoodAndWorkouts } from "../../utils/dashboardCharts";
 import { PageHeader } from "../ui/PageHeader";
 import { StatTile } from "../ui/StatTile";
+import { Reveal } from "../ui/Reveal";
 import { ErrorState } from "../ui/ErrorState";
 import type { IconBadgeTone } from "../ui/IconBadge.styles";
 import { dashboardStyles as styles } from "./Dashboard.styles";
@@ -97,15 +98,16 @@ export function Dashboard() {
       )}
 
       <Box sx={styles.statsGrid}>
-        {STAT_TILES.map((tile) => (
-          <StatTile
-            key={tile.label}
-            label={tile.label}
-            icon={tile.icon}
-            tone={tile.tone}
-            loading={summary.isPending}
-            value={summary.data ? tile.value(summary.data) : null}
-          />
+        {STAT_TILES.map((tile, index) => (
+          <Reveal key={tile.label} index={index} fill>
+            <StatTile
+              label={tile.label}
+              icon={tile.icon}
+              tone={tile.tone}
+              loading={summary.isPending}
+              value={summary.data ? tile.value(summary.data) : null}
+            />
+          </Reveal>
         ))}
       </Box>
 

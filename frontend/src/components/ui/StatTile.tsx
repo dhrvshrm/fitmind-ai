@@ -1,6 +1,7 @@
 import type { ComponentType, ReactNode } from 'react';
 import { Box, Card, Skeleton, Typography, type SvgIconProps } from '@mui/material';
 import { IconBadge } from './IconBadge';
+import { AnimatedNumber } from './AnimatedNumber';
 import type { IconBadgeTone } from './IconBadge.styles';
 import { STRINGS } from '../../constants/strings';
 import { statTileStyles as styles } from './StatTile.styles';
@@ -29,7 +30,7 @@ export function StatTile({ label, value, icon, tone = 'primary', hint, loading =
         <Skeleton variant="text" sx={styles.valueSkeleton} />
       ) : (
         <Typography variant="h4" component="p" sx={styles.value}>
-          {value ?? STRINGS.ui.noValue}
+          {typeof value === 'number' ? <AnimatedNumber value={value} /> : (value ?? STRINGS.ui.noValue)}
         </Typography>
       )}
       {hint && !loading && (

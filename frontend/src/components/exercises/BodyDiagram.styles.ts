@@ -22,6 +22,6 @@ export const bodyDiagramStyles = {
   /** Plain SVG elements take a style object, not sx. */
   polygon: (isMuscle: boolean): CSSProperties => ({
     cursor: isMuscle ? 'pointer' : 'default',
-    transition: 'opacity 120ms ease',
+    transition: 'opacity 120ms ease, fill 300ms ease',
   }),
 };

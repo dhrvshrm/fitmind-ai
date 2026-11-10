@@ -22,6 +22,7 @@ import { getWorkoutTypeMeta } from "../../constants/workout";
 import type { PlanMeta, WorkoutDay } from "../../types/workout";
 import { SectionCard } from "../ui/SectionCard";
 import { EmptyState } from "../ui/EmptyState";
+import { Reveal } from "../ui/Reveal";
 import { weeklyPlanViewStyles as styles } from "./WeeklyPlanView.styles";
 
 const S = STRINGS.workout.week;
@@ -63,41 +64,42 @@ export function WeeklyPlanView({ week, meta }: WeeklyPlanViewProps) {
   return (
     <SectionCard title={S.title}>
       <Box sx={styles.grid}>
-        {week.map((day) => {
+        {week.map((day, dayIndex) => {
           const meta = getWorkoutTypeMeta(day.workout_type);
           const Icon = meta.icon;
           const isToday = day.day.toLowerCase() === TODAY_NAME.toLowerCase();
           return (
-            <Paper
-              key={day.day}
-              variant="outlined"
-              role="button"
-              tabIndex={0}
-              aria-label={S.dayAria(day.day, meta.label)}
-              onClick={() => setSelectedDay(day.day)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  setSelectedDay(day.day);
-                }
-              }}
-              sx={styles.dayCard(meta.tone, isToday)}
-            >
-              <Typography variant="body2" sx={styles.dayName}>
-                {day.day.slice(0, 3)}
-              </Typography>
-              <Icon fontSize="small" sx={styles.typeIcon(meta.tone)} />
-              <Typography variant="caption" sx={styles.typeLabel(meta.tone)}>
-                {day.focus ?? meta.label}
-              </Typography>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={styles.exerciseCount}
+            <Reveal key={day.day} index={dayIndex} fill>
+              <Paper
+                variant="outlined"
+                role="button"
+                tabIndex={0}
+                aria-label={S.dayAria(day.day, meta.label)}
+                onClick={() => setSelectedDay(day.day)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setSelectedDay(day.day);
+                  }
+                }}
+                sx={styles.dayCard(meta.tone, isToday)}
               >
-                {S.exercisesCount(day.exercises.length)}
-              </Typography>
-            </Paper>
+                <Typography variant="body2" sx={styles.dayName}>
+                  {day.day.slice(0, 3)}
+                </Typography>
+                <Icon fontSize="small" sx={styles.typeIcon(meta.tone)} />
+                <Typography variant="caption" sx={styles.typeLabel(meta.tone)}>
+                  {day.focus ?? meta.label}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={styles.exerciseCount}
+                >
+                  {S.exercisesCount(day.exercises.length)}
+                </Typography>
+              </Paper>
+            </Reveal>
           );
         })}
       </Box>
@@ -128,7 +130,10 @@ export function WeeklyPlanView({ week, meta }: WeeklyPlanViewProps) {
                   {STRINGS.workout.dayDialog.count(selected.exercises.length)}
                 </Typography>
               </Box>
-              <IconButton aria-label={STRINGS.workout.dayDialog.close} onClick={() => setSelectedDay(null)}>
+              <IconButton
+                aria-label={STRINGS.workout.dayDialog.close}
+                onClick={() => setSelectedDay(null)}
+              >
                 <CloseRounded />
               </IconButton>
             </DialogTitle>
@@ -143,25 +148,27 @@ export function WeeklyPlanView({ week, meta }: WeeklyPlanViewProps) {
               ) : (
                 <Box sx={styles.dialogList}>
                   {selected.exercises.map((exercise, index) => (
-                    <ExerciseCard
-                      key={`${exercise.name}-${index}`}
-                      exercise={exercise}
-                      onDetails={
-                        exercise.exercise_id
-                          ? () => setDetailId(exercise.exercise_id ?? null)
-                          : undefined
-                      }
-                      onSwap={
-                        exercise.exercise_id && exercise.pattern !== "mobility"
-                          ? () =>
-                              setSwapTarget({
-                                day: selected.day,
-                                index,
-                                name: exercise.name,
-                              })
-                          : undefined
-                      }
-                    />
+                    <Reveal key={`${exercise.name}-${index}`} index={index}>
+                      <ExerciseCard
+                        exercise={exercise}
+                        onDetails={
+                          exercise.exercise_id
+                            ? () => setDetailId(exercise.exercise_id ?? null)
+                            : undefined
+                        }
+                        onSwap={
+                          exercise.exercise_id &&
+                          exercise.pattern !== "mobility"
+                            ? () =>
+                                setSwapTarget({
+                                  day: selected.day,
+                                  index,
+                                  name: exercise.name,
+                                })
+                            : undefined
+                        }
+                      />
+                    </Reveal>
                   ))}
                 </Box>
               )}

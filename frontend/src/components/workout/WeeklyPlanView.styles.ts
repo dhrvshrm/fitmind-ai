@@ -1,4 +1,5 @@
 import { alpha, type SxProps, type Theme } from '@mui/material';
+import { hoverLift } from '../ui/interactive.styles';
 import { getWorkoutToneColor, type WorkoutTypeTone } from '../../constants/workout';
 
 export const weeklyPlanViewStyles = {
@@ -24,7 +25,8 @@ export const weeklyPlanViewStyles = {
       outlineColor: theme.palette.primary.main,
       outlineStyle: isToday ? 'solid' : 'none',
       outlineOffset: 1,
-      transition: 'background-color 0.15s ease',
+      height: '100%',
+      ...hoverLift,
       '&:hover': {
         bgcolor: 'action.hover',
       },
