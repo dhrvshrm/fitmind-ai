@@ -1,3 +1,4 @@
+import { firstName } from "../../utils/user";
 import {
   BoltRounded,
   FitnessCenterRounded,
@@ -70,7 +71,7 @@ const QUICK_ACTIONS: QuickAction[] = [
 export function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const displayName = user?.username ?? user?.email?.split("@")[0] ?? "";
+  const name = firstName(user);
 
   const summary = useDashboardSummary();
   const moodPerformance = useMoodPerformance();
@@ -89,7 +90,7 @@ export function Dashboard() {
 
   return (
     <Box>
-      <PageHeader title={S.welcome(displayName)} subtitle={S.subtitle} />
+      <PageHeader title={S.welcome(name)} subtitle={S.subtitle} />
 
       {summaryError && (
         <Box sx={styles.section}>

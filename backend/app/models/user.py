@@ -47,6 +47,8 @@ PROFILE_FIELDS = (
 # means "not answered yet", never "no". Sub-documents (food_preferences,
 # food_access, lifestyle) are validated by the request schemas.
 PERSONALISATION_FIELDS = (
+    # The name people want to be called; username stays the unique handle.
+    "name",
     "goal_pace",
     "target_weight_kg",
     "body_fat_percent",

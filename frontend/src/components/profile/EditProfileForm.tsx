@@ -18,6 +18,7 @@ type EditProfileFormProps = {
 };
 
 type FormState = {
+  name: string;
   username: string;
   age: string;
   weight_kg: string;
@@ -33,6 +34,7 @@ type FormErrors = Partial<Record<keyof FormState, string>>;
  */
 export function EditProfileForm({ profile }: EditProfileFormProps) {
   const [form, setForm] = useState<FormState>({
+    name: profile.name ?? "",
     username: profile.username ?? "",
     age: profile.age?.toString() ?? "",
     weight_kg: profile.weight_kg?.toString() ?? "",
@@ -49,7 +51,8 @@ export function EditProfileForm({ profile }: EditProfileFormProps) {
 
   function validate(): boolean {
     const next: FormErrors = {};
-    if (!form.username.trim()) next.username = S.validation.nameRequired;
+    if (!form.name.trim()) next.name = S.validation.nameRequired;
+    if (!form.username.trim()) next.username = S.validation.usernameRequired;
     if (form.age && (Number(form.age) < 1 || Number(form.age) > 120)) {
       next.age = S.validation.ageInvalid;
     }
@@ -67,7 +70,7 @@ export function EditProfileForm({ profile }: EditProfileFormProps) {
     event.preventDefault();
     if (!validate()) return;
 
-    const payload: ProfileUpdatePayload = { username: form.username.trim() };
+    const payload: ProfileUpdatePayload = { name: form.name.trim(), username: form.username.trim() };
     if (form.age) payload.age = Number(form.age);
     if (form.weight_kg) payload.weight_kg = Number(form.weight_kg);
     if (form.height_cm) payload.height_cm = Number(form.height_cm);
@@ -87,11 +90,20 @@ export function EditProfileForm({ profile }: EditProfileFormProps) {
         <Box sx={styles.grid}>
           <TextField
             label={S.name}
+            value={form.name}
+            onChange={(e) => update({ name: e.target.value })}
+            error={Boolean(errors.name)}
+            helperText={errors.name}
+            slotProps={{ htmlInput: { maxLength: 60 } }}
+            fullWidth
+          />
+          <TextField
+            label={S.username}
             value={form.username}
             onChange={(e) => update({ username: e.target.value })}
             error={Boolean(errors.username)}
-            helperText={errors.username}
-            sx={styles.fullWidth}
+            helperText={errors.username ?? S.usernameHint}
+            slotProps={{ htmlInput: { maxLength: 40 } }}
             fullWidth
           />
           <TextField

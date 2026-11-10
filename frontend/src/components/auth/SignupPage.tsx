@@ -10,7 +10,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { ArrowForwardRounded, EmailOutlined } from '@mui/icons-material';
+import { ArrowForwardRounded, EmailOutlined, PersonOutlineRounded } from '@mui/icons-material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { AuthLayout } from './AuthLayout';
 import { PasswordField } from './PasswordField';
@@ -27,6 +27,7 @@ import {
 import { signupPageStyles as styles } from './SignupPage.styles';
 
 type FieldErrors = {
+  name?: string;
   email?: string;
   password?: string;
   confirmPassword?: string;
@@ -36,6 +37,7 @@ export function SignupPage() {
   const { signup } = useAuth();
   const navigate = useNavigate();
 
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -45,12 +47,13 @@ export function SignupPage() {
 
   function validate(): boolean {
     const errors: FieldErrors = {
+      name: name.trim() ? undefined : STRINGS.validation.nameRequired,
       email: validateEmail(email) ?? undefined,
       password: validatePassword(password) ?? undefined,
       confirmPassword: validateConfirmPassword(password, confirmPassword) ?? undefined,
     };
     setFieldErrors(errors);
-    return !errors.email && !errors.password && !errors.confirmPassword;
+    return !errors.name && !errors.email && !errors.password && !errors.confirmPassword;
   }
 
   async function handleSubmit(event: FormEvent) {
@@ -61,7 +64,7 @@ export function SignupPage() {
     setIsSubmitting(true);
     try {
       // Auto-login happens inside `signup` (register -> login).
-      await signup({ email: email.trim(), password });
+      await signup({ name: name.trim(), email: email.trim(), password });
       navigate(POST_AUTH_REDIRECT, { replace: true });
     } catch (error) {
       setSubmitError(resolveApiError(error, STRINGS.errors.signupFailed));
@@ -86,6 +89,26 @@ export function SignupPage() {
       <Box component="form" onSubmit={handleSubmit} noValidate>
         <Stack spacing={2}>
           {submitError && <Alert severity="error">{submitError}</Alert>}
+          <TextField
+            label={STRINGS.fields.name}
+            autoComplete="name"
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            error={Boolean(fieldErrors.name)}
+            helperText={fieldErrors.name}
+            disabled={isSubmitting}
+            slotProps={{
+              htmlInput: { maxLength: 60 },
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonOutlineRounded fontSize="small" />
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
 
           <TextField
             label={STRINGS.fields.email}

@@ -7,6 +7,7 @@ export type FullUserProfile = {
   id: string;
   email: string;
   username: string;
+  name: string | null;
   xp: number;
   level: number;
   age: number | null;
@@ -25,6 +26,7 @@ export type FullUserProfile = {
 
 /** Body for `PUT /settings/profile` — every field optional. */
 export type ProfileUpdatePayload = {
+  name?: string;
   username?: string;
   age?: number;
   weight_kg?: number;

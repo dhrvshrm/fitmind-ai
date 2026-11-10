@@ -31,28 +31,34 @@ _RECOVERY_BANDS: List[Tuple[int, str, str]] = [
 ]
 
 
+# Each input's share of the 0-100 score. Sleep matters most; the 1-5 ratings
+# split the rest. Before this weighting, sleep hours alone could fill the
+# whole score, so almost every check-in read 100.
+SLEEP_HOURS_POINTS = 40
+SLEEP_QUALITY_POINTS = 20
+STRESS_POINTS = 20
+SORENESS_POINTS = 20
+# Hours of sleep that earn full sleep points (adult guidance is 7 to 9 hours).
+FULL_SLEEP_HOURS = 8
+
+
 def calculate_recovery_score(
     sleep_hours: float,
     sleep_quality: int,
     stress_level: int,
     soreness: int,
 ) -> int:
-    """Compute a 0-100 recovery score from the daily check-in metrics.
+    """Compute a 0-100 recovery score from the daily check-in.
 
-    Formula::
-
-        score = (sleep_hours * 10) + (sleep_quality * 10)
-                + ((5 - stress_level) * 10) + ((5 - soreness) * 5)
-
-    The result is clamped to the ``[0, 100]`` range.
+    - Sleep hours: up to 40 points, full at 8 hours.
+    - Sleep quality (1-5, 5 best): up to 20 points.
+    - Stress and soreness (1-5, 1 best): up to 20 points each.
     """
-    score = (
-        (sleep_hours * 10)
-        + (sleep_quality * 10)
-        + ((5 - stress_level) * 10)
-        + ((5 - soreness) * 5)
-    )
-    return max(0, min(100, int(round(score))))
+    sleep = min(max(sleep_hours, 0) / FULL_SLEEP_HOURS, 1) * SLEEP_HOURS_POINTS
+    quality = (sleep_quality - 1) / 4 * SLEEP_QUALITY_POINTS
+    stress = (5 - stress_level) / 4 * STRESS_POINTS
+    sore = (5 - soreness) / 4 * SORENESS_POINTS
+    return max(0, min(100, int(round(sleep + quality + stress + sore))))
 
 
 def _band_for_score(score: int) -> Tuple[str, str]:

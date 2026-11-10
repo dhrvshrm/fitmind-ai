@@ -2,9 +2,10 @@ import type { ReactNode } from "react";
 import { Box, Card, Stack, Typography } from "@mui/material";
 import {
   AutoAwesomeRounded,
-  EmojiEventsRounded,
+  EventNoteRounded,
   FitnessCenterRounded,
-  MonitorHeartRounded,
+  MicRounded,
+  RestaurantRounded,
 } from "@mui/icons-material";
 import { STRINGS } from "../../constants/strings";
 import { IconBadge } from "../ui/IconBadge";
@@ -19,7 +20,7 @@ type AuthLayoutProps = {
 };
 
 /** Icons paired positionally with `STRINGS.app.features`. */
-const FEATURE_ICONS = [AutoAwesomeRounded, MonitorHeartRounded, EmojiEventsRounded];
+const FEATURE_ICONS = [MicRounded, RestaurantRounded, EventNoteRounded];
 
 /**
  * Shared shell for the auth pages: a calm two-column layout with a tinted

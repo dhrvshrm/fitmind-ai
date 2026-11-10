@@ -2,12 +2,12 @@
 export const STRINGS = {
   app: {
     name: "FitMind AI",
-    tagline: "Your AI-powered fitness coach",
-    heroTitle: "Train smarter, not just harder",
+    tagline: "Fitness and nutrition built for how India eats",
+    heroTitle: "Eat right and train smart, without the guesswork",
     features: [
-"AI workout plans built around you",
-"Recovery-aware coaching that adapts",
-"Earn XP and level up as you train",
+"Log a whole day of meals in one sentence, in English or Hinglish",
+"Calories and protein from Indian food data, not guesses",
+"Meal and workout plans that fit your routine and recovery",
     ],
   },
   ui: {
@@ -92,18 +92,20 @@ export const STRINGS = {
   },
   signup: {
     title: "Create your account",
-    subtitle: "Start training smarter today",
+    subtitle: "Takes a minute. Your plan is ready right after.",
     submit: "Sign up",
     submitting: "Creating account…",
     switchPrompt: "Already have an account?",
     switchAction: "Log in",
   },
   fields: {
+    name: "Your name",
     email: "Email",
     password: "Password",
     confirmPassword: "Confirm password",
   },
   validation: {
+    nameRequired: "Tell us what to call you",
     emailRequired: "Email is required",
     emailInvalid: "Enter a valid email address",
     passwordRequired: "Password is required",
@@ -888,7 +890,7 @@ export const STRINGS = {
       items: [
         "Should I work out today?",
         "What should I eat?",
-        "Modify my plan",
+        "How am I doing today?",
       ],
     },
   },
@@ -1054,7 +1056,9 @@ export const STRINGS = {
       noTargets: "Add your age, height and weight to see your daily targets.",
     },
     title: "Profile",
-    subtitle: "Your level, badges, and stats at a glance.",
+    subtitle: "Your details, goal and daily targets.",
+    handle: (username: string, email: string) => `@${username}, ${email}`,
+    viewAchievements: "Achievements",
     loadError: "Could not load your profile.",
     level: {
       label: (level: number, title: string) => `Level ${level} · ${title}`,
@@ -1081,7 +1085,9 @@ export const STRINGS = {
     },
     edit: {
       title: "Edit profile",
-      name: "Display name",
+      name: "Name",
+      username: "Username",
+      usernameHint: "Friends find you by this.",
       age: "Age",
       weight: "Weight (kg)",
       goal: "Fitness goal",
@@ -1091,7 +1097,8 @@ export const STRINGS = {
       subtitle: "Update your details. Changes refresh your calorie targets.",
       error: "Could not update your profile. Please try again.",
       validation: {
-        nameRequired: "Enter a display name",
+        nameRequired: "Enter your name",
+        usernameRequired: "Enter a username",
         ageInvalid: "Enter an age between 1 and 120",
         weightInvalid: "Enter a weight in kg",
         heightInvalid: "Enter your height",

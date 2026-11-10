@@ -12,12 +12,19 @@ export type User = {
   id: string;
   email: string;
   username?: string;
+  /** What the person asked to be called (accounts made before names may not have one). */
+  name?: string | null;
   onboarding_completed?: boolean;
 };
 
 export type Credentials = {
   email: string;
   password: string;
+};
+
+/** Sign-up details: credentials plus the person's name. */
+export type SignupDetails = Credentials & {
+  name: string;
 };
 
 /** `POST /auth/login` -> data. */

@@ -6,6 +6,7 @@ import type {
   Credentials,
   LoginResponseData,
   RegisterResponseData,
+  SignupDetails,
   User,
 } from "../types/auth";
 
@@ -14,10 +15,10 @@ import type {
  * `{ success, message, data }` envelope and returns just the `data`.
  */
 export const authService = {
-  async register(credentials: Credentials): Promise<RegisterResponseData> {
+  async register(details: SignupDetails): Promise<RegisterResponseData> {
     const { data } = await apiClient.post<ApiEnvelope<RegisterResponseData>>(
       AUTH_ENDPOINTS.REGISTER,
-      credentials,
+      details,
     );
     return data.data;
   },

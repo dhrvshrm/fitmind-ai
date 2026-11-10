@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 class ProfileUpdateRequest(BaseModel):
     """Editable profile fields — all optional (partial update)."""
 
+    name: Optional[str] = Field(None, min_length=1, max_length=60)
     username: Optional[str] = Field(None, min_length=1, max_length=40)
     age: Optional[int] = Field(None, ge=13, le=100)
     weight_kg: Optional[float] = Field(None, ge=30, le=300)

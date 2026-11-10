@@ -1,3 +1,4 @@
+import { initialOf } from '../../utils/user';
 import { useState, type MouseEvent } from "react";
 import {
   AppBar,
@@ -50,7 +51,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   const { markAllAsRead, markAsRead } = useNotifications();
   const notificationCount = useUiStore((s) => s.notificationCount);
 
-  const initial = (user?.email?.[0] ?? "?").toUpperCase();
+  const initial = initialOf(user);
 
   function handleOpenMenu(event: MouseEvent<HTMLElement>) {
     setMenuAnchor(event.currentTarget);

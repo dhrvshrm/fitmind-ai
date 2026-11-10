@@ -31,11 +31,22 @@ def _check_timezone(value: Optional[str]) -> Optional[str]:
     return value
 
 
+def _clean_name(value: Optional[str]) -> Optional[str]:
+    """Trim and collapse spaces in a person's name; empty means not given."""
+    if value is None:
+        return None
+    cleaned = " ".join(value.split())
+    return cleaned or None
+
+
 class UserRegister(BaseModel):
     """Payload for registering a new user."""
 
     email: EmailStr
     password: str = Field(..., min_length=8, max_length=128)
+    name: Optional[str] = Field(None, max_length=60)
+
+    _clean_name = field_validator("name")(_clean_name)
 
 
 class UserLogin(BaseModel):
@@ -152,6 +163,8 @@ class UserOnboarding(PersonalisationUpdate):
 
 class UserProfileUpdate(BaseModel):
     """Partial profile update - every field is optional."""
+
+    name: Optional[str] = Field(None, min_length=1, max_length=60)
 
     age: Optional[int] = Field(None, ge=13, le=100)
     gender: Optional[Gender] = None

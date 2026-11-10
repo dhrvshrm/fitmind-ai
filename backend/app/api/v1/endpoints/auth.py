@@ -47,7 +47,7 @@ async def get_current_user(
 async def register(payload: UserRegister) -> dict:
     """Register a new user."""
     try:
-        user = await auth_service.register_user(payload.email, payload.password)
+        user = await auth_service.register_user(payload.email, payload.password, payload.name)
     except AuthError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     return {

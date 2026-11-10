@@ -99,7 +99,14 @@ async def _unique_username(base: str) -> str:
     return candidate
 
 
-async def register_user(email: str, password: str) -> User:
+def _handle_from(name: Optional[str], email: str) -> str:
+    """A username base: the name's letters and digits ("Priya Sharma" -> "priyasharma"),
+    or the email's local part when no usable name is given."""
+    letters = "".join(ch for ch in (name or "").lower() if ch.isalnum())
+    return letters[:30] or email.split("@")[0]
+
+
+async def register_user(email: str, password: str, name: Optional[str] = None) -> User:
     """Register a new user and persist it.
 
     Uses Supabase Auth when configured; otherwise stores a bcrypt-hashed
@@ -120,7 +127,8 @@ async def register_user(email: str, password: str) -> User:
     user = User(
         email=email,
         password_hash=hash_password(password),
-        username=await _unique_username(email.split("@")[0]),
+        username=await _unique_username(_handle_from(name, email)),
+        personalisation={"name": name},
     )
     await user.save()
     logger.info("Registered new user %s", email)

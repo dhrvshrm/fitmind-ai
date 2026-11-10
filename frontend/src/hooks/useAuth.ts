@@ -4,7 +4,7 @@ import { authService } from '../services/authService';
 import { isUnauthorizedError } from '../lib/apiClient';
 import { useAuthStore } from '../store/authStore';
 import { STRINGS } from '../constants/strings';
-import type { Credentials, User } from '../types/auth';
+import type { Credentials, SignupDetails, User } from '../types/auth';
 
 /**
  * The app's single entry point for auth. Wraps the store + service so
@@ -50,11 +50,11 @@ export function useAuth() {
 
   /** Register, then immediately log in with the same credentials (auto-login). */
   const signup = useCallback(
-    async (credentials: Credentials) => {
-      await authService.register(credentials);
-      const { token: issued } = await authService.login(credentials);
+    async (details: SignupDetails) => {
+      await authService.register(details);
+      const { token: issued } = await authService.login({ email: details.email, password: details.password });
       setAuth(issued, null);
-      await hydrateUser(credentials.email);
+      await hydrateUser(details.email);
       toast.success(STRINGS.toast.signedUp);
     },
     [setAuth, hydrateUser],
