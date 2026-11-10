@@ -20,6 +20,15 @@ export const exerciseLoggerStyles = {
     minWidth: 0,
     textDecoration: completed ? 'line-through' : 'none',
   }),
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 0.5,
+    minWidth: 0,
+  },
+  effort: {
+    mt: 0.5,
+  },
   metaRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',

@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
-import { Box, Button, CircularProgress, Skeleton, Typography } from '@mui/material';
-import { AutoAwesomeRounded, CalendarMonthRounded } from '@mui/icons-material';
+import { Box, Button, CircularProgress, Skeleton, Tab, Tabs, Typography } from '@mui/material';
+import { AutorenewRounded, CalendarMonthRounded } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import { WeeklyPlanView } from './WeeklyPlanView';
 import { TodayWorkout } from './TodayWorkout';
 import { WorkoutHistory } from './WorkoutHistory';
+import { QuickSessionCard } from './QuickSessionCard';
+import { ExerciseLibrary } from '../exercises/ExerciseLibrary';
 import {
   useGeneratePlan,
   useTodayWorkout,
@@ -26,11 +28,14 @@ const S = STRINGS.workout;
 /** A year of history covers the month calendar and the streak. */
 const COMPLETION_HISTORY_DAYS = 365;
 
+type PageTab = 'plan' | 'library';
+
 export function WorkoutPage() {
   const plan = useWeeklyPlan();
   const today = useTodayWorkout();
   const history = useWorkoutHistory(COMPLETION_HISTORY_DAYS);
   const generatePlan = useGeneratePlan();
+  const [tab, setTab] = useState<PageTab>('plan');
 
   /**
    * Local mirror of completed dates. It seeds the first render, serves as the
@@ -53,7 +58,6 @@ export function WorkoutPage() {
   const todayError = queryErrorMessage(today.error, S.today.error);
   const isGenerating = generatePlan.isPending;
 
-  /** Plan generation can take several seconds (AI call server-side). */
   async function handleGenerate() {
     try {
       await generatePlan.mutateAsync({});
@@ -87,7 +91,7 @@ export function WorkoutPage() {
                 isGenerating ? (
                   <CircularProgress size={18} color="inherit" />
                 ) : (
-                  <AutoAwesomeRounded />
+                  <AutorenewRounded />
                 )
               }
             >
@@ -100,7 +104,14 @@ export function WorkoutPage() {
         }
       />
 
-      <Box sx={styles.content}>
+      <Tabs value={tab} onChange={(_, value: PageTab) => setTab(value)} sx={styles.tabs}>
+        <Tab value="plan" label={S.tabs.plan} />
+        <Tab value="library" label={S.tabs.library} />
+      </Tabs>
+
+      {tab === 'library' && <ExerciseLibrary />}
+
+      <Box sx={styles.content} hidden={tab !== 'plan'}>
         {plan.isPending && <Skeleton variant="rounded" sx={styles.planSkeleton} />}
         {planError && <ErrorState message={planError} onRetry={() => plan.refetch()} />}
 
@@ -110,11 +121,13 @@ export function WorkoutPage() {
           </SectionCard>
         )}
 
-        {plan.data && <WeeklyPlanView week={plan.data.week} />}
+        {plan.data && <WeeklyPlanView week={plan.data.week} meta={plan.data.meta} />}
+
+        <QuickSessionCard />
 
         <Box sx={styles.splitRow}>
           <TodayWorkout
-            exercises={today.data ?? []}
+            today={today.data}
             loading={today.isPending}
             error={todayError}
             onRetry={() => today.refetch()}

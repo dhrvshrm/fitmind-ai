@@ -90,6 +90,7 @@ class WorkoutPlan:
         id: Optional[str] = None,
         log_date: Optional[str] = None,
         created_at: Optional[datetime] = None,
+        meta: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialise a plan, defaulting id/date/timestamp when omitted."""
         self.id: str = id or str(uuid4())
@@ -100,6 +101,8 @@ class WorkoutPlan:
         self.experience_level: Optional[str] = experience_level
         self.log_date: str = log_date or local_today_iso()
         self.created_at: datetime = created_at or datetime.now(timezone.utc)
+        # How the plan was built: guideline basis, level, weekly sets, notes.
+        self.meta: Dict[str, Any] = meta or {}
 
     def to_dict(self) -> dict:
         """Serialise the plan to a plain dict for storage."""
@@ -111,6 +114,7 @@ class WorkoutPlan:
             "experience_level": self.experience_level,
             "log_date": self.log_date,
             "created_at": self.created_at,
+            "meta": self.meta,
         }
 
     @classmethod
@@ -124,7 +128,18 @@ class WorkoutPlan:
             id=data.get("id"),
             log_date=data.get("log_date"),
             created_at=data.get("created_at"),
+            meta=data.get("meta"),
         )
+
+    async def save_week(self) -> None:
+        """Persist changes to the week (e.g. a swapped exercise)."""
+        db = get_database()
+        if db is not None:
+            await db[COLLECTION_NAME].update_one(
+                {"id": self.id, "user_id": self.user_id}, {"$set": {"week": self.week, "meta": self.meta}}
+            )
+        elif self.id in _MEMORY_STORE:
+            _MEMORY_STORE[self.id].update({"week": self.week, "meta": self.meta})
 
     async def save(self) -> "WorkoutPlan":
         """Persist this plan (append-only; newest is the active plan)."""
@@ -253,3 +268,38 @@ class WorkoutLog:
         if db is not None:
             return await db[WORKOUT_LOG_COLLECTION].count_documents({"user_id": user_id})
         return sum(1 for d in _WORKOUT_LOG_MEMORY.values() if d["user_id"] == user_id)
+
+
+# A replacement session for one day (e.g. "15 minutes at home"), keyed by
+# user and local date. The weekly plan itself stays unchanged.
+OVERRIDE_COLLECTION = "workout_overrides"
+_OVERRIDE_MEMORY: Dict[str, dict] = {}
+
+
+async def get_override(user_id: str, local_date: str) -> Optional[dict]:
+    db = get_database()
+    if db is not None:
+        doc = await db[OVERRIDE_COLLECTION].find_one({"user_id": user_id, "local_date": local_date}, {"_id": 0})
+        return doc["session"] if doc else None
+    doc = _OVERRIDE_MEMORY.get(f"{user_id}:{local_date}")
+    return doc["session"] if doc else None
+
+
+async def set_override(user_id: str, local_date: str, session: dict) -> None:
+    doc = {"user_id": user_id, "local_date": local_date, "session": session,
+           "created_at": datetime.now(timezone.utc)}
+    db = get_database()
+    if db is not None:
+        await db[OVERRIDE_COLLECTION].update_one(
+            {"user_id": user_id, "local_date": local_date}, {"$set": doc}, upsert=True
+        )
+    else:
+        _OVERRIDE_MEMORY[f"{user_id}:{local_date}"] = doc
+
+
+async def clear_override(user_id: str, local_date: str) -> bool:
+    db = get_database()
+    if db is not None:
+        result = await db[OVERRIDE_COLLECTION].delete_one({"user_id": user_id, "local_date": local_date})
+        return result.deleted_count > 0
+    return _OVERRIDE_MEMORY.pop(f"{user_id}:{local_date}", None) is not None

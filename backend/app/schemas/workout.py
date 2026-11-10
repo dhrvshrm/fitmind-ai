@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -63,3 +63,16 @@ class ExerciseCompleteRequest(BaseModel):
 
     exercise_name: str
     day: Optional[str] = None
+
+
+class QuickSessionRequest(BaseModel):
+    """A short session to replace today's: minutes available and where."""
+
+    minutes: Literal[10, 15, 20]
+    place: Literal["home", "gym"] = "home"
+
+
+class ExerciseSwapRequest(BaseModel):
+    """Replace a planned exercise with another catalogue exercise."""
+
+    exercise_id: str = Field(..., min_length=1, max_length=100)

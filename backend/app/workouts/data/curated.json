@@ -1,0 +1,2433 @@
+{
+  "_about": "Coaching layer over free-exercise-db for the exercises plans use. Written by the FitMind team from standard strength and conditioning practice; 'reviewed' turns true only after a certified trainer checks the entry. 'fixes' corrects known errors in the source data. 'needs' lists required equipment (onboarding values; 'a|b' means either; empty means bodyweight). 'loads' lists joints the exercise stresses, used to avoid injured areas. 'rep_range' fixes the reps for explosive exercises whatever the goal.",
+  "exercises": [
+    {
+      "id": "Bodyweight_Squat",
+      "pattern": "squat",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [],
+      "loads": [
+        "knee",
+        "hip"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "lower back",
+        "adductors"
+      ],
+      "grip": "No grip. Arms forward or hands together at the chest for balance.",
+      "stance": "Feet shoulder-width apart or slightly wider, toes turned out 15 to 30 degrees.",
+      "steps": [
+        "Stand tall and brace your stomach.",
+        "Sit down and back between your heels, letting knees travel forward over the toes.",
+        "Go as low as you can while keeping your heels down and back neutral.",
+        "Push the floor away to stand up."
+      ],
+      "cues": [
+        "Knees follow the line of your toes.",
+        "Whole foot stays on the floor.",
+        "Chest up, ribs down."
+      ],
+      "mistakes": [
+        "Knees caving inward.",
+        "Heels lifting off the floor.",
+        "Rounding the lower back at the bottom."
+      ],
+      "breathing": "Breathe in on the way down, out as you stand.",
+      "easier": null,
+      "harder": "Goblet_Squat",
+      "reviewed": false
+    },
+    {
+      "id": "Goblet_Squat",
+      "pattern": "squat",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "dumbbells|kettlebell"
+      ],
+      "loads": [
+        "knee",
+        "hip"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "lower back",
+        "middle back"
+      ],
+      "fixes": {
+        "equipment": "dumbbell"
+      },
+      "grip": "Hold one dumbbell vertically or a kettlebell by the horns, close to your chest.",
+      "stance": "Feet shoulder-width apart, toes slightly out.",
+      "steps": [
+        "Hold the weight at chest height with elbows pointing down.",
+        "Squat down between your heels, keeping the weight close.",
+        "Lower until your elbows are near your knees or your back starts to round.",
+        "Drive up through the whole foot."
+      ],
+      "cues": [
+        "Weight stays glued to your chest.",
+        "Elbows inside the knees at the bottom.",
+        "Stay tall through the upper back."
+      ],
+      "mistakes": [
+        "Letting the weight drift away from the body.",
+        "Leaning far forward.",
+        "Bouncing out of the bottom."
+      ],
+      "breathing": "Big breath and brace before going down, breathe out near the top.",
+      "easier": "Bodyweight_Squat",
+      "harder": "Barbell_Squat",
+      "reviewed": false
+    },
+    {
+      "id": "Barbell_Squat",
+      "pattern": "squat",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "full_gym"
+      ],
+      "loads": [
+        "knee",
+        "hip",
+        "lower_back"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "middle back",
+        "adductors"
+      ],
+      "fixes": {
+        "level": "intermediate"
+      },
+      "grip": "Overhand grip just outside the shoulders, bar resting on the upper back (not the neck).",
+      "stance": "Feet shoulder-width apart or a little wider, toes turned out.",
+      "steps": [
+        "Set the bar in a rack at chest height and step under it.",
+        "Brace, stand the bar up and take two small steps back.",
+        "Squat down between your heels to at least thigh parallel if mobility allows.",
+        "Drive up, keeping chest and hips rising together."
+      ],
+      "cues": [
+        "Brace before each rep.",
+        "Knees track over the toes; going past the toes is fine.",
+        "Use safety pins set just below your bottom position."
+      ],
+      "mistakes": [
+        "Hips shooting up faster than the chest.",
+        "Knees caving in on the way up.",
+        "Squatting without safety pins or a spotter."
+      ],
+      "breathing": "Breathe in and brace at the top, hold through the bottom, breathe out near the top.",
+      "easier": "Goblet_Squat",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Split_Squats",
+      "pattern": "lunge",
+      "unit": "reps",
+      "per_side": true,
+      "needs": [],
+      "loads": [
+        "knee",
+        "hip"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "adductors",
+        "abductors"
+      ],
+      "fixes": {
+        "category": "strength",
+        "mechanic": "compound",
+        "equipment": "body only",
+        "level": "beginner",
+        "primary_muscles": [
+          "quadriceps",
+          "glutes"
+        ],
+        "secondary_muscles": [
+          "hamstrings",
+          "calves"
+        ]
+      },
+      "grip": "Hands on hips, or hold a wall for balance.",
+      "stance": "Staggered: one foot forward, one back, about a long stride apart, feet hip-width apart side to side.",
+      "steps": [
+        "Stand in a split stance with weight mostly on the front foot.",
+        "Lower straight down until the back knee is just above the floor.",
+        "Push through the front foot to rise.",
+        "Finish all reps, then switch legs."
+      ],
+      "cues": [
+        "Move up and down like an elevator, not forward.",
+        "Front knee follows the toes.",
+        "Torso tall or slightly forward."
+      ],
+      "mistakes": [
+        "Feet in a straight line (balance problems).",
+        "Pushing mostly off the back leg.",
+        "Front heel lifting."
+      ],
+      "breathing": "In on the way down, out as you rise.",
+      "easier": "Bodyweight_Squat",
+      "harder": "Dumbbell_Lunges",
+      "reviewed": false
+    },
+    {
+      "id": "Bodyweight_Walking_Lunge",
+      "pattern": "lunge",
+      "unit": "reps",
+      "per_side": true,
+      "needs": [],
+      "loads": [
+        "knee",
+        "hip"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "adductors",
+        "abductors"
+      ],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "Hands on hips or arms relaxed at the sides.",
+      "stance": "Start with feet hip-width apart; each step is a long stride.",
+      "steps": [
+        "Take a long step forward.",
+        "Lower until the back knee is just above the floor.",
+        "Push through the front foot and bring the back leg through into the next step.",
+        "Alternate legs as you walk."
+      ],
+      "cues": [
+        "Step long enough that the front shin stays fairly upright.",
+        "Keep hips level.",
+        "Control the descent."
+      ],
+      "mistakes": [
+        "Short steps that load the front knee hard.",
+        "Back knee slamming the floor.",
+        "Torso collapsing forward."
+      ],
+      "breathing": "In as you lower, out as you step through.",
+      "easier": "Split_Squats",
+      "harder": "Dumbbell_Lunges",
+      "reviewed": false
+    },
+    {
+      "id": "Dumbbell_Lunges",
+      "pattern": "lunge",
+      "unit": "reps",
+      "per_side": true,
+      "needs": [
+        "dumbbells"
+      ],
+      "loads": [
+        "knee",
+        "hip"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "forearms",
+        "traps"
+      ],
+      "grip": "Neutral grip, a dumbbell in each hand at your sides.",
+      "stance": "Feet hip-width apart, stepping forward into a long stride.",
+      "steps": [
+        "Stand tall holding the dumbbells.",
+        "Step forward and lower until the back knee nearly touches the floor.",
+        "Push back to standing through the front heel.",
+        "Alternate legs."
+      ],
+      "cues": [
+        "Shoulders down, arms long.",
+        "Front knee follows the toes.",
+        "Stay tall."
+      ],
+      "mistakes": [
+        "Leaning to one side.",
+        "Too short a step.",
+        "Rushing the way down."
+      ],
+      "breathing": "In on the way down, out as you push back.",
+      "easier": "Split_Squats",
+      "harder": "Dumbbell_Step_Ups",
+      "reviewed": false
+    },
+    {
+      "id": "Dumbbell_Step_Ups",
+      "pattern": "lunge",
+      "unit": "reps",
+      "per_side": true,
+      "needs": [
+        "dumbbells",
+        "bench"
+      ],
+      "loads": [
+        "knee",
+        "hip"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "abductors",
+        "forearms"
+      ],
+      "grip": "Neutral grip, dumbbells at your sides.",
+      "stance": "Whole working foot on a box or bench about knee height.",
+      "steps": [
+        "Place one foot fully on the step.",
+        "Lean slightly forward and drive through that foot to stand on the step.",
+        "Lower back down slowly with control.",
+        "Finish all reps, then switch legs."
+      ],
+      "cues": [
+        "The top leg does the work; don't push off the bottom foot.",
+        "Knee tracks over the toes.",
+        "Control the lowering."
+      ],
+      "mistakes": [
+        "Step too high for your control.",
+        "Bouncing off the back foot.",
+        "Knee caving in."
+      ],
+      "breathing": "Out as you step up, in as you lower.",
+      "easier": "Dumbbell_Lunges",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Romanian_Deadlift",
+      "pattern": "hinge",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "barbell"
+      ],
+      "loads": [
+        "hip",
+        "lower_back"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "forearms",
+        "traps",
+        "middle back"
+      ],
+      "grip": "Overhand grip just outside the thighs.",
+      "stance": "Feet hip-width apart, knees softly bent.",
+      "steps": [
+        "Stand tall holding the bar at your thighs.",
+        "Push your hips back, sliding the bar down your legs.",
+        "Lower until you feel a strong hamstring stretch, usually mid-shin, with a flat back.",
+        "Drive the hips forward to stand."
+      ],
+      "cues": [
+        "Hips back, not down.",
+        "Bar stays in contact with the legs.",
+        "Back flat, neck long."
+      ],
+      "mistakes": [
+        "Rounding the back to reach lower.",
+        "Turning it into a squat by bending the knees a lot.",
+        "Bar drifting away from the legs."
+      ],
+      "breathing": "Brace and breathe in at the top, out as you stand.",
+      "easier": "Stiff-Legged_Dumbbell_Deadlift",
+      "harder": "Barbell_Deadlift",
+      "reviewed": false
+    },
+    {
+      "id": "Stiff-Legged_Dumbbell_Deadlift",
+      "pattern": "hinge",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "dumbbells"
+      ],
+      "loads": [
+        "hip",
+        "lower_back"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "forearms",
+        "traps"
+      ],
+      "grip": "Overhand grip, dumbbells in front of the thighs.",
+      "stance": "Feet hip-width apart, knees slightly bent and fixed.",
+      "steps": [
+        "Stand tall with the dumbbells in front of you.",
+        "Hinge at the hips, sliding the weights down close to your legs.",
+        "Stop when your hamstrings are fully stretched and the back is still flat.",
+        "Squeeze the glutes to return to standing."
+      ],
+      "cues": [
+        "Push your hips toward the wall behind you.",
+        "Keep the dumbbells close.",
+        "Neutral neck."
+      ],
+      "mistakes": [
+        "Rounded back.",
+        "Locking the knees straight.",
+        "Lifting with the arms."
+      ],
+      "breathing": "In at the top, out as you stand.",
+      "easier": "Butt_Lift_Bridge",
+      "harder": "Romanian_Deadlift",
+      "reviewed": false
+    },
+    {
+      "id": "Barbell_Deadlift",
+      "pattern": "hinge",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "barbell"
+      ],
+      "loads": [
+        "hip",
+        "lower_back",
+        "knee"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "forearms"
+      ],
+      "grip": "Overhand or mixed grip just outside the legs.",
+      "stance": "Feet hip-width apart, bar over the middle of the foot.",
+      "steps": [
+        "Stand with the bar over mid-foot and hinge down to grip it.",
+        "Bring shins to the bar, chest up, back flat.",
+        "Brace and push the floor away until you stand tall.",
+        "Lower by pushing the hips back, then bending the knees."
+      ],
+      "cues": [
+        "Take the slack out of the bar before pulling.",
+        "Bar travels in a straight line close to the body.",
+        "Finish with glutes, not by leaning back."
+      ],
+      "mistakes": [
+        "Rounding the lower back.",
+        "Jerking the bar off the floor.",
+        "Over-leaning back at the top."
+      ],
+      "breathing": "Big breath and brace before each rep, breathe out at the top.",
+      "easier": "Romanian_Deadlift",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Butt_Lift_Bridge",
+      "pattern": "glute",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [],
+      "loads": [
+        "hip"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "lower back"
+      ],
+      "grip": "Arms flat on the floor by your sides.",
+      "stance": "Lying on your back, knees bent, feet flat and hip-width apart near your glutes.",
+      "steps": [
+        "Lie on your back with knees bent.",
+        "Press through your heels and lift your hips until body forms a line from shoulders to knees.",
+        "Squeeze the glutes and pause for a second.",
+        "Lower slowly."
+      ],
+      "cues": [
+        "Ribs down so the lower back doesn't arch.",
+        "Push through the heels.",
+        "Pause at the top."
+      ],
+      "mistakes": [
+        "Arching the lower back instead of using the glutes.",
+        "Feet too far from the body.",
+        "Rushing the reps."
+      ],
+      "breathing": "Out as you lift, in as you lower.",
+      "easier": null,
+      "harder": "Single_Leg_Glute_Bridge",
+      "reviewed": false
+    },
+    {
+      "id": "Single_Leg_Glute_Bridge",
+      "pattern": "glute",
+      "unit": "reps",
+      "per_side": true,
+      "needs": [],
+      "loads": [
+        "hip"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "lower back",
+        "abductors"
+      ],
+      "grip": "Arms flat on the floor by your sides.",
+      "stance": "One foot flat on the floor, the other leg extended or knee pulled to the chest.",
+      "steps": [
+        "Lie on your back with one knee bent and the other leg lifted.",
+        "Drive through the planted heel to lift the hips.",
+        "Keep the hips level at the top.",
+        "Lower slowly, then switch sides after the set."
+      ],
+      "cues": [
+        "Hips stay level, don't let one side drop.",
+        "Drive through the heel.",
+        "Squeeze at the top."
+      ],
+      "mistakes": [
+        "Hips twisting.",
+        "Arching the lower back.",
+        "Pushing off the shoulders."
+      ],
+      "breathing": "Out as you lift, in as you lower.",
+      "easier": "Butt_Lift_Bridge",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Leg_Press",
+      "pattern": "squat",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "full_gym"
+      ],
+      "loads": [
+        "knee",
+        "hip"
+      ],
+      "stabilizers": [
+        "abdominals"
+      ],
+      "grip": "Hold the side handles lightly.",
+      "stance": "Feet hip-to-shoulder-width on the middle of the platform.",
+      "steps": [
+        "Sit with your back and hips flat against the pad.",
+        "Release the safety handles.",
+        "Lower the platform until your knees are around 90 degrees or your hips start to lift.",
+        "Press back up without locking the knees hard."
+      ],
+      "cues": [
+        "Hips stay on the seat.",
+        "Knees follow the toes.",
+        "Control the lowering."
+      ],
+      "mistakes": [
+        "Lowering so far the hips curl up off the seat.",
+        "Snapping the knees straight.",
+        "Pushing through the toes."
+      ],
+      "breathing": "In as you lower, out as you press.",
+      "easier": "Bodyweight_Squat",
+      "harder": "Barbell_Squat",
+      "reviewed": false
+    },
+    {
+      "id": "Lying_Leg_Curls",
+      "pattern": "knee_flexion",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "full_gym"
+      ],
+      "loads": [
+        "knee"
+      ],
+      "stabilizers": [
+        "calves"
+      ],
+      "grip": "Hold the handles at the front of the machine.",
+      "stance": "Lying face down, pad just above the heels, knees just off the bench edge.",
+      "steps": [
+        "Lie face down with the pad behind your ankles.",
+        "Curl your heels toward your glutes.",
+        "Pause briefly.",
+        "Lower slowly to almost straight."
+      ],
+      "cues": [
+        "Hips stay down on the bench.",
+        "Slow on the way down.",
+        "Full range of motion."
+      ],
+      "mistakes": [
+        "Hips lifting to swing the weight.",
+        "Dropping the weight quickly.",
+        "Partial reps."
+      ],
+      "breathing": "Out as you curl, in as you lower.",
+      "easier": "Butt_Lift_Bridge",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Leg_Extensions",
+      "pattern": "knee_extension",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "full_gym"
+      ],
+      "loads": [
+        "knee"
+      ],
+      "stabilizers": [],
+      "grip": "Hold the side handles.",
+      "stance": "Seated, back against the pad, knees lined up with the machine's pivot.",
+      "steps": [
+        "Adjust the pad to sit just above the ankles.",
+        "Straighten your legs fully.",
+        "Squeeze the thighs for a second.",
+        "Lower with control."
+      ],
+      "cues": [
+        "Knee joint lines up with the pivot point.",
+        "Smooth tempo.",
+        "Don't swing."
+      ],
+      "mistakes": [
+        "Seat set so knees aren't aligned.",
+        "Kicking the weight up.",
+        "Letting the stack slam."
+      ],
+      "breathing": "Out as you extend, in as you lower.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Standing_Calf_Raises",
+      "pattern": "calf",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [],
+      "loads": [
+        "ankle"
+      ],
+      "stabilizers": [
+        "abdominals"
+      ],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "Hold a wall or rail lightly for balance.",
+      "stance": "Balls of the feet on a step edge, heels hanging off, feet hip-width apart.",
+      "steps": [
+        "Stand on the step edge.",
+        "Lower your heels below the step to stretch the calves.",
+        "Rise as high as you can onto your toes.",
+        "Pause, then lower slowly."
+      ],
+      "cues": [
+        "Full stretch at the bottom.",
+        "Pause at the top.",
+        "Knees straight but not locked."
+      ],
+      "mistakes": [
+        "Bouncing.",
+        "Small range of motion.",
+        "Rolling onto the outer edge of the foot."
+      ],
+      "breathing": "Out as you rise, in as you lower.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Pushups",
+      "pattern": "push_horizontal",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [],
+      "loads": [
+        "shoulder",
+        "wrist",
+        "elbow"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "glutes",
+        "middle back"
+      ],
+      "grip": "Hands flat, slightly wider than shoulders, fingers forward.",
+      "stance": "Feet together or hip-width apart, body in a straight line from head to heels.",
+      "steps": [
+        "Start in a high plank.",
+        "Lower your chest toward the floor, elbows about 45 degrees from the body.",
+        "Go until the chest is just above the floor.",
+        "Push the floor away to return."
+      ],
+      "cues": [
+        "Body moves as one straight plank.",
+        "Elbows angle back, not flared out to the sides.",
+        "Squeeze glutes and brace."
+      ],
+      "mistakes": [
+        "Hips sagging.",
+        "Elbows flared wide.",
+        "Half reps."
+      ],
+      "breathing": "In as you lower, out as you push up.",
+      "easier": "Incline_Push-Up",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Incline_Push-Up",
+      "pattern": "push_horizontal",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [],
+      "loads": [
+        "shoulder",
+        "wrist",
+        "elbow"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "glutes"
+      ],
+      "grip": "Hands on a sturdy table, counter or wall, slightly wider than shoulders.",
+      "stance": "Feet together, body straight and leaning on the hands.",
+      "steps": [
+        "Place hands on a stable raised surface.",
+        "Walk your feet back until the body is straight.",
+        "Lower your chest to the edge.",
+        "Push back up."
+      ],
+      "cues": [
+        "The higher the surface, the easier it is.",
+        "Straight line from head to heels.",
+        "Elbows at about 45 degrees."
+      ],
+      "mistakes": [
+        "Using an unstable chair.",
+        "Hips sticking up.",
+        "Neck reaching forward."
+      ],
+      "breathing": "In as you lower, out as you push.",
+      "easier": null,
+      "harder": "Pushups",
+      "reviewed": false
+    },
+    {
+      "id": "Dumbbell_Bench_Press",
+      "pattern": "push_horizontal",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "dumbbells",
+        "bench"
+      ],
+      "loads": [
+        "shoulder",
+        "elbow"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "forearms"
+      ],
+      "grip": "Overhand grip, palms facing your feet, or slightly turned in.",
+      "stance": "Lying on a flat bench, feet flat on the floor.",
+      "steps": [
+        "Lie back holding the dumbbells over your chest.",
+        "Lower them to the sides of the chest, elbows about 45 degrees.",
+        "Press up until the arms are straight.",
+        "Bring the dumbbells slightly together at the top."
+      ],
+      "cues": [
+        "Shoulder blades pulled back and down.",
+        "Feet planted.",
+        "Control the bottom."
+      ],
+      "mistakes": [
+        "Elbows flared to 90 degrees.",
+        "Bouncing the weights.",
+        "Lifting the hips off the bench."
+      ],
+      "breathing": "In as you lower, out as you press.",
+      "easier": "Pushups",
+      "harder": "Barbell_Bench_Press_-_Medium_Grip",
+      "reviewed": false
+    },
+    {
+      "id": "Barbell_Bench_Press_-_Medium_Grip",
+      "pattern": "push_horizontal",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "barbell",
+        "bench"
+      ],
+      "loads": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "lats",
+        "forearms"
+      ],
+      "grip": "Overhand grip a little wider than shoulders, wrists stacked over elbows.",
+      "stance": "Lying on the bench, eyes under the bar, feet flat on the floor.",
+      "steps": [
+        "Pull your shoulder blades back and down.",
+        "Unrack the bar over your shoulders.",
+        "Lower it to the lower chest with elbows at about 45 to 70 degrees.",
+        "Press back up over the shoulders."
+      ],
+      "cues": [
+        "Use a spotter or safety arms.",
+        "Touch the same spot each rep.",
+        "Keep wrists straight."
+      ],
+      "mistakes": [
+        "Bouncing the bar off the chest.",
+        "Wrists bent back.",
+        "Benching heavy without a spotter."
+      ],
+      "breathing": "Breathe in and brace before lowering, out as you press.",
+      "easier": "Dumbbell_Bench_Press",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Incline_Dumbbell_Press",
+      "pattern": "push_horizontal",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "dumbbells",
+        "bench"
+      ],
+      "loads": [
+        "shoulder",
+        "elbow"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "forearms"
+      ],
+      "grip": "Overhand or slightly turned-in grip.",
+      "stance": "Bench set to 30 to 45 degrees, feet flat on the floor.",
+      "steps": [
+        "Sit back on the incline with the dumbbells at shoulder height.",
+        "Press them up over the upper chest.",
+        "Lower slowly to the sides of the upper chest.",
+        "Repeat."
+      ],
+      "cues": [
+        "Shoulder blades back.",
+        "Elbows slightly in front of the body.",
+        "Full control."
+      ],
+      "mistakes": [
+        "Bench set too steep (becomes a shoulder press).",
+        "Elbows flared wide.",
+        "Arching off the bench."
+      ],
+      "breathing": "In as you lower, out as you press.",
+      "easier": "Incline_Push-Up",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Dumbbell_Shoulder_Press",
+      "pattern": "push_vertical",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "dumbbells"
+      ],
+      "loads": [
+        "shoulder",
+        "elbow"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "traps",
+        "lower back"
+      ],
+      "fixes": {
+        "level": "beginner"
+      },
+      "grip": "Overhand or neutral grip, dumbbells at shoulder height.",
+      "stance": "Seated with back support, or standing with feet hip-width apart.",
+      "steps": [
+        "Hold the dumbbells at shoulder height.",
+        "Press them overhead until the arms are straight.",
+        "Lower with control to ear or chin height.",
+        "Repeat."
+      ],
+      "cues": [
+        "Ribs down, don't lean back.",
+        "Press slightly in front of the head.",
+        "Lower slowly."
+      ],
+      "mistakes": [
+        "Arching the lower back.",
+        "Clanging the weights at the top.",
+        "Partial range."
+      ],
+      "breathing": "Out as you press, in as you lower.",
+      "easier": "Side_Lateral_Raise",
+      "harder": "Barbell_Shoulder_Press",
+      "reviewed": false
+    },
+    {
+      "id": "Barbell_Shoulder_Press",
+      "pattern": "push_vertical",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "barbell"
+      ],
+      "loads": [
+        "shoulder",
+        "elbow",
+        "lower_back"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "glutes",
+        "traps"
+      ],
+      "grip": "Overhand grip just outside the shoulders, forearms vertical.",
+      "stance": "Standing, feet hip-width apart, glutes and stomach tight.",
+      "steps": [
+        "Start with the bar on the front of the shoulders.",
+        "Move your head back slightly and press the bar straight up.",
+        "Bring your head through once the bar passes it.",
+        "Lower the bar to the shoulders."
+      ],
+      "cues": [
+        "Bar path is a straight line.",
+        "Squeeze glutes to protect the lower back.",
+        "Lock out over mid-foot."
+      ],
+      "mistakes": [
+        "Leaning back to press.",
+        "Bar drifting forward.",
+        "Flaring the ribs."
+      ],
+      "breathing": "Brace before pressing, breathe out at the top.",
+      "easier": "Dumbbell_Shoulder_Press",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Side_Lateral_Raise",
+      "pattern": "shoulder_isolation",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "dumbbells|resistance_bands"
+      ],
+      "loads": [
+        "shoulder"
+      ],
+      "stabilizers": [
+        "traps",
+        "abdominals"
+      ],
+      "grip": "Neutral grip, light dumbbells at your sides.",
+      "stance": "Standing, feet hip-width apart, slight lean forward.",
+      "steps": [
+        "Hold light dumbbells at your sides with a slight elbow bend.",
+        "Raise the arms out to the sides to shoulder height.",
+        "Pause briefly.",
+        "Lower slowly."
+      ],
+      "cues": [
+        "Lead with the elbows.",
+        "Stop at shoulder height.",
+        "Use a light weight."
+      ],
+      "mistakes": [
+        "Swinging the body.",
+        "Shrugging the shoulders up.",
+        "Going too heavy."
+      ],
+      "breathing": "Out as you raise, in as you lower.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Bench_Dips",
+      "pattern": "triceps",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [],
+      "loads": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ],
+      "stabilizers": [
+        "abdominals"
+      ],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "Hands on the edge of a sturdy chair or bench, fingers forward, shoulder-width apart.",
+      "stance": "Knees bent and feet flat (easier) or legs straight (harder).",
+      "steps": [
+        "Sit on the edge and place your hands beside your hips.",
+        "Slide your hips off the edge.",
+        "Bend your elbows to lower until they reach about 90 degrees.",
+        "Press back up."
+      ],
+      "cues": [
+        "Hips close to the bench.",
+        "Elbows point back, not out.",
+        "Stop at 90 degrees if shoulders feel strained."
+      ],
+      "mistakes": [
+        "Going too deep and straining the front of the shoulder.",
+        "Using a chair that can slide.",
+        "Shrugging the shoulders up."
+      ],
+      "breathing": "In as you lower, out as you press.",
+      "easier": "Standing_Dumbbell_Triceps_Extension",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Triceps_Pushdown",
+      "pattern": "triceps",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "full_gym"
+      ],
+      "loads": [
+        "elbow"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "lats"
+      ],
+      "grip": "Overhand grip on a straight or angled bar, hands about shoulder-width.",
+      "stance": "Standing close to the cable, feet hip-width, slight forward lean.",
+      "steps": [
+        "Hold the bar with elbows tucked at your sides.",
+        "Push down until the arms are straight.",
+        "Squeeze the triceps.",
+        "Let the bar rise until forearms are about parallel to the floor."
+      ],
+      "cues": [
+        "Elbows stay pinned to your sides.",
+        "Only the forearms move.",
+        "Smooth tempo."
+      ],
+      "mistakes": [
+        "Elbows drifting forward.",
+        "Leaning over the bar to push with body weight.",
+        "Letting the bar fly up."
+      ],
+      "breathing": "Out as you push down, in as you return.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Standing_Dumbbell_Triceps_Extension",
+      "pattern": "triceps",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "dumbbells"
+      ],
+      "loads": [
+        "elbow",
+        "shoulder"
+      ],
+      "stabilizers": [
+        "abdominals"
+      ],
+      "grip": "Both hands cupping one end of a single dumbbell overhead.",
+      "stance": "Standing or seated, feet hip-width apart.",
+      "steps": [
+        "Hold the dumbbell straight overhead.",
+        "Lower it behind your head by bending the elbows.",
+        "Stop when you feel a stretch in the triceps.",
+        "Straighten the arms to return."
+      ],
+      "cues": [
+        "Elbows point forward and stay close.",
+        "Ribs down.",
+        "Move only at the elbows."
+      ],
+      "mistakes": [
+        "Elbows flaring wide.",
+        "Arching the lower back.",
+        "Going too heavy for control."
+      ],
+      "breathing": "In as you lower, out as you extend.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Pullups",
+      "pattern": "pull_vertical",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "pull_up_bar"
+      ],
+      "loads": [
+        "shoulder",
+        "elbow"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "forearms"
+      ],
+      "fixes": {
+        "level": "intermediate"
+      },
+      "grip": "Overhand grip, slightly wider than shoulders.",
+      "stance": "Hanging with legs straight or knees bent, body still.",
+      "steps": [
+        "Hang from the bar with arms straight.",
+        "Pull your shoulder blades down, then pull your chest toward the bar.",
+        "Get your chin over the bar.",
+        "Lower all the way with control."
+      ],
+      "cues": [
+        "Start each rep from a full hang.",
+        "Drive elbows down toward your back pockets.",
+        "No swinging."
+      ],
+      "mistakes": [
+        "Kipping or swinging.",
+        "Half reps.",
+        "Shrugging up into the ears."
+      ],
+      "breathing": "Out as you pull, in as you lower.",
+      "easier": "Band_Assisted_Pull-Up",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Chin-Up",
+      "pattern": "pull_vertical",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "pull_up_bar"
+      ],
+      "loads": [
+        "shoulder",
+        "elbow"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "forearms"
+      ],
+      "fixes": {
+        "level": "intermediate"
+      },
+      "grip": "Underhand grip, about shoulder-width apart.",
+      "stance": "Hanging, body still.",
+      "steps": [
+        "Hang with palms facing you.",
+        "Pull until your chin passes the bar.",
+        "Squeeze your back and biceps.",
+        "Lower fully with control."
+      ],
+      "cues": [
+        "Full hang between reps.",
+        "Chest toward the bar.",
+        "Controlled lowering."
+      ],
+      "mistakes": [
+        "Swinging.",
+        "Craning the neck to reach the bar.",
+        "Dropping fast."
+      ],
+      "breathing": "Out as you pull, in as you lower.",
+      "easier": "Band_Assisted_Pull-Up",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Band_Assisted_Pull-Up",
+      "pattern": "pull_vertical",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "pull_up_bar",
+        "resistance_bands"
+      ],
+      "loads": [
+        "shoulder",
+        "elbow"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "forearms"
+      ],
+      "fixes": {
+        "force": "pull",
+        "equipment": "bands"
+      },
+      "grip": "Overhand grip, slightly wider than shoulders.",
+      "stance": "One knee or both feet in a band looped over the bar.",
+      "steps": [
+        "Loop a band over the bar and place a knee or foot in it.",
+        "Hang with arms straight.",
+        "Pull your chest toward the bar.",
+        "Lower slowly."
+      ],
+      "cues": [
+        "Use the lightest band that lets you do clean reps.",
+        "Full range.",
+        "Control the band on the way down."
+      ],
+      "mistakes": [
+        "Bouncing off the band.",
+        "Band too strong to feel the back working.",
+        "Unsafe band anchoring."
+      ],
+      "breathing": "Out as you pull, in as you lower.",
+      "easier": "Inverted_Row",
+      "harder": "Pullups",
+      "reviewed": false
+    },
+    {
+      "id": "Wide-Grip_Lat_Pulldown",
+      "pattern": "pull_vertical",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "full_gym"
+      ],
+      "loads": [
+        "shoulder",
+        "elbow"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "forearms"
+      ],
+      "grip": "Overhand grip, wider than shoulders.",
+      "stance": "Seated, thighs under the pads, feet flat.",
+      "steps": [
+        "Grip the bar and sit with thighs secured.",
+        "Lean back slightly and pull the bar to your upper chest.",
+        "Squeeze your shoulder blades down and back.",
+        "Let the bar rise until the arms are straight."
+      ],
+      "cues": [
+        "Pull with the elbows.",
+        "Bar to the upper chest, not behind the neck.",
+        "Slow on the way up."
+      ],
+      "mistakes": [
+        "Leaning far back and rowing it.",
+        "Pulling behind the neck.",
+        "Letting the weight yank the arms up."
+      ],
+      "breathing": "Out as you pull, in as you return.",
+      "easier": null,
+      "harder": "Pullups",
+      "reviewed": false
+    },
+    {
+      "id": "Seated_Cable_Rows",
+      "pattern": "pull_horizontal",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "full_gym"
+      ],
+      "loads": [
+        "shoulder",
+        "elbow",
+        "lower_back"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "lower back",
+        "forearms"
+      ],
+      "grip": "Neutral grip on a V-handle.",
+      "stance": "Seated, feet on the platform, knees slightly bent.",
+      "steps": [
+        "Sit tall holding the handle with straight arms.",
+        "Pull the handle to your stomach.",
+        "Squeeze your shoulder blades together.",
+        "Return slowly until the arms are straight."
+      ],
+      "cues": [
+        "Torso stays still and upright.",
+        "Elbows close to the body.",
+        "Shoulders down."
+      ],
+      "mistakes": [
+        "Rocking back and forth.",
+        "Rounding the back at the front.",
+        "Shrugging."
+      ],
+      "breathing": "Out as you pull, in as you return.",
+      "easier": null,
+      "harder": "Bent_Over_Barbell_Row",
+      "reviewed": false
+    },
+    {
+      "id": "One-Arm_Dumbbell_Row",
+      "pattern": "pull_horizontal",
+      "unit": "reps",
+      "per_side": true,
+      "needs": [
+        "dumbbells"
+      ],
+      "loads": [
+        "shoulder",
+        "elbow",
+        "lower_back"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "lower back",
+        "forearms"
+      ],
+      "grip": "Neutral grip, palm facing your body.",
+      "stance": "One hand and knee on a bench or sturdy chair, other foot on the floor; or a staggered stance with one hand on a table.",
+      "steps": [
+        "Support yourself with one hand, back flat.",
+        "Let the dumbbell hang under the shoulder.",
+        "Row it toward your hip.",
+        "Lower until the arm is straight, then switch sides after the set."
+      ],
+      "cues": [
+        "Pull toward the hip, not the chest.",
+        "Back flat and still.",
+        "Squeeze the shoulder blade back."
+      ],
+      "mistakes": [
+        "Twisting the torso.",
+        "Rounding the back.",
+        "Jerking the weight."
+      ],
+      "breathing": "Out as you row, in as you lower.",
+      "easier": null,
+      "harder": "Bent_Over_Barbell_Row",
+      "reviewed": false
+    },
+    {
+      "id": "Bent_Over_Barbell_Row",
+      "pattern": "pull_horizontal",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "barbell"
+      ],
+      "loads": [
+        "shoulder",
+        "elbow",
+        "lower_back",
+        "hip"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "lower back",
+        "hamstrings",
+        "forearms"
+      ],
+      "fixes": {
+        "level": "intermediate"
+      },
+      "grip": "Overhand grip, a little wider than shoulders.",
+      "stance": "Feet hip-width apart, hinged forward with a flat back, knees soft.",
+      "steps": [
+        "Hinge forward with the bar hanging at arm's length.",
+        "Row the bar to your lower ribs.",
+        "Squeeze the shoulder blades together.",
+        "Lower with control."
+      ],
+      "cues": [
+        "Torso angle stays fixed.",
+        "Elbows drive back.",
+        "Brace your stomach the whole set."
+      ],
+      "mistakes": [
+        "Standing up more with each rep.",
+        "Rounded lower back.",
+        "Using body swing."
+      ],
+      "breathing": "Out as you row, in as you lower.",
+      "easier": "One-Arm_Dumbbell_Row",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Inverted_Row",
+      "pattern": "pull_horizontal",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "full_gym"
+      ],
+      "loads": [
+        "shoulder",
+        "elbow"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "glutes"
+      ],
+      "fixes": {
+        "equipment": "other"
+      },
+      "grip": "Overhand grip on a bar set at about hip height, shoulder-width apart.",
+      "stance": "Lying under the bar, heels on the floor, body straight.",
+      "steps": [
+        "Hang under the bar with straight arms and a straight body.",
+        "Pull your chest to the bar.",
+        "Squeeze your shoulder blades.",
+        "Lower until the arms are straight."
+      ],
+      "cues": [
+        "Body stays a straight plank.",
+        "Bend the knees to make it easier.",
+        "Chest leads to the bar."
+      ],
+      "mistakes": [
+        "Hips sagging.",
+        "Neck reaching for the bar.",
+        "Using an unstable setup."
+      ],
+      "breathing": "Out as you pull, in as you lower.",
+      "easier": null,
+      "harder": "Pullups",
+      "reviewed": false
+    },
+    {
+      "id": "Face_Pull",
+      "pattern": "rear_delt",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "full_gym"
+      ],
+      "loads": [
+        "shoulder"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "traps"
+      ],
+      "fixes": {
+        "level": "beginner",
+        "mechanic": "isolation"
+      },
+      "grip": "Overhand or neutral grip on a rope attachment, thumbs toward you.",
+      "stance": "Standing, feet hip-width, cable at upper-chest to face height.",
+      "steps": [
+        "Hold the rope with arms straight in front.",
+        "Pull it toward your face, splitting the rope apart.",
+        "Finish with hands beside the ears and elbows high.",
+        "Return slowly."
+      ],
+      "cues": [
+        "Elbows high and wide.",
+        "Squeeze between the shoulder blades.",
+        "Light weight, slow tempo."
+      ],
+      "mistakes": [
+        "Leaning back.",
+        "Pulling to the chest.",
+        "Going too heavy."
+      ],
+      "breathing": "Out as you pull, in as you return.",
+      "easier": "Band_Pull_Apart",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Band_Pull_Apart",
+      "pattern": "rear_delt",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "resistance_bands"
+      ],
+      "loads": [
+        "shoulder"
+      ],
+      "stabilizers": [
+        "abdominals"
+      ],
+      "grip": "Overhand grip on a light band, hands shoulder-width apart.",
+      "stance": "Standing, feet hip-width apart, arms straight in front at shoulder height.",
+      "steps": [
+        "Hold the band in front with straight arms.",
+        "Pull the band apart until it touches your chest.",
+        "Squeeze your shoulder blades together.",
+        "Return slowly."
+      ],
+      "cues": [
+        "Arms stay straight.",
+        "Shoulders down away from the ears.",
+        "Control the return."
+      ],
+      "mistakes": [
+        "Bending the elbows.",
+        "Arching the lower back.",
+        "Shrugging."
+      ],
+      "breathing": "Out as you pull apart, in as you return.",
+      "easier": null,
+      "harder": "Face_Pull",
+      "reviewed": false
+    },
+    {
+      "id": "Dumbbell_Bicep_Curl",
+      "pattern": "biceps",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "dumbbells"
+      ],
+      "loads": [
+        "elbow"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "shoulders"
+      ],
+      "grip": "Underhand grip, palms facing forward.",
+      "stance": "Standing, feet hip-width apart, elbows by your sides.",
+      "steps": [
+        "Hold the dumbbells at your sides.",
+        "Curl them up toward your shoulders.",
+        "Squeeze the biceps.",
+        "Lower slowly until the arms are straight."
+      ],
+      "cues": [
+        "Elbows stay by your sides.",
+        "No body swing.",
+        "Slow lowering."
+      ],
+      "mistakes": [
+        "Swinging the weights.",
+        "Elbows drifting forward.",
+        "Half reps."
+      ],
+      "breathing": "Out as you curl, in as you lower.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Hammer_Curls",
+      "pattern": "biceps",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "dumbbells"
+      ],
+      "loads": [
+        "elbow"
+      ],
+      "stabilizers": [
+        "abdominals"
+      ],
+      "fixes": {
+        "secondary_muscles": [
+          "forearms"
+        ]
+      },
+      "grip": "Neutral grip, palms facing each other.",
+      "stance": "Standing, feet hip-width apart.",
+      "steps": [
+        "Hold the dumbbells at your sides, palms in.",
+        "Curl them up without rotating the wrists.",
+        "Pause near the shoulders.",
+        "Lower slowly."
+      ],
+      "cues": [
+        "Thumbs point up throughout.",
+        "Elbows fixed.",
+        "Controlled tempo."
+      ],
+      "mistakes": [
+        "Swinging.",
+        "Rotating the wrists.",
+        "Leaning back."
+      ],
+      "breathing": "Out as you curl, in as you lower.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Plank",
+      "pattern": "core",
+      "unit": "seconds",
+      "per_side": false,
+      "needs": [],
+      "loads": [
+        "shoulder",
+        "lower_back"
+      ],
+      "stabilizers": [
+        "shoulders",
+        "glutes",
+        "quadriceps"
+      ],
+      "grip": "Forearms on the floor, elbows under the shoulders.",
+      "stance": "Feet hip-width apart on the toes, body in a straight line.",
+      "steps": [
+        "Set your forearms on the floor under your shoulders.",
+        "Step your feet back and lift the body.",
+        "Hold a straight line from head to heels.",
+        "Rest on the knees if form breaks."
+      ],
+      "cues": [
+        "Squeeze glutes and brace your stomach.",
+        "Push the floor away with the forearms.",
+        "Neck long, eyes down."
+      ],
+      "mistakes": [
+        "Hips sagging.",
+        "Hips piked high.",
+        "Holding the breath."
+      ],
+      "breathing": "Slow, steady breathing throughout.",
+      "easier": "Dead_Bug",
+      "harder": "Side_Bridge",
+      "reviewed": false
+    },
+    {
+      "id": "Side_Bridge",
+      "pattern": "core",
+      "unit": "seconds",
+      "per_side": true,
+      "needs": [],
+      "loads": [
+        "shoulder"
+      ],
+      "stabilizers": [
+        "glutes",
+        "abductors"
+      ],
+      "fixes": {
+        "mechanic": "isolation"
+      },
+      "grip": "Forearm on the floor under the shoulder.",
+      "stance": "Lying on your side, feet stacked or staggered, knees straight (or bent to make it easier).",
+      "steps": [
+        "Lie on your side propped on one forearm.",
+        "Lift your hips so the body is straight.",
+        "Hold.",
+        "Switch sides."
+      ],
+      "cues": [
+        "Hips stacked, don't roll forward.",
+        "Push the floor away.",
+        "Straight line from head to feet."
+      ],
+      "mistakes": [
+        "Hips dropping.",
+        "Shoulder sinking into the neck.",
+        "Rotating the chest toward the floor."
+      ],
+      "breathing": "Steady breathing.",
+      "easier": "Plank",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Dead_Bug",
+      "pattern": "core",
+      "unit": "reps",
+      "per_side": true,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [
+        "lower back",
+        "shoulders"
+      ],
+      "fixes": {
+        "force": "static",
+        "mechanic": "isolation"
+      },
+      "grip": "Arms reaching straight up toward the ceiling.",
+      "stance": "Lying on your back, hips and knees bent to 90 degrees.",
+      "steps": [
+        "Lie on your back with arms up and knees over the hips.",
+        "Press your lower back gently into the floor.",
+        "Slowly lower the opposite arm and leg toward the floor.",
+        "Return and switch sides."
+      ],
+      "cues": [
+        "Lower back stays in contact with the floor.",
+        "Move slowly.",
+        "Exhale fully as you extend."
+      ],
+      "mistakes": [
+        "Lower back arching off the floor.",
+        "Moving too fast.",
+        "Holding the breath."
+      ],
+      "breathing": "Breathe out as the arm and leg extend, in as they return.",
+      "easier": null,
+      "harder": "Plank",
+      "reviewed": false
+    },
+    {
+      "id": "Crunches",
+      "pattern": "core",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [],
+      "loads": [
+        "neck"
+      ],
+      "stabilizers": [],
+      "grip": "Hands crossed on the chest or lightly beside the head.",
+      "stance": "Lying on your back, knees bent, feet flat.",
+      "steps": [
+        "Lie on your back with knees bent.",
+        "Curl your head and shoulders off the floor.",
+        "Pause at the top.",
+        "Lower slowly."
+      ],
+      "cues": [
+        "Curl the ribs toward the hips.",
+        "Don't pull on the neck.",
+        "Small, controlled movement."
+      ],
+      "mistakes": [
+        "Yanking the head with the hands.",
+        "Using momentum.",
+        "Sitting all the way up."
+      ],
+      "breathing": "Out as you curl up, in as you lower.",
+      "easier": null,
+      "harder": "Reverse_Crunch",
+      "reviewed": false
+    },
+    {
+      "id": "Reverse_Crunch",
+      "pattern": "core",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [],
+      "loads": [
+        "lower_back"
+      ],
+      "stabilizers": [],
+      "grip": "Arms flat on the floor by your sides.",
+      "stance": "Lying on your back, knees bent at 90 degrees, shins parallel to the floor.",
+      "steps": [
+        "Lie on your back with knees bent and feet lifted.",
+        "Curl your hips up off the floor toward your chest.",
+        "Pause briefly.",
+        "Lower slowly."
+      ],
+      "cues": [
+        "Roll the pelvis, don't swing the legs.",
+        "Slow on the way down.",
+        "Arms stay relaxed."
+      ],
+      "mistakes": [
+        "Swinging the legs.",
+        "Pushing hard with the arms.",
+        "Dropping the hips."
+      ],
+      "breathing": "Out as you curl, in as you lower.",
+      "easier": "Crunches",
+      "harder": "Hanging_Leg_Raise",
+      "reviewed": false
+    },
+    {
+      "id": "Hanging_Leg_Raise",
+      "pattern": "core",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [
+        "pull_up_bar"
+      ],
+      "loads": [
+        "shoulder",
+        "lower_back"
+      ],
+      "stabilizers": [
+        "forearms",
+        "lats"
+      ],
+      "fixes": {
+        "level": "intermediate"
+      },
+      "grip": "Overhand grip on a pull-up bar, shoulder-width apart.",
+      "stance": "Hanging, legs together.",
+      "steps": [
+        "Hang with arms straight and shoulders engaged.",
+        "Raise your knees or straight legs toward the chest.",
+        "Curl the pelvis up at the top.",
+        "Lower slowly without swinging."
+      ],
+      "cues": [
+        "Start with bent knees.",
+        "No swinging.",
+        "Control the lowering."
+      ],
+      "mistakes": [
+        "Swinging for momentum.",
+        "Only lifting the legs without curling the pelvis.",
+        "Dropping quickly."
+      ],
+      "breathing": "Out as you raise, in as you lower.",
+      "easier": "Reverse_Crunch",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Russian_Twist",
+      "pattern": "core",
+      "unit": "reps",
+      "per_side": true,
+      "needs": [],
+      "loads": [
+        "lower_back"
+      ],
+      "stabilizers": [],
+      "fixes": {
+        "secondary_muscles": [
+          "lower back"
+        ]
+      },
+      "grip": "Hands clasped together in front of the chest.",
+      "stance": "Seated, knees bent, heels on the floor (or lifted to make it harder), torso leaning back slightly.",
+      "steps": [
+        "Sit and lean back slightly with a straight back.",
+        "Rotate your torso to one side.",
+        "Rotate to the other side.",
+        "Each side counts as one rep."
+      ],
+      "cues": [
+        "Rotate from the ribs, not just the arms.",
+        "Keep the chest up.",
+        "Slow and controlled."
+      ],
+      "mistakes": [
+        "Rounding the back.",
+        "Swinging the arms only.",
+        "Going fast."
+      ],
+      "breathing": "Breathe out as you rotate.",
+      "easier": "Dead_Bug",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Superman",
+      "pattern": "core",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [],
+      "loads": [
+        "lower_back"
+      ],
+      "stabilizers": [
+        "shoulders"
+      ],
+      "fixes": {
+        "category": "strength"
+      },
+      "grip": "Arms extended overhead.",
+      "stance": "Lying face down, legs straight.",
+      "steps": [
+        "Lie face down with arms overhead.",
+        "Lift arms, chest and legs a few centimetres off the floor.",
+        "Hold for 2 to 3 seconds.",
+        "Lower slowly."
+      ],
+      "cues": [
+        "Small lift; you don't need height.",
+        "Eyes on the floor.",
+        "Squeeze the glutes."
+      ],
+      "mistakes": [
+        "Cranking the neck up.",
+        "Lifting too high and straining the lower back.",
+        "Rushing."
+      ],
+      "breathing": "Breathe out as you lift.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Mountain_Climbers",
+      "pattern": "cardio",
+      "unit": "seconds",
+      "per_side": false,
+      "needs": [],
+      "loads": [
+        "shoulder",
+        "wrist"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "glutes"
+      ],
+      "fixes": {
+        "equipment": "body only",
+        "category": "cardio"
+      },
+      "grip": "Hands flat under the shoulders.",
+      "stance": "High plank, feet hip-width apart.",
+      "steps": [
+        "Start in a high plank.",
+        "Drive one knee toward the chest.",
+        "Switch legs quickly.",
+        "Keep alternating at a steady pace."
+      ],
+      "cues": [
+        "Hips level with the shoulders.",
+        "Shoulders over the wrists.",
+        "Light, quick feet."
+      ],
+      "mistakes": [
+        "Hips bouncing high.",
+        "Shoulders drifting behind the wrists.",
+        "Losing the plank."
+      ],
+      "breathing": "Short, rhythmic breaths.",
+      "easier": "Plank",
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Star_Jump",
+      "pattern": "cardio",
+      "unit": "seconds",
+      "per_side": false,
+      "needs": [],
+      "loads": [
+        "knee",
+        "ankle"
+      ],
+      "stabilizers": [
+        "abdominals"
+      ],
+      "fixes": {
+        "category": "cardio"
+      },
+      "grip": "No grip; arms move freely.",
+      "stance": "Feet together, knees soft.",
+      "steps": [
+        "Stand with feet together.",
+        "Jump and spread arms and legs into a star.",
+        "Land softly with feet together.",
+        "Repeat at a steady rhythm."
+      ],
+      "cues": [
+        "Land softly on the balls of the feet.",
+        "Knees slightly bent on landing.",
+        "Steady pace."
+      ],
+      "mistakes": [
+        "Landing with straight knees.",
+        "Heavy, loud landings.",
+        "Going too fast and losing control."
+      ],
+      "breathing": "Rhythmic breathing.",
+      "easier": "Mountain_Climbers",
+      "harder": "Freehand_Jump_Squat",
+      "reviewed": false
+    },
+    {
+      "id": "Freehand_Jump_Squat",
+      "pattern": "cardio",
+      "unit": "reps",
+      "per_side": false,
+      "needs": [],
+      "loads": [
+        "knee",
+        "hip",
+        "ankle"
+      ],
+      "stabilizers": [
+        "abdominals"
+      ],
+      "grip": "Hands behind the head or swinging for momentum.",
+      "stance": "Feet shoulder-width apart.",
+      "steps": [
+        "Squat down to a comfortable depth.",
+        "Jump straight up explosively.",
+        "Land softly and go straight into the next squat.",
+        "Repeat."
+      ],
+      "cues": [
+        "Land quietly.",
+        "Knees follow the toes.",
+        "Reset between reps if form slips."
+      ],
+      "mistakes": [
+        "Knees caving in on landing.",
+        "Stiff-legged landings.",
+        "Doing them when tired and sloppy."
+      ],
+      "breathing": "Breathe out as you jump.",
+      "easier": "Bodyweight_Squat",
+      "harder": null,
+      "reviewed": false,
+      "rep_range": [
+        8,
+        12
+      ]
+    },
+    {
+      "id": "One-Arm_Kettlebell_Swings",
+      "pattern": "hinge",
+      "unit": "reps",
+      "per_side": true,
+      "needs": [
+        "kettlebell"
+      ],
+      "loads": [
+        "hip",
+        "lower_back"
+      ],
+      "stabilizers": [
+        "abdominals",
+        "forearms",
+        "lats"
+      ],
+      "grip": "One hand on the kettlebell handle, overhand.",
+      "stance": "Feet slightly wider than shoulders, toes slightly out.",
+      "steps": [
+        "Hike the kettlebell back between your legs, hinging at the hips.",
+        "Snap the hips forward to float the bell to chest height.",
+        "Let it fall back and hinge again.",
+        "Switch hands after the set."
+      ],
+      "cues": [
+        "It's a hip hinge, not a squat.",
+        "Arm is a rope; the hips do the work.",
+        "Stand tall at the top with glutes squeezed."
+      ],
+      "mistakes": [
+        "Lifting with the arm.",
+        "Squatting the swing.",
+        "Rounding the back at the bottom."
+      ],
+      "breathing": "Sharp breath out as the hips snap forward.",
+      "easier": "Stiff-Legged_Dumbbell_Deadlift",
+      "harder": null,
+      "reviewed": false,
+      "rep_range": [
+        10,
+        15
+      ]
+    },
+    {
+      "id": "Cat_Stretch",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": false,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "Hands flat under the shoulders.",
+      "stance": "On hands and knees, knees under the hips.",
+      "steps": [
+        "Start on hands and knees.",
+        "Round your back up toward the ceiling, tucking the chin.",
+        "Then let the stomach drop and lift the chest.",
+        "Move slowly between the two."
+      ],
+      "cues": [
+        "Move one segment of the spine at a time.",
+        "Go only as far as is comfortable.",
+        "Slow breathing."
+      ],
+      "mistakes": [
+        "Moving too fast.",
+        "Forcing the end range.",
+        "Holding the breath."
+      ],
+      "breathing": "Breathe out as you round, in as you arch.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Childs_Pose",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": false,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "Arms extended forward on the floor.",
+      "stance": "Kneeling, big toes together, knees apart.",
+      "steps": [
+        "Kneel and sit back toward your heels.",
+        "Walk your hands forward and lower your chest.",
+        "Rest your forehead on the floor or a cushion.",
+        "Hold and breathe."
+      ],
+      "cues": [
+        "Let the hips sink back.",
+        "Relax the shoulders.",
+        "Long, slow breaths."
+      ],
+      "mistakes": [
+        "Forcing the hips down.",
+        "Tensing the shoulders.",
+        "Holding the breath."
+      ],
+      "breathing": "Slow breaths into the back of the ribs.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Kneeling_Hip_Flexor",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": true,
+      "needs": [],
+      "loads": [
+        "knee"
+      ],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only",
+        "secondary_muscles": [
+          "glutes"
+        ]
+      },
+      "grip": "Hands on the front knee or hips.",
+      "stance": "Half kneeling: one knee down, the other foot forward.",
+      "steps": [
+        "Kneel on one knee with the other foot in front.",
+        "Tuck your pelvis under and squeeze the glute of the back leg.",
+        "Shift forward gently until you feel the stretch at the front of the back hip.",
+        "Hold, then switch sides."
+      ],
+      "cues": [
+        "Tuck the tailbone; don't arch the back.",
+        "Small forward shift is enough.",
+        "Pad under the knee if needed."
+      ],
+      "mistakes": [
+        "Arching the lower back.",
+        "Lunging too far forward.",
+        "No glute squeeze."
+      ],
+      "breathing": "Slow breathing, relax into the stretch.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Chin_To_Chest_Stretch",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": false,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "Hands may rest lightly on the back of the head (no pulling).",
+      "stance": "Seated or standing tall.",
+      "steps": [
+        "Sit or stand tall.",
+        "Slowly lower your chin toward your chest.",
+        "Hold where you feel a gentle stretch along the back of the neck.",
+        "Return slowly."
+      ],
+      "cues": [
+        "Gentle stretch only.",
+        "Shoulders relaxed.",
+        "Good desk-break stretch."
+      ],
+      "mistakes": [
+        "Pulling hard on the head.",
+        "Hunching the shoulders.",
+        "Bouncing."
+      ],
+      "breathing": "Slow breathing.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Side_Neck_Stretch",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": true,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only",
+        "secondary_muscles": [
+          "traps"
+        ]
+      },
+      "grip": "One hand can rest on the head without pulling.",
+      "stance": "Seated or standing tall.",
+      "steps": [
+        "Sit tall with shoulders relaxed.",
+        "Tilt your ear toward your shoulder.",
+        "Hold a gentle stretch on the opposite side of the neck.",
+        "Switch sides."
+      ],
+      "cues": [
+        "Keep the opposite shoulder down.",
+        "Gentle stretch, no pain.",
+        "Look straight ahead."
+      ],
+      "mistakes": [
+        "Lifting the shoulder to the ear.",
+        "Pulling hard.",
+        "Rotating the head."
+      ],
+      "breathing": "Slow breathing.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Standing_Hamstring_and_Calf_Stretch",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": true,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only",
+        "secondary_muscles": [
+          "calves"
+        ]
+      },
+      "grip": "Hands on the thigh of the bent leg.",
+      "stance": "One heel forward on the floor with toes up, back knee slightly bent.",
+      "steps": [
+        "Place one heel forward with the toes pointing up.",
+        "Hinge forward from the hips with a flat back.",
+        "Hold where you feel the stretch behind the thigh and calf.",
+        "Switch sides."
+      ],
+      "cues": [
+        "Hinge from the hips, not by rounding.",
+        "Gentle stretch.",
+        "Keep breathing."
+      ],
+      "mistakes": [
+        "Rounding the back.",
+        "Bouncing.",
+        "Forcing the range."
+      ],
+      "breathing": "Slow breathing.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Hug_Knees_To_Chest",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": false,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "Arms wrapped around the shins.",
+      "stance": "Lying on your back.",
+      "steps": [
+        "Lie on your back.",
+        "Bring both knees toward the chest.",
+        "Hug the shins gently.",
+        "Hold and relax the lower back."
+      ],
+      "cues": [
+        "Head stays on the floor.",
+        "Gentle rocking is fine.",
+        "Relax the shoulders."
+      ],
+      "mistakes": [
+        "Lifting the head.",
+        "Pulling hard.",
+        "Holding the breath."
+      ],
+      "breathing": "Slow breathing.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Shoulder_Stretch",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": true,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only",
+        "force": "static"
+      },
+      "grip": "Opposite hand holds the working arm above the elbow.",
+      "stance": "Standing or seated tall.",
+      "steps": [
+        "Bring one arm across your chest.",
+        "Use the other hand to gently pull it closer.",
+        "Hold the stretch at the back of the shoulder.",
+        "Switch sides."
+      ],
+      "cues": [
+        "Shoulder stays down.",
+        "Gentle pull.",
+        "Good desk-break stretch."
+      ],
+      "mistakes": [
+        "Shrugging.",
+        "Pulling on the elbow joint.",
+        "Twisting the torso."
+      ],
+      "breathing": "Slow breathing.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Upper_Back_Stretch",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": false,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only",
+        "secondary_muscles": [
+          "traps"
+        ]
+      },
+      "grip": "Fingers interlaced, palms facing away.",
+      "stance": "Standing or seated tall.",
+      "steps": [
+        "Interlace your fingers in front of you.",
+        "Push your hands forward and round your upper back.",
+        "Let your head drop slightly.",
+        "Hold and breathe into the upper back."
+      ],
+      "cues": [
+        "Spread the shoulder blades apart.",
+        "Relax the neck.",
+        "Good after long screen time."
+      ],
+      "mistakes": [
+        "Locking the elbows hard.",
+        "Holding the breath.",
+        "Shrugging."
+      ],
+      "breathing": "Breathe slowly into the upper back.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Wrist_Circles",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": false,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "force": "static"
+      },
+      "grip": "Hands loosely clasped or fists.",
+      "stance": "Seated or standing.",
+      "steps": [
+        "Hold your arms in front.",
+        "Circle the wrists slowly in one direction.",
+        "Switch direction halfway.",
+        "Keep the movement smooth."
+      ],
+      "cues": [
+        "Slow, full circles.",
+        "Relax the shoulders.",
+        "Good for keyboard-heavy days."
+      ],
+      "mistakes": [
+        "Rushing.",
+        "Forcing painful range.",
+        "Tensing the arms."
+      ],
+      "breathing": "Normal breathing.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Arm_Circles",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": false,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only",
+        "force": "static"
+      },
+      "grip": "Arms extended out to the sides.",
+      "stance": "Standing, feet hip-width apart.",
+      "steps": [
+        "Lift your arms out to the sides.",
+        "Make small circles, growing bigger.",
+        "Reverse direction halfway.",
+        "Keep shoulders down."
+      ],
+      "cues": [
+        "Start small.",
+        "Smooth movement.",
+        "Good warm-up before upper body work."
+      ],
+      "mistakes": [
+        "Shrugging.",
+        "Jerky circles.",
+        "Arching the back."
+      ],
+      "breathing": "Normal breathing.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    }
+  ]
+}

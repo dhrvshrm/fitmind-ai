@@ -1,63 +1,48 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.api.v1.endpoints.auth import get_current_user
 from app.models.user import User
 from app.schemas.general import SuccessResponse
 from app.schemas.workout import (
     ExerciseCompleteRequest,
+    ExerciseSwapRequest,
+    QuickSessionRequest,
     WorkoutLogRequest,
     WorkoutPlanRequest,
 )
-from app.services import (
-    notification_service,
-    recovery_service,
-    voice_service,
-    workout_service,
-)
+from app.services import notification_service, workout_service
+from app.services.workout_service import WorkoutServiceError
 
 router = APIRouter(prefix="/workouts", tags=["Workouts"])
 
 
-async def _resolve_mood_score(user_id: str) -> int:
-    """Return the user's latest voice-check-in energy level, defaulting to 5."""
-    history = await voice_service.get_voice_history(user_id, limit=1)
-    return history[0].energy_level if history else 5
+def _http(exc: WorkoutServiceError) -> HTTPException:
+    code = status.HTTP_404_NOT_FOUND if exc.kind == "not_found" else status.HTTP_400_BAD_REQUEST
+    return HTTPException(status_code=code, detail=str(exc))
+
+
+def _plan_data(plan) -> dict:
+    # Plans made before the exercise catalogue have no meta; send null, not {}.
+    return {"week": plan.week, "meta": plan.meta or None}
 
 
 @router.post("/generate", response_model=SuccessResponse)
 async def generate_workout_plan(
     request: WorkoutPlanRequest, current_user: User = Depends(get_current_user)
 ) -> dict:
-    """Generate a weekly workout plan, adapted to recovery and mood.
+    """Build a weekly plan from the curated exercise catalogue.
 
-    Goal/level/equipment fall back to the user's onboarding profile when not
-    supplied in the request.
+    Sets, reps and rest follow the ACSM and WHO guidelines; exercises are
+    filtered for the user's equipment, injuries and level. Goal, level and
+    equipment default to the profile. Each new plan rotates exercise choices.
     """
-    goal = request.fitness_goal or current_user.fitness_goal or "general_fitness"
-    level = request.experience_level or current_user.experience_level or "beginner"
-    equipment = (
-        request.available_equipment
-        if request.available_equipment is not None
-        else current_user.available_equipment
-    )
-
-    recovery_score = await recovery_service.get_recovery_score(current_user.id)
-    mood_score = await _resolve_mood_score(current_user.id)
-
     plan = await workout_service.generate_workout_plan(
-        user_id=current_user.id,
-        fitness_goal=goal,
-        experience_level=level,
-        equipment=equipment,
-        recovery_score=recovery_score,
-        mood_score=mood_score,
-        injuries=current_user.injuries,
+        current_user,
+        fitness_goal=request.fitness_goal,
+        experience_level=request.experience_level,
+        equipment=request.available_equipment,
     )
-    return {
-        "success": True,
-        "message": "Workout plan generated",
-        "data": {"weekly_plan": {"week": plan.week}},
-    }
+    return {"success": True, "message": "Workout plan generated", "data": {"weekly_plan": _plan_data(plan)}}
 
 
 @router.get("/plan/week", response_model=SuccessResponse)
@@ -67,19 +52,52 @@ async def get_weekly_plan(current_user: User = Depends(get_current_user)) -> dic
     return {
         "success": True,
         "message": "Weekly plan retrieved",
-        "data": {"plan": {"week": plan.week} if plan else None},
+        "data": {"plan": _plan_data(plan) if plan else None},
     }
 
 
 @router.get("/plan/today", response_model=SuccessResponse)
 async def get_today_workout(current_user: User = Depends(get_current_user)) -> dict:
-    """Return today's exercises from the user's current plan."""
-    exercises = await workout_service.get_today_workout(current_user.id)
-    return {
-        "success": True,
-        "message": "Today's workout retrieved",
-        "data": {"exercises": exercises},
-    }
+    """Today's session: a chosen quick session, or the plan's day adjusted for
+    today's recovery score (fewer sets when low, mobility when very low)."""
+    today = await workout_service.get_today_workout(current_user)
+    return {"success": True, "message": "Today's workout retrieved", "data": today}
+
+
+@router.post("/quick", response_model=SuccessResponse)
+async def start_quick_session(payload: QuickSessionRequest, current_user: User = Depends(get_current_user)) -> dict:
+    """Replace today's session with a 10, 15 or 20 minute circuit (home or gym)."""
+    today = await workout_service.start_quick_session(current_user, payload.minutes, payload.place)
+    return {"success": True, "message": "Quick session ready", "data": today}
+
+
+@router.delete("/quick", response_model=SuccessResponse)
+async def end_quick_session(current_user: User = Depends(get_current_user)) -> dict:
+    """Go back to today's planned session."""
+    today = await workout_service.end_quick_session(current_user)
+    return {"success": True, "message": "Back to your plan", "data": today}
+
+
+@router.get("/plan/{day}/exercises/{index}/alternatives", response_model=SuccessResponse)
+async def swap_options(day: str, index: int, current_user: User = Depends(get_current_user)) -> dict:
+    """Exercises with the same movement pattern that suit the user's equipment, injuries and level."""
+    try:
+        options = await workout_service.swap_options(current_user, day, index)
+    except WorkoutServiceError as exc:
+        raise _http(exc) from exc
+    return {"success": True, "message": "Alternatives", "data": options}
+
+
+@router.post("/plan/{day}/exercises/{index}/swap", response_model=SuccessResponse)
+async def swap_exercise(
+    day: str, index: int, payload: ExerciseSwapRequest, current_user: User = Depends(get_current_user)
+) -> dict:
+    """Replace one exercise in the weekly plan."""
+    try:
+        plan = await workout_service.swap_exercise(current_user, day, index, payload.exercise_id)
+    except WorkoutServiceError as exc:
+        raise _http(exc) from exc
+    return {"success": True, "message": "Exercise swapped", "data": {"plan": _plan_data(plan)}}
 
 
 @router.post("/log", response_model=SuccessResponse)

@@ -2,6 +2,9 @@ import { alpha, type SxProps, type Theme } from '@mui/material';
 import { RADIUS } from '../../theme';
 
 export const todayWorkoutStyles = {
+  notice: {
+    mb: 1.5,
+  },
   root: {
     position: 'relative',
     minWidth: 0,

@@ -1,10 +1,12 @@
 import { apiClient } from '../lib/apiClient';
 import { WORKOUT_ENDPOINTS } from '../constants/api';
 import type { ApiEnvelope } from '../types/auth';
+import type { ExerciseSummary } from '../types/exercise';
 import type {
-  Exercise,
   ExerciseCompleteResult,
   GeneratePlanPayload,
+  QuickSessionPayload,
+  TodayWorkout,
   WeeklyPlan,
   WorkoutHistoryItem,
   WorkoutLogPayload,
@@ -13,7 +15,7 @@ import type {
 
 /** Workout API. Unwraps the backend `{ success, message, data }` envelope. */
 export const workoutService = {
-  /** Generates (and persists) a fresh weekly plan; can take several seconds. */
+  /** Builds (and saves) a fresh weekly plan from the exercise catalogue. */
   async generateWorkoutPlan(payload: GeneratePlanPayload = {}): Promise<WeeklyPlan> {
     const { data } = await apiClient.post<ApiEnvelope<{ weekly_plan: WeeklyPlan }>>(
       WORKOUT_ENDPOINTS.GENERATE,
@@ -30,11 +32,38 @@ export const workoutService = {
     return data.data.plan;
   },
 
-  async getTodayWorkout(): Promise<Exercise[]> {
-    const { data } = await apiClient.get<ApiEnvelope<{ exercises: Exercise[] }>>(
-      WORKOUT_ENDPOINTS.TODAY,
+  /** Today's session, adjusted for today's recovery, or a chosen quick session. */
+  async getTodayWorkout(): Promise<TodayWorkout> {
+    const { data } = await apiClient.get<ApiEnvelope<TodayWorkout>>(WORKOUT_ENDPOINTS.TODAY);
+    return data.data;
+  },
+
+  /** Replaces today's session with a 10, 15 or 20 minute circuit. */
+  async startQuickSession(payload: QuickSessionPayload): Promise<TodayWorkout> {
+    const { data } = await apiClient.post<ApiEnvelope<TodayWorkout>>(WORKOUT_ENDPOINTS.QUICK, payload);
+    return data.data;
+  },
+
+  /** Goes back to today's planned session. */
+  async endQuickSession(): Promise<TodayWorkout> {
+    const { data } = await apiClient.delete<ApiEnvelope<TodayWorkout>>(WORKOUT_ENDPOINTS.QUICK);
+    return data.data;
+  },
+
+  /** Exercises with the same movement that suit the user's equipment, injuries and level. */
+  async getSwapOptions(day: string, index: number): Promise<ExerciseSummary[]> {
+    const { data } = await apiClient.get<ApiEnvelope<ExerciseSummary[]>>(
+      WORKOUT_ENDPOINTS.alternatives(day, index),
     );
-    return data.data.exercises;
+    return data.data;
+  },
+
+  async swapExercise(day: string, index: number, exerciseId: string): Promise<WeeklyPlan> {
+    const { data } = await apiClient.post<ApiEnvelope<{ plan: WeeklyPlan }>>(
+      WORKOUT_ENDPOINTS.swap(day, index),
+      { exercise_id: exerciseId },
+    );
+    return data.data.plan;
   },
 
   /** Logs a completed workout; awards XP, recomputes level, checks badges. */

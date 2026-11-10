@@ -1,6 +1,9 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const workoutPageStyles = {
+  tabs: {
+    mb: 2,
+  },
   generateBox: {
     display: 'flex',
     flexDirection: 'column',

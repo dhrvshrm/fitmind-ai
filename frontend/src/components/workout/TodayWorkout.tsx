@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import {
+  Alert,
   Box,
   Button,
   Chip,
@@ -18,12 +19,15 @@ import {
 } from '@mui/icons-material';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ExerciseLogger } from './ExerciseLogger';
+import { ExerciseDetailDialog } from '../exercises/ExerciseDetailDialog';
 import { WorkoutCompletion } from './WorkoutCompletion';
 import { useWorkoutTimer } from '../../hooks/useWorkoutTimer';
-import { useCompleteExercise } from '../../hooks/queries/useWorkoutQueries';
+import toast from 'react-hot-toast';
+import { useCompleteExercise, useEndQuickSession } from '../../hooks/queries/useWorkoutQueries';
+import { resolveApiError } from '../../lib/apiClient';
 import { STRINGS } from '../../constants/strings';
 import { formatDuration } from '../../utils/date';
-import type { Exercise, WorkoutLogResult } from '../../types/workout';
+import type { Exercise, TodayWorkout as TodaySession, WorkoutLogResult } from '../../types/workout';
 import { SectionCard } from '../ui/SectionCard';
 import { EmptyState } from '../ui/EmptyState';
 import { ErrorState } from '../ui/ErrorState';
@@ -32,9 +36,10 @@ import { todayWorkoutStyles as styles } from './TodayWorkout.styles';
 
 const S = STRINGS.workout;
 const CELEBRATION_MS = 2200;
+const NO_EXERCISES: Exercise[] = [];
 
 type TodayWorkoutProps = {
-  exercises: Exercise[];
+  today: TodaySession | undefined;
   loading: boolean;
   error: string | null;
   onRetry: () => void;
@@ -49,15 +54,18 @@ type TodayWorkoutProps = {
  * finish flow that saves the session (XP, level, badges) via the completion dialog.
  */
 export function TodayWorkout({
-  exercises,
+  today,
   loading,
   error,
   onRetry,
   alreadyLogged,
   onLogged,
 }: TodayWorkoutProps) {
+  const exercises = today?.exercises ?? NO_EXERCISES;
   const timer = useWorkoutTimer();
   const completeExercise = useCompleteExercise();
+  const endQuick = useEndQuickSession();
+  const [detailId, setDetailId] = useState<string | null>(null);
   const [doneSets, setDoneSets] = useState<Record<string, Set<number>>>({});
   const [completionOpen, setCompletionOpen] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
@@ -102,6 +110,15 @@ export function TodayWorkout({
     });
   }
 
+  async function handleBackToPlan() {
+    try {
+      await endQuick.mutateAsync();
+      toast.success(S.quick.ended);
+    } catch (err) {
+      toast.error(resolveApiError(err, S.quick.error));
+    }
+  }
+
   function handleLogged(result: WorkoutLogResult) {
     timer.reset();
     onLogged(result);
@@ -116,6 +133,7 @@ export function TodayWorkout({
     <Box sx={styles.root}>
       <SectionCard
         title={S.today.title}
+        subtitle={today?.focus ?? undefined}
         action={
           showLogger && (
             <Chip
@@ -165,6 +183,30 @@ export function TodayWorkout({
           </>
         )}
 
+        {ready && today?.quick && today.minutes && (
+          <Alert
+            severity="info"
+            sx={styles.notice}
+            action={
+              <Button color="inherit" size="small" onClick={handleBackToPlan} disabled={endQuick.isPending}>
+                {S.today.backToPlan}
+              </Button>
+            }
+          >
+            {S.today.quickActive(today.minutes, today.rounds ?? 1)}
+          </Alert>
+        )}
+        {ready && !alreadyLogged && today?.mode === 'light' && (
+          <Alert severity="warning" variant="outlined" sx={styles.notice}>
+            {S.today.lightDay}
+          </Alert>
+        )}
+        {ready && !alreadyLogged && today?.mode === 'rest' && (
+          <Alert severity="warning" variant="outlined" sx={styles.notice}>
+            {S.today.mobilityDay(today.planned_focus)}
+          </Alert>
+        )}
+
         {loading && <Skeleton variant="rounded" sx={styles.skeleton} />}
         {!loading && error && <ErrorState message={error} onRetry={onRetry} />}
 
@@ -199,6 +241,7 @@ export function TodayWorkout({
                   exercise={exercise}
                   doneSets={doneSets[exercise.name] ?? new Set()}
                   onToggleSet={(setIndex) => toggleSet(exercise, setIndex)}
+                  onDetails={exercise.exercise_id ? () => setDetailId(exercise.exercise_id ?? null) : undefined}
                 />
               ))}
             </Box>
@@ -241,6 +284,8 @@ export function TodayWorkout({
           </Box>
         )}
       </AnimatePresence>
+
+      <ExerciseDetailDialog exerciseId={detailId} onClose={() => setDetailId(null)} onOpenExercise={setDetailId} />
 
       <WorkoutCompletion
         open={completionOpen}

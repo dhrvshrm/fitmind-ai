@@ -79,12 +79,24 @@ Pipeline: R2 upload -> Groq Whisper transcription -> Gemini mood/energy analysis
 ### Workouts
 | Method | Path | Body |
 |---|---|---|
-| POST | `/workouts/generate` | (auth) `{fitness_goal?, experience_level?, available_equipment?}` - adapts to recovery + mood |
-| GET | `/workouts/plan/week` | (auth) current weekly plan |
-| GET | `/workouts/plan/today` | (auth) today's exercises |
+| POST | `/workouts/generate` | (auth) `{fitness_goal?, experience_level?, available_equipment?}` (default to the profile). Builds the week by rules from the curated exercise catalogue; no AI. Each new plan rotates exercise choices |
+| GET | `/workouts/plan/week` | (auth) `{plan: {week, meta}}`; `meta` has the guideline basis, level, days per week, weekly sets per muscle and notes |
+| GET | `/workouts/plan/today` | (auth) today's session: a quick session if one was chosen, else the plan's day adjusted for today's recovery score (`mode`: normal, light with one set fewer, or rest with mobility instead) |
+| POST | `/workouts/quick` | (auth) `{minutes: 10, 15 or 20, place: home or gym}` replaces today's session with a circuit |
+| DELETE | `/workouts/quick` | (auth) back to today's planned session |
+| GET | `/workouts/plan/{day}/exercises/{index}/alternatives` | (auth) same-pattern exercises allowed for the user's equipment, injuries and level |
+| POST | `/workouts/plan/{day}/exercises/{index}/swap` | (auth) `{exercise_id}`; 400 if it isn't an allowed alternative |
 | POST | `/workouts/log` | (auth) `{exercises, duration_minutes, intensity}` -> `{xp_earned, new_level, new_badges}` |
 | GET | `/workouts/history` | (auth) `?days=30` |
 | PUT | `/workouts/exercise/complete` | (auth) `{exercise_name}` |
+
+Plan exercises carry `exercise_id`, `pattern`, `primary_muscles`, `secondary_muscles`, `equipment`, `image` and `effort` alongside `name`, `sets`, `reps`, `rest` and `difficulty`.
+
+### Exercise library
+| Method | Path | Body |
+|---|---|---|
+| GET | `/exercises?q=&muscle=&equipment=&curated=` | (auth) search; curated exercises first |
+| GET | `/exercises/{id}` | (auth) photos, force type, mechanic, level, equipment, primary, secondary and stabiliser muscles; for curated exercises also grip, stance, steps, cues, mistakes, breathing, and easier and harder variations |
 
 ### Nutrition
 | Method | Path | Body |

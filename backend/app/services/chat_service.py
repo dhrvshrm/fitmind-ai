@@ -45,10 +45,10 @@ async def _build_context(user_id: str) -> str:
     if voice:
         lines.append(f"Latest mood: {voice[0].mood} (energy {voice[0].energy_level}/10).")
 
-    today_exercises = await workout_service.get_today_workout(user_id)
-    if today_exercises:
-        names = ", ".join(e.get("name", "") for e in today_exercises[:6])
-        lines.append(f"Today's planned workout: {names}.")
+    today = await workout_service.get_today_workout(user) if user is not None else None
+    if today and today["exercises"]:
+        names = ", ".join(e.get("name", "") for e in today["exercises"][:6])
+        lines.append(f"Today's workout ({today.get('focus') or 'session'}): {names}.")
     else:
         lines.append("No workout planned today.")
 

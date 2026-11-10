@@ -57,6 +57,12 @@ export const weeklyPlanViewStyles = {
     display: 'block',
     mt: 0.25,
   },
+  dialogTitle: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 2,
+  },
   dialogTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -74,6 +80,10 @@ export const weeklyPlanViewStyles = {
   dialogList: {
     display: 'grid',
     gap: 1.5,
-    mt: 1,
+  },
+  footer: {
+    display: 'grid',
+    gap: 1,
+    mt: 2,
   },
 };

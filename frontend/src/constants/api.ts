@@ -44,6 +44,14 @@ export const WORKOUT_ENDPOINTS = {
   LOG: "/workouts/log",
   HISTORY: "/workouts/history",
   EXERCISE_COMPLETE: "/workouts/exercise/complete",
+  QUICK: "/workouts/quick",
+  alternatives: (day: string, index: number) => `/workouts/plan/${day}/exercises/${index}/alternatives`,
+  swap: (day: string, index: number) => `/workouts/plan/${day}/exercises/${index}/swap`,
+} as const;
+
+export const EXERCISE_ENDPOINTS = {
+  SEARCH: "/exercises",
+  detail: (id: string) => `/exercises/${encodeURIComponent(id)}`,
 } as const;
 
 /** localStorage key for locally-tracked workout completions (until Day 8 sync). */

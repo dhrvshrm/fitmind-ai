@@ -42,6 +42,7 @@ USER_DATA_COLLECTIONS: Dict[str, List[str]] = {
     "saved_meals": ["user_id"],
     "user_foods": ["user_id"],
     "diet_plans": ["user_id"],
+    "workout_overrides": ["user_id"],
 }
 
 
@@ -65,6 +66,7 @@ def _memory_stores() -> List[dict]:
         food_library._SAVED_MEAL_MEMORY,
         food_library._USER_FOOD_MEMORY,
         diet_plan._MEMORY_STORE,
+        workout._OVERRIDE_MEMORY,
     ]
 
 

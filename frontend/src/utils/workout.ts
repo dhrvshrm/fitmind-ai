@@ -65,3 +65,18 @@ export function getStreak(completedDates: string[]): number {
   }
   return streak;
 }
+
+export type RepsParts = {
+  /** "8-12" or "30s". */
+  value: string;
+  /** Timed holds or intervals rather than counted reps. */
+  timed: boolean;
+  eachSide: boolean;
+};
+
+/** Splits a prescription like "8-12 each side" or "30s" into its parts for display. */
+export function splitReps(reps: string): RepsParts {
+  const eachSide = /each side/i.test(reps);
+  const value = reps.replace(/each side/i, '').trim();
+  return { value, timed: /^\d+\s*s$/i.test(value), eachSide };
+}

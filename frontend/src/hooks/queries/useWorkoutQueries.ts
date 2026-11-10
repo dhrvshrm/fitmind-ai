@@ -1,7 +1,12 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from '../../constants/queryKeys';
 import { workoutService } from '../../services/workoutService';
-import type { GeneratePlanPayload, WorkoutLogPayload } from '../../types/workout';
+import type {
+  GeneratePlanPayload,
+  QuickSessionPayload,
+  TodayWorkout,
+  WorkoutLogPayload,
+} from '../../types/workout';
 import { useInvalidate } from './queryHelpers';
 
 export function useWeeklyPlan() {
@@ -40,5 +45,42 @@ export function useLogWorkout() {
 export function useCompleteExercise() {
   return useMutation({
     mutationFn: (exerciseName: string) => workoutService.completeExercise(exerciseName),
+  });
+}
+
+/** Quick-session changes return today's session; store it instead of refetching. */
+function useSetToday() {
+  const queryClient = useQueryClient();
+  return (today: TodayWorkout) => queryClient.setQueryData(QUERY_KEYS.workouts.today, today);
+}
+
+export function useStartQuickSession() {
+  const setToday = useSetToday();
+  return useMutation({
+    mutationFn: (payload: QuickSessionPayload) => workoutService.startQuickSession(payload),
+    onSuccess: setToday,
+  });
+}
+
+export function useEndQuickSession() {
+  const setToday = useSetToday();
+  return useMutation({ mutationFn: workoutService.endQuickSession, onSuccess: setToday });
+}
+
+export function useSwapOptions(day: string, index: number, enabled: boolean) {
+  return useQuery({
+    queryKey: QUERY_KEYS.workouts.swapOptions(day, index),
+    queryFn: () => workoutService.getSwapOptions(day, index),
+    enabled,
+  });
+}
+
+/** Swapping changes the plan and possibly today's session. */
+export function useSwapExercise() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: ({ day, index, exerciseId }: { day: string; index: number; exerciseId: string }) =>
+      workoutService.swapExercise(day, index, exerciseId),
+    onSuccess: () => invalidate(QUERY_KEYS.workouts.all),
   });
 }

@@ -1,4 +1,5 @@
-import { Box, Checkbox, Chip, Paper, Stack, Typography } from '@mui/material';
+import { Box, Checkbox, Chip, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
+import { InfoOutlined } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { STRINGS } from '../../constants/strings';
 import { DIFFICULTY_CHIP_COLOR, getDifficultyBucket } from '../../utils/workout';
@@ -12,13 +13,15 @@ type ExerciseLoggerProps = {
   /** Indices (0-based) of completed sets. */
   doneSets: ReadonlySet<number>;
   onToggleSet: (setIndex: number) => void;
+  /** Opens how-to details for catalogue exercises. */
+  onDetails?: () => void;
 };
 
 /**
  * One exercise with a checkbox per set. When every set is ticked the card
  * pulses green and shows a "Done" chip (parent syncs completion to the API).
  */
-export function ExerciseLogger({ exercise, doneSets, onToggleSet }: ExerciseLoggerProps) {
+export function ExerciseLogger({ exercise, doneSets, onToggleSet, onDetails }: ExerciseLoggerProps) {
   const setCount = Math.max(1, exercise.sets);
   const completed = doneSets.size >= setCount;
   const bucket = getDifficultyBucket(exercise.difficulty);
@@ -31,9 +34,18 @@ export function ExerciseLogger({ exercise, doneSets, onToggleSet }: ExerciseLogg
     >
       <Paper variant="outlined" sx={styles.card(completed)}>
         <Stack sx={styles.headerRow}>
-          <Typography variant="body1" sx={styles.name(completed)} noWrap>
-            {exercise.name}
-          </Typography>
+          <Stack sx={styles.titleRow}>
+            <Typography variant="body1" sx={styles.name(completed)} noWrap>
+              {exercise.name}
+            </Typography>
+            {onDetails && exercise.exercise_id && (
+              <Tooltip title={S.exercise.detailsAria(exercise.name)}>
+                <IconButton size="small" color="primary" aria-label={S.exercise.detailsAria(exercise.name)} onClick={onDetails}>
+                  <InfoOutlined fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Stack>
           {completed && (
             <motion.div
               initial={{ scale: 0, rotate: -12 }}
@@ -57,6 +69,12 @@ export function ExerciseLogger({ exercise, doneSets, onToggleSet }: ExerciseLogg
             variant="outlined"
           />
         </Stack>
+
+        {exercise.effort && (
+          <Typography variant="caption" color="text.secondary" component="p" sx={styles.effort}>
+            {exercise.effort}
+          </Typography>
+        )}
 
         <Stack sx={styles.setsRow}>
           {Array.from({ length: setCount }, (_, index) => (

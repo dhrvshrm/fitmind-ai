@@ -67,3 +67,32 @@ If AI is unavailable, the food is marked "Needs values" and the user enters the 
 `backend/evals/indian_meals.json` holds 40 common Indian meals with typical
 calorie ranges. `backend/scripts/eval_meal_estimates.py` runs them through the
 real estimator (AI keys required) and reports which fall outside their range.
+
+# Exercise Data Sources
+
+No official body publishes a list of approved exercises, the way ICMR-NIN
+publishes food data. Authority exists for how much, how often and how hard
+to train, so FitMind takes its exercises from an open dataset and its
+programming rules from published guidelines.
+
+## Exercises: free-exercise-db
+
+- https://github.com/yuhonas/free-exercise-db, released under the Unlicense (public domain).
+- Pinned to commit `f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5` by `backend/scripts/import_exercises.py`, which writes `backend/app/workouts/data/exercises.json`.
+- 820 exercises with force type (push, pull, static), mechanic (compound or isolation), level, equipment, primary and secondary muscles, instructions, and start and end photos. Olympic lifts and strongman events (56) are left out because they need in-person coaching.
+- Photos are served from the jsDelivr CDN at the same pinned commit.
+
+## Curated coaching layer
+
+`backend/app/workouts/data/curated.json` covers the 62 exercises plans use. For each it adds the movement pattern, the joints it loads (to avoid injured areas), the equipment needed, stabiliser muscles, grip, stance, steps, form cues, common mistakes, breathing, and easier and harder variations. It also corrects source errors, for example Split Squats filed as a stretch and a squat instruction that calls knees past the toes "incorrect", which current evidence doesn't support.
+
+These notes were written by the FitMind team from standard strength and conditioning practice. Each entry has `reviewed: false` until a certified trainer checks it, and the app says so.
+
+## Programming rules
+
+Sets, reps, rest, effort and weekly structure follow:
+
+- ACSM resistance training position stand (2026): train each major muscle group at least twice a week; heavy, low-rep sets for strength; about 10 hard sets per muscle per week for muscle growth; stopping a few reps short of failure works as well as failure.
+- WHO guidelines on physical activity and sedentary behaviour (2020): regular muscle strengthening for everyone, and less sitting.
+
+The app says plans "follow" these guidelines. Neither body approves exercises or apps.

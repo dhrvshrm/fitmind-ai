@@ -32,6 +32,13 @@ export const QUERY_KEYS = {
     plan: ['workouts', 'plan'] as const,
     today: ['workouts', 'today'] as const,
     history: (days: number) => ['workouts', 'history', days] as const,
+    swapOptions: (day: string, index: number) => ['workouts', 'swap', day, index] as const,
+  },
+  exercises: {
+    all: ['exercises'] as const,
+    search: (query: string, muscle: string, curated: boolean) =>
+      ['exercises', 'search', query, muscle, curated] as const,
+    detail: (id: string) => ['exercises', 'detail', id] as const,
   },
   recovery: {
     all: ['recovery'] as const,
