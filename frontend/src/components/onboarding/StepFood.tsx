@@ -6,6 +6,7 @@ import {
   ALLERGY_SUGGESTIONS,
   CUISINE_SUGGESTIONS,
   DIET_OPTIONS,
+  DISLIKE_SUGGESTIONS,
   FOOD_SUGGESTIONS,
   INTOLERANCE_SUGGESTIONS,
   ONBOARDING_STRINGS,
@@ -80,13 +81,15 @@ export function StepFood({ data, onChange }: StepProps) {
         suggestions={FOOD_SUGGESTIONS}
         value={prefs.likes}
         onChange={(likes) => update({ likes })}
+        excluded={prefs.dislikes}
       />
       <TagInput
         label={S.dislikes}
         placeholder={S.tagPlaceholder}
-        suggestions={FOOD_SUGGESTIONS}
+        suggestions={DISLIKE_SUGGESTIONS}
         value={prefs.dislikes}
         onChange={(dislikes) => update({ dislikes })}
+        excluded={prefs.likes}
       />
     </Stack>
   );

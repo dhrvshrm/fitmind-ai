@@ -239,6 +239,11 @@ export const FOOD_SUGGESTIONS = [
   "Paneer", "Dal", "Rajma", "Chole", "Eggs", "Chicken", "Fish", "Curd", "Oats", "Poha", "Idli",
   "Dosa", "Rice", "Roti", "Fruits", "Sprouts", "Soya chunks", "Karela", "Baingan", "Mushroom",
 ];
+/** Commonly disliked foods first, so they're visible without "More". */
+export const DISLIKE_SUGGESTIONS = [
+  "Karela", "Baingan", "Mushroom", "Lauki", "Tinda", "Bhindi", "Arbi", "Methi", "Soya chunks",
+  "Paneer", "Eggs", "Fish", "Chicken", "Rajma", "Chole", "Oats", "Curd", "Poha",
+];
 
 export const COOK_OPTIONS: ChipOption<Cook>[] = [
   { value: "self", label: "I cook" },
@@ -284,6 +289,16 @@ export const MEALS_PER_DAY_OPTIONS: ChipOption<number>[] = [2, 3, 4, 5, 6].map((
 }));
 
 export const ONBOARDING_STRINGS = {
+  tags: {
+    selected: (count: number) => `${count} selected`,
+    more: (count: number) => `+${count} more`,
+    less: "Show fewer",
+    addChip: "Add your own",
+    addPlaceholder: "Add something not listed",
+    addHint: "Press Enter to add. Separate several with commas.",
+    addAria: (label: string) => `Add to ${label.toLowerCase()}`,
+    remove: (item: string) => `Remove ${item}`,
+  },
   title: "Set up your profile",
   updateTitle: "Update your answers",
   subtitle: "A few quick questions so your plan fits your body, food and routine.",
@@ -341,7 +356,7 @@ export const ONBOARDING_STRINGS = {
       cuisines: "Cuisines you enjoy",
       likes: "Foods you like",
       dislikes: "Foods you dislike or won't eat",
-      tagPlaceholder: "Pick or type, then press Enter",
+      tagPlaceholder: "Add something not listed",
     },
     access: {
       title: "Your kitchen and budget",

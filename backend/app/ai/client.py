@@ -74,10 +74,15 @@ async def _groq(prompt: str, system: Optional[str], temperature: float, json_mod
     if system:
         messages.append({"role": "system", "content": system})
     messages.append({"role": "user", "content": prompt})
-    kwargs = {"response_format": {"type": "json_object"}} if json_mode else {}
+    model = settings.GROQ_JSON_MODEL if json_mode else settings.GROQ_CHAT_MODEL
+    kwargs: Dict[str, object] = {"response_format": {"type": "json_object"}} if json_mode else {}
+    # Reasoning models (gpt-oss) can spend the whole budget thinking and return
+    # empty JSON on long prompts; keep the thinking short for structured output.
+    if json_mode and "gpt-oss" in model:
+        kwargs["reasoning_effort"] = "low"
     client = AsyncGroq(api_key=settings.GROQ_API_KEY)
     response = await client.chat.completions.create(
-        model=settings.GROQ_JSON_MODEL if json_mode else settings.GROQ_CHAT_MODEL,
+        model=model,
         messages=messages,
         temperature=temperature,
         **kwargs,
@@ -86,6 +91,16 @@ async def _groq(prompt: str, system: Optional[str], temperature: float, json_mod
 
 
 _PROVIDERS = {PROVIDER_GEMINI: _gemini, PROVIDER_GROQ: _groq}
+
+# Pause before retrying a provider that said it's overloaded (503 or 429).
+OVERLOAD_RETRY_SECONDS = 1.5
+_OVERLOAD_MARKERS = ("503", "unavailable", "overloaded", "high demand", "429", "rate limit")
+
+
+def _is_overloaded(error: Exception) -> bool:
+    """A temporary capacity error worth one retry, as opposed to a real failure."""
+    text = str(error).lower()
+    return any(marker in text for marker in _OVERLOAD_MARKERS)
 
 
 async def _call_providers(
@@ -100,9 +115,19 @@ async def _call_providers(
     errors: List[str] = []
     for name in providers:
         try:
-            text = await asyncio.wait_for(
-                _PROVIDERS[name](prompt, system, temperature, json_mode), timeout
-            )
+            try:
+                text = await asyncio.wait_for(
+                    _PROVIDERS[name](prompt, system, temperature, json_mode), timeout
+                )
+            except Exception as e:
+                if not _is_overloaded(e):
+                    raise
+                # Free tiers often turn requests away for a moment under load; one quick retry.
+                logger.info("%s is overloaded, retrying once: %s", name, e)
+                await asyncio.sleep(OVERLOAD_RETRY_SECONDS)
+                text = await asyncio.wait_for(
+                    _PROVIDERS[name](prompt, system, temperature, json_mode), timeout
+                )
         except Exception as e:  # Any provider failure moves on to the next one.
             errors.append(f"{name}: {e or type(e).__name__}")
             continue

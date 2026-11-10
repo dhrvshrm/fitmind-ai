@@ -66,15 +66,6 @@ async def _context(user_id: str) -> _Context:
     return _Context(user, targets, pool, rules)
 
 
-def _ai_error(error: AIError) -> DietPlanError:
-    settings = get_settings()
-    if not (settings.GEMINI_API_KEY or settings.GROQ_API_KEY):
-        return DietPlanError("Meal planning isn't set up on this server yet", "unavailable")
-    if isinstance(error, AIQuotaError):
-        return DietPlanError("You've used today's AI requests. Please try again tomorrow", "unavailable")
-    return DietPlanError("Couldn't create a plan right now. Please try again", "unavailable")
-
-
 def _target_subset(targets: Dict[str, Any]) -> Dict[str, int]:
     return {key: targets[key] for key in TARGET_KEYS}
 
@@ -83,8 +74,11 @@ def _preferences(prefs: Dict[str, Any]) -> Dict[str, Any]:
     return {key: prefs.get(key) for key in PREFERENCE_KEYS}
 
 
-def _notes(meals: List[dict], plan_targets: Dict[str, int], ctx: _Context) -> List[dict]:
+def _notes(meals: List[dict], plan_targets: Dict[str, int], ctx: _Context,
+           rule_based: bool = False) -> List[dict]:
     notes = []
+    if rule_based:
+        notes.append({"code": "rule_based", "values": {}})
     short = meal_planner.protein_note(meals, plan_targets)
     if short:
         notes.append(short)
@@ -106,13 +100,13 @@ def _remove_disallowed(meals: List[dict], ctx: _Context) -> None:
 
 
 async def _save(user_id: str, meals: List[dict], plan_targets: Dict[str, int], ctx: _Context,
-                change: str, previous: Optional[dict]) -> dict:
+                change: str, previous: Optional[dict], rule_based: bool = False) -> dict:
     fields = {
         "targets": plan_targets,
         "preferences": _preferences(ctx.prefs),
         "meals": meals,
         "totals": meal_planner.totals_of([i for m in meals for i in m["items"]]),
-        "notes": _notes(meals, plan_targets, ctx),
+        "notes": _notes(meals, plan_targets, ctx, rule_based),
     }
     doc = await diet_plan.save_version(user_id, fields, change, previous)
     await audit.record_change(
@@ -194,17 +188,22 @@ async def create_plan(user_id: str) -> dict:
     # A new plan should feel new: steer away from the dishes in the last one.
     avoid = [i["name"] for m in previous["meals"] for i in m["items"]] if previous else []
     plan_targets = _target_subset(ctx.targets)
+    rule_based = False
     try:
         pick = await meal_planner.pick_meals(
             plan_targets, slots, ctx.pool, ctx.prefs, ctx.access, user_id, avoid_names=avoid
         )
     except AIError as e:
-        logger.info("Meal plan generation failed for %s: %s", user_id, e)
-        raise _ai_error(e) from e
+        # A plan is always made: without AI, from the same allowed foods by meal templates.
+        logger.info("AI meal plan unavailable for %s, using rules: %s", user_id, e)
+        variant = previous["version"] if previous else 0
+        pick = meal_planner.rule_based_pick(slots, ctx.pool, variant)
+        rule_based = True
     meals = meal_planner.assemble(pick, slots, ctx.foods)
     _remove_disallowed(meals, ctx)
     meal_planner.fit_portions(meals, plan_targets, ctx.foods)
-    doc = await _save(user_id, meals, plan_targets, ctx, "regenerated" if previous else "created", previous)
+    doc = await _save(user_id, meals, plan_targets, ctx, "regenerated" if previous else "created",
+                      previous, rule_based)
     return await _present(doc, ctx.user)
 
 
@@ -220,19 +219,23 @@ async def regenerate_meal(user_id: str, meal_id: str) -> dict:
     slot = {k: current[k] for k in ("id", "meal_type", "time", "share")}
     others = [m for m in plan["meals"] if m["id"] != meal_id]
     pool = meal_planner.pool_without_meal(ctx.pool, current["items"])
+    rule_based = False
     try:
         pick = await meal_planner.pick_meals(
             plan["targets"], [slot], pool, ctx.prefs, ctx.access, user_id,
             avoid_names=[i["name"] for i in current["items"]], keep=others,
         )
     except AIError as e:
-        raise _ai_error(e) from e
+        logger.info("AI meal option unavailable for %s, using rules: %s", user_id, e)
+        others_ids = {i["food_id"] for m in others for i in m["items"]}
+        pick = meal_planner.rule_based_pick([slot], [f for f in pool if f.id not in others_ids], plan["version"])
+        rule_based = True
     meals = _copy_meals(plan)
     new_meal = meal_planner.assemble(pick, [slot], ctx.foods)[0]
     meals[[m["id"] for m in meals].index(meal_id)] = new_meal
     _remove_disallowed([new_meal], ctx)
     meal_planner.fit_portions(meals, plan["targets"], ctx.foods, fixed=[m["id"] for m in others])
-    doc = await _save(user_id, meals, plan["targets"], ctx, "meal_regenerated", plan)
+    doc = await _save(user_id, meals, plan["targets"], ctx, "meal_regenerated", plan, rule_based)
     return await _present(doc, ctx.user)
 
 

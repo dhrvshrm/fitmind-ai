@@ -20,7 +20,7 @@ from app.ai import client as ai_client
 from app.nutrition import food_db
 from app.nutrition.diet_rules import DietRules, STAPLE_WORDS, food_tokens, suitable_for_plans
 from app.nutrition.food_db import Food, Nutrients
-from app.nutrition.text import tokens
+from app.nutrition.text import normalize, tokens
 from app.nutrition.units import is_piece_unit
 
 logger = logging.getLogger(__name__)
@@ -286,9 +286,13 @@ def _step(food: Food) -> float:
     return 1.0 if is_piece_unit(food.serving.unit) else 0.5
 
 
+# Tighter caps for foods where the general piece limit would look odd.
+MAX_BY_UNIT = {"egg": 3}
+
+
 def _bounds(food: Food) -> Tuple[float, float]:
     step = _step(food)
-    high = MAX_PIECES if step == 1 else MAX_CONTAINERS
+    high = MAX_BY_UNIT.get(food.serving.unit, MAX_PIECES if step == 1 else MAX_CONTAINERS)
     by_weight = (MAX_ITEM_GRAMS / max(food.serving.grams, 1)) // step * step
     return step, max(step, min(high, by_weight))
 
@@ -512,3 +516,121 @@ def swap_options(
         per_serving = food.per_100g.scaled(food.serving.grams / 100).kcal or 1
         options.append(build_item(food, snap(food, current.kcal / per_serving)))
     return options
+
+
+# --- Rule-based fallback ------------------------------------------------------
+# When the AI is down or busy, plans are still built from the allowed foods
+# with ordinary Indian meal templates; fit_portions then sizes them.
+
+BREAKFAST_WORDS = frozenset({
+    "poha", "upma", "idli", "dosa", "uttapam", "paratha", "cheela", "oats", "porridge", "daliya",
+    "dalia", "sandwich", "toast", "thepla", "dhokla", "semolina",
+})
+PLAIN_GRAIN_WORDS = frozenset({"roti", "rice", "chapati"})
+MAIN_GRAIN_WORDS = PLAIN_GRAIN_WORDS | frozenset({"pulao", "khichdi", "millet", "bajra", "jowar", "ragi", "makki"})
+PROTEIN_DISH_WORDS = frozenset({
+    "dal", "curry", "rajma", "chickpeas", "sambar", "bhurji", "paneer", "kadhi", "lobia", "tikka",
+})
+DAIRY_SIDE_WORDS = frozenset({"curd", "raita", "chaas", "buttermilk"})
+SNACK_PROTEIN_WORDS = frozenset({"sprouted", "chickpeas", "egg", "curd", "chana", "peanut", "tofu"})
+# Kept out of fallback plans: fried, sweet, restaurant-style or non-Indian dishes.
+# Matched against the whole dish name, so numbers ("Gobi 65") count too.
+FALLBACK_AVOID_WORDS = frozenset({
+    "sweet", "65", "fried", "manchurian", "chilli", "fry", "makhani", "malai", "shahi", "korma",
+    "biryani", "curd rice", "milkshake", "mexican", "spanish", "pasta", "hawain", "hawaiian", "kale",
+    "chinese", "continental", "pizza", "noodles",
+})
+# Everyday cooked vegetables (sabzi), preferred over salads.
+SABZI_WORDS = frozenset({
+    "sabzi", "cauliflower", "okra", "cabbage", "peas", "beans", "gourd", "spinach", "methi",
+    "pumpkin", "avial", "poriyal", "thoran", "bhaji", "potato", "brinjal", "carrot", "capsicum",
+})
+
+# Each slot is a list of dish kinds, filled in order; a kind with no allowed food is skipped.
+FALLBACK_TEMPLATES: Dict[str, List[str]] = {
+    "breakfast": ["breakfast", "dairy_or_fruit"],
+    "mid_morning": ["fruit"],
+    "lunch": ["main_grain", "protein_dish", "vegetable_dish", "dairy_side"],
+    "evening_snack": ["snack_protein"],
+    "dinner": ["main_grain", "protein_dish", "vegetable_dish"],
+    "bedtime": ["milk"],
+}
+# How many top-ranked options each kind rotates through, for variety between plans.
+FALLBACK_CHOICES = 6
+
+
+def _avoided(food: Food) -> bool:
+    text = f" {normalize(food.name)} {normalize(food.full_name)} "
+    return any(f" {word} " in text for word in FALLBACK_AVOID_WORDS)
+
+
+def _fits(food: Food, kind: str) -> bool:
+    found = food_tokens(food)
+    if _avoided(food):
+        return False
+    role = food_role(food)
+    dish = food.source != "USDA"  # A cooked dish, not a raw ingredient.
+    if kind == "breakfast":
+        return bool(found & BREAKFAST_WORDS)
+    if kind == "main_grain":
+        return bool(found & MAIN_GRAIN_WORDS) and not (found & DAIRY_SIDE_WORDS)
+    if kind == "protein_dish":
+        return role == "protein" and dish and bool(found & PROTEIN_DISH_WORDS)
+    if kind == "vegetable_dish":
+        return role == "vegetable" and dish
+    if kind == "dairy_side":
+        return bool(found & DAIRY_SIDE_WORDS) and role in ("dairy", None)
+    if kind == "dairy_or_fruit":
+        return role in ("dairy", "fruit")
+    if kind == "snack_protein":
+        return bool(found & SNACK_PROTEIN_WORDS) and "curry" not in found and role != "grain"
+    if kind == "milk":
+        return "milk" in found
+    return role == kind
+
+
+# The plain staples people mean by "roti" and "rice".
+PLAIN_GRAIN_IDS = frozenset({food_db.GENERIC_ALIASES["roti"], food_db.GENERIC_ALIASES["rice"]})
+
+
+def _rank(food: Food, kind: str) -> int:
+    """Order within a kind so meals look like normal home meals: plain roti and
+    rice first, then other Indian grains; cooked sabzi before salads."""
+    if kind == "main_grain":
+        if food.id in PLAIN_GRAIN_IDS:
+            return 0
+        return 1 if food_tokens(food) & PLAIN_GRAIN_WORDS else 2
+    if kind == "vegetable_dish":
+        return 0 if food_tokens(food) & SABZI_WORDS else 1
+    return 0
+
+
+def rule_based_pick(slots: List[dict], pool: List[Food], variant: int = 0) -> PlanPick:
+    """A plan without AI: ordinary meal templates filled from the allowed foods.
+
+    ``variant`` rotates the choices so a new plan isn't identical to the last.
+    """
+    used: set = set()
+    meals = []
+    for slot_index, slot in enumerate(slots):
+        items = []
+        for kind_index, kind in enumerate(FALLBACK_TEMPLATES.get(slot["id"], ["protein"])):
+            matching = [f for f in pool if f.id not in used and _fits(f, kind)]
+            # Only the best-ranked group (plain roti and rice, cooked sabzi) when there is one.
+            best = min((_rank(f, kind) for f in matching), default=0)
+            options = [f for f in matching if _rank(f, kind) == best][:FALLBACK_CHOICES]
+            if not options:
+                continue
+            food = options[(variant + slot_index + kind_index) % len(options)]
+            used.add(food.id)
+            items.append(PickedItem(food_id=food.id, servings=1))
+        if not items:
+            # Every slot needs something; fall back to the best remaining staple.
+            spare = next((f for f in pool if f.id not in used), None)
+            if spare is None:
+                continue
+            used.add(spare.id)
+            items.append(PickedItem(food_id=spare.id, servings=1))
+        meals.append(PickedMeal(slot=slot["id"], items=items))
+    return PlanPick(meals=meals)
+
