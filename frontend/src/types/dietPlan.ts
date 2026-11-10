@@ -1,12 +1,19 @@
 import type { ItemSource, Meal, MealType, Nutrients } from './nutrition';
 
 /** Which meal of the day a planned meal is (sets its label and calorie share). */
-export type PlanSlot = 'breakfast' | 'mid_morning' | 'lunch' | 'evening_snack' | 'dinner' | 'bedtime';
+export type PlanSlot =
+  | 'pre_workout'
+  | 'breakfast'
+  | 'mid_morning'
+  | 'lunch'
+  | 'evening_snack'
+  | 'dinner'
+  | 'bedtime';
 
 /** How the current version of a plan came about. */
 export type PlanChange = 'created' | 'regenerated' | 'meal_regenerated' | 'item_swapped';
 
-export type PlanNoteCode = 'protein_short' | 'check_ingredients' | 'medical_advice';
+export type PlanNoteCode = 'protein_short' | 'check_ingredients' | 'medical_advice' | 'rule_based';
 
 export type PlanNote = {
   code: PlanNoteCode;
@@ -31,6 +38,8 @@ export type PlanMeal = {
   meal_type: MealType;
   time: string;
   share: number;
+  /** Set when the meal is placed around the workout. */
+  workout_role?: 'pre' | 'post';
   items: PlanItem[];
   totals: Nutrients;
 };
@@ -59,6 +68,17 @@ export type DietPlan = {
   logged_today: PlanSlot[];
   /** True when targets or diet answers changed after the plan was made. */
   stale: boolean;
+  /** The day from waking to sleep, built around the person's routine. */
+  routine: RoutineEvent[];
+};
+
+export type RoutineKind = 'wake' | 'workout' | 'meal' | 'wind_down' | 'sleep';
+
+export type RoutineEvent = {
+  time: string;
+  kind: RoutineKind;
+  meal_id?: PlanSlot;
+  values: Record<string, number>;
 };
 
 export type PlanMealLogResult = {

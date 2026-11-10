@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Button, Card, CircularProgress, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Card, Chip, CircularProgress, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import { AutorenewRounded, CheckCircleRounded, SwapHorizRounded } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -62,6 +62,9 @@ export function PlanMealCard({ meal, logged, locked }: PlanMealCardProps) {
           <Typography variant="body2" color="text.secondary">
             {meal.time}
           </Typography>
+          {meal.workout_role && (
+            <Chip size="small" variant="outlined" color="primary" label={S.workoutRole[meal.workout_role]} />
+          )}
         </Stack>
         <Typography variant="subtitle2" sx={styles.number}>
           {S.kcal(meal.totals.kcal)}

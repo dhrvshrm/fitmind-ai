@@ -795,12 +795,42 @@ export const STRINGS = {
     },
     units: { kcal: "kcal", grams: "g" },
     slots: {
+      pre_workout: "Pre-workout snack",
       breakfast: "Breakfast",
       mid_morning: "Mid-morning snack",
       lunch: "Lunch",
       evening_snack: "Evening snack",
       dinner: "Dinner",
       bedtime: "Before bed",
+    },
+    workoutRole: { pre: "Before workout", post: "After workout" },
+    routine: {
+      title: "Your day",
+      subtitle: "Built around when you wake up, train and sleep.",
+      edit: "Change times",
+      mealFallback: "Meal",
+      wake: {
+        title: "Wake up",
+        detail: (ml: number, liters: number) =>
+          liters > 0
+            ? `Start with ${ml} ml of water. Aim for about ${liters} L across the day.`
+            : `Start with ${ml} ml of water.`,
+      },
+      workout: {
+        title: "Workout",
+        detail: (minutes: number) => `About ${minutes} minutes. Today's session is on the Workouts page.`,
+      },
+      meal: {
+        detail: (kcal: number, items: string) => (items ? `${items}, ${kcal} kcal` : `${kcal} kcal`),
+      },
+      windDown: {
+        title: "Wind down",
+        detail: "Screens down and keep it light. If you're hungry, warm milk or a fruit is fine.",
+      },
+      sleep: {
+        title: "Sleep",
+        detail: (hours: number) => `About ${hours} hours until you wake. Most adults need 7 to 9.`,
+      },
     },
     kcal: (kcal: number) => `${Math.round(kcal)} kcal`,
     macros: (protein: number, carbs: number, fat: number) =>
@@ -825,6 +855,8 @@ export const STRINGS = {
         `This plan is about ${values.grams} g short of your protein target. Swapping in protein-rich foods that fit your diet (dal, chana, curd, paneer, tofu, eggs or chicken) closes the gap.`,
       check_ingredients: () =>
         "Foods are filtered by name. A recipe can contain ingredients its name doesn't mention, so check what's in your food if you have allergies or follow a strict diet.",
+      rule_based: () =>
+        "Our AI planner was busy, so this plan was built from your allowed foods with everyday meal templates. Numbers and portions are worked out the same way. Make a new plan later for more variety.",
       medical_advice: () =>
         "Please go over this plan with a doctor or dietitian, since your nutrition needs are different right now.",
     },

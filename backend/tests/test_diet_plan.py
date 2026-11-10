@@ -168,11 +168,37 @@ def test_plan_needs_basic_profile_details(client, ai_providers):
     assert "profile" in res.json()["message"]
 
 
-def test_plan_without_ai_reports_why(client, ai_providers):
+def test_plan_without_ai_is_built_by_rules(client, ai_providers):
     headers, _ = _onboard(client)
     res = client.post(f"{API}/diet-plans", headers=headers)
-    assert res.status_code == 503
-    assert client.get(f"{API}/diet-plans/current", headers=headers).json()["data"] is None
+    assert res.status_code == 200
+    plan = res.json()["data"]
+    assert "rule_based" in {n["code"] for n in plan["notes"]}
+    assert [m["id"] for m in plan["meals"]] == ["breakfast", "lunch", "evening_snack", "dinner"]
+    assert all(m["items"] for m in plan["meals"])
+    targets = _targets(client, headers)
+    assert plan["totals"]["kcal"] == pytest.approx(targets["calories"], rel=0.1)
+    # Vegetarian with a peanut allergy: the rules still respect it.
+    names = " ".join(i["name"].lower() for m in plan["meals"] for i in m["items"])
+    assert not any(word in names for word in ("chicken", "egg", "fish", "peanut"))
+
+
+def test_rule_based_plans_look_like_home_meals():
+    prefs = {"diet_type": "vegetarian"}
+    pool = meal_planner.food_pool(DietRules.from_preferences(prefs), prefs)
+    slots = meal_planner.plan_slots({"meals_per_day": 4})
+    for variant in range(4):
+        pick = meal_planner.rule_based_pick(slots, pool, variant)
+        meals = {m.slot: [food_db.get_food(i.food_id) for i in m.items] for m in pick.meals}
+        lunch_grain = meals["lunch"][0]
+        assert lunch_grain.id in meal_planner.PLAIN_GRAIN_IDS  # plain roti or rice
+        assert meal_planner.food_role(meals["lunch"][1]) == "protein"
+        for foods in meals.values():
+            assert not any(meal_planner._avoided(f) for f in foods)
+    # A new plan rotates the choices.
+    first = meal_planner.rule_based_pick(slots, pool, 0)
+    second = meal_planner.rule_based_pick(slots, pool, 1)
+    assert first != second
 
 
 def test_create_plan_uses_database_numbers_and_fits_targets(client, ai_providers):
@@ -212,11 +238,15 @@ def test_foods_outside_the_allowed_list_are_rejected_and_asked_again(client, ai_
     assert "not in the list" in ai_providers.calls[1]["prompt"]
 
 
-def test_plan_with_missing_meals_is_rejected(client, ai_providers):
+def test_plan_with_missing_meals_is_rejected_then_built_by_rules(client, ai_providers):
     headers, _ = _onboard(client)
     only_lunch = _pick(lunch=[(DAL, 1)])
     ai_providers.gemini += [only_lunch] * 3
-    assert client.post(f"{API}/diet-plans", headers=headers).status_code == 503
+    res = client.post(f"{API}/diet-plans", headers=headers)
+    assert res.status_code == 200
+    plan = res.json()["data"]
+    assert "rule_based" in {n["code"] for n in plan["notes"]}
+    assert len(plan["meals"]) == 4
 
 
 def test_regenerating_one_meal_keeps_the_rest_and_versions_the_plan(client, ai_providers):
@@ -345,3 +375,59 @@ def test_deleting_the_account_removes_plans(client, ai_providers, mock_db):
     assert asyncio.run(mock_db["diet_plans"].count_documents({"user_id": user_id})) == 1
     client.delete(f"{API}/settings/account", headers=headers)
     assert asyncio.run(mock_db["diet_plans"].count_documents({"user_id": user_id})) == 0
+
+
+def test_overloaded_provider_is_retried_once(client, ai_providers, monkeypatch):
+    from app.ai import client as ai_client
+
+    monkeypatch.setattr(ai_client, "OVERLOAD_RETRY_SECONDS", 0)
+    headers, _ = _onboard(client)
+    ai_providers.gemini += [RuntimeError("503 UNAVAILABLE: high demand"), VALID_PICK]
+    plan = client.post(f"{API}/diet-plans", headers=headers).json()["data"]
+    assert "rule_based" not in {n["code"] for n in plan["notes"]}
+    assert [c["provider"] for c in ai_providers.calls] == ["gemini", "gemini"]
+
+
+# --- Daily routine around the workout -------------------------------------------
+def test_morning_training_adds_a_pre_workout_snack_and_moves_breakfast_after():
+    life = {"meals_per_day": 4, "wake_time": "06:30", "sleep_time": "23:00"}
+    slots = {s["id"]: s for s in meal_planner.plan_slots(life, "early_morning", trains=True)}
+    assert slots["pre_workout"]["time"] == "06:40" and slots["pre_workout"]["workout_role"] == "pre"
+    assert slots["breakfast"]["time"] == "08:15" and slots["breakfast"]["workout_role"] == "post"
+    assert sum(s["share"] for s in slots.values()) == pytest.approx(1, abs=0.01)
+
+
+def test_evening_training_puts_the_snack_before_and_dinner_after():
+    life = {"meals_per_day": 4, "wake_time": "07:00", "sleep_time": "23:30"}
+    slots = {s["id"]: s for s in meal_planner.plan_slots(life, "evening", trains=True)}
+    assert "pre_workout" not in slots
+    assert slots["evening_snack"]["time"] == "17:30" and slots["evening_snack"]["workout_role"] == "pre"
+    assert slots["dinner"]["workout_role"] == "post"
+
+
+def test_no_workout_time_keeps_ordinary_meal_times():
+    slots = meal_planner.plan_slots({"meals_per_day": 3}, None, trains=False)
+    assert [s["id"] for s in slots] == ["breakfast", "lunch", "dinner"]
+    assert not any("workout_role" in s for s in slots)
+
+
+def test_routine_runs_from_waking_to_sleep():
+    from app.nutrition import routine
+
+    life = {"wake_time": "06:30", "sleep_time": "00:30"}
+    meals = [{"id": "breakfast", "time": "08:00", "totals": {"kcal": 400}}]
+    events = routine.daily_routine(meals, life, "morning", True, 2500)
+    kinds = [e["kind"] for e in events]
+    assert kinds == ["wake", "workout", "meal", "wind_down", "sleep"]
+    assert events[0]["values"] == {"ml": routine.WAKE_WATER_ML, "liters": 2.5}
+    assert events[-1]["time"] == "00:30" and events[-1]["values"]["hours"] == 6.0
+
+
+def test_plan_includes_the_routine(client, ai_providers):
+    payload = {**VEG_ONBOARDING, "workout_time": "early_morning", "workout_days_per_week": 4,
+               "lifestyle": {"meals_per_day": 4, "wake_time": "06:00", "sleep_time": "22:30"}}
+    headers, _ = _onboard(client, payload)
+    plan = client.post(f"{API}/diet-plans", headers=headers).json()["data"]
+    kinds = [e["kind"] for e in plan["routine"]]
+    assert kinds[0] == "wake" and kinds[-1] == "sleep" and "workout" in kinds
+    assert plan["meals"][0]["id"] == "pre_workout"

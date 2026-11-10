@@ -12,7 +12,7 @@ from app.ai.client import AIError, AIQuotaError
 from app.config.settings import get_settings
 from app.models import audit, diet_plan
 from app.models.user import User
-from app.nutrition import food_db, meal_planner
+from app.nutrition import food_db, meal_planner, routine
 from app.nutrition.diet_rules import DietRules
 from app.nutrition.food_db import Food
 from app.services import nutrition_service, user_service
@@ -140,7 +140,18 @@ async def _present(plan: dict, user: Optional[User] = None) -> dict:
     data = {k: v for k, v in plan.items() if k not in ("user_id", "logged")}
     data["logged_today"] = plan.get("logged", {}).get(local_today_iso(), [])
     data["stale"] = bool(user) and _is_stale(plan, user, targets)
+    data["routine"] = routine.daily_routine(
+        plan["meals"],
+        user.lifestyle if user else None,
+        user.workout_time if user else None,
+        _trains(user) if user else False,
+        (targets or {}).get("water_ml"),
+    )
     return data
+
+
+def _trains(user: User) -> bool:
+    return (user.workout_days_per_week or 0) > 0
 
 
 async def _active(user_id: str) -> dict:
@@ -184,7 +195,7 @@ async def create_plan(user_id: str) -> dict:
     """
     ctx = await _context(user_id)
     previous = await diet_plan.get_active(user_id)
-    slots = meal_planner.plan_slots(ctx.user.lifestyle)
+    slots = meal_planner.plan_slots(ctx.user.lifestyle, ctx.user.workout_time, _trains(ctx.user))
     # A new plan should feel new: steer away from the dishes in the last one.
     avoid = [i["name"] for m in previous["meals"] for i in m["items"]] if previous else []
     plan_targets = _target_subset(ctx.targets)

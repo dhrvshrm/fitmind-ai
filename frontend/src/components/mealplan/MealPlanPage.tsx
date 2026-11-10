@@ -17,6 +17,7 @@ import { SectionCard } from '../ui/SectionCard';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { Reveal } from '../ui/Reveal';
 import { PlanSummary } from './PlanSummary';
+import { DayRoutine } from './DayRoutine';
 import { PlanMealCard } from './PlanMealCard';
 import { mealPlanPageStyles as styles } from './MealPlanPage.styles';
 
@@ -137,6 +138,7 @@ export function MealPlanPage() {
           </Box>
 
           <Box sx={styles.side}>
+            <DayRoutine plan={plan} />
             <PlanSummary plan={plan} />
             <PlanNotes plan={plan} />
             <Typography variant="caption" color="text.secondary">

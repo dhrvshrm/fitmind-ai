@@ -11,15 +11,18 @@ export const planMealCardStyles = {
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: 1,
   },
   title: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 1,
+    flexWrap: 'wrap',
+    columnGap: 1,
+    rowGap: 0.5,
     minWidth: 0,
+    '& h3': { whiteSpace: 'nowrap' },
   },
   number: {
     fontVariantNumeric: 'tabular-nums',

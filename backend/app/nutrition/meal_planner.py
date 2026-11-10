@@ -17,7 +17,7 @@ from typing import Dict, List, Optional, Sequence, Tuple, Type
 from pydantic import BaseModel, Field, model_validator
 
 from app.ai import client as ai_client
-from app.nutrition import food_db
+from app.nutrition import food_db, routine
 from app.nutrition.diet_rules import DietRules, STAPLE_WORDS, food_tokens, suitable_for_plans
 from app.nutrition.food_db import Food, Nutrients
 from app.nutrition.text import normalize, tokens
@@ -34,6 +34,13 @@ SLOTS: Dict[str, Tuple[str, str, float]] = {
     "evening_snack": ("snack", "17:00", 0.10),
     "dinner": ("dinner", "20:30", 0.28),
     "bedtime": ("snack", "22:00", 0.07),
+    # Added for people who train in the morning: something light before the workout.
+    "pre_workout": ("snack", "06:30", 0.06),
+}
+# What each slot is for, told to the planner when the workout shapes the day.
+SLOT_PURPOSE = {
+    "pre_workout": "light and easy to digest, mainly carbs (fruit, a few dates), about 30 minutes before training",
+    "post_workout": "after training: include a good protein source",
 }
 SLOTS_BY_MEAL_COUNT: Dict[int, List[str]] = {
     2: ["lunch", "dinner"],
@@ -56,8 +63,13 @@ def _hhmm(total: int) -> str:
     return f"{total // 60:02d}:{total % 60:02d}"
 
 
-def plan_slots(lifestyle: Optional[dict]) -> List[dict]:
-    """The day's meals with times and calorie shares, from the person's routine."""
+def plan_slots(lifestyle: Optional[dict], workout_time: Optional[str] = None,
+               trains: bool = False) -> List[dict]:
+    """The day's meals with times and calorie shares, from the person's routine.
+
+    When they train at a set time, meals move around the workout: a light
+    snack before it and a protein-focused meal after it.
+    """
     lifestyle = lifestyle or {}
     count = min(max(lifestyle.get("meals_per_day") or DEFAULT_MEAL_COUNT, 2), 6)
     keys = SLOTS_BY_MEAL_COUNT[count]
@@ -73,16 +85,41 @@ def plan_slots(lifestyle: Optional[dict]) -> List[dict]:
         times["dinner"] = _hhmm(min(bed - 150, 21 * 60 + 30))
         if "bedtime" in times:
             times["bedtime"] = _hhmm(bed - 60)
+    purpose: Dict[str, str] = {}
+    window = routine.workout_window(lifestyle, workout_time, trains)
+    if window:
+        start, end = window
+        if workout_time in routine.MORNING_WORKOUTS:
+            keys = ["pre_workout", *keys]
+            wake = _minutes(lifestyle.get("wake_time") or routine.DEFAULT_WAKE)
+            times["pre_workout"] = _hhmm(max(wake + 10, start - routine.PRE_WORKOUT_LEAD))
+            purpose["pre_workout"] = SLOT_PURPOSE["pre_workout"]
+            after = "breakfast" if "breakfast" in times else "lunch"
+            times[after] = _hhmm(max(_minutes(times[after]), end + routine.POST_WORKOUT_GAP))
+            purpose[after] = SLOT_PURPOSE["post_workout"]
+            if "mid_morning" in times:
+                times["mid_morning"] = _hhmm(max(_minutes(times["mid_morning"]), _minutes(times[after]) + 150))
+        else:
+            if "evening_snack" in times:
+                times["evening_snack"] = _hhmm(start - routine.EVENING_SNACK_LEAD)
+                purpose["evening_snack"] = SLOT_PURPOSE["pre_workout"]
+            times["dinner"] = _hhmm(max(_minutes(times["dinner"]), end + routine.POST_WORKOUT_GAP))
+            purpose["dinner"] = SLOT_PURPOSE["post_workout"]
     total_share = sum(SLOTS[key][2] for key in keys)
-    return [
+    slots = [
         {
             "id": key,
             "meal_type": SLOTS[key][0],
             "time": times[key],
             "share": round(SLOTS[key][2] / total_share, 3),
+            **({
+                "purpose": purpose[key],
+                "workout_role": "pre" if purpose[key] == SLOT_PURPOSE["pre_workout"] else "post",
+            } if key in purpose else {}),
         }
         for key in keys
     ]
+    return sorted(slots, key=lambda s: _minutes(s["time"]))
 
 
 # --- Food list offered to the AI --------------------------------------------
@@ -216,7 +253,9 @@ def build_prompt(
 ) -> str:
     """The plan request. ``keep`` lists meals that stay as they are (one-meal regeneration)."""
     slot_lines = [
-        f"- {s['id']}: {s['time']}, about {round(targets['calories'] * s['share'])} kcal" for s in slots
+        f"- {s['id']}: {s['time']}, about {round(targets['calories'] * s['share'])} kcal"
+        + (f" ({s['purpose']})" if s.get("purpose") else "")
+        for s in slots
     ]
     parts = [
         "Plan one day of meals.",
@@ -548,10 +587,11 @@ SABZI_WORDS = frozenset({
 
 # Each slot is a list of dish kinds, filled in order; a kind with no allowed food is skipped.
 FALLBACK_TEMPLATES: Dict[str, List[str]] = {
-    "breakfast": ["breakfast", "dairy_or_fruit"],
+    "pre_workout": ["fruit"],
+    "breakfast": ["breakfast", "dairy", "fruit"],
     "mid_morning": ["fruit"],
     "lunch": ["main_grain", "protein_dish", "vegetable_dish", "dairy_side"],
-    "evening_snack": ["snack_protein"],
+    "evening_snack": ["snack_protein", "fruit"],
     "dinner": ["main_grain", "protein_dish", "vegetable_dish"],
     "bedtime": ["milk"],
 }
