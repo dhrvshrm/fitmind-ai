@@ -5,16 +5,20 @@ import { MessageBubble } from './MessageBubble';
 import { EmptyState } from '../ui/EmptyState';
 import { STRINGS } from '../../constants/strings';
 import type { ChatMessage } from '../../types/chat';
+import type { CoachProposal } from '../../types/coach';
 import { chatContainerStyles as styles } from './ChatContainer.styles';
 
 const S = STRINGS.coach;
 
 type ChatContainerProps = {
   messages: ChatMessage[];
+  busyProposalId: string | null;
+  onConfirm: (proposal: CoachProposal) => void;
+  onDismiss: (proposal: CoachProposal) => void;
 };
 
 /** Scrollable message list; auto-scrolls to the newest content and shows an empty state. */
-export function ChatContainer({ messages }: ChatContainerProps) {
+export function ChatContainer({ messages, busyProposalId, onConfirm, onDismiss }: ChatContainerProps) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -34,7 +38,13 @@ export function ChatContainer({ messages }: ChatContainerProps) {
   return (
     <Box sx={styles.root}>
       {messages.map((message) => (
-        <MessageBubble key={message.id} message={message} />
+        <MessageBubble
+          key={message.id}
+          message={message}
+          busyProposalId={busyProposalId}
+          onConfirm={onConfirm}
+          onDismiss={onDismiss}
+        />
       ))}
       <div ref={bottomRef} />
     </Box>

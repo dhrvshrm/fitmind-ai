@@ -18,6 +18,7 @@ from app.models import (
 )
 from app.services import cloud_service, gamification_service, workout_service
 from app.models import activity
+from app.models import coach as coach_store
 from app.models import analytics as analytics_store, push as push_store
 
 logger = logging.getLogger(__name__)
@@ -47,6 +48,9 @@ USER_DATA_COLLECTIONS: Dict[str, List[str]] = {
     "workout_overrides": ["user_id"],
     "step_logs": ["user_id"],
     "activity_settings": ["user_id"],
+    "coach_conversations": ["user_id"],
+    "coach_messages": ["user_id"],
+    "coach_proposals": ["user_id"],
     "analytics_events": ["user_id"],
     "push_subscriptions": ["user_id"],
     "reminder_settings": ["user_id"],
@@ -77,6 +81,9 @@ def _memory_stores() -> List[dict]:
         workout._OVERRIDE_MEMORY,
         activity._STEPS_MEMORY,
         activity._SETTINGS_MEMORY,
+        coach_store._CONVERSATION_MEMORY,
+        coach_store._MESSAGE_MEMORY,
+        coach_store._PROPOSAL_MEMORY,
         analytics_store._MEMORY_STORE,
         push_store._SUBSCRIPTION_MEMORY,
         push_store._SETTINGS_MEMORY,

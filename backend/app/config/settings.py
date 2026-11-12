@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     AI_DAILY_QUOTA: int = int(os.getenv("AI_DAILY_QUOTA", "150"))
     # Seconds before an AI provider call is abandoned.
     AI_TIMEOUT_SECONDS: float = float(os.getenv("AI_TIMEOUT_SECONDS", "30"))
+    # Coach (tool use): provider order and models, chosen by scripts/eval_coach_tools.py.
+    # An empty model means the provider's default model above.
+    COACH_PROVIDERS: str = os.getenv("COACH_PROVIDERS", "gemini,groq")
+    COACH_GEMINI_MODEL: str = os.getenv("COACH_GEMINI_MODEL", "")
+    COACH_GROQ_MODEL: str = os.getenv("COACH_GROQ_MODEL", "")
     JWT_SECRET: str = os.getenv("JWT_SECRET", DEV_JWT_SECRET)
     JWT_ALGORITHM: str = "HS256"
     # local | test | staging | production

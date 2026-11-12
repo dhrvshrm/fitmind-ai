@@ -10,6 +10,15 @@ export const coachPageStyles = {
   statusChip: {
     fontWeight: 600,
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 0.5,
+  },
+  alert: {
+    m: 1.5,
+    mb: 0,
+  },
   card: {
     flex: 1,
     minHeight: 0,

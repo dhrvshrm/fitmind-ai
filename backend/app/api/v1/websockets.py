@@ -48,7 +48,9 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
       server -> {"type": "ready"}                          auth accepted
       client -> {"type": "message", "content": "..."}      triggers a streamed reply
       client -> {"type": "ping"}                           health check
-      server -> {"type": "start"} / {"type": "token", "content"} / {"type": "done"}
+      server -> {"type": "start"} / {"type": "token", "content"} /
+                {"type": "done", "content", "message_id", "conversation_id", "proposals"}
+      server -> {"type": "invalidate", "domains": [...]}  after a confirmed coach action
       server -> {"type": "notification", "data": {...}}    live + pending on connect
     """
     await websocket.accept()

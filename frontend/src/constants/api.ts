@@ -171,3 +171,12 @@ export const FOOD_SCAN_ENDPOINTS = {
   barcode: (code: string) => `/nutrition/barcode/${encodeURIComponent(code)}`,
   PHOTO: "/nutrition/photo-estimate",
 } as const;
+
+export const COACH_ENDPOINTS = {
+  CONVERSATION: "/coach/conversation",
+  HISTORY: "/coach/history",
+  MESSAGES: "/coach/messages",
+  MENU: "/coach/menu",
+  confirm: (id: string) => `/coach/actions/${encodeURIComponent(id)}/confirm`,
+  cancel: (id: string) => `/coach/actions/${encodeURIComponent(id)}/cancel`,
+} as const;

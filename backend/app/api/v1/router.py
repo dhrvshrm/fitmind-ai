@@ -20,6 +20,7 @@ from .endpoints import (
 
 from .endpoints import activity, food_scan  # Phase 11 activity; barcode and photo logging
 from .endpoints import analytics, reminders, today  # Phase 7 habit loop
+from .endpoints import coach  # Phase 9 action-taking coach
 router = APIRouter(prefix="/api/v1")
 
 router.include_router(health.router)
@@ -44,3 +45,4 @@ router.include_router(food_scan.router)
 router.include_router(analytics.router)
 router.include_router(reminders.router)
 router.include_router(today.router)
+router.include_router(coach.router)

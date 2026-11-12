@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from fastapi import WebSocket
 
@@ -10,24 +10,29 @@ logger = logging.getLogger(__name__)
 
 
 async def chat_handler(user_id: str, message: str, websocket: WebSocket) -> None:
-    """Stream an AI chat reply back to the socket that asked.
+    """Stream the coach's reply back to the socket that asked.
 
-    Emits a ``start`` frame, a ``token`` frame per streamed chunk, and a
-    final ``done`` frame carrying the full assembled reply. Replies go only
-    to the requesting socket, not every connection the user has open (the
-    notifications socket and other tabs shouldn't receive chat tokens).
+    Emits ``start``, a ``token`` frame per chunk, then ``done`` with the full
+    reply, the stored message id and any action proposals (confirm cards).
+    Replies go only to the requesting socket, not every connection the user
+    has open (the notifications socket and other tabs shouldn't get tokens).
     """
-    await websocket.send_json({"type": "start"})
-    full_reply = ""
+    started = False
     try:
-        async for token in chat_service.generate_chat_response(user_id, message):
-            full_reply += token
-            await websocket.send_json({"type": "token", "content": token})
+        async for event in chat_service.respond(user_id, message):
+            started = started or event["type"] == "start"
+            await websocket.send_json(event)
     except Exception as e:
         logger.warning("chat_handler error for user=%s: %s", user_id, e)
+        if not started:
+            await websocket.send_json({"type": "start"})
         await websocket.send_json({"type": "error", "content": "Chat failed. Please try again."})
-        return
-    await websocket.send_json({"type": "done", "content": full_reply})
+
+
+async def invalidate_handler(user_id: str, domains: List[str]) -> None:
+    """Tell every open app tab which data an action changed, so it refetches."""
+    if domains:
+        await manager.send_personal(user_id, {"type": "invalidate", "domains": domains})
 
 
 async def notification_handler(event: str, user_id: str, payload: Dict[str, Any] | None = None) -> None:

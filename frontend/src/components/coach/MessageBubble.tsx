@@ -4,14 +4,19 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { formatTimestamp } from '../../utils/date';
 import type { ChatMessage } from '../../types/chat';
+import type { CoachProposal } from '../../types/coach';
+import { ActionCard } from './ActionCard';
 import { messageBubbleStyles as styles } from './MessageBubble.styles';
 
 type MessageBubbleProps = {
   message: ChatMessage;
+  busyProposalId: string | null;
+  onConfirm: (proposal: CoachProposal) => void;
+  onDismiss: (proposal: CoachProposal) => void;
 };
 
 /** One chat bubble: user vs assistant styling, streaming cursor, typing dots. */
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({ message, busyProposalId, onConfirm, onDismiss }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const isError = message.status === 'error';
   const isStreaming = message.status === 'streaming';
@@ -48,6 +53,15 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             </Box>
           )}
         </Box>
+        {message.proposals?.map((proposal) => (
+          <ActionCard
+            key={proposal.id}
+            proposal={proposal}
+            busy={busyProposalId !== null}
+            onConfirm={onConfirm}
+            onDismiss={onDismiss}
+          />
+        ))}
         <Typography variant="caption" color="text.secondary" sx={styles.timestamp}>
           {formatTimestamp(message.timestamp)}
         </Typography>
