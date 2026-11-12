@@ -168,6 +168,12 @@ def _meal(plan: dict, meal_id: str) -> dict:
     return meal
 
 
+def _ensure_not_logged_today(plan: dict, meal_id: str) -> None:
+    """A meal already logged today can't be changed: what was eaten is on record."""
+    if meal_id in plan.get("logged", {}).get(local_today_iso(), []):
+        raise DietPlanError("This meal is already logged for today. You can change it from tomorrow")
+
+
 def _item(meal: dict, index: int) -> dict:
     if not 0 <= index < len(meal["items"]):
         raise DietPlanError("Food not found in this meal", "not_found")
@@ -226,6 +232,7 @@ async def regenerate_meal(user_id: str, meal_id: str) -> dict:
     """
     plan = await _active(user_id)
     current = _meal(plan, meal_id)
+    _ensure_not_logged_today(plan, meal_id)
     ctx = await _context(user_id)
     slot = {k: current[k] for k in ("id", "meal_type", "time", "share")}
     others = [m for m in plan["meals"] if m["id"] != meal_id]
@@ -269,6 +276,7 @@ async def swap_item(user_id: str, meal_id: str, index: int, food_id: str) -> dic
     """
     plan = await _active(user_id)
     original = _item(_meal(plan, meal_id), index)
+    _ensure_not_logged_today(plan, meal_id)
     ctx = await _context(user_id)
     food = ctx.foods.get(food_id)
     if food is None:

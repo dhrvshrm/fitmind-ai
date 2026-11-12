@@ -85,18 +85,21 @@ export function PlanMealCard({ meal, logged, locked }: PlanMealCardProps) {
             <Typography variant="body2" color="text.secondary" sx={styles.number}>
               {S.kcal(item.nutrients.kcal)}
             </Typography>
-            <Tooltip title={S.swapAria(item.name)}>
-              <span>
-                <IconButton
-                  size="small"
-                  aria-label={S.swapAria(item.name)}
-                  onClick={() => setSwapTarget({ item, index })}
-                  disabled={busy}
-                >
-                  <SwapHorizRounded fontSize="small" />
-                </IconButton>
-              </span>
-            </Tooltip>
+            {/* What was eaten today is on record, so a logged meal can't be swapped. */}
+            {!logged && (
+              <Tooltip title={S.swapAria(item.name)}>
+                <span>
+                  <IconButton
+                    size="small"
+                    aria-label={S.swapAria(item.name)}
+                    onClick={() => setSwapTarget({ item, index })}
+                    disabled={busy}
+                  >
+                    <SwapHorizRounded fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            )}
           </Stack>
         ))}
       </Box>
@@ -106,16 +109,22 @@ export function PlanMealCard({ meal, logged, locked }: PlanMealCardProps) {
           {S.macros(meal.totals.protein, meal.totals.carbs, meal.totals.fat)}
         </Typography>
         <Stack sx={styles.actions}>
-          <Button
-            size="small"
-            color="inherit"
-            onClick={handleRegenerate}
-            disabled={busy}
-            aria-label={S.newOptionAria(label)}
-            startIcon={regenerate.isPending ? <CircularProgress size={16} color="inherit" /> : <AutorenewRounded />}
-          >
-            {S.newOption}
-          </Button>
+          {logged ? (
+            <Typography variant="caption" color="text.secondary">
+              {S.lockedUntilTomorrow}
+            </Typography>
+          ) : (
+            <Button
+              size="small"
+              color="inherit"
+              onClick={handleRegenerate}
+              disabled={busy}
+              aria-label={S.newOptionAria(label)}
+              startIcon={regenerate.isPending ? <CircularProgress size={16} color="inherit" /> : <AutorenewRounded />}
+            >
+              {S.newOption}
+            </Button>
+          )}
           {logged ? (
             <motion.div
               initial={{ scale: 0.6, opacity: 0 }}

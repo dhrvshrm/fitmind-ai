@@ -431,3 +431,20 @@ def test_plan_includes_the_routine(client, ai_providers):
     kinds = [e["kind"] for e in plan["routine"]]
     assert kinds[0] == "wake" and kinds[-1] == "sleep" and "workout" in kinds
     assert plan["meals"][0]["id"] == "pre_workout"
+
+
+def test_a_logged_meal_cannot_be_swapped_or_replaced_today(client, ai_providers):
+    headers, _ = _onboard(client)
+    ai_providers.gemini.append(VALID_PICK)
+    client.post(f"{API}/diet-plans", headers=headers)
+    client.post(f"{API}/diet-plans/current/meals/breakfast/log", headers=headers)
+
+    swap = client.post(f"{API}/diet-plans/current/meals/breakfast/items/0/swap", headers=headers,
+                       json={"food_id": RICE})
+    assert swap.status_code == 400 and "already logged" in swap.json()["message"]
+    regenerate = client.post(f"{API}/diet-plans/current/meals/breakfast/regenerate", headers=headers)
+    assert regenerate.status_code == 400
+    # Other meals can still be changed.
+    options = client.get(f"{API}/diet-plans/current/meals/dinner/items/0/alternatives", headers=headers)
+    assert options.status_code == 200
+

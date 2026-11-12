@@ -843,6 +843,7 @@ export const STRINGS = {
     amount: (quantity: number, unit: string, grams: number) => `${quantity} ${unit}, ${Math.round(grams)} g`,
     logMeal: "Log this meal",
     logged: "Logged today",
+    lockedUntilTomorrow: "Logged meals can be changed from tomorrow.",
     loggedToast: "Meal logged.",
     newOption: "Different option",
     newOptionAria: (meal: string) => `Get a different option for ${meal}`,
