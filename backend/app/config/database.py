@@ -99,6 +99,14 @@ _INDEXES = {
         ([("code", 1)], {"unique": True}),
         ([("expires_at", 1)], {"expireAfterSeconds": 0}),
     ],
+    # Phase 10: progress measurements, flexible days, target decisions,
+    # weekly insights, progress photos and friend challenges.
+    "body_measurements": [([("user_id", 1), ("log_date", -1)], {"unique": True})],
+    "flexible_days": [([("user_id", 1), ("date", 1)], {"unique": True})],
+    "target_history": [([("user_id", 1), ("at", -1)], {})],
+    "weekly_insights": [([("user_id", 1), ("week_start", 1)], {"unique": True})],
+    "progress_photos": [([("user_id", 1), ("log_date", -1)], {})],
+    "friend_challenges": [([("creator_id", 1)], {}), ([("opponent_id", 1)], {})],
     # Cached AI results expire on their own via a TTL index.
     "ai_cache": [
         ([("key", 1)], {"unique": True}),

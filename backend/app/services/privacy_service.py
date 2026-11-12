@@ -20,6 +20,7 @@ from app.services import cloud_service, gamification_service, workout_service
 from app.models import activity
 from app.models import coach as coach_store
 from app.models import analytics as analytics_store, push as push_store
+from app.models import challenge as challenge_store, progress as progress_store
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +56,13 @@ USER_DATA_COLLECTIONS: Dict[str, List[str]] = {
     "push_subscriptions": ["user_id"],
     "reminder_settings": ["user_id"],
     "reminder_sends": ["user_id"],
+    # Phase 10 progress and motivation.
+    "body_measurements": ["user_id"],
+    "flexible_days": ["user_id"],
+    "target_history": ["user_id"],
+    "weekly_insights": ["user_id"],
+    "progress_photos": ["user_id"],
+    "friend_challenges": ["creator_id", "opponent_id"],
 }
 
 
@@ -88,6 +96,12 @@ def _memory_stores() -> List[dict]:
         push_store._SUBSCRIPTION_MEMORY,
         push_store._SETTINGS_MEMORY,
         push_store._SEND_MEMORY,
+        progress_store._MEASUREMENTS_MEMORY,
+        progress_store._FLEX_MEMORY,
+        progress_store._TARGET_HISTORY_MEMORY,
+        progress_store._INSIGHTS_MEMORY,
+        progress_store._PHOTOS_MEMORY,
+        challenge_store._MEMORY_STORE,
     ]
 
 
@@ -96,7 +110,8 @@ def _belongs_to(key: str, value: object, user_id: str) -> bool:
     if key == user_id or key.startswith(f"{user_id}:"):
         return True
     if isinstance(value, dict):
-        return user_id in (value.get("id"), value.get("user_id"), value.get("requester_id"), value.get("addressee_id"))
+        return user_id in (value.get("id"), value.get("user_id"), value.get("requester_id"), value.get("addressee_id"),
+                           value.get("creator_id"), value.get("opponent_id"))
     return False
 
 
