@@ -1,0 +1,321 @@
+[
+ {
+  "id": "est:kuttu_roti",
+  "name": "Kuttu roti",
+  "full_name": "Buckwheat flour roti (kuttu ki roti), fasting style",
+  "aliases": [
+   "kuttu ki roti",
+   "buckwheat roti",
+   "kuttu chapati"
+  ],
+  "source": "estimate",
+  "basis": "About 70 g buckwheat flour and 2 g ghee per 100 g of cooked roti; flour values from IFCT 2017.",
+  "per_100g": {
+   "kcal": 255,
+   "protein": 8.5,
+   "carbs": 50,
+   "fat": 3.5,
+   "fiber": 6.5
+  },
+  "serving": {
+   "unit": "roti",
+   "grams": 40,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:kuttu_puri",
+  "name": "Kuttu puri",
+  "full_name": "Buckwheat flour puri (kuttu ki puri), deep fried",
+  "aliases": [
+   "kuttu ki puri",
+   "kuttu poori",
+   "buckwheat puri"
+  ],
+  "source": "estimate",
+  "basis": "Kuttu roti dough deep fried, absorbing about 14 g oil per 100 g.",
+  "per_100g": {
+   "kcal": 340,
+   "protein": 7,
+   "carbs": 42,
+   "fat": 16,
+   "fiber": 5
+  },
+  "serving": {
+   "unit": "poori",
+   "grams": 30,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:singhara_roti",
+  "name": "Singhara roti",
+  "full_name": "Water chestnut flour roti (singhare ki roti), fasting style",
+  "aliases": [
+   "singhare ki roti",
+   "singhara atta roti",
+   "water chestnut flour roti"
+  ],
+  "source": "estimate",
+  "basis": "About 65 g singhara flour, mashed potato to bind, and 2 g ghee per 100 g of cooked roti.",
+  "per_100g": {
+   "kcal": 245,
+   "protein": 4.5,
+   "carbs": 50,
+   "fat": 3,
+   "fiber": 3
+  },
+  "serving": {
+   "unit": "roti",
+   "grams": 40,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:rajgira_roti",
+  "name": "Rajgira roti",
+  "full_name": "Amaranth flour roti (rajgira ki roti), fasting style",
+  "aliases": [
+   "rajgira ki roti",
+   "amaranth roti",
+   "rajgira paratha"
+  ],
+  "source": "estimate",
+  "basis": "About 65 g amaranth flour, mashed potato to bind, and 3 g ghee per 100 g of cooked roti; flour values from IFCT 2017.",
+  "per_100g": {
+   "kcal": 265,
+   "protein": 9,
+   "carbs": 46,
+   "fat": 5.5,
+   "fiber": 4.5
+  },
+  "serving": {
+   "unit": "roti",
+   "grams": 40,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:samak_rice",
+  "name": "Samak rice (cooked)",
+  "full_name": "Barnyard millet (samak, sama ke chawal, vrat ke chawal), boiled",
+  "aliases": [
+   "samak rice",
+   "sama ke chawal",
+   "vrat ke chawal",
+   "barnyard millet",
+   "samvat rice"
+  ],
+  "source": "estimate",
+  "basis": "Raw barnyard millet values from IFCT 2017, cooked with about three times its weight of water.",
+  "per_100g": {
+   "kcal": 100,
+   "protein": 2.1,
+   "carbs": 21,
+   "fat": 0.7,
+   "fiber": 3
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:samak_khichdi",
+  "name": "Samak rice khichdi",
+  "full_name": "Barnyard millet khichdi with potato and peanuts (vrat khichdi)",
+  "aliases": [
+   "samak khichdi",
+   "sama khichdi",
+   "vrat khichdi",
+   "vrat ke chawal ki khichdi"
+  ],
+  "source": "estimate",
+  "basis": "Cooked samak rice with potato, a few roasted peanuts and ghee.",
+  "per_100g": {
+   "kcal": 140,
+   "protein": 3,
+   "carbs": 20,
+   "fat": 5,
+   "fiber": 2.5
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 200,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:roasted_makhana",
+  "name": "Roasted makhana",
+  "full_name": "Fox nuts (makhana, lotus seeds) roasted in a little ghee",
+  "aliases": [
+   "makhana",
+   "fox nuts",
+   "phool makhana",
+   "roasted fox nuts",
+   "lotus seeds"
+  ],
+  "source": "estimate",
+  "basis": "Dried lotus seed values from USDA FoodData Central with about 5% ghee added.",
+  "per_100g": {
+   "kcal": 375,
+   "protein": 9.5,
+   "carbs": 70,
+   "fat": 6,
+   "fiber": 7
+  },
+  "serving": {
+   "unit": "cup",
+   "grams": 15,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:vrat_aloo",
+  "name": "Vrat aloo sabzi",
+  "full_name": "Potatoes cooked in ghee with cumin and sendha namak (vrat wale aloo)",
+  "aliases": [
+   "vrat wale aloo",
+   "vrat ke aloo",
+   "jeera aloo vrat",
+   "falahari aloo"
+  ],
+  "source": "estimate",
+  "basis": "Boiled potato values from IFCT 2017 with about 4 g ghee per 100 g.",
+  "per_100g": {
+   "kcal": 115,
+   "protein": 1.9,
+   "carbs": 16,
+   "fat": 4.5,
+   "fiber": 1.8
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:vrat_lauki",
+  "name": "Vrat lauki sabzi",
+  "full_name": "Bottle gourd cooked in ghee with cumin and sendha namak, fasting style",
+  "aliases": [
+   "vrat lauki",
+   "lauki sabzi vrat",
+   "bottle gourd vrat sabzi"
+  ],
+  "source": "estimate",
+  "basis": "Bottle gourd values from IFCT 2017 with about 3 g ghee per 100 g.",
+  "per_100g": {
+   "kcal": 45,
+   "protein": 0.8,
+   "carbs": 4.5,
+   "fat": 2.8,
+   "fiber": 1.5
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:kaddu_sabzi",
+  "name": "Vrat kaddu sabzi",
+  "full_name": "Pumpkin (kaddu) cooked in ghee with sendha namak, fasting style",
+  "aliases": [
+   "kaddu ki sabzi",
+   "pumpkin sabzi",
+   "khatta meetha kaddu"
+  ],
+  "source": "estimate",
+  "basis": "Pumpkin values from IFCT 2017 with about 3 g ghee and a little jaggery per 100 g.",
+  "per_100g": {
+   "kcal": 65,
+   "protein": 1.1,
+   "carbs": 9,
+   "fat": 3,
+   "fiber": 1.5
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:sweet_potato_chaat",
+  "name": "Sweet potato chaat",
+  "full_name": "Boiled sweet potato (shakarkandi) with lemon and sendha namak",
+  "aliases": [
+   "shakarkandi chaat",
+   "shakarkand chaat",
+   "boiled sweet potato"
+  ],
+  "source": "estimate",
+  "basis": "Boiled sweet potato values from USDA FoodData Central.",
+  "per_100g": {
+   "kcal": 90,
+   "protein": 1.6,
+   "carbs": 20.7,
+   "fat": 0.2,
+   "fiber": 3.3
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:fruit_chaat",
+  "name": "Fruit chaat",
+  "full_name": "Mixed seasonal fruit with lemon and chaat masala",
+  "aliases": [
+   "fruit salad",
+   "mixed fruit bowl",
+   "phal chaat"
+  ],
+  "source": "estimate",
+  "basis": "An even mix of apple, banana, papaya and pomegranate, values from USDA FoodData Central.",
+  "per_100g": {
+   "kcal": 62,
+   "protein": 0.8,
+   "carbs": 15,
+   "fat": 0.3,
+   "fiber": 2.2
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:dates",
+  "name": "Dates (khajur)",
+  "full_name": "Dates, dried (khajur, khajoor)",
+  "aliases": [
+   "khajur",
+   "khajoor",
+   "dates",
+   "date fruit"
+  ],
+  "source": "estimate",
+  "basis": "Deglet Noor date values from USDA FoodData Central, entered by hand; one date is about 7 g.",
+  "per_100g": {
+   "kcal": 282,
+   "protein": 2.5,
+   "carbs": 75,
+   "fat": 0.4,
+   "fiber": 8
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 7,
+   "from_source": false
+  }
+ }
+]

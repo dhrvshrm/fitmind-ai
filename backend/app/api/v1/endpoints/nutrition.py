@@ -14,6 +14,7 @@ from app.schemas.nutrition import (
     WaterLogRequest,
 )
 from app.services import nutrition_service
+from app.services import fasting_service  # Phase 8: fasting-mode warnings on logging
 from app.services.nutrition_service import NutritionServiceError, TranscriptionError
 
 router = APIRouter(prefix="/nutrition", tags=["Nutrition"])
@@ -28,12 +29,17 @@ def _not_found_or_bad(exc: NutritionServiceError) -> HTTPException:
 async def _logged_response(user_id: str, meal) -> dict:
     """Award meal XP and build the standard "meal logged" response data."""
     xp = await nutrition_service.award_xp_for_meal(user_id)
+    meal_data = meal.public_dict()
     return {
-        "meal": meal.public_dict(),
+        "meal": meal_data,
         "xp_earned": xp["xp_earned"],
         "total_xp": xp["total_xp"],
         "new_level": xp["new_level"],
         "leveled_up": xp["leveled_up"],
+        # A gentle note when the meal breaks an active fast (never blocks logging).
+        "fasting_warning": await fasting_service.meal_warning(
+            user_id, meal_data.get("items") or [], meal_data.get("name", ""), meal_data.get("date")
+        ),
     }
 
 
@@ -163,6 +169,8 @@ async def log_meals(
             "total_xp": last_xp["total_xp"],
             "new_level": last_xp["new_level"],
             "leveled_up": leveled_up,
+            # One combined note for every logged food that breaks an active fast.
+            "fasting_warning": await fasting_service.meals_warning(current_user.id, logged),
         },
     }
 

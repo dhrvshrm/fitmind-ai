@@ -23,7 +23,11 @@ from app.nutrition.units import default_grams, is_piece_unit, normalize_unit
 logger = logging.getLogger(__name__)
 
 DATA_DIR = Path(__file__).parent / "data"
-DATASET_FILES = ("indb_foods.json", "usda_basics.json")
+# fasting_estimates.json: a few fasting dishes INDB lacks (kuttu roti, samak rice...),
+# hand-built from ingredient values and labelled as estimates (source "estimate").
+DATASET_FILES = ("indb_foods.json", "usda_basics.json", "fasting_estimates.json")
+# Sources whose numbers are hand-built estimates rather than a published dataset.
+ESTIMATE_SOURCES = frozenset({"estimate"})
 
 # A match must score at least this to be used without asking the user.
 MATCH_THRESHOLD = 0.8
@@ -60,6 +64,8 @@ GENERIC_ALIASES: Dict[str, str] = {
     "raita": "indb:ASC273",
     "veg pulao": "indb:ASC115",
     "sprouts salad": "indb:ASC259",
+    "sabudana khichdi": "indb:OSR099",
+    "sabudana": "indb:OSR099",
 }
 
 NUTRIENT_KEYS = ("kcal", "protein", "carbs", "fat", "fiber")

@@ -16,6 +16,10 @@ from app.nutrition import food_db, meal_planner, routine
 from app.nutrition.diet_rules import DietRules
 from app.nutrition.food_db import Food
 from app.services import nutrition_service, user_service
+from app.nutrition import fasting, grocery  # Phase 8: fasting modes and grocery list
+from app.services import fasting_service
+from app.services import analytics_service
+from app.health import plan_rules  # Phase 12 health rules
 from app.utils.time import local_today, local_today_iso
 
 logger = logging.getLogger(__name__)
@@ -61,9 +65,17 @@ async def _context(user_id: str) -> _Context:
     if not targets:
         raise DietPlanError("Add your age, sex, height and weight in your profile to get a meal plan")
     rules = DietRules.from_preferences(user.food_preferences)
+    # An active fasting or festival mode adds its food rules, like an allergy would.
+    fasting_mode = await fasting_service.active_mode(user_id)
+    rules = rules.with_fasting_mode((fasting_mode or {}).get("mode"))
     own = await nutrition_service.user_foods_as_foods(user_id)
     pool = meal_planner.food_pool(rules, user.food_preferences, own)
-    return _Context(user, targets, pool, rules)
+    # Health profile rules (app/health/plan_rules.py), from consented data only.
+    targets, pool, health_notes = await plan_rules.apply_to_plan(user_id, targets, pool, user.weight_kg)
+    ctx = _Context(user, targets, pool, rules)
+    ctx.health_notes = health_notes
+    ctx.fasting_mode = fasting_mode
+    return ctx
 
 
 def _target_subset(targets: Dict[str, Any]) -> Dict[str, int]:
@@ -86,7 +98,57 @@ def _notes(meals: List[dict], plan_targets: Dict[str, int], ctx: _Context,
         notes.append({"code": "check_ingredients", "values": {}})
     if set(ctx.targets.get("flags") or []) & MEDICAL_FLAGS:
         notes.append({"code": "medical_advice", "values": {}})
+    notes += [n for n in getattr(ctx, "health_notes", []) if n["code"] not in {x["code"] for x in notes}]
+    notes += [n for n in _mode_notes(getattr(ctx, "fasting_mode", None)) if n["code"] not in {x["code"] for x in notes}]
     return notes
+
+
+# --- Fasting modes and shift times (Phase 8) ----------------------------------
+def _mode_summary(mode: Optional[dict]) -> Optional[dict]:
+    """What a plan stores about the fasting mode it was made for."""
+    if not mode:
+        return None
+    keys = ("id", "mode", "start_date", "end_date", "dawn_time", "sunset_time", "times_given")
+    return {k: mode[k] for k in keys if k in mode}
+
+
+def _mode_notes(mode: Optional[dict]) -> List[dict]:
+    """Plan notes saying a mode is on, and what it means for the day."""
+    spec = fasting.get_mode((mode or {}).get("mode"))
+    if spec is None:
+        return []
+    notes = [{"code": "fasting_mode", "values": {"mode": spec.key, "end_date": mode["end_date"]}}]
+    for code in spec.note_codes:
+        if code == "ramadan_timings":
+            notes.append({"code": code, "values": {
+                "dawn": mode.get("dawn_time"), "sunset": mode.get("sunset_time"),
+                "given": bool(mode.get("times_given")),
+            }})
+        else:
+            notes.append({"code": code, "values": {}})
+    if spec.restricts_food:
+        notes.append({"code": "check_ingredients", "values": {}})
+    return notes
+
+
+def _mode_lines(mode: Optional[dict]) -> List[str]:
+    """Extra planner instructions for an active mode."""
+    spec = fasting.get_mode((mode or {}).get("mode"))
+    return [spec.prompt] if spec and spec.prompt else []
+
+
+def _mode_key(mode: Optional[dict]) -> Optional[str]:
+    return (mode or {}).get("mode")
+
+
+def _current_times(plan: dict, user: Optional[User], mode: Optional[dict]) -> Optional[Dict[str, str]]:
+    """Meal times from the person's routine as it is now (a new shift, new wake time),
+    or None when the plan's meals no longer match the routine's slots."""
+    if user is None:
+        return None
+    slots = meal_planner.plan_slots(user.lifestyle, user.workout_time, _trains(user), mode)
+    times = {s["id"]: s["time"] for s in slots}
+    return times if set(times) == {m["id"] for m in plan["meals"]} else None
 
 
 def _remove_disallowed(meals: List[dict], ctx: _Context) -> None:
@@ -107,6 +169,12 @@ async def _save(user_id: str, meals: List[dict], plan_targets: Dict[str, int], c
         "meals": meals,
         "totals": meal_planner.totals_of([i for m in meals for i in m["items"]]),
         "notes": _notes(meals, plan_targets, ctx, rule_based),
+        # A whole new plan is made for today's mode; edits keep the plan's own.
+        "fasting_mode": (
+            _mode_summary(getattr(ctx, "fasting_mode", None))
+            if previous is None or change in ("created", "regenerated")
+            else previous.get("fasting_mode")
+        ),
     }
     doc = await diet_plan.save_version(user_id, fields, change, previous)
     await audit.record_change(
@@ -137,15 +205,29 @@ async def _present(plan: dict, user: Optional[User] = None) -> dict:
     """The plan as returned to the app, with today's logging state and staleness."""
     user = user or await User.get_by_id(plan["user_id"])
     targets = await user_service.get_targets(user) if user else None
+    if user:  # Compare against health-adjusted targets, as the plan was made with them.
+        targets = await plan_rules.adjusted_targets(user.id, targets, user.weight_kg)
     data = {k: v for k, v in plan.items() if k not in ("user_id", "logged")}
     data["logged_today"] = plan.get("logged", {}).get(local_today_iso(), [])
     data["stale"] = bool(user) and _is_stale(plan, user, targets)
+    # Fasting mode on today, and whether the plan was made for it.
+    active = await fasting_service.active_mode(plan["user_id"])
+    data["fasting_mode"] = plan.get("fasting_mode")
+    data["active_fasting_mode"] = _mode_summary(active)
+    data["mode_changed"] = _mode_key(active) != _mode_key(plan.get("fasting_mode"))
+    # Meal times follow the routine as it is now (a new shift moves them, foods stay).
+    times = _current_times(plan, user, plan.get("fasting_mode"))
+    if times:
+        data["meals"] = [{**m, "time": times[m["id"]]} for m in plan["meals"]]
+    data["stale"] = data["stale"] or data["mode_changed"] or (bool(user) and times is None)
+    data["shift_aware"] = bool(user) and routine.is_shift_schedule(user.lifestyle)
     data["routine"] = routine.daily_routine(
-        plan["meals"],
+        data["meals"],
         user.lifestyle if user else None,
         user.workout_time if user else None,
         _trains(user) if user else False,
         (targets or {}).get("water_ml"),
+        plan.get("fasting_mode"),
     )
     return data
 
@@ -201,26 +283,31 @@ async def create_plan(user_id: str) -> dict:
     """
     ctx = await _context(user_id)
     previous = await diet_plan.get_active(user_id)
-    slots = meal_planner.plan_slots(ctx.user.lifestyle, ctx.user.workout_time, _trains(ctx.user))
+    mode = getattr(ctx, "fasting_mode", None)
+    slots = meal_planner.plan_slots(ctx.user.lifestyle, ctx.user.workout_time, _trains(ctx.user), mode)
     # A new plan should feel new: steer away from the dishes in the last one.
     avoid = [i["name"] for m in previous["meals"] for i in m["items"]] if previous else []
     plan_targets = _target_subset(ctx.targets)
     rule_based = False
     try:
         pick = await meal_planner.pick_meals(
-            plan_targets, slots, ctx.pool, ctx.prefs, ctx.access, user_id, avoid_names=avoid
+            plan_targets, slots, ctx.pool, ctx.prefs, ctx.access, user_id, avoid_names=avoid,
+            extra_lines=_mode_lines(mode),
         )
     except AIError as e:
         # A plan is always made: without AI, from the same allowed foods by meal templates.
         logger.info("AI meal plan unavailable for %s, using rules: %s", user_id, e)
         variant = previous["version"] if previous else 0
-        pick = meal_planner.rule_based_pick(slots, ctx.pool, variant)
+        pick = meal_planner.rule_based_pick(slots, ctx.pool, variant, _mode_key(mode))
         rule_based = True
     meals = meal_planner.assemble(pick, slots, ctx.foods)
     _remove_disallowed(meals, ctx)
     meal_planner.fit_portions(meals, plan_targets, ctx.foods)
     doc = await _save(user_id, meals, plan_targets, ctx, "regenerated" if previous else "created",
                       previous, rule_based)
+    await analytics_service.track(
+        user_id, analytics_service.MEAL_PLAN_CREATED, {"source": "rules" if rule_based else "ai"}
+    )
     return await _present(doc, ctx.user)
 
 
@@ -242,11 +329,13 @@ async def regenerate_meal(user_id: str, meal_id: str) -> dict:
         pick = await meal_planner.pick_meals(
             plan["targets"], [slot], pool, ctx.prefs, ctx.access, user_id,
             avoid_names=[i["name"] for i in current["items"]], keep=others,
+            extra_lines=_mode_lines(getattr(ctx, "fasting_mode", None)),
         )
     except AIError as e:
         logger.info("AI meal option unavailable for %s, using rules: %s", user_id, e)
         others_ids = {i["food_id"] for m in others for i in m["items"]}
-        pick = meal_planner.rule_based_pick([slot], [f for f in pool if f.id not in others_ids], plan["version"])
+        pick = meal_planner.rule_based_pick([slot], [f for f in pool if f.id not in others_ids], plan["version"],
+                                            _mode_key(getattr(ctx, "fasting_mode", None)))
         rule_based = True
     meals = _copy_meals(plan)
     new_meal = meal_planner.assemble(pick, [slot], ctx.foods)[0]
@@ -319,9 +408,32 @@ async def log_plan_meal(user_id: str, meal_id: str):
         fats=totals["fat"],
         fiber=totals["fiber"],
         meal_type=meal["meal_type"],
-        eaten_at=meal["time"],
+        # The time shown in the plan, which follows the current routine (see _present).
+        eaten_at=(_current_times(plan, await User.get_by_id(user_id), plan.get("fasting_mode")) or {}).get(
+            meal_id, meal["time"]
+        ),
         items=[{**{k: v for k, v in i.items() if k != "per_100g"}, "edited": False} for i in meal["items"]],
     )
     logged[today] = [*logged.get(today, []), meal_id]
     await diet_plan.set_logged(user_id, plan["id"], logged)
     return logged_meal, await _present({**plan, "logged": logged})
+
+
+async def grocery_list(user_id: str, days: int = grocery.DEFAULT_DAYS) -> dict:
+    """The current plan's dishes over ``days`` days as one shopping list, grouped by aisle.
+
+    Returns ``grocery.build_list`` output plus ``plan_id``, ``plan_version``
+    and the plan's ``fasting_mode`` (so the list can say it's for a fast).
+
+    Raises:
+        DietPlanError: if there's no plan or ``days`` is out of range (1 to 14).
+    """
+    if not 1 <= days <= grocery.MAX_DAYS:
+        raise DietPlanError(f"Pick between 1 and {grocery.MAX_DAYS} days")
+    plan = await _active(user_id)
+    return {
+        **grocery.build_list(plan["meals"], days),
+        "plan_id": plan["id"],
+        "plan_version": plan["version"],
+        "fasting_mode": plan.get("fasting_mode"),
+    }

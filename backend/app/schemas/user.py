@@ -1,6 +1,6 @@
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 from app.utils.time import is_valid_timezone
 
@@ -111,6 +111,27 @@ class Lifestyle(BaseModel):
     work_schedule: Optional[WorkSchedule] = None
     meals_per_day: Optional[int] = Field(None, ge=1, le=8)
     water_glasses_per_day: Optional[int] = Field(None, ge=0, le=30)
+
+    @model_validator(mode="after")
+    def _sensible_sleep(self) -> "Lifestyle":
+        """Wake and sleep times (any shift) must leave 3 to 14 hours of sleep."""
+        if self.wake_time and self.sleep_time:
+            wake = int(self.wake_time[:2]) * 60 + int(self.wake_time[3:])
+            sleep = int(self.sleep_time[:2]) * 60 + int(self.sleep_time[3:])
+            hours = ((wake - sleep) % (24 * 60)) / 60
+            if not MIN_SLEEP_HOURS <= hours <= MAX_SLEEP_HOURS:
+                from pydantic_core import PydanticCustomError  # serialisable in the 422 response
+
+                raise PydanticCustomError(
+                    "value_error",
+                    f"Wake and sleep times should leave {MIN_SLEEP_HOURS} to {MAX_SLEEP_HOURS} hours of sleep",
+                )
+        return self
+
+
+# Sleep window accepted for wake and sleep times (night shifts included).
+MIN_SLEEP_HOURS = 3
+MAX_SLEEP_HOURS = 14
 
 
 class GoalDetails(BaseModel):

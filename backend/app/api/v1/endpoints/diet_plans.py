@@ -4,10 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.api.v1.endpoints.auth import get_current_user
 from app.models.user import User
+from app.nutrition import grocery
 from app.schemas.diet_plan import SwapRequest
+from app.schemas.fasting import FastingModeCreate
 from app.schemas.general import SuccessResponse
-from app.services import diet_plan_service, nutrition_service
+from app.services import diet_plan_service, fasting_service, nutrition_service
 from app.services.diet_plan_service import DietPlanError
+from app.services.fasting_service import FastingModeError
 
 router = APIRouter(prefix="/diet-plans", tags=["Diet plans"])
 
@@ -18,7 +21,7 @@ _STATUS = {
 }
 
 
-def _http(exc: DietPlanError) -> HTTPException:
+def _http(exc: "DietPlanError | FastingModeError") -> HTTPException:
     return HTTPException(status_code=_STATUS.get(exc.kind, status.HTTP_400_BAD_REQUEST), detail=str(exc))
 
 
@@ -88,15 +91,75 @@ async def log_plan_meal(meal_id: str, current_user: User = Depends(get_current_u
     except DietPlanError as exc:
         raise _http(exc) from exc
     xp = await nutrition_service.award_xp_for_meal(current_user.id)
+    meal_data = meal.public_dict()
+    # Plans follow the active fast, but one made before it started may not.
+    warning = await fasting_service.meal_warning(
+        current_user.id, meal_data.get("items") or [], meal_data.get("name", "")
+    )
     return {
         "success": True,
         "message": "Meal logged",
         "data": {
-            "meal": meal.public_dict(),
+            "meal": meal_data,
             "plan": plan,
+            "fasting_warning": warning,
             "xp_earned": xp["xp_earned"],
             "total_xp": xp["total_xp"],
             "new_level": xp["new_level"],
             "leveled_up": xp["leveled_up"],
         },
     }
+
+
+# ---------------------------------------------------------------------------
+# Grocery list
+# ---------------------------------------------------------------------------
+@router.get("/current/grocery-list", response_model=SuccessResponse)
+async def get_grocery_list(
+    days: int = Query(grocery.DEFAULT_DAYS, ge=1, le=grocery.MAX_DAYS),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    """The current plan's dishes over ``days`` days as one shopping list, grouped by aisle.
+
+    Dishes are turned into their main ingredients from a curated list; dishes
+    without one are listed under ``ready_made`` with their servings.
+    """
+    try:
+        data = await diet_plan_service.grocery_list(current_user.id, days)
+    except DietPlanError as exc:
+        raise _http(exc) from exc
+    return {"success": True, "message": "Grocery list", "data": data}
+
+
+# ---------------------------------------------------------------------------
+# Fasting and festival modes
+# ---------------------------------------------------------------------------
+@router.get("/fasting-modes", response_model=SuccessResponse)
+async def list_fasting_modes(current_user: User = Depends(get_current_user)) -> dict:
+    """Modes on offer (Navratri, Ekadashi, Jain Paryushan, Ramadan), the user's
+    current and upcoming ones, and the one active today."""
+    data = await fasting_service.list_modes(current_user.id)
+    return {"success": True, "message": "Fasting modes", "data": data}
+
+
+@router.post("/fasting-modes", response_model=SuccessResponse)
+async def create_fasting_mode(
+    payload: FastingModeCreate, current_user: User = Depends(get_current_user)
+) -> dict:
+    """Switch a mode on for dates the user picks. Plans made while it's on follow
+    its food rules (and, for Ramadan, sehri and iftar times)."""
+    try:
+        mode = await fasting_service.create_mode(current_user.id, payload.model_dump())
+    except FastingModeError as exc:
+        raise _http(exc) from exc
+    return {"success": True, "message": "Fasting mode added", "data": mode}
+
+
+@router.delete("/fasting-modes/{mode_id}", response_model=SuccessResponse)
+async def delete_fasting_mode(mode_id: str, current_user: User = Depends(get_current_user)) -> dict:
+    """Switch a mode off, or remove an upcoming one."""
+    try:
+        await fasting_service.delete_mode(current_user.id, mode_id)
+    except FastingModeError as exc:
+        raise _http(exc) from exc
+    return {"success": True, "message": "Fasting mode removed", "data": None}

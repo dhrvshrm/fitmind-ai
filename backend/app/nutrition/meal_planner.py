@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field, model_validator
 from app.ai import client as ai_client
 from app.nutrition import food_db, routine
 from app.nutrition.diet_rules import DietRules, STAPLE_WORDS, food_tokens, suitable_for_plans
+from app.nutrition.fasting import FAST_STAPLES
 from app.nutrition.food_db import Food, Nutrients
 from app.nutrition.text import normalize, tokens
 from app.nutrition.units import is_piece_unit
@@ -36,7 +37,16 @@ SLOTS: Dict[str, Tuple[str, str, float]] = {
     "bedtime": ("snack", "22:00", 0.07),
     # Added for people who train in the morning: something light before the workout.
     "pre_workout": ("snack", "06:30", 0.06),
+    # Ramadan: before dawn, at sunset, and a light meal later in the evening.
+    "sehri": ("breakfast", "04:15", 0.40),
+    "iftar": ("dinner", "18:30", 0.40),
+    "post_iftar": ("snack", "21:00", 0.20),
 }
+RAMADAN_SLOTS = ["sehri", "iftar", "post_iftar"]
+# Sehri ends this long before dawn; the late meal comes this long after iftar.
+SEHRI_BEFORE_DAWN = 45
+POST_IFTAR_GAP = 150
+MAIN_SLOTS = {"breakfast", "lunch", "dinner"}
 # What each slot is for, told to the planner when the workout shapes the day.
 SLOT_PURPOSE = {
     "pre_workout": "light and easy to digest, mainly carbs (fruit, a few dates), about 30 minutes before training",
@@ -63,19 +73,107 @@ def _hhmm(total: int) -> str:
     return f"{total // 60:02d}:{total % 60:02d}"
 
 
+def _slot_list(keys: List[str], times: Dict[str, str], purpose: Dict[str, str],
+               day_start: int = 0) -> List[dict]:
+    """Slots with shares that add up to 1, ordered from ``day_start`` (minutes) on."""
+    total_share = sum(SLOTS[key][2] for key in keys)
+    slots = [
+        {
+            "id": key,
+            "meal_type": SLOTS[key][0],
+            "time": times[key],
+            "share": round(SLOTS[key][2] / total_share, 3),
+            **({
+                "purpose": purpose[key],
+                "workout_role": "pre" if purpose[key] == SLOT_PURPOSE["pre_workout"] else "post",
+            } if key in purpose else {}),
+        }
+        for key in keys
+    ]
+    return sorted(slots, key=lambda s: routine.since(day_start, _minutes(s["time"])))
+
+
+def _ramadan_slots(lifestyle: dict, workout_time: Optional[str], trains: bool,
+                   fasting_mode: dict) -> List[dict]:
+    """Sehri before dawn, iftar at sunset and a light meal later; nothing in daytime."""
+    dawn, sunset = routine.ramadan_times(fasting_mode)
+    sleep = _minutes(lifestyle.get("sleep_time") or routine.DEFAULT_SLEEP)
+    # The late meal comes well after iftar but still before bed.
+    late = min(POST_IFTAR_GAP, max(routine.since(sunset, sleep) - 45, 60))
+    times = {
+        "sehri": _hhmm(dawn - SEHRI_BEFORE_DAWN),
+        "iftar": _hhmm(sunset),
+        "post_iftar": _hhmm(sunset + late),
+    }
+    purpose = {"post_iftar": SLOT_PURPOSE["post_workout"]} if trains and workout_time else {}
+    return _slot_list(list(RAMADAN_SLOTS), times, purpose, dawn - SEHRI_BEFORE_DAWN - 60)
+
+
+def _shift_slots(lifestyle: dict, keys: List[str], workout_time: Optional[str],
+                 trains: bool) -> List[dict]:
+    """Meal times measured from the person's own wake and sleep times (night or
+    rotating shifts): first meal an hour after waking, the last main meal about
+    two and a half hours before sleep, the rest spaced evenly between."""
+    wake = _minutes(lifestyle["wake_time"])
+    awake = routine.awake_minutes(lifestyle)
+    first, last = 60, max(awake - 150, 60 + 6 * 60)
+    middle = (first + last) // 2
+    all_offsets = {
+        "breakfast": first,
+        "mid_morning": (first + middle) // 2,
+        "lunch": middle if "breakfast" in keys else first + 120,
+        "evening_snack": (middle + last) // 2,
+        "dinner": last,
+        "bedtime": awake - 60,
+    }
+    offsets = {key: all_offsets[key] for key in keys}
+    purpose: Dict[str, str] = {}
+    window = routine.workout_window(lifestyle, workout_time, trains)
+    if window:
+        start = routine.since(wake, window[0])
+        end = start + routine.WORKOUT_MINUTES
+        # Protein-focused: the first main meal soon after training, else the first meal after it.
+        # A meal that would clash with the workout moves after it.
+        later = [k for k in sorted(offsets, key=offsets.get) if offsets[k] >= start - 30]
+        after = next((k for k in later if k in MAIN_SLOTS and offsets[k] <= end + 180), None) or (
+            later[0] if later else None
+        )
+        if after:
+            offsets[after] = max(offsets[after], end + routine.POST_WORKOUT_GAP)
+            purpose[after] = SLOT_PURPOSE["post_workout"]
+        # Something light before: a snack in the two hours before, or a new pre-workout snack.
+        before = [k for k in offsets if k in SNACK_SLOTS and start - 120 <= offsets[k] <= start - 30]
+        if before:
+            offsets[before[-1]] = start - routine.EVENING_SNACK_LEAD
+            purpose[before[-1]] = SLOT_PURPOSE["pre_workout"]
+        elif not any(start - 180 <= o < start for o in offsets.values()):
+            keys = ["pre_workout", *keys]
+            offsets["pre_workout"] = max(10, start - routine.PRE_WORKOUT_LEAD)
+            purpose["pre_workout"] = SLOT_PURPOSE["pre_workout"]
+    # Rounded to the quarter hour, so times read like a person's day ("19:15", not "19:07").
+    times = {key: _hhmm(wake + round(offset / 15) * 15) for key, offset in offsets.items()}
+    return _slot_list(keys, times, purpose, wake)
+
+
 def plan_slots(lifestyle: Optional[dict], workout_time: Optional[str] = None,
-               trains: bool = False) -> List[dict]:
+               trains: bool = False, fasting_mode: Optional[dict] = None) -> List[dict]:
     """The day's meals with times and calorie shares, from the person's routine.
 
     When they train at a set time, meals move around the workout: a light
-    snack before it and a protein-focused meal after it.
+    snack before it and a protein-focused meal after it. Shift workers get
+    times from their own wake and sleep times, and Ramadan (``fasting_mode``
+    ``{"mode": "ramadan", "dawn_time", "sunset_time"}``) gives sehri, iftar and a late meal.
     """
     lifestyle = lifestyle or {}
+    if routine.is_ramadan(fasting_mode):
+        return _ramadan_slots(lifestyle, workout_time, trains, fasting_mode)
     count = min(max(lifestyle.get("meals_per_day") or DEFAULT_MEAL_COUNT, 2), 6)
     keys = SLOTS_BY_MEAL_COUNT[count]
+    if routine.is_shift_schedule(lifestyle):
+        return _shift_slots(lifestyle, list(keys), workout_time, trains)
     times = {key: SLOTS[key][1] for key in keys}
     wake, sleep = lifestyle.get("wake_time"), lifestyle.get("sleep_time")
-    # Day schedules only; shift workers keep the defaults, which they can follow loosely.
+    # Usual day schedules; shift workers are handled above.
     if wake and 4 * 60 <= _minutes(wake) <= 11 * 60 and "breakfast" in times:
         times["breakfast"] = _hhmm(_minutes(wake) + 60)
         if "mid_morning" in times:
@@ -105,21 +203,7 @@ def plan_slots(lifestyle: Optional[dict], workout_time: Optional[str] = None,
                 purpose["evening_snack"] = SLOT_PURPOSE["pre_workout"]
             times["dinner"] = _hhmm(max(_minutes(times["dinner"]), end + routine.POST_WORKOUT_GAP))
             purpose["dinner"] = SLOT_PURPOSE["post_workout"]
-    total_share = sum(SLOTS[key][2] for key in keys)
-    slots = [
-        {
-            "id": key,
-            "meal_type": SLOTS[key][0],
-            "time": times[key],
-            "share": round(SLOTS[key][2] / total_share, 3),
-            **({
-                "purpose": purpose[key],
-                "workout_role": "pre" if purpose[key] == SLOT_PURPOSE["pre_workout"] else "post",
-            } if key in purpose else {}),
-        }
-        for key in keys
-    ]
-    return sorted(slots, key=lambda s: _minutes(s["time"]))
+    return _slot_list(keys, times, purpose)
 
 
 # --- Food list offered to the AI --------------------------------------------
@@ -140,6 +224,8 @@ def food_pool(rules: DietRules, prefs: Optional[dict], user_foods: Sequence[Food
     for term in (prefs.get("likes") or []) + (prefs.get("cuisines") or []):
         liked |= tokens(term)
     own = [f for f in user_foods if rules.allows(f)]
+    # An active fasting mode puts its own staples first (kuttu and samak, dates for iftar).
+    preferred = rules.fasting_mode.preferred_words if rules.fasting_mode else frozenset()
     scored = []
     for entry in food_db._index():
         food = entry.food
@@ -147,7 +233,8 @@ def food_pool(rules: DietRules, prefs: Optional[dict], user_foods: Sequence[Food
             continue
         found = food_tokens(food)
         score = (
-            (3 if food.id in CORE_FOOD_IDS or food.source in CORE_SOURCES else 0)
+            (3 if found & preferred else 0)
+            + (3 if food.id in CORE_FOOD_IDS or food.source in CORE_SOURCES else 0)
             + (2 if found & liked else 0)
             + (1 if found & STAPLE_WORDS else 0)
         )
@@ -250,8 +337,10 @@ def build_prompt(
     access: dict,
     avoid_names: Sequence[str] = (),
     keep: Optional[List[dict]] = None,
+    extra_lines: Sequence[str] = (),
 ) -> str:
-    """The plan request. ``keep`` lists meals that stay as they are (one-meal regeneration)."""
+    """The plan request. ``keep`` lists meals that stay as they are (one-meal regeneration);
+    ``extra_lines`` adds instructions such as an active fasting mode's."""
     slot_lines = [
         f"- {s['id']}: {s['time']}, about {round(targets['calories'] * s['share'])} kcal"
         + (f" ({s['purpose']})" if s.get("purpose") else "")
@@ -264,6 +353,7 @@ def build_prompt(
         "Meals to plan (slot: time, calories):",
         *slot_lines,
         *_profile_lines(prefs, access),
+        *extra_lines,
     ]
     if keep:
         kept = "; ".join(f"{m['id']}: {', '.join(i['name'] for i in m['items'])}" for m in keep)
@@ -299,6 +389,7 @@ async def pick_meals(
     user_id: str,
     avoid_names: Sequence[str] = (),
     keep: Optional[List[dict]] = None,
+    extra_lines: Sequence[str] = (),
 ) -> PlanPick:
     """Ask the AI to choose dishes for ``slots``.
 
@@ -306,7 +397,7 @@ async def pick_meals(
         AIError: if the quota is used up or no valid plan comes back.
     """
     schema = pick_schema({f.id for f in pool}, [s["id"] for s in slots])
-    prompt = build_prompt(targets, slots, pool, prefs, access, avoid_names, keep)
+    prompt = build_prompt(targets, slots, pool, prefs, access, avoid_names, keep, extra_lines)
     return await ai_client.generate_json(
         prompt, schema, system=SYSTEM_PROMPT, temperature=0.7, user_id=user_id, retries=2
     )
@@ -349,8 +440,9 @@ def build_item(food: Food, servings: float) -> dict:
     return {
         "food_id": food.id,
         "name": food.name,
-        "source": food.source if food.source in ("INDB", "USDA") else "custom",
-        "verified": True,
+        "source": food.source if food.source in ("INDB", "USDA", *food_db.ESTIMATE_SOURCES) else "custom",
+        # Hand-built estimates (a few fasting dishes) are labelled, never passed off as verified.
+        "verified": food.source not in food_db.ESTIMATE_SOURCES,
         "quantity": servings,
         "unit": food.serving.unit,
         "grams": grams,
@@ -594,7 +686,28 @@ FALLBACK_TEMPLATES: Dict[str, List[str]] = {
     "evening_snack": ["snack_protein", "fruit"],
     "dinner": ["main_grain", "protein_dish", "vegetable_dish"],
     "bedtime": ["milk"],
+    # Ramadan: a filling sehri, iftar opened with dates, a light late meal.
+    "sehri": ["main_grain", "protein_dish", "dairy_side", "fruit"],
+    "iftar": ["dates", "main_grain", "protein_dish", "vegetable_dish"],
+    "post_iftar": ["snack_protein", "fruit"],
 }
+# Vrat (Navratri, Ekadashi): fasting staples, vrat vegetables, dairy and fruit.
+FAST_TEMPLATES: Dict[str, List[str]] = {
+    "pre_workout": ["fruit"],
+    "breakfast": ["fast_main", "dairy", "fruit"],
+    "mid_morning": ["fruit"],
+    "lunch": ["fast_main", "fast_sabzi", "dairy_side"],
+    "evening_snack": ["fast_snack", "fruit"],
+    "dinner": ["fast_main", "fast_sabzi", "dairy_side"],
+    "bedtime": ["milk"],
+}
+# Modes whose fallback plans use the vrat templates.
+VRAT_MODES = {"navratri", "ekadashi"}
+FAST_MAIN_WORDS = FAST_STAPLES - {"makhana", "vrat", "farali", "phalahari"}
+FAST_SABZI_WORDS = frozenset({
+    "potato", "sweet", "arbi", "colocasia", "yam", "suran", "pumpkin", "kaddu", "gourd", "lauki",
+})
+FAST_SNACK_WORDS = frozenset({"makhana", "peanut", "paneer", "curd", "chaas", "buttermilk", "almond"})
 # How many top-ranked options each kind rotates through, for variety between plans.
 FALLBACK_CHOICES = 6
 
@@ -626,6 +739,14 @@ def _fits(food: Food, kind: str) -> bool:
         return bool(found & SNACK_PROTEIN_WORDS) and "curry" not in found and role != "grain"
     if kind == "milk":
         return "milk" in found
+    if kind == "dates":
+        return "date" in found or "dates" in found
+    if kind == "fast_main":
+        return bool(found & FAST_MAIN_WORDS)
+    if kind == "fast_sabzi":
+        return bool(found & FAST_SABZI_WORDS) and not (found & FAST_MAIN_WORDS)
+    if kind == "fast_snack":
+        return bool(found & FAST_SNACK_WORDS) and role != "grain"
     return role == kind
 
 
@@ -645,16 +766,20 @@ def _rank(food: Food, kind: str) -> int:
     return 0
 
 
-def rule_based_pick(slots: List[dict], pool: List[Food], variant: int = 0) -> PlanPick:
+def rule_based_pick(slots: List[dict], pool: List[Food], variant: int = 0,
+                    fasting_mode: Optional[str] = None) -> PlanPick:
     """A plan without AI: ordinary meal templates filled from the allowed foods.
 
     ``variant`` rotates the choices so a new plan isn't identical to the last.
+    ``fasting_mode`` (a mode key such as "navratri") switches to vrat templates;
+    the pool must already follow the mode's food rules.
     """
+    templates = FAST_TEMPLATES if fasting_mode in VRAT_MODES else FALLBACK_TEMPLATES
     used: set = set()
     meals = []
     for slot_index, slot in enumerate(slots):
         items = []
-        for kind_index, kind in enumerate(FALLBACK_TEMPLATES.get(slot["id"], ["protein"])):
+        for kind_index, kind in enumerate(templates.get(slot["id"], ["protein"])):
             matching = [f for f in pool if f.id not in used and _fits(f, kind)]
             # Only the best-ranked group (plain roti and rice, cooked sabzi) when there is one.
             best = min((_rank(f, kind) for f in matching), default=0)

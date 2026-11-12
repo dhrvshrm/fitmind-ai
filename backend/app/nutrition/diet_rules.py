@@ -13,6 +13,7 @@ from functools import lru_cache
 from typing import Dict, FrozenSet, Iterable, List, Optional, Set
 
 from app.nutrition.food_db import Food
+from app.nutrition.fasting import FastingMode, get_mode as get_fasting_mode
 from app.nutrition.text import normalize, tokens
 
 # Tag -> canonical tokens (or space-joined token phrases) that imply it.
@@ -184,9 +185,19 @@ def _allergy_tags(term: str) -> FrozenSet[str]:
 class DietRules:
     """Forbidden tags and words for one person, built from their answers."""
 
-    def __init__(self, forbidden_tags: FrozenSet[str], forbidden_words: List[str]):
+    def __init__(self, forbidden_tags: FrozenSet[str], forbidden_words: List[str],
+                 fasting_mode: Optional[FastingMode] = None):
         self.forbidden_tags = forbidden_tags
         self.forbidden_words = forbidden_words
+        # An active fasting or festival mode (Navratri, Paryushan...), or None.
+        self.fasting_mode = fasting_mode
+
+    def with_fasting_mode(self, mode_key: Optional[str]) -> "DietRules":
+        """These rules plus a fasting mode's food rules (unchanged if there's no such mode)."""
+        mode = get_fasting_mode(mode_key)
+        if mode is None:
+            return self
+        return DietRules(self.forbidden_tags | mode.forbidden_tags, self.forbidden_words, mode)
 
     @classmethod
     def from_preferences(cls, prefs: Optional[dict]) -> "DietRules":
@@ -214,6 +225,8 @@ class DietRules:
         found = food_tokens(food)
         reasons = sorted(food_tags(food) & self.forbidden_tags)
         reasons += [w for w in self.forbidden_words if _phrase_tokens(w.lower()) <= found]
+        if self.fasting_mode is not None:
+            reasons += self.fasting_mode.violations(found)
         return reasons
 
     def allows(self, food: Food) -> bool:

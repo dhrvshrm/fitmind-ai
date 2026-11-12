@@ -23,6 +23,7 @@ from app.models import analytics as analytics_store, push as push_store
 from app.models import challenge as challenge_store, progress as progress_store
 from app.models import consent as consent_store, health_profile as health_profile_store  # Phases 12-14
 from app.models import lab_report as lab_report_store, supplement as supplement_store
+from app.models import fasting_mode as fasting_mode_store  # Phase 8
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +74,8 @@ USER_DATA_COLLECTIONS: Dict[str, List[str]] = {
     "biomarkers": ["user_id"],
     "user_supplements": ["user_id"],
     "supplement_logs": ["user_id"],
+    # Phase 8 fasting and festival modes.
+    "fasting_modes": ["user_id"],
 }
 
 
@@ -119,6 +122,7 @@ def _memory_stores() -> List[dict]:
         lab_report_store._BIOMARKER_MEMORY,
         supplement_store._SUPPLEMENT_MEMORY,
         supplement_store._LOG_MEMORY,
+        fasting_mode_store._MEMORY_STORE,
     ]
 
 

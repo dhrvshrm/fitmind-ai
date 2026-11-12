@@ -27,7 +27,7 @@ from app.nutrition.units import normalize_unit
 
 logger = logging.getLogger(__name__)
 
-ItemSource = Literal["INDB", "USDA", "custom", "ai_estimate", "unresolved"]
+ItemSource = Literal["INDB", "USDA", "custom", "estimate", "ai_estimate", "unresolved"]
 # Why an item couldn't be estimated, so the app can say what to do about it.
 UnresolvedReason = Literal["ai_not_configured", "ai_quota", "ai_failed"]
 Confidence = Literal["high", "medium", "low"]
@@ -132,8 +132,9 @@ def from_food(item: ParsedItem, food: Food, score: float, matches) -> EstimatedI
         query=item.name,
         name=food.name,
         food_id=food.id,
-        source=food.source if food.source in VERIFIED_SOURCES else "custom",
-        verified=True,
+        # Hand-built estimates (a few fasting dishes) keep their label and aren't verified.
+        source=food.source if food.source in VERIFIED_SOURCES | food_db.ESTIMATE_SOURCES else "custom",
+        verified=food.source not in food_db.ESTIMATE_SOURCES,
         quantity=item.quantity or 1,
         unit=_display_unit(item, food),
         grams=grams,

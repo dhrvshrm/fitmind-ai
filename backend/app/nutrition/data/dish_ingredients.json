@@ -1,0 +1,2262 @@
+{
+ "_about": "Main ingredients of the dishes the meal planner picks most, per 100 g of the dish as eaten. Approximate home recipes, used only to build grocery lists. Units: g, ml or pieces; ingredients with no unit (spices, herbs) are listed without an amount.",
+ "ingredients": {
+  "atta": {
+   "name": "Whole wheat flour (atta)",
+   "aisle": "grains_flours",
+   "unit": "g"
+  },
+  "rice": {
+   "name": "Rice",
+   "aisle": "grains_flours",
+   "unit": "g"
+  },
+  "poha": {
+   "name": "Poha (flattened rice)",
+   "aisle": "grains_flours",
+   "unit": "g"
+  },
+  "suji": {
+   "name": "Semolina (suji or rava)",
+   "aisle": "grains_flours",
+   "unit": "g"
+  },
+  "oats": {
+   "name": "Rolled oats",
+   "aisle": "grains_flours",
+   "unit": "g"
+  },
+  "besan": {
+   "name": "Gram flour (besan)",
+   "aisle": "grains_flours",
+   "unit": "g"
+  },
+  "sabudana": {
+   "name": "Sabudana (sago pearls)",
+   "aisle": "grains_flours",
+   "unit": "g"
+  },
+  "kuttu_atta": {
+   "name": "Kuttu atta (buckwheat flour)",
+   "aisle": "grains_flours",
+   "unit": "g"
+  },
+  "singhara_atta": {
+   "name": "Singhara atta (water chestnut flour)",
+   "aisle": "grains_flours",
+   "unit": "g"
+  },
+  "rajgira_atta": {
+   "name": "Rajgira atta (amaranth flour)",
+   "aisle": "grains_flours",
+   "unit": "g"
+  },
+  "samak": {
+   "name": "Samak rice (barnyard millet)",
+   "aisle": "grains_flours",
+   "unit": "g"
+  },
+  "bread": {
+   "name": "Bread",
+   "aisle": "grains_flours",
+   "unit": "g"
+  },
+  "pav": {
+   "name": "Pav (bread rolls)",
+   "aisle": "grains_flours",
+   "unit": "piece"
+  },
+  "cornflakes": {
+   "name": "Cornflakes",
+   "aisle": "grains_flours",
+   "unit": "g"
+  },
+  "murmura": {
+   "name": "Puffed rice (murmura)",
+   "aisle": "grains_flours",
+   "unit": "g"
+  },
+  "toor_dal": {
+   "name": "Toor dal (arhar)",
+   "aisle": "pulses",
+   "unit": "g"
+  },
+  "moong_dal": {
+   "name": "Yellow moong dal",
+   "aisle": "pulses",
+   "unit": "g"
+  },
+  "moong_whole": {
+   "name": "Whole green moong",
+   "aisle": "pulses",
+   "unit": "g"
+  },
+  "masoor_whole": {
+   "name": "Whole masoor",
+   "aisle": "pulses",
+   "unit": "g"
+  },
+  "masoor_dal": {
+   "name": "Masoor dal",
+   "aisle": "pulses",
+   "unit": "g"
+  },
+  "kabuli_chana": {
+   "name": "Kabuli chana (chickpeas)",
+   "aisle": "pulses",
+   "unit": "g"
+  },
+  "rajma": {
+   "name": "Rajma (kidney beans)",
+   "aisle": "pulses",
+   "unit": "g"
+  },
+  "urad_dal": {
+   "name": "Urad dal",
+   "aisle": "pulses",
+   "unit": "g"
+  },
+  "dal_vadi": {
+   "name": "Dal vadi (sun-dried lentil dumplings)",
+   "aisle": "pulses",
+   "unit": "g"
+  },
+  "tofu": {
+   "name": "Tofu",
+   "aisle": "pulses",
+   "unit": "g"
+  },
+  "soya_flour": {
+   "name": "Soya flour",
+   "aisle": "pulses",
+   "unit": "g"
+  },
+  "onion": {
+   "name": "Onions",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "tomato": {
+   "name": "Tomatoes",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "potato": {
+   "name": "Potatoes",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "sweet_potato": {
+   "name": "Sweet potatoes (shakarkandi)",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "yam": {
+   "name": "Yam (suran)",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "pumpkin": {
+   "name": "Pumpkin (kaddu)",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "bottle_gourd": {
+   "name": "Bottle gourd (lauki)",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "round_gourd": {
+   "name": "Round gourd (tinda)",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "cucumber": {
+   "name": "Cucumber",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "okra": {
+   "name": "Okra (bhindi)",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "brinjal": {
+   "name": "Brinjal (baingan)",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "green_peas": {
+   "name": "Green peas",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "mixed_veg": {
+   "name": "Mixed seasonal vegetables",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "carrot": {
+   "name": "Carrots",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "spinach": {
+   "name": "Spinach (palak)",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "bathua": {
+   "name": "Bathua greens",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "methi": {
+   "name": "Fenugreek leaves (methi)",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "cabbage": {
+   "name": "Cabbage",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "capsicum": {
+   "name": "Capsicum",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "mint": {
+   "name": "Mint leaves",
+   "aisle": "vegetables",
+   "unit": "g"
+  },
+  "lemon": {
+   "name": "Lemons",
+   "aisle": "vegetables",
+   "unit": "piece"
+  },
+  "herbs": {
+   "name": "Coriander, green chillies, ginger",
+   "aisle": "vegetables",
+   "unit": null
+  },
+  "banana": {
+   "name": "Bananas",
+   "aisle": "fruits",
+   "unit": "piece"
+  },
+  "apple": {
+   "name": "Apples",
+   "aisle": "fruits",
+   "unit": "piece"
+  },
+  "mango": {
+   "name": "Mangoes",
+   "aisle": "fruits",
+   "unit": "piece"
+  },
+  "orange": {
+   "name": "Oranges",
+   "aisle": "fruits",
+   "unit": "piece"
+  },
+  "guava": {
+   "name": "Guavas",
+   "aisle": "fruits",
+   "unit": "piece"
+  },
+  "papaya": {
+   "name": "Papaya",
+   "aisle": "fruits",
+   "unit": "g"
+  },
+  "pomegranate": {
+   "name": "Pomegranate",
+   "aisle": "fruits",
+   "unit": "g"
+  },
+  "grapes": {
+   "name": "Grapes",
+   "aisle": "fruits",
+   "unit": "g"
+  },
+  "pineapple": {
+   "name": "Pineapple",
+   "aisle": "fruits",
+   "unit": "g"
+  },
+  "dates": {
+   "name": "Dates (khajur)",
+   "aisle": "fruits",
+   "unit": "g"
+  },
+  "milk": {
+   "name": "Milk",
+   "aisle": "dairy",
+   "unit": "ml"
+  },
+  "curd": {
+   "name": "Curd (dahi)",
+   "aisle": "dairy",
+   "unit": "g"
+  },
+  "paneer": {
+   "name": "Paneer",
+   "aisle": "dairy",
+   "unit": "g"
+  },
+  "ghee": {
+   "name": "Ghee",
+   "aisle": "dairy",
+   "unit": "g"
+  },
+  "butter": {
+   "name": "Butter",
+   "aisle": "dairy",
+   "unit": "g"
+  },
+  "cheese": {
+   "name": "Cheese slices",
+   "aisle": "dairy",
+   "unit": "g"
+  },
+  "eggs": {
+   "name": "Eggs",
+   "aisle": "meat_fish_eggs",
+   "unit": "piece"
+  },
+  "chicken": {
+   "name": "Chicken breast",
+   "aisle": "meat_fish_eggs",
+   "unit": "g"
+  },
+  "oil": {
+   "name": "Cooking oil",
+   "aisle": "spices_others",
+   "unit": "ml"
+  },
+  "peanuts": {
+   "name": "Peanuts",
+   "aisle": "spices_others",
+   "unit": "g"
+  },
+  "almonds": {
+   "name": "Almonds",
+   "aisle": "spices_others",
+   "unit": "g"
+  },
+  "cashews": {
+   "name": "Cashews",
+   "aisle": "spices_others",
+   "unit": "g"
+  },
+  "makhana": {
+   "name": "Makhana (fox nuts)",
+   "aisle": "spices_others",
+   "unit": "g"
+  },
+  "coconut": {
+   "name": "Grated coconut",
+   "aisle": "spices_others",
+   "unit": "g"
+  },
+  "tamarind": {
+   "name": "Tamarind",
+   "aisle": "spices_others",
+   "unit": "g"
+  },
+  "sugar": {
+   "name": "Sugar",
+   "aisle": "spices_others",
+   "unit": "g"
+  },
+  "jaggery": {
+   "name": "Jaggery",
+   "aisle": "spices_others",
+   "unit": "g"
+  },
+  "honey": {
+   "name": "Honey",
+   "aisle": "spices_others",
+   "unit": "g"
+  },
+  "tea": {
+   "name": "Tea leaves",
+   "aisle": "spices_others",
+   "unit": "g"
+  },
+  "coffee": {
+   "name": "Instant coffee",
+   "aisle": "spices_others",
+   "unit": "g"
+  },
+  "dark_chocolate": {
+   "name": "Dark chocolate",
+   "aisle": "spices_others",
+   "unit": "g"
+  },
+  "spices": {
+   "name": "Everyday spices (salt, turmeric, cumin, chilli, garam masala)",
+   "aisle": "spices_others",
+   "unit": null
+  },
+  "sambar_powder": {
+   "name": "Sambar powder",
+   "aisle": "spices_others",
+   "unit": null
+  },
+  "sendha_namak": {
+   "name": "Sendha namak (rock salt) and vrat spices",
+   "aisle": "spices_others",
+   "unit": null
+  },
+  "saffron": {
+   "name": "Saffron",
+   "aisle": "spices_others",
+   "unit": null
+  }
+ },
+ "dishes": {
+  "indb:ASC096": [
+   [
+    "atta",
+    72
+   ],
+   [
+    "oil",
+    1
+   ]
+  ],
+  "indb:ASC097": [
+   [
+    "atta",
+    65
+   ],
+   [
+    "ghee",
+    8
+   ]
+  ],
+  "indb:ASC113": [
+   [
+    "rice",
+    35
+   ]
+  ],
+  "usda:168878": [
+   [
+    "rice",
+    35
+   ]
+  ],
+  "indb:ASC114": [
+   [
+    "rice",
+    33
+   ],
+   [
+    "ghee",
+    3
+   ],
+   [
+    "onion",
+    5
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC115": [
+   [
+    "rice",
+    28
+   ],
+   [
+    "mixed_veg",
+    15
+   ],
+   [
+    "onion",
+    5
+   ],
+   [
+    "oil",
+    3
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC123": [
+   [
+    "rice",
+    28
+   ],
+   [
+    "mixed_veg",
+    15
+   ],
+   [
+    "curd",
+    5
+   ],
+   [
+    "onion",
+    8
+   ],
+   [
+    "oil",
+    4
+   ],
+   [
+    "spices",
+    0
+   ],
+   [
+    "herbs",
+    0
+   ]
+  ],
+  "indb:ASC126": [
+   [
+    "rice",
+    18
+   ],
+   [
+    "curd",
+    40
+   ],
+   [
+    "milk",
+    10
+   ],
+   [
+    "oil",
+    1
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC124": [
+   [
+    "rice",
+    33
+   ],
+   [
+    "peanuts",
+    3
+   ],
+   [
+    "oil",
+    4
+   ],
+   [
+    "lemon",
+    0.1
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC144": [
+   [
+    "rice",
+    30
+   ],
+   [
+    "urad_dal",
+    10
+   ]
+  ],
+  "indb:BFP148": [
+   [
+    "rice",
+    35
+   ],
+   [
+    "urad_dal",
+    12
+   ],
+   [
+    "oil",
+    4
+   ]
+  ],
+  "indb:BFP152": [
+   [
+    "rice",
+    30
+   ],
+   [
+    "urad_dal",
+    10
+   ],
+   [
+    "onion",
+    8
+   ],
+   [
+    "tomato",
+    8
+   ],
+   [
+    "oil",
+    4
+   ]
+  ],
+  "indb:BFP044": [
+   [
+    "poha",
+    40
+   ],
+   [
+    "onion",
+    8
+   ],
+   [
+    "potato",
+    8
+   ],
+   [
+    "peanuts",
+    4
+   ],
+   [
+    "oil",
+    4
+   ],
+   [
+    "spices",
+    0
+   ],
+   [
+    "herbs",
+    0
+   ]
+  ],
+  "indb:BFP039": [
+   [
+    "suji",
+    30
+   ],
+   [
+    "onion",
+    8
+   ],
+   [
+    "mixed_veg",
+    8
+   ],
+   [
+    "oil",
+    4
+   ],
+   [
+    "spices",
+    0
+   ],
+   [
+    "herbs",
+    0
+   ]
+  ],
+  "indb:BFP578": [
+   [
+    "moong_whole",
+    15
+   ],
+   [
+    "suji",
+    15
+   ],
+   [
+    "onion",
+    6
+   ],
+   [
+    "oil",
+    3
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC051": [
+   [
+    "cornflakes",
+    15
+   ],
+   [
+    "milk",
+    85
+   ]
+  ],
+  "indb:ASC054": [
+   [
+    "murmura",
+    100
+   ]
+  ],
+  "indb:BFP575": [
+   [
+    "atta",
+    55
+   ],
+   [
+    "soya_flour",
+    15
+   ],
+   [
+    "oil",
+    2
+   ]
+  ],
+  "indb:ASC474": [
+   [
+    "besan",
+    30
+   ],
+   [
+    "curd",
+    10
+   ],
+   [
+    "oil",
+    3
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:BFP439": [
+   [
+    "besan",
+    30
+   ],
+   [
+    "curd",
+    10
+   ],
+   [
+    "oil",
+    3
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:OSR112": [
+   [
+    "pav",
+    0.75
+   ],
+   [
+    "mixed_veg",
+    30
+   ],
+   [
+    "potato",
+    15
+   ],
+   [
+    "onion",
+    6
+   ],
+   [
+    "tomato",
+    8
+   ],
+   [
+    "butter",
+    4
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "usda:173904": [
+   [
+    "oats",
+    100
+   ]
+  ],
+  "usda:174924": [
+   [
+    "bread",
+    100
+   ]
+  ],
+  "usda:172688": [
+   [
+    "bread",
+    100
+   ]
+  ],
+  "usda:172796": [
+   [
+    "pav",
+    2.5
+   ]
+  ],
+  "indb:ASC155": [
+   [
+    "toor_dal",
+    18
+   ],
+   [
+    "onion",
+    4
+   ],
+   [
+    "tomato",
+    6
+   ],
+   [
+    "ghee",
+    2
+   ],
+   [
+    "spices",
+    0
+   ],
+   [
+    "herbs",
+    0
+   ]
+  ],
+  "indb:ASC151": [
+   [
+    "moong_dal",
+    20
+   ],
+   [
+    "tomato",
+    4
+   ],
+   [
+    "ghee",
+    2
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:BFP166": [
+   [
+    "moong_dal",
+    20
+   ],
+   [
+    "ghee",
+    2
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC157": [
+   [
+    "masoor_whole",
+    20
+   ],
+   [
+    "onion",
+    5
+   ],
+   [
+    "tomato",
+    6
+   ],
+   [
+    "oil",
+    2
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "usda:172421": [
+   [
+    "masoor_dal",
+    40
+   ]
+  ],
+  "indb:ASC162": [
+   [
+    "kabuli_chana",
+    22
+   ],
+   [
+    "onion",
+    8
+   ],
+   [
+    "tomato",
+    10
+   ],
+   [
+    "oil",
+    3
+   ],
+   [
+    "spices",
+    0
+   ],
+   [
+    "herbs",
+    0
+   ]
+  ],
+  "usda:173757": [
+   [
+    "kabuli_chana",
+    45
+   ]
+  ],
+  "indb:ASC169": [
+   [
+    "kabuli_chana",
+    25
+   ],
+   [
+    "tamarind",
+    2
+   ],
+   [
+    "onion",
+    5
+   ],
+   [
+    "oil",
+    3
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC165": [
+   [
+    "rajma",
+    22
+   ],
+   [
+    "onion",
+    8
+   ],
+   [
+    "tomato",
+    10
+   ],
+   [
+    "oil",
+    3
+   ],
+   [
+    "spices",
+    0
+   ],
+   [
+    "herbs",
+    0
+   ]
+  ],
+  "indb:ASC167": [
+   [
+    "toor_dal",
+    10
+   ],
+   [
+    "mixed_veg",
+    15
+   ],
+   [
+    "onion",
+    5
+   ],
+   [
+    "tomato",
+    5
+   ],
+   [
+    "tamarind",
+    1
+   ],
+   [
+    "oil",
+    2
+   ],
+   [
+    "sambar_powder",
+    0
+   ]
+  ],
+  "indb:ASC193": [
+   [
+    "green_peas",
+    35
+   ],
+   [
+    "onion",
+    8
+   ],
+   [
+    "tomato",
+    10
+   ],
+   [
+    "oil",
+    4
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC194": [
+   [
+    "green_peas",
+    20
+   ],
+   [
+    "dal_vadi",
+    10
+   ],
+   [
+    "onion",
+    6
+   ],
+   [
+    "tomato",
+    8
+   ],
+   [
+    "oil",
+    4
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC259": [
+   [
+    "moong_whole",
+    35
+   ],
+   [
+    "onion",
+    8
+   ],
+   [
+    "tomato",
+    8
+   ],
+   [
+    "cucumber",
+    10
+   ],
+   [
+    "lemon",
+    0.1
+   ],
+   [
+    "herbs",
+    0
+   ]
+  ],
+  "indb:BFP240": [
+   [
+    "eggs",
+    1
+   ],
+   [
+    "onion",
+    10
+   ],
+   [
+    "tomato",
+    12
+   ],
+   [
+    "oil",
+    4
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC195": [
+   [
+    "paneer",
+    30
+   ],
+   [
+    "onion",
+    10
+   ],
+   [
+    "tomato",
+    15
+   ],
+   [
+    "oil",
+    5
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC226": [
+   [
+    "paneer",
+    30
+   ],
+   [
+    "capsicum",
+    15
+   ],
+   [
+    "onion",
+    10
+   ],
+   [
+    "tomato",
+    10
+   ],
+   [
+    "oil",
+    5
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC215": [
+   [
+    "spinach",
+    50
+   ],
+   [
+    "paneer",
+    25
+   ],
+   [
+    "onion",
+    5
+   ],
+   [
+    "oil",
+    4
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:OSR134": [
+   [
+    "paneer",
+    10
+   ],
+   [
+    "mixed_veg",
+    20
+   ],
+   [
+    "butter",
+    1
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:BFP249": [
+   [
+    "yam",
+    35
+   ],
+   [
+    "onion",
+    8
+   ],
+   [
+    "tomato",
+    10
+   ],
+   [
+    "oil",
+    6
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC219": [
+   [
+    "mixed_veg",
+    55
+   ],
+   [
+    "coconut",
+    12
+   ],
+   [
+    "curd",
+    10
+   ],
+   [
+    "oil",
+    3
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC184": [
+   [
+    "okra",
+    75
+   ],
+   [
+    "besan",
+    5
+   ],
+   [
+    "oil",
+    6
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:BFP269": [
+   [
+    "okra",
+    90
+   ],
+   [
+    "oil",
+    5
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC177": [
+   [
+    "brinjal",
+    75
+   ],
+   [
+    "onion",
+    10
+   ],
+   [
+    "tomato",
+    10
+   ],
+   [
+    "oil",
+    4
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC187": [
+   [
+    "brinjal",
+    70
+   ],
+   [
+    "peanuts",
+    5
+   ],
+   [
+    "onion",
+    5
+   ],
+   [
+    "oil",
+    6
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:BFP132": [
+   [
+    "brinjal",
+    90
+   ],
+   [
+    "oil",
+    5
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:BFP239": [
+   [
+    "potato",
+    40
+   ],
+   [
+    "tomato",
+    10
+   ],
+   [
+    "onion",
+    5
+   ],
+   [
+    "oil",
+    3
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC262": [
+   [
+    "potato",
+    70
+   ],
+   [
+    "onion",
+    8
+   ],
+   [
+    "tomato",
+    8
+   ],
+   [
+    "lemon",
+    0.1
+   ],
+   [
+    "herbs",
+    0
+   ]
+  ],
+  "indb:ASC175": [
+   [
+    "potato",
+    60
+   ],
+   [
+    "methi",
+    25
+   ],
+   [
+    "oil",
+    5
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC485": [
+   [
+    "potato",
+    40
+   ],
+   [
+    "curd",
+    50
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:BFP242": [
+   [
+    "potato",
+    40
+   ],
+   [
+    "curd",
+    50
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC178": [
+   [
+    "potato",
+    85
+   ],
+   [
+    "oil",
+    4
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC185": [
+   [
+    "round_gourd",
+    70
+   ],
+   [
+    "onion",
+    5
+   ],
+   [
+    "oil",
+    5
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:BFP284": [
+   [
+    "bottle_gourd",
+    70
+   ],
+   [
+    "paneer",
+    10
+   ],
+   [
+    "oil",
+    5
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:OSR132": [
+   [
+    "pumpkin",
+    45
+   ],
+   [
+    "onion",
+    5
+   ],
+   [
+    "milk",
+    10
+   ],
+   [
+    "butter",
+    2
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:OSR130": [
+   [
+    "bottle_gourd",
+    50
+   ],
+   [
+    "onion",
+    3
+   ],
+   [
+    "butter",
+    1
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC479": [
+   [
+    "spinach",
+    30
+   ],
+   [
+    "milk",
+    40
+   ],
+   [
+    "butter",
+    2
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:OSR131": [
+   [
+    "potato",
+    30
+   ],
+   [
+    "milk",
+    30
+   ],
+   [
+    "onion",
+    5
+   ],
+   [
+    "butter",
+    2
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC270": [
+   [
+    "curd",
+    75
+   ],
+   [
+    "peanuts",
+    10
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC273": [
+   [
+    "curd",
+    65
+   ],
+   [
+    "cucumber",
+    30
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC275": [
+   [
+    "curd",
+    90
+   ],
+   [
+    "mint",
+    5
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:BFP318": [
+   [
+    "curd",
+    60
+   ],
+   [
+    "pumpkin",
+    35
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC276": [
+   [
+    "curd",
+    60
+   ],
+   [
+    "potato",
+    35
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:BFP327": [
+   [
+    "curd",
+    65
+   ],
+   [
+    "mango",
+    0.15
+   ]
+  ],
+  "indb:BFP322": [
+   [
+    "curd",
+    70
+   ],
+   [
+    "bathua",
+    25
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:BFP316": [
+   [
+    "curd",
+    65
+   ],
+   [
+    "carrot",
+    30
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:OSR090": [
+   [
+    "curd",
+    70
+   ],
+   [
+    "onion",
+    25
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:BFP321": [
+   [
+    "curd",
+    70
+   ],
+   [
+    "spinach",
+    25
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:BFP328": [
+   [
+    "curd",
+    65
+   ],
+   [
+    "guava",
+    0.3
+   ]
+  ],
+  "indb:ASC272": [
+   [
+    "curd",
+    65
+   ],
+   [
+    "bottle_gourd",
+    30
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:OSR088": [
+   [
+    "curd",
+    70
+   ],
+   [
+    "cabbage",
+    25
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:BFP326": [
+   [
+    "curd",
+    65
+   ],
+   [
+    "banana",
+    0.25
+   ]
+  ],
+  "indb:BFP329": [
+   [
+    "curd",
+    65
+   ],
+   [
+    "grapes",
+    30
+   ]
+  ],
+  "indb:BFP325": [
+   [
+    "curd",
+    65
+   ],
+   [
+    "pineapple",
+    30
+   ]
+  ],
+  "indb:ASC269": [
+   [
+    "curd",
+    60
+   ],
+   [
+    "tomato",
+    15
+   ],
+   [
+    "onion",
+    15
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC271": [
+   [
+    "curd",
+    60
+   ],
+   [
+    "moong_whole",
+    12
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "indb:ASC265": [
+   [
+    "apple",
+    0.12
+   ],
+   [
+    "banana",
+    0.2
+   ],
+   [
+    "orange",
+    0.15
+   ],
+   [
+    "papaya",
+    20
+   ]
+  ],
+  "indb:ASC492": [
+   [
+    "apple",
+    0.5
+   ],
+   [
+    "sugar",
+    5
+   ]
+  ],
+  "indb:ASC022": [
+   [
+    "curd",
+    60
+   ],
+   [
+    "sugar",
+    4
+   ]
+  ],
+  "indb:ASC021": [
+   [
+    "curd",
+    60
+   ],
+   [
+    "sugar",
+    8
+   ]
+  ],
+  "indb:OSR010": [
+   [
+    "milk",
+    95
+   ],
+   [
+    "sugar",
+    4
+   ],
+   [
+    "saffron",
+    0
+   ]
+  ],
+  "indb:ASC001": [
+   [
+    "milk",
+    40
+   ],
+   [
+    "tea",
+    1.5
+   ],
+   [
+    "sugar",
+    4
+   ]
+  ],
+  "indb:ASC002": [
+   [
+    "milk",
+    50
+   ],
+   [
+    "coffee",
+    1
+   ],
+   [
+    "sugar",
+    4
+   ]
+  ],
+  "indb:ASC004": [
+   [
+    "tea",
+    1
+   ],
+   [
+    "sugar",
+    3
+   ],
+   [
+    "lemon",
+    0.05
+   ]
+  ],
+  "indb:OSR099": [
+   [
+    "sabudana",
+    35
+   ],
+   [
+    "potato",
+    15
+   ],
+   [
+    "peanuts",
+    8
+   ],
+   [
+    "ghee",
+    4
+   ],
+   [
+    "sendha_namak",
+    0
+   ]
+  ],
+  "indb:OSR106": [
+   [
+    "kuttu_atta",
+    35
+   ],
+   [
+    "milk",
+    30
+   ],
+   [
+    "oil",
+    8
+   ]
+  ],
+  "est:kuttu_roti": [
+   [
+    "kuttu_atta",
+    70
+   ],
+   [
+    "ghee",
+    2
+   ],
+   [
+    "sendha_namak",
+    0
+   ]
+  ],
+  "est:kuttu_puri": [
+   [
+    "kuttu_atta",
+    65
+   ],
+   [
+    "oil",
+    14
+   ],
+   [
+    "sendha_namak",
+    0
+   ]
+  ],
+  "est:singhara_roti": [
+   [
+    "singhara_atta",
+    65
+   ],
+   [
+    "potato",
+    10
+   ],
+   [
+    "ghee",
+    2
+   ],
+   [
+    "sendha_namak",
+    0
+   ]
+  ],
+  "est:rajgira_roti": [
+   [
+    "rajgira_atta",
+    65
+   ],
+   [
+    "potato",
+    10
+   ],
+   [
+    "ghee",
+    3
+   ],
+   [
+    "sendha_namak",
+    0
+   ]
+  ],
+  "est:samak_rice": [
+   [
+    "samak",
+    33
+   ]
+  ],
+  "est:samak_khichdi": [
+   [
+    "samak",
+    25
+   ],
+   [
+    "potato",
+    15
+   ],
+   [
+    "peanuts",
+    5
+   ],
+   [
+    "ghee",
+    3
+   ],
+   [
+    "sendha_namak",
+    0
+   ]
+  ],
+  "est:roasted_makhana": [
+   [
+    "makhana",
+    95
+   ],
+   [
+    "ghee",
+    5
+   ],
+   [
+    "sendha_namak",
+    0
+   ]
+  ],
+  "est:vrat_aloo": [
+   [
+    "potato",
+    90
+   ],
+   [
+    "ghee",
+    4
+   ],
+   [
+    "sendha_namak",
+    0
+   ]
+  ],
+  "est:vrat_lauki": [
+   [
+    "bottle_gourd",
+    95
+   ],
+   [
+    "ghee",
+    3
+   ],
+   [
+    "sendha_namak",
+    0
+   ]
+  ],
+  "est:kaddu_sabzi": [
+   [
+    "pumpkin",
+    92
+   ],
+   [
+    "ghee",
+    3
+   ],
+   [
+    "jaggery",
+    3
+   ],
+   [
+    "sendha_namak",
+    0
+   ]
+  ],
+  "est:sweet_potato_chaat": [
+   [
+    "sweet_potato",
+    95
+   ],
+   [
+    "lemon",
+    0.1
+   ],
+   [
+    "sendha_namak",
+    0
+   ]
+  ],
+  "est:fruit_chaat": [
+   [
+    "apple",
+    0.14
+   ],
+   [
+    "banana",
+    0.21
+   ],
+   [
+    "papaya",
+    25
+   ],
+   [
+    "pomegranate",
+    25
+   ]
+  ],
+  "est:dates": [
+   [
+    "dates",
+    100
+   ]
+  ],
+  "usda:171284": [
+   [
+    "curd",
+    100
+   ]
+  ],
+  "usda:171265": [
+   [
+    "milk",
+    97
+   ]
+  ],
+  "usda:171267": [
+   [
+    "milk",
+    97
+   ]
+  ],
+  "usda:173424": [
+   [
+    "eggs",
+    2
+   ]
+  ],
+  "usda:172183": [
+   [
+    "eggs",
+    3
+   ]
+  ],
+  "usda:173944": [
+   [
+    "banana",
+    0.85
+   ]
+  ],
+  "usda:171688": [
+   [
+    "apple",
+    0.56
+   ]
+  ],
+  "usda:169097": [
+   [
+    "orange",
+    0.77
+   ]
+  ],
+  "usda:169910": [
+   [
+    "mango",
+    0.5
+   ]
+  ],
+  "usda:169926": [
+   [
+    "papaya",
+    100
+   ]
+  ],
+  "usda:171477": [
+   [
+    "chicken",
+    130
+   ]
+  ],
+  "usda:173410": [
+   [
+    "butter",
+    100
+   ]
+  ],
+  "usda:173412": [
+   [
+    "ghee",
+    100
+   ]
+  ],
+  "usda:171411": [
+   [
+    "oil",
+    110
+   ]
+  ],
+  "usda:173806": [
+   [
+    "peanuts",
+    100
+   ]
+  ],
+  "usda:170567": [
+   [
+    "almonds",
+    100
+   ]
+  ],
+  "usda:170162": [
+   [
+    "cashews",
+    100
+   ]
+  ],
+  "usda:169655": [
+   [
+    "sugar",
+    100
+   ]
+  ],
+  "usda:169640": [
+   [
+    "honey",
+    100
+   ]
+  ],
+  "usda:170853": [
+   [
+    "cheese",
+    100
+   ]
+  ],
+  "usda:172475": [
+   [
+    "tofu",
+    100
+   ]
+  ],
+  "usda:172470": [
+   [
+    "peanuts",
+    100
+   ]
+  ],
+  "usda:170273": [
+   [
+    "dark_chocolate",
+    100
+   ]
+  ],
+  "usda:168409": [
+   [
+    "cucumber",
+    100
+   ]
+  ],
+  "usda:170457": [
+   [
+    "tomato",
+    100
+   ]
+  ]
+ }
+}
