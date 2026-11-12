@@ -16,6 +16,8 @@ import { ROUTES } from './routes';
 import { STRINGS } from './strings';
 import { ACTIVITY_STRINGS } from './activityStrings';
 import { DirectionsWalkRounded } from '@mui/icons-material';
+import { TODAY_STRINGS } from './todayStrings';
+import { TodayRounded } from '@mui/icons-material';
 
 export type NavItem = {
   label: string;
@@ -36,6 +38,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: STRINGS.nav.groups.today,
     items: [
+      { label: TODAY_STRINGS.nav, path: ROUTES.TODAY, icon: TodayRounded },
       { label: STRINGS.nav.dashboard, path: ROUTES.DASHBOARD, icon: DashboardRounded },
       { label: STRINGS.nav.coach, path: ROUTES.COACH, icon: ChatRounded },
     ],

@@ -180,3 +180,19 @@ export const COACH_ENDPOINTS = {
   confirm: (id: string) => `/coach/actions/${encodeURIComponent(id)}/confirm`,
   cancel: (id: string) => `/coach/actions/${encodeURIComponent(id)}/cancel`,
 } as const;
+
+/** Phase 7: Today, reminders (Web Push) and product analytics. */
+export const TODAY_ENDPOINTS = {
+  STATUS: "/today/status",
+} as const;
+
+export const REMINDER_ENDPOINTS = {
+  STATE: "/reminders",
+  SUBSCRIBE: "/reminders/subscribe",
+  UNSUBSCRIBE: "/reminders/unsubscribe",
+  TEST: "/reminders/test",
+} as const;
+
+export const ANALYTICS_ENDPOINTS = {
+  EVENTS: "/analytics/events",
+} as const;

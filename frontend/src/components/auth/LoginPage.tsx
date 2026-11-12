@@ -57,8 +57,8 @@ export function LoginPage() {
     setIsSubmitting(true);
     try {
       const user = await login({ email: email.trim(), password });
-      // Finished onboarding: back to where they were headed, else the dashboard.
-      const destination = user.onboarding_completed ? intendedPath ?? ROUTES.DASHBOARD : POST_AUTH_REDIRECT;
+      // Finished onboarding: back to where they were headed, else Today.
+      const destination = user.onboarding_completed ? intendedPath ?? ROUTES.TODAY : POST_AUTH_REDIRECT;
       navigate(destination, { replace: true });
     } catch (error) {
       setSubmitError(resolveApiError(error, STRINGS.errors.loginFailed));

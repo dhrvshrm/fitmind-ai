@@ -224,3 +224,23 @@ Conversations, messages and confirm cards are stored server-side (`coach_convers
 Tools: read `get_nutrition_today`, `get_meal_plan`, `get_today_workout`, `get_recovery`, `get_weight_trend`, `suggest_from_menu`; action `log_meal` (text through the estimate pipeline), `log_water`, `regenerate_plan_meal`, `swap_plan_food`, `start_quick_workout`, `log_recovery`. Register more in `app/coach/registry.py`.
 
 Socket (`/ws`): `{"type":"message","content"}` now answers with `start` (`user_message_id`), `token` frames, then `done` with `{content, message_id, conversation_id, proposals}`. Model choice: `COACH_PROVIDERS`, `COACH_GEMINI_MODEL`, `COACH_GROQ_MODEL` (picked with `scripts/eval_coach_tools.py`).
+
+### Today, reminders and analytics (Phase 7, daily habit loop)
+
+| Method | Path | Notes |
+|---|---|---|
+| POST | `/users/onboarding?setup=true` | Same as onboarding, then builds the meal plan and workout plan. `data.setup` is `{meal_plan, workout_plan}`, each `created`, `pending` (meal plan still being built in the background) or `failed`. Without `setup` it is `null`. Setup never makes onboarding fail. |
+| GET | `/today/status` | (auth) `{date, restart:{show, missed_days, last_log_date|null}, recovery_checked_in, push_available, push_subscribed}`. `restart.show` is true after 2+ full days with no meal, workout or water logged (counted from signup if nothing was ever logged). |
+| GET | `/reminders` | (auth) `{settings:{enabled, meals, workout, water, comeback, workout_time|null, water_time}, push_available, public_key|null, subscribed}`. |
+| PUT | `/reminders` | (auth) partial settings; times are local `HH:MM` (`workout_time: null` follows the onboarding workout time). 400 on a bad time. |
+| POST | `/reminders/subscribe` | (auth) the browser's `PushSubscription.toJSON()`: `{endpoint, keys:{p256dh, auth}}`. 400 when push isn't configured. |
+| POST | `/reminders/unsubscribe` | (auth) `{endpoint}`. |
+| POST | `/reminders/test` | (auth) sends a test push; `{delivered}`. |
+| POST | `/reminders/run` | For an external cron every 15 minutes. Header `X-Cron-Secret` must equal `CRON_SECRET` (403 otherwise; 404 while `CRON_SECRET` is unset). `{users, sent}`. |
+| POST | `/analytics/events` | (auth) 202. `{event, properties?}`; event one of `app_opened`, `today_viewed`, `app_installed`, `reminder_opened`, `restart_action` (else 400). Properties outside the allowlist are dropped. |
+
+Reminders run every 15 minutes (APScheduler `push_reminders` job and `/reminders/run`), in each user's timezone: one per plan meal at its time (skipped once logged), the workout a little before the usual time on training days, water at `water_time` if behind. Each goes at most once per local day (`reminder_sends`). After 2+ missed days the daily reminders pause and one "start again" push goes out (10:00-20:00 local) per break. Everything is off without `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` (generate with `scripts/generate_vapid_keys.py`).
+
+Reuse from other features: `await push_service.send_push(user_id, title, body, url="/today", tag=None) -> int` (devices reached; never raises, 0 when push is off) and `await analytics_service.track(user_id, event, properties=None) -> bool` (event must be in `analytics_service.ALLOWED_EVENTS`). For once-a-day dedupe: `await app.models.push.claim_send(user_id, key, local_date) -> bool`.
+
+Server-side events: `signed_up`, `onboarding_completed`, `meal_logged`, `water_logged`, `workout_logged`, `recovery_logged`, `meal_plan_created`, `workout_plan_created`, `quick_session_started`, `push_subscribed`, `push_unsubscribed`, `reminder_sent`. Stored in `analytics_events`, also sent to PostHog when `POSTHOG_API_KEY` is set. `python scripts/metrics.py [--days 30]` prints day-1 activation, day-7 retention and weekly active loggers.

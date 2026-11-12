@@ -86,4 +86,12 @@ export const QUERY_KEYS = {
     all: ['coach'] as const,
     conversation: ['coach', 'conversation'] as const,
   },
+  today: {
+    all: ['today'] as const,
+    status: ['today', 'status'] as const,
+  },
+  reminders: {
+    all: ['reminders'] as const,
+    state: ['reminders', 'state'] as const,
+  },
 } as const;

@@ -7,6 +7,7 @@ import { createAppTheme } from "./theme";
 import { queryClient } from "./lib/queryClient";
 import { useAuthBootstrap } from "./hooks/useAuth";
 import { useResolvedColorMode } from "./hooks/useColorMode";
+import { useAppAnalytics } from "./hooks/useAppAnalytics";
 import { AppToaster } from "./components/ui/AppToaster";
 import { ROUTES } from "./constants/routes";
 import { LoginPage } from "./components/auth/LoginPage";
@@ -25,6 +26,10 @@ function lazyPage<K extends string>(
   return lazy(() => load().then((module) => ({ default: module[name] })));
 }
 
+const TodayPage = lazyPage(
+  () => import("./components/today/TodayPage"),
+  "TodayPage",
+);
 const Dashboard = lazyPage(
   () => import("./components/dashboard/Dashboard"),
   "Dashboard",
@@ -86,6 +91,8 @@ const ActivityPage = lazyPage(
 function AppRoutes() {
   // Validate any persisted session before protected routes resolve.
   useAuthBootstrap();
+  // Phase 7: one "app opened" event per session (no personal details).
+  useAppAnalytics();
 
   return (
     <Suspense fallback={<PageLoader />}>
@@ -100,6 +107,7 @@ function AppRoutes() {
 
           {/* Feature pages render inside the navbar + sidebar shell. */}
           <Route element={<AppLayout />}>
+            <Route path={ROUTES.TODAY} element={<TodayPage />} />
             <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
             <Route path={ROUTES.COACH} element={<CoachPage />} />
             <Route path={ROUTES.WORKOUTS} element={<WorkoutPage />} />
@@ -116,8 +124,8 @@ function AppRoutes() {
           </Route>
         </Route>
 
-        {/* Default + unknown paths go to the dashboard (which will bounce to login if needed). */}
-        <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+        {/* Default + unknown paths go to Today (which will bounce to login if needed). */}
+        <Route path="*" element={<Navigate to={ROUTES.TODAY} replace />} />
       </Routes>
     </Suspense>
   );

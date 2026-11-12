@@ -35,6 +35,7 @@ import { PageHeader } from "../ui/PageHeader";
 import { SectionCard } from "../ui/SectionCard";
 import { ErrorState } from "../ui/ErrorState";
 import { ChangePasswordForm } from "./ChangePasswordForm";
+import { ReminderSettings } from "./ReminderSettings";
 import { settingsPageStyles as styles } from "./SettingsPage.styles";
 
 const S = STRINGS.settings;
@@ -147,6 +148,9 @@ export function SettingsPage() {
           </Box>
         )}
       </SectionCard>
+
+      {/* Push reminders (meals, workout, water, fresh start) */}
+      <ReminderSettings />
 
       {/* Change password */}
       <SectionCard title={S.password.title} subtitle={S.password.subtitle}>

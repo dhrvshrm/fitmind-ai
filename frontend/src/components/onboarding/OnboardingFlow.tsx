@@ -21,6 +21,7 @@ import { StepAccess } from './StepAccess';
 import { StepRoutine } from './StepRoutine';
 import { StepTargets } from './StepTargets';
 import { useCompleteOnboarding, useUserProfile } from '../../hooks/queries/useProfileQueries';
+import { useCompleteOnboardingWithSetup } from '../../hooks/queries/useHabitQueries';
 import { resolveApiError } from '../../lib/apiClient';
 import { ROUTES } from '../../constants/routes';
 import { INITIAL_ONBOARDING_DATA, ONBOARDING_STRINGS } from '../../constants/onboarding';
@@ -73,13 +74,14 @@ type OnboardingStepsProps = {
 function OnboardingSteps({ initial, isUpdate }: OnboardingStepsProps) {
   const navigate = useNavigate();
   const completeOnboarding = useCompleteOnboarding();
+  const onboardWithSetup = useCompleteOnboardingWithSetup();
 
   const [stepIndex, setStepIndex] = useState(0);
   const [data, setData] = useState<OnboardingData>(initial);
   const [errors, setErrors] = useState<OnboardingErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const isSubmitting = completeOnboarding.isPending;
+  const isSubmitting = completeOnboarding.isPending || onboardWithSetup.isPending;
   const isFirst = stepIndex === 0;
   const isLast = stepIndex === TOTAL - 1;
   const isOptional = stepIndex >= FIRST_OPTIONAL_STEP && stepIndex < TARGETS_STEP;
@@ -120,9 +122,16 @@ function OnboardingSteps({ initial, isUpdate }: OnboardingStepsProps) {
   async function handleSubmit() {
     setSubmitError(null);
     try {
-      await completeOnboarding.mutateAsync(toOnboardingPayload(data));
-      toast.success(isUpdate ? ONBOARDING_STRINGS.updated : ONBOARDING_STRINGS.success);
-      navigate(isUpdate ? ROUTES.PROFILE : ROUTES.DASHBOARD, { replace: true });
+      if (isUpdate) {
+        await completeOnboarding.mutateAsync(toOnboardingPayload(data));
+        toast.success(ONBOARDING_STRINGS.updated);
+        navigate(ROUTES.PROFILE, { replace: true });
+        return;
+      }
+      // First time: the meal and workout plans are built straight away, then Today opens.
+      const result = await onboardWithSetup.mutateAsync(toOnboardingPayload(data));
+      toast.success(ONBOARDING_STRINGS.success);
+      navigate(ROUTES.TODAY, { replace: true, state: { setup: result.setup } });
     } catch (error) {
       setSubmitError(resolveApiError(error, ONBOARDING_STRINGS.error));
     }
