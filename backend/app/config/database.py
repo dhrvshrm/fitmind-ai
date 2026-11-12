@@ -107,6 +107,14 @@ _INDEXES = {
     "weekly_insights": [([("user_id", 1), ("week_start", 1)], {"unique": True})],
     "progress_photos": [([("user_id", 1), ("log_date", -1)], {})],
     "friend_challenges": [([("creator_id", 1)], {}), ([("opponent_id", 1)], {})],
+    # Phases 12-14 health: consent, health profile, lab reports, supplements.
+    "consents": [([("user_id", 1), ("scope", 1), ("revoked_at", 1)], {})],
+    "health_profiles": [([("user_id", 1)], {"unique": True})],
+    "health_reports": [([("user_id", 1), ("created_at", -1)], {})],
+    "health_report_files": [([("user_id", 1), ("report_id", 1)], {})],
+    "biomarkers": [([("user_id", 1), ("code", 1), ("measured_at", 1)], {}), ([("report_id", 1)], {})],
+    "user_supplements": [([("user_id", 1), ("active", 1)], {})],
+    "supplement_logs": [([("user_id", 1), ("local_date", 1), ("user_supplement_id", 1)], {})],
     # Cached AI results expire on their own via a TTL index.
     "ai_cache": [
         ([("key", 1)], {"unique": True}),

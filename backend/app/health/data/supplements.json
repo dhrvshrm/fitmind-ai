@@ -1,0 +1,279 @@
+{
+  "version": 1,
+  "reviewed": "2026-11",
+  "note": "Curated from the sources listed per entry. Amounts are typical amounts used in studies or on labels, shown for information only, never as a prescription.",
+  "supplements": [
+    {
+      "id": "whey_protein",
+      "name": "Whey protein",
+      "category": "protein",
+      "summary": "A milk protein powder that makes it easier to reach a daily protein target.",
+      "evidence": [
+        {"use": "Reaching a daily protein target", "level": "strong"},
+        {"use": "Muscle gain alongside strength training", "level": "strong"}
+      ],
+      "typical_dose": "One scoop (about 25 to 30 g powder, 20 to 25 g protein)",
+      "timing": "Any time of day; many people take it after training or with a meal.",
+      "default_timing": "post_workout",
+      "macros_per_serving": {"serving_g": 30, "calories": 120, "protein": 24, "carbs": 3, "fats": 1.5},
+      "contains": ["dairy"],
+      "cautions": [
+        "Contains milk protein; not for people with a milk allergy. Whey isolate has very little lactose.",
+        "Food first: protein powder only fills a gap your meals don't cover.",
+        "Choose products that list protein per serving and have FSSAI approval."
+      ],
+      "interactions": [],
+      "sources": [
+        {"title": "ISSN position stand: protein and exercise (Jäger et al., 2017)", "url": "https://doi.org/10.1186/s12970-017-0177-8"},
+        {"title": "NIH ODS: Dietary Supplements for Exercise and Athletic Performance", "url": "https://ods.od.nih.gov/factsheets/ExerciseAndAthleticPerformance-HealthProfessional/"},
+        {"title": "FSSAI Health Supplements and Nutraceuticals Regulations, 2022", "url": "https://www.fssai.gov.in/cms/food-safety-and-standards-regulations.php"}
+      ]
+    },
+    {
+      "id": "plant_protein",
+      "name": "Plant protein",
+      "category": "protein",
+      "summary": "Pea, soy or rice protein powder; a dairy-free way to add protein.",
+      "evidence": [
+        {"use": "Reaching a daily protein target", "level": "strong"},
+        {"use": "Muscle gain alongside strength training", "level": "moderate"}
+      ],
+      "typical_dose": "One scoop (about 30 to 35 g powder, 20 to 25 g protein)",
+      "timing": "Any time of day; many people take it after training or with a meal.",
+      "default_timing": "post_workout",
+      "macros_per_serving": {"serving_g": 33, "calories": 130, "protein": 22, "carbs": 5, "fats": 2.5},
+      "contains": [],
+      "cautions": [
+        "Blends of pea and rice give a more complete set of amino acids than one source alone.",
+        "Soy-based powders aren't suitable with a soy allergy."
+      ],
+      "interactions": [],
+      "sources": [
+        {"title": "ISSN position stand: protein and exercise (Jäger et al., 2017)", "url": "https://doi.org/10.1186/s12970-017-0177-8"},
+        {"title": "NIH ODS: Dietary Supplements for Exercise and Athletic Performance", "url": "https://ods.od.nih.gov/factsheets/ExerciseAndAthleticPerformance-HealthProfessional/"}
+      ]
+    },
+    {
+      "id": "creatine_monohydrate",
+      "name": "Creatine monohydrate",
+      "category": "performance",
+      "summary": "One of the most studied supplements for strength and short, intense effort.",
+      "evidence": [
+        {"use": "Strength and power with resistance training", "level": "strong"},
+        {"use": "Lean mass gain with training", "level": "strong"}
+      ],
+      "typical_dose": "3 to 5 g a day",
+      "timing": "Any time of day, every day; timing matters less than taking it consistently.",
+      "default_timing": "any",
+      "contains": [],
+      "cautions": [
+        "Can add 1 to 2 kg of water weight in the first weeks; this isn't fat.",
+        "Creatine raises blood creatinine a little, which can make kidney tests look worse. Tell your doctor you take it.",
+        "Not advised with kidney disease unless your doctor agrees."
+      ],
+      "interactions": ["Medicines that affect the kidneys (for example regular high-dose painkillers)"],
+      "sources": [
+        {"title": "ISSN position stand: creatine supplementation (Kreider et al., 2017)", "url": "https://doi.org/10.1186/s12970-017-0173-z"},
+        {"title": "NIH ODS: Dietary Supplements for Exercise and Athletic Performance", "url": "https://ods.od.nih.gov/factsheets/ExerciseAndAthleticPerformance-HealthProfessional/"}
+      ]
+    },
+    {
+      "id": "vitamin_d3",
+      "name": "Vitamin D3",
+      "category": "vitamin",
+      "summary": "Supports bones and muscles. Low levels are common in India despite the sun.",
+      "evidence": [
+        {"use": "Correcting low vitamin D found on a blood test", "level": "strong"},
+        {"use": "Bone health together with calcium", "level": "moderate"}
+      ],
+      "typical_dose": "600 to 1,000 IU a day for maintenance; higher amounts only as advised by a doctor",
+      "timing": "With a meal that has some fat, which helps absorption.",
+      "default_timing": "with_lunch",
+      "contains": [],
+      "cautions": [
+        "More is not better: the upper limit for adults is 4,000 IU a day unless a doctor advises otherwise.",
+        "High weekly doses (like 60,000 IU sachets) should be taken only as prescribed."
+      ],
+      "interactions": ["Some steroid medicines and seizure medicines lower vitamin D levels", "Thiazide diuretics with high doses can raise calcium"],
+      "sources": [
+        {"title": "NIH ODS: Vitamin D fact sheet", "url": "https://ods.od.nih.gov/factsheets/VitaminD-HealthProfessional/"},
+        {"title": "ICMR-NIN Nutrient Requirements for Indians (2020)", "url": "https://www.nin.res.in/"}
+      ]
+    },
+    {
+      "id": "vitamin_b12",
+      "name": "Vitamin B12",
+      "category": "vitamin",
+      "summary": "Needed for nerves and red blood cells. It comes mainly from animal foods.",
+      "evidence": [
+        {"use": "Vegetarians and vegans, who get little B12 from food", "level": "strong"},
+        {"use": "Correcting low B12 found on a blood test", "level": "strong"}
+      ],
+      "typical_dose": "Small daily amounts (for example 2.4 to 25 mcg) or as advised by a doctor",
+      "timing": "Any time of day.",
+      "default_timing": "morning",
+      "contains": [],
+      "cautions": ["If a test shows very low B12, your doctor may suggest a different form or injections."],
+      "interactions": ["Metformin and acid-reducing medicines (PPIs) can lower B12 over time"],
+      "sources": [
+        {"title": "NIH ODS: Vitamin B12 fact sheet", "url": "https://ods.od.nih.gov/factsheets/VitaminB12-HealthProfessional/"}
+      ]
+    },
+    {
+      "id": "omega_3",
+      "name": "Omega-3 (fish or algae oil)",
+      "category": "fatty_acid",
+      "summary": "EPA and DHA fats found in oily fish; algae oil is the vegetarian source.",
+      "evidence": [
+        {"use": "Lowering high triglycerides (higher doses, with a doctor)", "level": "strong"},
+        {"use": "General heart health for people who don't eat fish", "level": "limited"}
+      ],
+      "typical_dose": "250 to 500 mg EPA plus DHA a day",
+      "timing": "With a meal, which also reduces fishy aftertaste.",
+      "default_timing": "with_dinner",
+      "contains": ["fish"],
+      "cautions": ["Fish oil isn't vegetarian; algae oil is.", "Higher doses can slightly increase bleeding risk."],
+      "interactions": ["Blood thinners such as warfarin or clopidogrel: check with your doctor first"],
+      "sources": [
+        {"title": "NIH ODS: Omega-3 Fatty Acids fact sheet", "url": "https://ods.od.nih.gov/factsheets/Omega3FattyAcids-HealthProfessional/"}
+      ]
+    },
+    {
+      "id": "iron",
+      "name": "Iron",
+      "category": "mineral",
+      "summary": "Needed to make haemoglobin. Only worth taking when a test shows you need it.",
+      "evidence": [{"use": "Correcting iron deficiency found on a blood test", "level": "strong"}],
+      "typical_dose": "Only as advised by a doctor after a blood test",
+      "timing": "Away from tea, coffee and calcium; vitamin C helps absorption.",
+      "default_timing": "morning",
+      "contains": [],
+      "cautions": [
+        "Too much iron is harmful. Don't take it without a test showing low iron or ferritin.",
+        "Can cause constipation or stomach upset.",
+        "Keep away from children: iron overdose is dangerous for them."
+      ],
+      "interactions": ["Thyroid medicine (levothyroxine): take at least 4 hours apart", "Calcium and antacids reduce iron absorption"],
+      "sources": [
+        {"title": "NIH ODS: Iron fact sheet", "url": "https://ods.od.nih.gov/factsheets/Iron-HealthProfessional/"}
+      ]
+    },
+    {
+      "id": "magnesium",
+      "name": "Magnesium",
+      "category": "mineral",
+      "summary": "A mineral for muscles and nerves, found in nuts, seeds, whole grains and greens.",
+      "evidence": [
+        {"use": "Filling a dietary gap", "level": "moderate"},
+        {"use": "Sleep and muscle cramps", "level": "limited"}
+      ],
+      "typical_dose": "100 to 350 mg a day from supplements (the adult upper limit for supplements is 350 mg)",
+      "timing": "Evening or with dinner.",
+      "default_timing": "evening",
+      "contains": [],
+      "cautions": ["Higher doses can cause loose stools.", "Not advised with kidney disease unless your doctor agrees."],
+      "interactions": ["Some antibiotics and osteoporosis medicines: take a few hours apart", "Thyroid medicine: take at least 4 hours apart"],
+      "sources": [
+        {"title": "NIH ODS: Magnesium fact sheet", "url": "https://ods.od.nih.gov/factsheets/Magnesium-HealthProfessional/"}
+      ]
+    },
+    {
+      "id": "calcium",
+      "name": "Calcium",
+      "category": "mineral",
+      "summary": "For bones; useful mainly when your diet has little dairy or other calcium-rich food.",
+      "evidence": [{"use": "Filling a dietary gap, especially with little dairy", "level": "moderate"}],
+      "typical_dose": "500 mg or less at a time; total intake from food and supplements around 1,000 mg a day",
+      "timing": "With food, split across the day if more than 500 mg.",
+      "default_timing": "with_dinner",
+      "contains": [],
+      "cautions": ["Food sources are preferred; very high supplement intake may raise kidney stone risk."],
+      "interactions": ["Thyroid medicine and iron: take at least 4 hours apart"],
+      "sources": [
+        {"title": "NIH ODS: Calcium fact sheet", "url": "https://ods.od.nih.gov/factsheets/Calcium-HealthProfessional/"}
+      ]
+    },
+    {
+      "id": "multivitamin",
+      "name": "Multivitamin",
+      "category": "general",
+      "summary": "A broad backup for small gaps in the diet. It doesn't replace good food.",
+      "evidence": [
+        {"use": "Filling small dietary gaps", "level": "limited"},
+        {"use": "Preventing disease in healthy adults", "level": "insufficient"}
+      ],
+      "typical_dose": "One tablet a day as on the label",
+      "timing": "With a meal.",
+      "default_timing": "with_breakfast",
+      "contains": [],
+      "cautions": ["Check the label so you don't double up with other supplements (for example vitamin D or iron)."],
+      "interactions": ["Contains minerals that should be taken 4 hours apart from thyroid medicine"],
+      "sources": [
+        {"title": "NIH ODS: Multivitamin/mineral Supplements fact sheet", "url": "https://ods.od.nih.gov/factsheets/MVMS-HealthProfessional/"}
+      ]
+    },
+    {
+      "id": "caffeine",
+      "name": "Caffeine",
+      "category": "performance",
+      "summary": "Improves alertness and endurance; you probably already get some from tea or coffee.",
+      "evidence": [{"use": "Endurance and focus during exercise", "level": "strong"}],
+      "typical_dose": "3 to 6 mg per kg about an hour before exercise in studies; most adults should stay under 400 mg a day in total",
+      "timing": "30 to 60 minutes before training; avoid within 6 hours of bedtime.",
+      "default_timing": "pre_workout",
+      "contains": [],
+      "cautions": [
+        "Count tea, coffee and pre-workout products together.",
+        "Can raise blood pressure and heart rate for a while.",
+        "During pregnancy, keep caffeine under 200 mg a day."
+      ],
+      "interactions": ["Some medicines slow caffeine breakdown (for example certain antibiotics)"],
+      "sources": [
+        {"title": "ISSN position stand: caffeine and exercise performance (Guest et al., 2021)", "url": "https://doi.org/10.1186/s12970-020-00383-4"},
+        {"title": "NIH ODS: Dietary Supplements for Exercise and Athletic Performance", "url": "https://ods.od.nih.gov/factsheets/ExerciseAndAthleticPerformance-HealthProfessional/"}
+      ]
+    },
+    {
+      "id": "electrolytes",
+      "name": "Electrolytes",
+      "category": "general",
+      "summary": "Sodium and potassium drinks to replace what's lost in heavy sweating.",
+      "evidence": [{"use": "Long or hot training sessions with heavy sweating", "level": "moderate"}],
+      "typical_dose": "As on the label, during or after long sweaty sessions",
+      "timing": "During or after training.",
+      "default_timing": "post_workout",
+      "contains": [],
+      "cautions": ["Most short workouts only need water.", "Many products are high in sodium or sugar."],
+      "interactions": ["Blood pressure medicines and potassium-sparing diuretics: check potassium-containing products with your doctor"],
+      "sources": [
+        {"title": "ACSM position stand: Exercise and fluid replacement (Sawka et al., 2007)", "url": "https://doi.org/10.1249/mss.0b013e31802ca597"}
+      ]
+    },
+    {
+      "id": "ashwagandha",
+      "name": "Ashwagandha",
+      "category": "herbal",
+      "summary": "An Ayurvedic herb studied for stress and sleep. Evidence is early and safety questions remain.",
+      "extra_caution": true,
+      "evidence": [
+        {"use": "Stress and sleep", "level": "limited"},
+        {"use": "Strength gains", "level": "limited"}
+      ],
+      "typical_dose": "Studies mostly used 250 to 600 mg of root extract a day for up to 3 months",
+      "timing": "Usually evening.",
+      "default_timing": "evening",
+      "contains": [],
+      "cautions": [
+        "Rare cases of liver injury have been reported.",
+        "Not for pregnancy or breastfeeding.",
+        "May affect thyroid hormone levels.",
+        "Herbal products vary a lot in quality."
+      ],
+      "interactions": ["Thyroid medicine", "Diabetes and blood pressure medicines (may add to their effect)", "Sedatives", "Immunosuppressants"],
+      "sources": [
+        {"title": "NIH ODS: Ashwagandha fact sheet", "url": "https://ods.od.nih.gov/factsheets/Ashwagandha-HealthProfessional/"}
+      ]
+    }
+  ],
+  "blocked": ["anabolic steroids", "SARMs", "prohormones", "hormones", "DNP", "clenbuterol", "ephedrine", "yohimbine fat burners"]
+}

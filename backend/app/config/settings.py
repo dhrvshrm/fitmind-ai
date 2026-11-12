@@ -68,6 +68,9 @@ class Settings(BaseSettings):
     VAPID_SUBJECT: str = os.getenv("VAPID_SUBJECT", "")
     # Shared secret for the external cron that triggers reminders while the server sleeps.
     CRON_SECRET: str = os.getenv("CRON_SECRET", "")
+    # Phases 12-14 (health). Fernet key that encrypts health data at rest;
+    # generate one with scripts/generate_health_key.py. Required in production.
+    HEALTH_DATA_KEY: str = os.getenv("HEALTH_DATA_KEY", "")
 
     @property
     def is_production(self) -> bool:
@@ -96,6 +99,8 @@ class Settings(BaseSettings):
             problems.append("DEBUG must be false")
         if not self.CORS_EXTRA_ORIGINS.strip():
             problems.append("CORS_EXTRA_ORIGINS must list the deployed frontend origin(s)")
+        if not self.HEALTH_DATA_KEY.strip():
+            problems.append("HEALTH_DATA_KEY must be set so health data is encrypted at rest")
         if problems:
             raise RuntimeError("Unsafe production configuration: " + "; ".join(problems))
 

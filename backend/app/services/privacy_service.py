@@ -21,6 +21,8 @@ from app.models import activity
 from app.models import coach as coach_store
 from app.models import analytics as analytics_store, push as push_store
 from app.models import challenge as challenge_store, progress as progress_store
+from app.models import consent as consent_store, health_profile as health_profile_store  # Phases 12-14
+from app.models import lab_report as lab_report_store, supplement as supplement_store
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +65,14 @@ USER_DATA_COLLECTIONS: Dict[str, List[str]] = {
     "weekly_insights": ["user_id"],
     "progress_photos": ["user_id"],
     "friend_challenges": ["creator_id", "opponent_id"],
+    # Phases 12-14 health (report files in R2 are removed via cloud_service prefixes).
+    "consents": ["user_id"],
+    "health_profiles": ["user_id"],
+    "health_reports": ["user_id"],
+    "health_report_files": ["user_id"],
+    "biomarkers": ["user_id"],
+    "user_supplements": ["user_id"],
+    "supplement_logs": ["user_id"],
 }
 
 
@@ -102,6 +112,13 @@ def _memory_stores() -> List[dict]:
         progress_store._INSIGHTS_MEMORY,
         progress_store._PHOTOS_MEMORY,
         challenge_store._MEMORY_STORE,
+        consent_store._MEMORY_STORE,
+        health_profile_store._MEMORY_STORE,
+        lab_report_store._REPORT_MEMORY,
+        lab_report_store._FILE_MEMORY,
+        lab_report_store._BIOMARKER_MEMORY,
+        supplement_store._SUPPLEMENT_MEMORY,
+        supplement_store._LOG_MEMORY,
     ]
 
 

@@ -75,6 +75,7 @@ def test_production_accepts_safe_settings():
         JWT_SECRET="x" * 48,
         CORS_EXTRA_ORIGINS="https://fitmind.example",
         DEBUG=False,
+        HEALTH_DATA_KEY="test-health-key",
     )
     settings.validate_for_production()
 
