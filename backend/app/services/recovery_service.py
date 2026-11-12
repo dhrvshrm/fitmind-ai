@@ -2,6 +2,7 @@ import logging
 from typing import Any, Dict, List, Tuple
 
 from app.models.recovery import RecoveryLog
+from app.services import analytics_service
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +98,7 @@ async def log_recovery(user_id: str, data: Dict[str, Any]) -> RecoveryLog:
         score=score,
     )
     await log.save()
+    await analytics_service.track(user_id, analytics_service.RECOVERY_LOGGED)
     logger.info("Logged recovery for user %s: score %s", user_id, score)
     return log
 

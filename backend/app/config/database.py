@@ -82,6 +82,15 @@ _INDEXES = {
     "user_foods": [([("user_id", 1), ("created_at", -1)], {})],
     "diet_plans": [([("user_id", 1), ("status", 1), ("version", -1)], {})],
     "workout_overrides": [([("user_id", 1), ("local_date", 1)], {"unique": True})],
+    # Phase 7: analytics events, push subscriptions, reminder settings and the
+    # once-a-day reminder log.
+    "analytics_events": [
+        ([("event", 1), ("local_date", 1)], {}),
+        ([("user_id", 1), ("at", -1)], {}),
+    ],
+    "push_subscriptions": [([("endpoint", 1)], {"unique": True}), ([("user_id", 1)], {})],
+    "reminder_settings": [([("user_id", 1)], {"unique": True})],
+    "reminder_sends": [([("user_id", 1), ("key", 1), ("local_date", 1)], {"unique": True})],
     # Cached AI results expire on their own via a TTL index.
     "ai_cache": [
         ([("key", 1)], {"unique": True}),

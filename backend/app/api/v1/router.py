@@ -18,6 +18,7 @@ from .endpoints import (
     tips,
 )
 
+from .endpoints import analytics, reminders, today  # Phase 7 habit loop
 router = APIRouter(prefix="/api/v1")
 
 router.include_router(health.router)
@@ -37,3 +38,6 @@ router.include_router(friends.router)
 router.include_router(friends.leaderboard_router)
 router.include_router(reports.router)
 router.include_router(settings.router)
+router.include_router(analytics.router)
+router.include_router(reminders.router)
+router.include_router(today.router)

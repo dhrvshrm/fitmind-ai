@@ -7,6 +7,7 @@ from jose import JWTError, jwt
 
 from app.config.settings import get_settings
 from app.models.user import User
+from app.services import analytics_service
 
 logger = logging.getLogger(__name__)
 
@@ -131,6 +132,7 @@ async def register_user(email: str, password: str, name: Optional[str] = None) -
         personalisation={"name": name},
     )
     await user.save()
+    await analytics_service.track(user.id, analytics_service.SIGNED_UP)
     logger.info("Registered new user %s", email)
     return user
 

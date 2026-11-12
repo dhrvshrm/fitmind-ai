@@ -17,3 +17,4 @@ boto3==1.43.123
 APScheduler==3.11.3
 httpx==0.28.1
 tzdata==2026.6
+pywebpush==2.5.0

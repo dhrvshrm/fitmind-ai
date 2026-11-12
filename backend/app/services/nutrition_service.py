@@ -14,6 +14,7 @@ from app.nutrition import estimator, food_db
 from app.nutrition.food_db import Food, Nutrients, Serving
 from app.nutrition.text import normalize
 from app.services import gamification_service, user_service
+from app.services import analytics_service
 from app.utils.time import local_today, local_today_iso
 
 logger = logging.getLogger(__name__)
@@ -87,7 +88,7 @@ def _meal_source(items: List[Dict[str, Any]]) -> str:
     verified = [bool(i.get("verified")) and not i.get("edited") for i in items]
     if all(verified):
         return "verified"
-    if any(i.get("source") == "ai_estimate" for i in items) and not any(verified):
+    if any(i.get("source") in ("ai_estimate", "estimate") for i in items) and not any(verified):
         return "estimated"
     return "mixed"
 
@@ -235,6 +236,9 @@ async def log_meal(
         log_date=_resolve_log_date(log_date),
     )
     await meal.save()
+    await analytics_service.track(
+        user_id, analytics_service.MEAL_LOGGED, {"source": meal.source, "meal_type": meal_type}
+    )
     return meal
 
 
@@ -349,7 +353,9 @@ async def get_recent_meals(user_id: str) -> List[Dict[str, Any]]:
 
 async def log_water(user_id: str, amount_ml: int) -> int:
     """Add water intake for today and return the new daily total (ml)."""
-    return await add_water(user_id, amount_ml)
+    total = await add_water(user_id, amount_ml)
+    await analytics_service.track(user_id, analytics_service.WATER_LOGGED)
+    return total
 
 
 async def get_nutrition_history(user_id: str, days: int = 30) -> List[Dict[str, Any]]:

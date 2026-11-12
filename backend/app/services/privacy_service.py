@@ -17,6 +17,7 @@ from app.models import (
     workout,
 )
 from app.services import cloud_service, gamification_service, workout_service
+from app.models import analytics as analytics_store, push as push_store
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +44,10 @@ USER_DATA_COLLECTIONS: Dict[str, List[str]] = {
     "user_foods": ["user_id"],
     "diet_plans": ["user_id"],
     "workout_overrides": ["user_id"],
+    "analytics_events": ["user_id"],
+    "push_subscriptions": ["user_id"],
+    "reminder_settings": ["user_id"],
+    "reminder_sends": ["user_id"],
 }
 
 
@@ -67,6 +72,10 @@ def _memory_stores() -> List[dict]:
         food_library._USER_FOOD_MEMORY,
         diet_plan._MEMORY_STORE,
         workout._OVERRIDE_MEMORY,
+        analytics_store._MEMORY_STORE,
+        push_store._SUBSCRIPTION_MEMORY,
+        push_store._SETTINGS_MEMORY,
+        push_store._SEND_MEMORY,
     ]
 
 

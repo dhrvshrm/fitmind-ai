@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.api.v1.endpoints.auth import get_current_user
 from app.models.user import User
@@ -10,6 +10,7 @@ from app.schemas.user import (
     UserProfileUpdate,
 )
 from app.services import user_service
+from app.services import analytics_service, setup_service
 from app.services.user_service import UserServiceError
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -17,13 +18,26 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 @router.post("/onboarding", response_model=SuccessResponse)
 async def onboard_user(
-    data: UserOnboarding, current_user: User = Depends(get_current_user)
+    data: UserOnboarding,
+    setup: bool = Query(False, description="Also build the meal and workout plans (instant setup)"),
+    current_user: User = Depends(get_current_user),
 ) -> dict:
-    """Complete onboarding for the authenticated user and store their profile."""
+    """Complete onboarding for the authenticated user and store their profile.
+
+    With ``?setup=true`` (the app sends it at the end of first-time onboarding)
+    the meal plan and workout plan are built straight away; ``data.setup``
+    reports each as ``created``, ``pending`` or ``failed``. That step never
+    makes onboarding fail.
+    """
+    first_time = not current_user.onboarding_completed
     try:
         user = await user_service.complete_onboarding(current_user.id, data.model_dump())
     except UserServiceError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    await analytics_service.track(
+        user.id, analytics_service.ONBOARDING_COMPLETED, {"status": "first" if first_time else "repeat"}
+    )
+    setup_result = await setup_service.run(user) if setup else None
     return {
         "success": True,
         "message": "Onboarding completed",
@@ -32,6 +46,7 @@ async def onboard_user(
             "tdee": user.tdee,
             "targets": user.targets,
             "profile_created": True,
+            "setup": setup_result,
         },
     }
 

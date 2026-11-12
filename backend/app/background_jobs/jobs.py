@@ -6,6 +6,7 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.models.user import User
 from app.services import gamification_service, notification_service, report_service
+from app.services import reminder_service
 from app.utils.time import local_now, local_today, local_today_iso, use_timezone
 
 logger = logging.getLogger(__name__)
@@ -73,6 +74,14 @@ async def weekly_report_job() -> None:
     logger.info("weekly_report_job: generated %d report(s)", generated)
 
 
+async def reminder_job() -> None:
+    """Send due push reminders (every 15 minutes; does nothing without VAPID keys)."""
+    try:
+        await reminder_service.run_due_reminders()
+    except Exception as e:
+        logger.warning("reminder_job failed: %s", e)
+
+
 def start_scheduler() -> None:
     """Start the background scheduler and register recurring jobs.
 
@@ -93,6 +102,13 @@ def start_scheduler() -> None:
         weekly_report_job,
         CronTrigger(minute=0, timezone="UTC"),
         id="weekly_report",
+        replace_existing=True,
+    )
+    # Phase 7: push reminders (meals, workout, water, comeback), each user's local time.
+    _scheduler.add_job(
+        reminder_job,
+        CronTrigger(minute="*/15", timezone="UTC"),
+        id="push_reminders",
         replace_existing=True,
     )
     _scheduler.start()

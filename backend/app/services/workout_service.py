@@ -14,6 +14,7 @@ from app.models.user import User
 from app.models.workout import WorkoutLog, WorkoutPlan
 from app.nutrition.targets import canonical_goal
 from app.services import gamification_service
+from app.services import analytics_service
 from app.utils.time import local_today, local_today_iso
 from app.workouts import catalog, planner, programming
 
@@ -73,6 +74,7 @@ async def generate_workout_plan(
         meta=built["meta"],
     )
     await plan.save()
+    await analytics_service.track(user.id, analytics_service.WORKOUT_PLAN_CREATED)
     return plan
 
 
@@ -134,6 +136,9 @@ async def start_quick_session(user: User, minutes: int, place: str) -> Dict[str,
     )
     session["variant"] = (previous or {}).get("variant", -1) + 1
     await workout_store.set_override(user.id, local_today_iso(), session)
+    await analytics_service.track(
+        user.id, analytics_service.QUICK_SESSION_STARTED, {"minutes": minutes, "kind": place}
+    )
     return await get_today_workout(user)
 
 
@@ -205,6 +210,7 @@ async def log_workout(
         xp_earned=xp_earned,
     )
     await log.save()
+    await analytics_service.track(user_id, analytics_service.WORKOUT_LOGGED)
     logger.info("Logged workout for user %s (%s min, %s)", user_id, duration, intensity)
     return log
 

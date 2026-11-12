@@ -52,6 +52,17 @@ class Settings(BaseSettings):
     # Per-IP request budget for the rate limiter.
     RATE_LIMIT_MAX_REQUESTS: int = int(os.getenv("RATE_LIMIT_MAX_REQUESTS", "100"))
     RATE_LIMIT_WINDOW_SECONDS: int = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60"))
+    # Phase 7 (habit loop). Product analytics: events are always stored locally;
+    # they are also forwarded to PostHog when a project API key is set.
+    POSTHOG_API_KEY: str = os.getenv("POSTHOG_API_KEY", "")
+    POSTHOG_HOST: str = os.getenv("POSTHOG_HOST", "https://us.i.posthog.com")
+    # Web Push (VAPID). Reminders switch themselves off when the keys are missing;
+    # generate a pair with scripts/generate_vapid_keys.py.
+    VAPID_PUBLIC_KEY: str = os.getenv("VAPID_PUBLIC_KEY", "")
+    VAPID_PRIVATE_KEY: str = os.getenv("VAPID_PRIVATE_KEY", "")
+    VAPID_SUBJECT: str = os.getenv("VAPID_SUBJECT", "")
+    # Shared secret for the external cron that triggers reminders while the server sleeps.
+    CRON_SECRET: str = os.getenv("CRON_SECRET", "")
 
     @property
     def is_production(self) -> bool:
