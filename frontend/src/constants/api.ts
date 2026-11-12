@@ -159,6 +159,28 @@ export const TIP_ENDPOINTS = {
   TODAY: "/tips/today",
 } as const;
 
+export const PROGRESS_ENDPOINTS = {
+  WEIGHT: "/progress/weight",
+  MEASUREMENTS: "/progress/measurements",
+  ADAPTIVE: "/progress/adaptive-target",
+  ADAPTIVE_ACCEPT: "/progress/adaptive-target/accept",
+  ADAPTIVE_DISMISS: "/progress/adaptive-target/dismiss",
+  PATTERNS: "/progress/patterns",
+  WEEKLY_INSIGHT: "/progress/weekly-insight",
+  WEEK_SUMMARY: "/progress/week-summary",
+  FLEXIBLE_DAYS: "/progress/flexible-days",
+  flexibleDay: (date: string) => `/progress/flexible-days/${encodeURIComponent(date)}`,
+  EFFECTIVE_TARGET: "/progress/effective-target",
+  PHOTOS: "/progress/photos",
+  photo: (id: string) => `/progress/photos/${encodeURIComponent(id)}`,
+} as const;
+
+export const CHALLENGE_ENDPOINTS = {
+  LIST: "/challenges",
+  accept: (id: string) => `/challenges/${encodeURIComponent(id)}/accept`,
+  decline: (id: string) => `/challenges/${encodeURIComponent(id)}/decline`,
+} as const;
+
 export const ACTIVITY_ENDPOINTS = {
   STEPS: "/activity/steps",
   stepsDay: (date: string) => `/activity/steps/${encodeURIComponent(date)}`,

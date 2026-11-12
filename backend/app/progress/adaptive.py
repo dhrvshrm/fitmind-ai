@@ -69,7 +69,9 @@ def estimate(
 
     window_intake = {d: k for d, k in intake.items() if start <= d <= end}
     full_days = complete_days(window_intake, current)
-    window_weights = [(d, w) for d, w in weights if start <= d <= end]
+    # Food days end yesterday (today isn't finished); a weigh-in is done once
+    # it's logged, so this morning's counts too.
+    window_weights = [(d, w) for d, w in weights if start <= d <= today.isoformat()]
     span = 0
     if len(window_weights) >= 2:
         span = (date.fromisoformat(window_weights[-1][0]) - date.fromisoformat(window_weights[0][0])).days

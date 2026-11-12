@@ -2,12 +2,26 @@ import type { SxProps, Theme } from "@mui/material";
 
 export const dashboardStyles = {
   section: {
-    mb: 2,
+    mt: 2,
   },
+  // Five tiles: 2 + a full-width last one on phones, 3 + 2 on tablets, one row on desktop.
   statsGrid: {
     display: "grid",
     gap: 2,
-    gridTemplateColumns: { xs: "repeat(2, minmax(0, 1fr))", md: "repeat(4, minmax(0, 1fr))" },
+    gridTemplateColumns: {
+      xs: "repeat(2, minmax(0, 1fr))",
+      sm: "repeat(3, minmax(0, 1fr))",
+      lg: "repeat(5, minmax(0, 1fr))",
+    },
+    "& > :last-child": { gridColumn: { xs: "1 / -1", sm: "auto" } },
+  },
+  // Paired cards side by side on wide screens, stretched to the same height.
+  twoColumn: {
+    display: "grid",
+    gap: 2,
+    mt: 2,
+    alignItems: "stretch",
+    gridTemplateColumns: { xs: "minmax(0, 1fr)", lg: "repeat(2, minmax(0, 1fr))" },
   },
   actionsRow: {
     display: "flex",

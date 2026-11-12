@@ -6,6 +6,19 @@ export const QUERY_KEYS = {
   tips: {
     today: ['tips', 'today'] as const,
   },
+  progress: {
+    all: ['progress'] as const,
+    weight: ['progress', 'weight'] as const,
+    measurements: ['progress', 'measurements'] as const,
+    adaptive: ['progress', 'adaptive'] as const,
+    patterns: ['progress', 'patterns'] as const,
+    insight: ['progress', 'insight'] as const,
+    weekSummary: ['progress', 'week-summary'] as const,
+    flexibleWeek: ['progress', 'flexible-week'] as const,
+    effectiveTarget: (date: string) => ['progress', 'effective-target', date] as const,
+    photos: ['progress', 'photos'] as const,
+    challenges: ['progress', 'challenges'] as const,
+  },
   dashboard: {
     all: ['dashboard'] as const,
     summary: ['dashboard', 'summary'] as const,
