@@ -2428,6 +2428,280 @@
       "easier": null,
       "harder": null,
       "reviewed": false
+    },
+    {
+      "id": "Shoulder_Circles",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": false,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "No grip. Arms hang loose or rest in your lap.",
+      "stance": "Seated or standing tall.",
+      "steps": [
+        "Let your arms hang relaxed.",
+        "Roll your shoulders forward, up, back and down in a slow circle.",
+        "Switch direction halfway.",
+        "Keep the neck long and relaxed."
+      ],
+      "cues": [
+        "Big, slow circles.",
+        "Squeeze the shoulder blades on the way back.",
+        "Good after long typing."
+      ],
+      "mistakes": [
+        "Rushing the circles.",
+        "Shrugging up and holding.",
+        "Pushing the head forward."
+      ],
+      "breathing": "Breathe in as the shoulders rise, out as they drop.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Chair_Lower_Back_Stretch",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": true,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "Free hand holds the seat or armrest.",
+      "stance": "Seated upright on a steady chair, feet flat.",
+      "steps": [
+        "Sit tall with both feet on the floor.",
+        "Reach one arm overhead.",
+        "Lean gently to the opposite side until you feel the side of your back stretch.",
+        "Hold, come back to centre, switch sides."
+      ],
+      "cues": [
+        "Lengthen first, then lean.",
+        "Both hips stay on the seat.",
+        "Gentle stretch, no pain."
+      ],
+      "mistakes": [
+        "Twisting forward.",
+        "Lifting a hip off the chair.",
+        "Holding your breath."
+      ],
+      "breathing": "Slow breathing into the stretched side.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Elbows_Back",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": false,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "Hands on the lower back, fingers pointing down.",
+      "stance": "Standing tall, feet hip-width apart.",
+      "steps": [
+        "Stand tall and place both hands on your lower back.",
+        "Point your elbows out to the sides.",
+        "Gently draw the elbows back toward each other to open the chest.",
+        "Hold, then relax."
+      ],
+      "cues": [
+        "Chest lifts, chin stays level.",
+        "Shoulders down, away from the ears.",
+        "Opens up a hunched desk posture."
+      ],
+      "mistakes": [
+        "Arching the lower back.",
+        "Jutting the chin forward.",
+        "Forcing the elbows together."
+      ],
+      "breathing": "Breathe in as the chest opens.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Standing_Hip_Flexors",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": true,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "One hand can rest on the desk for balance.",
+      "stance": "Standing in a short split stance, front knee soft.",
+      "steps": [
+        "Stand with one foot a step in front of the other.",
+        "Bend both knees slightly and lift the back heel.",
+        "Tuck your tailbone under and press the back hip forward.",
+        "Hold, then switch sides."
+      ],
+      "cues": [
+        "Squeeze the glute of the back leg.",
+        "Stay tall, don't lean back.",
+        "Undoes hours of sitting."
+      ],
+      "mistakes": [
+        "Arching the lower back instead of tucking the pelvis.",
+        "Leaning the upper body forward.",
+        "Locking the front knee."
+      ],
+      "breathing": "Slow breathing; relax a little more on each breath out.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Side_Wrist_Pull",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": true,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "Hold one wrist with the other hand at hip height.",
+      "stance": "Standing, feet hip-width apart.",
+      "steps": [
+        "Cross one arm in front of your body.",
+        "Hold that wrist with your other hand, elbow slightly bent.",
+        "Gently pull the arm across and up toward shoulder height.",
+        "Feel the stretch in the upper back, then switch sides."
+      ],
+      "cues": [
+        "Pull gently from the wrist.",
+        "Keep the shoulders level.",
+        "Stretch should be in the back, not the joint."
+      ],
+      "mistakes": [
+        "Yanking the shoulder joint.",
+        "Rotating the whole body.",
+        "Shrugging."
+      ],
+      "breathing": "Slow, steady breathing.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Chair_Leg_Extended_Stretch",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": true,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "Hold the sides of the seat.",
+      "stance": "Seated near the front of a steady chair.",
+      "steps": [
+        "Sit tall near the front of the chair.",
+        "Straighten one leg in front, heel on the floor, toes up.",
+        "Hinge forward from the hips with a straight back until the back of the thigh stretches.",
+        "Hold, then switch legs."
+      ],
+      "cues": [
+        "Hinge at the hips, chest proud.",
+        "Pull the toes toward you.",
+        "Gentle stretch, no pain."
+      ],
+      "mistakes": [
+        "Rounding the back to reach further.",
+        "Locking the knee hard.",
+        "Sitting on a chair with wheels."
+      ],
+      "breathing": "Breathe out as you hinge forward.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Upward_Stretch",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": false,
+      "needs": [],
+      "loads": [],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "Palms together or fingers interlaced overhead.",
+      "stance": "Standing or seated tall.",
+      "steps": [
+        "Stand tall and reach both arms straight overhead.",
+        "Press the palms together.",
+        "Reach up and slightly back, growing tall.",
+        "Hold, then lower the arms slowly."
+      ],
+      "cues": [
+        "Ribs stay down.",
+        "Reach through the fingertips.",
+        "Shoulders away from the ears at the start."
+      ],
+      "mistakes": [
+        "Arching the lower back.",
+        "Holding the breath.",
+        "Craning the neck back."
+      ],
+      "breathing": "Breathe in as you reach up.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
+    },
+    {
+      "id": "Kneeling_Forearm_Stretch",
+      "pattern": "mobility",
+      "unit": "seconds",
+      "per_side": false,
+      "needs": [],
+      "loads": [
+        "wrist"
+      ],
+      "stabilizers": [],
+      "fixes": {
+        "equipment": "body only"
+      },
+      "grip": "Palms flat, fingers pointing back toward you.",
+      "stance": "Standing at a desk, or kneeling on a mat.",
+      "steps": [
+        "Place your palms flat on the desk (or the floor if kneeling), fingers pointing toward you.",
+        "Keep the elbows straight but not locked.",
+        "Lean back slowly until the inside of the forearms stretches.",
+        "Hold, then turn the hands over (backs flat) for the other side of the forearm."
+      ],
+      "cues": [
+        "Lean only as far as is comfortable.",
+        "Palms stay flat.",
+        "Good for keyboard and phone-heavy days."
+      ],
+      "mistakes": [
+        "Forcing range into pain.",
+        "Letting the palms lift.",
+        "Shrugging."
+      ],
+      "breathing": "Slow breathing.",
+      "easier": null,
+      "harder": null,
+      "reviewed": false
     }
   ]
 }

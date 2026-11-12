@@ -60,6 +60,8 @@ PERSONALISATION_FIELDS = (
     "lifestyle",
     "targets",
     "targets_updated_at",
+    # Activity level supported by logged steps (None = use the self-reported one).
+    "step_activity_level",
 )
 
 # In-memory fallback store used when MongoDB is unreachable. Keyed by user id.

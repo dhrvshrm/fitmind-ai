@@ -4,3 +4,7 @@
 .env.local
 *.log
 node_modules/
+
+# Database backups (personal data; never commit)
+backups/
+*.jsonl.gz

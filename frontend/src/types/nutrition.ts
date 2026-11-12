@@ -5,7 +5,15 @@ import type { Targets } from './onboarding';
 export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 
 /** Where a food's numbers come from. Datasets and the user's own foods are "verified". */
-export type ItemSource = 'INDB' | 'USDA' | 'custom' | 'ai_estimate' | 'unresolved' | 'manual';
+export type ItemSource =
+  | 'INDB'
+  | 'USDA'
+  | 'custom'
+  | 'ai_estimate'
+  | 'unresolved'
+  | 'manual'
+  /** Packaged food label values looked up by barcode. */
+  | 'open_food_facts';
 
 /** How a whole meal's numbers were obtained. */
 export type MealSource = 'verified' | 'estimated' | 'mixed' | 'manual';

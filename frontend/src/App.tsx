@@ -77,6 +77,10 @@ const OnboardingFlow = lazyPage(
   () => import("./components/onboarding/OnboardingFlow"),
   "OnboardingFlow",
 );
+const ActivityPage = lazyPage(
+  () => import("./components/activity/ActivityPage"),
+  "ActivityPage",
+);
 
 /** Declares the route tree. Runs the auth bootstrap once on mount. */
 function AppRoutes() {
@@ -108,6 +112,7 @@ function AppRoutes() {
             <Route path={ROUTES.FRIENDS} element={<FriendsPage />} />
             <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
             <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
+            <Route path={ROUTES.ACTIVITY} element={<ActivityPage />} />
           </Route>
         </Route>
 

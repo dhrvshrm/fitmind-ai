@@ -158,3 +158,16 @@ export const DIET_PLAN_ENDPOINTS = {
 export const TIP_ENDPOINTS = {
   TODAY: "/tips/today",
 } as const;
+
+export const ACTIVITY_ENDPOINTS = {
+  STEPS: "/activity/steps",
+  stepsDay: (date: string) => `/activity/steps/${encodeURIComponent(date)}`,
+  SETTINGS: "/activity/settings",
+  ROUTINES: "/activity/desk-routines",
+  routine: (id: string) => `/activity/desk-routines/${encodeURIComponent(id)}`,
+} as const;
+
+export const FOOD_SCAN_ENDPOINTS = {
+  barcode: (code: string) => `/nutrition/barcode/${encodeURIComponent(code)}`,
+  PHOTO: "/nutrition/photo-estimate",
+} as const;

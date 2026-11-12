@@ -7,6 +7,7 @@ from app.models.user import PERSONALISATION_FIELDS, PROFILE_FIELDS, User
 from app.models.weight import log_weight
 from app.nutrition.targets import TargetInputs, Targets, calculate_targets, canonical_goal
 from app.utils.helpers import calculate_bmi
+from app.activity.steps import effective_level as effective_activity_level
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,8 @@ def _target_inputs(user: User) -> Optional[TargetInputs]:
         height_cm=user.height_cm,
         goal=canonical_goal(user.fitness_goal),
         pace=user.goal_pace,
-        activity_level=user.activity_level,
+        # Logged steps can move the self-reported level by one band (app/activity/steps.py).
+        activity_level=effective_activity_level(user.activity_level, getattr(user, "step_activity_level", None)),
         body_fat_percent=user.body_fat_percent,
         reproductive_status=user.reproductive_status,
         workout_days_per_week=user.workout_days_per_week,

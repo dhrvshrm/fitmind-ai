@@ -11,6 +11,7 @@ import { SectionCard } from '../ui/SectionCard';
 import { EstimateReview } from './EstimateReview';
 import { MealForm } from './MealForm';
 import { quickLogStyles as styles } from './QuickLog.styles';
+import { ScanPhotoActions } from './ScanPhotoActions';
 
 const S = STRINGS.nutrition.quickLog;
 const MIN_TEXT_LENGTH = 2;
@@ -108,6 +109,7 @@ export function QuickLog() {
             slotProps={{ htmlInput: { maxLength: MAX_TEXT_LENGTH } }}
           />
           <Box sx={styles.actions}>
+            <ScanPhotoActions onEstimate={setEstimate} disabled={busy || recording} />
             {transcribe.isPending && (
               <Typography variant="body2" color="text.secondary" sx={styles.status}>
                 {S.transcribing}

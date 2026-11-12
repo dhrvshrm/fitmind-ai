@@ -82,6 +82,9 @@ _INDEXES = {
     "user_foods": [([("user_id", 1), ("created_at", -1)], {})],
     "diet_plans": [([("user_id", 1), ("status", 1), ("version", -1)], {})],
     "workout_overrides": [([("user_id", 1), ("local_date", 1)], {"unique": True})],
+    # Phase 11: one step entry per user per local day; one settings doc per user.
+    "step_logs": [([("user_id", 1), ("local_date", 1)], {"unique": True})],
+    "activity_settings": [([("user_id", 1)], {"unique": True})],
     # Phase 7: analytics events, push subscriptions, reminder settings and the
     # once-a-day reminder log.
     "analytics_events": [
@@ -91,6 +94,11 @@ _INDEXES = {
     "push_subscriptions": [([("endpoint", 1)], {"unique": True}), ([("user_id", 1)], {})],
     "reminder_settings": [([("user_id", 1)], {"unique": True})],
     "reminder_sends": [([("user_id", 1), ("key", 1), ("local_date", 1)], {"unique": True})],
+    # Open Food Facts barcode cache (no personal data); entries expire on their own.
+    "food_barcodes": [
+        ([("code", 1)], {"unique": True}),
+        ([("expires_at", 1)], {"expireAfterSeconds": 0}),
+    ],
     # Cached AI results expire on their own via a TTL index.
     "ai_cache": [
         ([("key", 1)], {"unique": True}),

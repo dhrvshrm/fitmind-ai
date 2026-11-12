@@ -182,3 +182,45 @@ XP is awarded only by the server, for logged actions, with a daily cap per actio
 `ws(s)://<host>/ws`. The first frame must be `{type:"auth", token:"<jwt>"}` within 10 seconds; the server answers `{type:"ready"}` or closes with code `4401`. Then send `{type:"message", content:"..."}` and receive `{type:"start"}` -> `{type:"token", content}` ... -> `{type:"done"}` on the same socket. `{type:"ping"}` gets `{type:"pong"}`. Notifications are pushed as `{type:"notification", data}` live and on reconnect.
 
 (auth) = requires `Authorization: Bearer <token>`.
+
+### Activity and desk life (Phase 11)
+Steps are entered by hand (one value per user-local date, editable). When at least 7 of the last 14 days have steps, the activity level behind the calorie targets follows the average steps (bands: under 5,000 sedentary, 5,000 light, 7,500 moderate, 10,000 active, 12,500 very active), limited to one band from the self-reported level and one band per change; calorie floors still apply. Automatic sync (Health Connect) is a later step.
+
+| Method | Path | Body / notes |
+|---|---|---|
+| GET | `/activity/steps?days=14` | (auth) `{today, today_steps, target, target_is_default, days:[{date, steps|null}], average_7d, days_on_target, max_backfill_days, activity:{self_reported, step_level, effective, source:"steps"|"self_reported", recent_days_logged, recent_average, days_needed, window_days}}`. `days` 1 to 90. |
+| PUT | `/activity/steps/{YYYY-MM-DD}` | (auth) `{steps}` 0 to 100,000; today or up to 30 days back. Returns `{entry, summary}`. May recompute targets. |
+| DELETE | `/activity/steps/{YYYY-MM-DD}` | (auth) 404 if nothing logged that day. Returns `{summary}`. |
+| GET | `/activity/settings` | (auth) `{step_target|null, default_step_target, effective_step_target, break_reminders_enabled, work_start, work_end, break_interval_minutes, work_days}` (`work_days`: Monday = 0). |
+| PUT | `/activity/settings` | (auth) partial: `{step_target?, reset_step_target?, break_reminders_enabled?, work_start?, work_end?, break_interval_minutes? (15-240), work_days?}` |
+| GET | `/activity/desk-routines` | (auth) `{routines:[{id, name, description, minutes, focus, total_seconds, skipped_for_injury, steps:[{exercise_id, name, seconds, per_side, image, images, cue, joints}]}]}`. Moves that load an injured joint are left out. Exercise details come from `/exercises/{exercise_id}`. |
+| GET | `/activity/desk-routines/{id}` | (auth) one routine; 404 if unknown. |
+
+Break reminders for push: `app.services.activity_service.due_break_reminders(user, now)` returns `[{type:"break_reminder", key, title, body, routine_id, slot_at, url}]` (empty when none is due, reminders are off, or the slot is over 20 minutes old). Call `mark_break_reminder_sent(user_id, key)` after sending.
+
+### Barcode and photo logging
+Neither endpoint saves a meal: both return something to review, then log with `POST /nutrition/meal`. Errors use the envelope with `data: {code}`.
+
+| Method | Path | Body / notes |
+|---|---|---|
+| GET | `/nutrition/barcode/{code}` | (auth) Open Food Facts lookup (cached 30 days, misses 1 day). `{barcode, name, brand, image, per_100g:{kcal, protein, carbs, fat, fiber}|null, has_nutrition, serving_options:[{id:"100g"|"serving"|"pack", label, grams}], default_serving, source:"open_food_facts", source_name, source_url}`. 400 `invalid_barcode`, 404 `not_found`, 503 `lookup_unavailable`. Log items with `source: "open_food_facts"`. |
+| POST | `/nutrition/photo-estimate` | (auth) multipart `image` (JPEG, PNG, WebP or HEIC, up to 6 MB). Gemini names the dishes and rough portions; numbers come from the food database through the normal estimate pipeline. Same shape as `POST /nutrition/estimate`, every amount marked assumed. The photo is not stored. 400 `empty_image`/`image_too_large`/`unsupported_image`, 422 `no_food`, 503 `ai_quota`/`ai_unavailable`/`ai_not_configured`. |
+
+### Coach (Phase 9)
+Conversations, messages and confirm cards are stored server-side (`coach_conversations`, `coach_messages`, `coach_proposals`; up to 200 messages and 10 chats per user, oldest dropped first). Read tools run at once; action tools only create a pending proposal, and run when the user confirms. Confirmation text and numbers come from the backend result, never the model.
+
+| Method | Path | Body / notes |
+|---|---|---|
+| GET | `/coach/conversation` | (auth) `{conversation_id|null, messages:[{id, role, kind:"text"|"menu"|"action_result", content, proposals:[Proposal], created_at}]}`, last 60 messages, oldest first. |
+| POST | `/coach/conversation` | (auth) start a new chat. `{conversation_id, messages: []}`. |
+| DELETE | `/coach/history` | (auth) delete every coach conversation, message and proposal. |
+| POST | `/coach/messages` | (auth) `{content}` (1 to 6000 chars). Non-streaming version of the socket chat. `{conversation_id, user_message_id, message_id, content, proposals:[Proposal]}`. |
+| POST | `/coach/actions/{id}/confirm` | (auth) run a pending proposal from its stored payload. `{proposal, message (stored confirmation), invalidate:[domain], data}`. `proposal.status` is `done` or `failed` (the reason is in `message.content`). 404 unknown or someone else's, 409 already handled or expired (2 hours). Also pushes `{"type":"invalidate","domains"}` on the socket. |
+| POST | `/coach/actions/{id}/cancel` | (auth) dismiss a pending proposal. `{proposal}`. 404/409 as above. |
+| POST | `/coach/menu` | (auth) multipart: `text` (pasted or typed menu) and/or `image` (JPEG, PNG, WebP or HEIC up to 6 MB, read with Gemini vision). Best 2-3 picks for what's left today. `{conversation_id, user_message, message (with one log_meal proposal per pick), options:[{name, portion, why, kcal, protein, carbs, fat, estimate:true, fits}]}`. Numbers come from the estimate pipeline and are labelled estimates. 400 no menu / unreadable photo / nothing estimable, 429 AI quota. Without AI, menu lines are estimated and ranked by protein per calorie. |
+
+`Proposal`: `{id, tool, title, summary, changes:[{label, value}], estimate, status:"pending"|"executing"|"done"|"failed"|"cancelled"|"expired", result_message|null, invalidates:[domain], created_at}`. Domains: `nutrition`, `dietPlan`, `workouts`, `recovery`, `dashboard`, `gamification`.
+
+Tools: read `get_nutrition_today`, `get_meal_plan`, `get_today_workout`, `get_recovery`, `get_weight_trend`, `suggest_from_menu`; action `log_meal` (text through the estimate pipeline), `log_water`, `regenerate_plan_meal`, `swap_plan_food`, `start_quick_workout`, `log_recovery`. Register more in `app/coach/registry.py`.
+
+Socket (`/ws`): `{"type":"message","content"}` now answers with `start` (`user_message_id`), `token` frames, then `done` with `{content, message_id, conversation_id, proposals}`. Model choice: `COACH_PROVIDERS`, `COACH_GEMINI_MODEL`, `COACH_GROQ_MODEL` (picked with `scripts/eval_coach_tools.py`).

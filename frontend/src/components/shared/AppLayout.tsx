@@ -6,6 +6,7 @@ import { Sidebar } from './Sidebar';
 import { PageTransition } from './PageTransition';
 import { PageLoader } from '../ui/PageLoader';
 import { appLayoutStyles as styles } from './AppLayout.styles';
+import { BreakReminderNudge } from '../activity/BreakReminderNudge';
 
 /**
  * Authenticated app shell: fixed navbar, responsive sidebar, and the routed
@@ -30,6 +31,8 @@ export function AppLayout() {
           </Suspense>
         </Box>
       </Box>
+      {/* Work-hours break nudge; silent until reminders are switched on. */}
+      <BreakReminderNudge />
     </Box>
   );
 }

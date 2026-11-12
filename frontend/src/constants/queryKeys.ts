@@ -76,4 +76,10 @@ export const QUERY_KEYS = {
     targets: ['profile', 'targets'] as const,
     notificationPreferences: ['profile', 'notification-preferences'] as const,
   },
+  activity: {
+    all: ['activity'] as const,
+    steps: (days: number) => ['activity', 'steps', days] as const,
+    settings: ['activity', 'settings'] as const,
+    routines: ['activity', 'routines'] as const,
+  },
 } as const;

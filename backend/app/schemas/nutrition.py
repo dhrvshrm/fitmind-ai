@@ -4,7 +4,7 @@ from typing import List, Literal, Optional
 from pydantic import BaseModel, Field
 
 MealType = Literal["breakfast", "lunch", "dinner", "snack"]
-ItemSource = Literal["INDB", "USDA", "custom", "ai_estimate", "unresolved", "manual"]
+ItemSource = Literal["INDB", "USDA", "custom", "estimate", "ai_estimate", "unresolved", "manual", "open_food_facts"]
 
 # "HH:MM", 24-hour, local time.
 TIME_PATTERN = r"^([01]\d|2[0-3]):[0-5]\d$"

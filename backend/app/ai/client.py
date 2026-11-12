@@ -16,6 +16,7 @@ import asyncio
 import json
 import logging
 import re
+from contextvars import ContextVar
 from datetime import timedelta
 from typing import AsyncIterator, Dict, List, Optional, Sequence, Type, TypeVar
 
@@ -32,6 +33,11 @@ T = TypeVar("T", bound=BaseModel)
 PROVIDER_GEMINI = "gemini"
 PROVIDER_GROQ = "groq"
 DEFAULT_PROVIDERS = (PROVIDER_GEMINI, PROVIDER_GROQ)
+
+# Per-call model choice ({provider: model}); empty means the configured models.
+# Set by ``generate_json(models=...)`` so a feature (e.g. the coach) can use the
+# model its eval picked without changing the provider call signature.
+_model_override: ContextVar[Dict[str, str]] = ContextVar("ai_model_override", default={})
 
 
 class AIError(Exception):
@@ -58,7 +64,9 @@ async def _gemini(prompt: str, system: Optional[str], temperature: float, json_m
     if json_mode:
         config.response_mime_type = "application/json"
     response = await client.aio.models.generate_content(
-        model=settings.GEMINI_MODEL, contents=prompt, config=config
+        model=_model_override.get().get(PROVIDER_GEMINI) or settings.GEMINI_MODEL,
+        contents=prompt,
+        config=config,
     )
     return response.text or ""
 
@@ -74,7 +82,9 @@ async def _groq(prompt: str, system: Optional[str], temperature: float, json_mod
     if system:
         messages.append({"role": "system", "content": system})
     messages.append({"role": "user", "content": prompt})
-    model = settings.GROQ_JSON_MODEL if json_mode else settings.GROQ_CHAT_MODEL
+    model = _model_override.get().get(PROVIDER_GROQ) or (
+        settings.GROQ_JSON_MODEL if json_mode else settings.GROQ_CHAT_MODEL
+    )
     kwargs: Dict[str, object] = {"response_format": {"type": "json_object"}} if json_mode else {}
     # Reasoning models (gpt-oss) can spend the whole budget thinking and return
     # empty JSON on long prompts; keep the thinking short for structured output.
@@ -208,6 +218,7 @@ async def generate_json(
     cache_ttl: timedelta = cache.DEFAULT_TTL,
     providers: Sequence[str] = DEFAULT_PROVIDERS,
     retries: int = 1,
+    models: Optional[Dict[str, str]] = None,
 ) -> T:
     """Generate a structured response validated against ``schema``.
 
@@ -229,6 +240,26 @@ async def generate_json(
                 logger.info("Ignoring stale cache entry %s", cache_key)
 
     await _charge(user_id)
+    token = _model_override.set(dict(models or {}))
+    try:
+        return await _generate_validated(
+            prompt, schema, system, temperature, cache_key, cache_ttl, providers, retries
+        )
+    finally:
+        _model_override.reset(token)
+
+
+async def _generate_validated(
+    prompt: str,
+    schema: Type[T],
+    system: Optional[str],
+    temperature: float,
+    cache_key: Optional[str],
+    cache_ttl: timedelta,
+    providers: Sequence[str],
+    retries: int,
+) -> T:
+    """The call-validate-retry loop behind :func:`generate_json`."""
     full_prompt = prompt + _schema_instructions(schema)
     last_error = ""
     for attempt in range(retries + 1):
@@ -253,6 +284,62 @@ async def generate_json(
             await cache.put(cache_key, result.model_dump(mode="json"), cache_ttl)
         return result
     raise AIError(f"invalid structured output after {retries + 1} attempts: {last_error}")
+
+
+async def _gemini_vision(
+    prompt: str, system: Optional[str], image: bytes, mime_type: str
+) -> str:
+    """Ask Gemini about an image (JSON output) and return the response text."""
+    settings = get_settings()
+    if not settings.GEMINI_API_KEY:
+        raise AIError("GEMINI_API_KEY is not configured")
+    from google import genai
+    from google.genai import types
+
+    client = genai.Client(api_key=settings.GEMINI_API_KEY)
+    config = types.GenerateContentConfig(
+        temperature=0.2, system_instruction=system, response_mime_type="application/json"
+    )
+    response = await client.aio.models.generate_content(
+        model=settings.GEMINI_MODEL,
+        contents=[types.Part.from_bytes(data=image, mime_type=mime_type), prompt],
+        config=config,
+    )
+    return response.text or ""
+
+
+# Providers that can read images. Only Gemini's free tier does today.
+_VISION_PROVIDERS = {PROVIDER_GEMINI: _gemini_vision}
+
+
+async def generate_json_from_image(
+    prompt: str,
+    image: bytes,
+    mime_type: str,
+    schema: Type[T],
+    *,
+    system: Optional[str] = None,
+    user_id: Optional[str] = None,
+) -> T:
+    """Structured output about an image (e.g. reading a menu photo).
+
+    Raises:
+        AIError: if the quota is used up, no vision provider is available, or
+            the output is invalid.
+    """
+    await _charge(user_id)
+    timeout = get_settings().AI_TIMEOUT_SECONDS
+    full_prompt = prompt + _schema_instructions(schema)
+    errors: List[str] = []
+    for name, provider in _VISION_PROVIDERS.items():
+        try:
+            raw = await asyncio.wait_for(provider(full_prompt, system, image, mime_type), timeout)
+            return schema.model_validate(_extract_json(raw))
+        except (json.JSONDecodeError, ValidationError) as e:
+            errors.append(f"{name}: invalid output {str(e)[:200]}")
+        except Exception as e:
+            errors.append(f"{name}: {e or type(e).__name__}")
+    raise AIError("; ".join(errors) or "no vision provider available")
 
 
 async def stream_chat(

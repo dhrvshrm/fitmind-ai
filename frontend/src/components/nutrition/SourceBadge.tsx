@@ -8,6 +8,7 @@ import {
   VerifiedRounded,
 } from '@mui/icons-material';
 import { STRINGS } from '../../constants/strings';
+import { ACTIVITY_STRINGS } from '../../constants/activityStrings';
 import type { ItemSource, MealSource } from '../../types/nutrition';
 import { sourceBadgeStyles as styles } from './SourceBadge.styles';
 
@@ -29,6 +30,12 @@ const ITEM_BADGES: Record<ItemSource, BadgeConfig> = {
   ai_estimate: { label: S.ai_estimate, tone: 'warning', icon: AutoAwesomeRounded, tooltip: S.tooltipEstimated },
   unresolved: { label: S.unresolved, tone: 'error', icon: HelpOutlineRounded },
   manual: { label: S.manual, tone: 'default', icon: EditRounded },
+  open_food_facts: {
+    label: ACTIVITY_STRINGS.source.open_food_facts,
+    tone: 'success',
+    icon: VerifiedRounded,
+    tooltip: ACTIVITY_STRINGS.source.tooltip,
+  },
 };
 
 const MEAL_BADGES: Record<MealSource, BadgeConfig> = {
