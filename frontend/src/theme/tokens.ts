@@ -8,16 +8,20 @@
  */
 export type ColorMode = 'light' | 'dark';
 
+/**
+ * Fraunces (a soft, warm serif) for headings gives the app a printed,
+ * kitchen-notebook voice; Manrope keeps body text and numbers clean.
+ */
 export const FONTS = {
-  display: "'Sora', system-ui, 'Segoe UI', sans-serif",
-  body: "'Inter', system-ui, 'Segoe UI', Roboto, sans-serif",
+  display: "'Fraunces', Georgia, 'Times New Roman', serif",
+  body: "'Manrope', system-ui, 'Segoe UI', Roboto, sans-serif",
 } as const;
 
 /** Corner radii in px. `md` is the theme's base `shape.borderRadius`. */
 export const RADIUS = {
-  sm: 8,
-  md: 12,
-  lg: 16,
+  sm: 10,
+  md: 14,
+  lg: 20,
   pill: 999,
 } as const;
 
@@ -37,37 +41,39 @@ type ModeTokens = {
 };
 
 /**
- * Brand violet stays the identity color; it is a slightly deeper step than
- * the original #aa3bff so text and icons on white meet WCAG AA (5.4:1).
+ * "Haldi & Ink": turmeric as the identity color on warm cream paper, ink
+ * for text, clay (terracotta) as the second color and neel (indigo) for
+ * information. Every text color meets WCAG AA (4.5:1) on both the page
+ * background and card surfaces in its own mode.
  */
 export const MODE_TOKENS: Record<ColorMode, ModeTokens> = {
   light: {
-    brand: { main: '#9333ea', light: '#b47cf5', dark: '#7322c4', soft: 'rgba(147, 51, 234, 0.08)', contrastText: '#ffffff' },
-    accent: { main: '#0d9488', light: '#2dd4bf', dark: '#0f766e', soft: 'rgba(13, 148, 136, 0.10)', contrastText: '#ffffff' },
-    success: '#15803d',
-    warning: '#b45309',
-    error: '#dc2626',
-    info: '#2563eb',
-    background: { default: '#f7f7fa', paper: '#ffffff', raised: '#fbfbfd' },
-    text: { primary: '#16121f', secondary: '#5f5a70', disabled: '#a5a1b3' },
-    divider: 'rgba(22, 18, 31, 0.08)',
-    border: 'rgba(22, 18, 31, 0.10)',
-    hover: 'rgba(22, 18, 31, 0.04)',
-    shadow: 'rgba(22, 18, 31, 0.06)',
+    brand: { main: '#a35c00', light: '#e3a21a', dark: '#7a4400', soft: 'rgba(227, 162, 26, 0.14)', contrastText: '#ffffff' },
+    accent: { main: '#a84a22', light: '#d9774c', dark: '#7f3517', soft: 'rgba(168, 74, 34, 0.10)', contrastText: '#ffffff' },
+    success: '#2e7a3e',
+    warning: '#b54708',
+    error: '#b42318',
+    info: '#33539e',
+    background: { default: '#f6f0e4', paper: '#fffcf6', raised: '#fbf6ec' },
+    text: { primary: '#221d16', secondary: '#6a5f50', disabled: '#aea38f' },
+    divider: 'rgba(34, 29, 22, 0.09)',
+    border: 'rgba(34, 29, 22, 0.12)',
+    hover: 'rgba(163, 92, 0, 0.06)',
+    shadow: 'rgba(78, 52, 18, 0.07)',
   },
   dark: {
-    brand: { main: '#c084fc', light: '#d8b4fe', dark: '#a855f7', soft: 'rgba(192, 132, 252, 0.12)', contrastText: '#16121f' },
-    accent: { main: '#2dd4bf', light: '#5eead4', dark: '#14b8a6', soft: 'rgba(45, 212, 191, 0.12)', contrastText: '#16121f' },
-    success: '#4ade80',
-    warning: '#fbbf24',
-    error: '#f87171',
-    info: '#60a5fa',
-    background: { default: '#0f0d15', paper: '#17141f', raised: '#1e1a28' },
-    text: { primary: '#ecebf2', secondary: '#a19cb3', disabled: '#6b667a' },
-    divider: 'rgba(255, 255, 255, 0.08)',
-    border: 'rgba(255, 255, 255, 0.10)',
-    hover: 'rgba(255, 255, 255, 0.05)',
-    shadow: 'rgba(0, 0, 0, 0.40)',
+    brand: { main: '#f0b23e', light: '#f6cb73', dark: '#c98a12', soft: 'rgba(240, 178, 62, 0.14)', contrastText: '#221d16' },
+    accent: { main: '#e58a62', light: '#efab8b', dark: '#c66a42', soft: 'rgba(229, 138, 98, 0.14)', contrastText: '#221d16' },
+    success: '#86c98a',
+    warning: '#f7a35c',
+    error: '#f2907f',
+    info: '#9bb2ee',
+    background: { default: '#15120e', paper: '#1e1a15', raised: '#26211a' },
+    text: { primary: '#f3ebdc', secondary: '#bbae99', disabled: '#7a705f' },
+    divider: 'rgba(243, 235, 220, 0.08)',
+    border: 'rgba(243, 235, 220, 0.11)',
+    hover: 'rgba(240, 178, 62, 0.07)',
+    shadow: 'rgba(0, 0, 0, 0.45)',
   },
 };
 
@@ -91,29 +97,29 @@ export const CHART_TOKENS: Record<ColorMode, {
   tooltipText: string;
 }> = {
   light: {
-    primary: '#9333ea',
-    primaryMuted: 'rgba(147, 51, 234, 0.30)',
+    primary: '#a35c00',
+    primaryMuted: 'rgba(163, 92, 0, 0.30)',
     protein: '#2a78d6',
     carbs: '#eb6834',
     fats: '#1baf7a',
     water: '#2a78d6',
-    grid: 'rgba(22, 18, 31, 0.07)',
-    axis: '#5f5a70',
-    tooltipBg: '#ffffff',
-    tooltipBorder: 'rgba(22, 18, 31, 0.10)',
-    tooltipText: '#16121f',
+    grid: 'rgba(34, 29, 22, 0.08)',
+    axis: '#6a5f50',
+    tooltipBg: '#fffcf6',
+    tooltipBorder: 'rgba(34, 29, 22, 0.12)',
+    tooltipText: '#221d16',
   },
   dark: {
-    primary: '#c084fc',
-    primaryMuted: 'rgba(192, 132, 252, 0.35)',
+    primary: '#f0b23e',
+    primaryMuted: 'rgba(240, 178, 62, 0.35)',
     protein: '#3987e5',
     carbs: '#d95926',
     fats: '#199e70',
     water: '#3987e5',
-    grid: 'rgba(255, 255, 255, 0.07)',
-    axis: '#a19cb3',
-    tooltipBg: '#1e1a28',
-    tooltipBorder: 'rgba(255, 255, 255, 0.10)',
-    tooltipText: '#ecebf2',
+    grid: 'rgba(243, 235, 220, 0.08)',
+    axis: '#bbae99',
+    tooltipBg: '#26211a',
+    tooltipBorder: 'rgba(243, 235, 220, 0.11)',
+    tooltipText: '#f3ebdc',
   },
 };

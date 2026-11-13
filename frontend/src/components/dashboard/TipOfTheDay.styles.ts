@@ -14,7 +14,8 @@ export const tipOfTheDayStyles = {
     border: '1px solid',
     borderColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.3 : 0.18),
     // A soft wash of the brand colour, fading out to the right.
-    background: `linear-gradient(110deg, ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.08)} 0%, ${alpha(theme.palette.primary.main, 0)} 70%)`,
+    // Tint over an opaque paper base, so the page's doodles don't show through.
+    background: `linear-gradient(110deg, ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.08)} 0%, ${alpha(theme.palette.primary.main, 0)} 70%), ${theme.palette.background.paper}`,
   }),
   iconWrap: (theme: Theme) => ({
     width: 36,

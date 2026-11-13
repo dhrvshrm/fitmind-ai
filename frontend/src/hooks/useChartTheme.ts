@@ -23,7 +23,10 @@ export function useChartTheme() {
 
   return {
     ...tokens,
-    /** Brand color for single-series charts. */
+    /** Brand color for single-series charts (haldi). */
+    brand: tokens.primary,
+    brandMuted: tokens.primaryMuted,
+    /** Older name for the brand color, kept so existing charts keep working. */
     purple: tokens.primary,
     purpleMuted: tokens.primaryMuted,
     /** Background behind marks, used for the 2px separation ring on dots. */

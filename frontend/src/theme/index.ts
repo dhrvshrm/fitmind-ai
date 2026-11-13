@@ -1,5 +1,9 @@
-import { alpha, createTheme, type Shadows, type Theme } from '@mui/material/styles';
+import { createTheme, type Shadows, type Theme } from '@mui/material/styles';
 import { FONTS, MODE_TOKENS, RADIUS, type ColorMode } from './tokens';
+import { DOODLE_TILE_PX, doodleBackground } from './doodles';
+
+/** Doodle texture strength: present on cream, quieter on dark charcoal. */
+const DOODLE_OPACITY: Record<ColorMode, number> = { light: 0.09, dark: 0.07 };
 
 export { CHART_TOKENS, FONTS, MODE_TOKENS, RADIUS } from './tokens';
 export type { ColorMode } from './tokens';
@@ -40,28 +44,36 @@ export function createAppTheme(mode: ColorMode): Theme {
 
     shadows: buildShadows(t.shadow),
 
+    // Serif headings (Fraunces, its soft optical size) over a clean sans body.
     typography: {
       fontFamily: FONTS.body,
-      h1: { fontFamily: FONTS.display, fontWeight: 700, fontSize: '2.4rem', lineHeight: 1.15, letterSpacing: '-0.02em' },
-      h2: { fontFamily: FONTS.display, fontWeight: 700, fontSize: '2rem', lineHeight: 1.2, letterSpacing: '-0.02em' },
-      h3: { fontFamily: FONTS.display, fontWeight: 700, fontSize: '1.6rem', lineHeight: 1.2, letterSpacing: '-0.015em' },
-      h4: { fontFamily: FONTS.display, fontWeight: 700, fontSize: '1.35rem', lineHeight: 1.25, letterSpacing: '-0.01em' },
-      h5: { fontFamily: FONTS.display, fontWeight: 700, fontSize: '1.2rem', lineHeight: 1.3, letterSpacing: '-0.01em' },
-      h6: { fontFamily: FONTS.display, fontWeight: 600, fontSize: '1rem', lineHeight: 1.35 },
-      subtitle1: { fontWeight: 600 },
-      subtitle2: { fontWeight: 600, fontSize: '0.875rem' },
+      h1: { fontFamily: FONTS.display, fontWeight: 600, fontSize: '2.6rem', lineHeight: 1.1, letterSpacing: '-0.02em' },
+      h2: { fontFamily: FONTS.display, fontWeight: 600, fontSize: '2.15rem', lineHeight: 1.15, letterSpacing: '-0.02em' },
+      h3: { fontFamily: FONTS.display, fontWeight: 600, fontSize: '1.75rem', lineHeight: 1.2, letterSpacing: '-0.015em' },
+      h4: { fontFamily: FONTS.display, fontWeight: 600, fontSize: '1.5rem', lineHeight: 1.2, letterSpacing: '-0.01em' },
+      h5: { fontFamily: FONTS.display, fontWeight: 600, fontSize: '1.25rem', lineHeight: 1.3, letterSpacing: '-0.005em' },
+      h6: { fontFamily: FONTS.display, fontWeight: 600, fontSize: '1.1rem', lineHeight: 1.35 },
+      subtitle1: { fontWeight: 700 },
+      subtitle2: { fontWeight: 700, fontSize: '0.875rem' },
       body1: { lineHeight: 1.6 },
       body2: { lineHeight: 1.55 },
       caption: { lineHeight: 1.45 },
-      button: { textTransform: 'none', fontWeight: 600 },
-      overline: { fontWeight: 600, letterSpacing: '0.08em', fontSize: '0.7rem' },
+      button: { textTransform: 'none', fontWeight: 700, letterSpacing: '0.005em' },
+      overline: { fontWeight: 700, letterSpacing: '0.12em', fontSize: '0.68rem' },
     },
 
     components: {
       MuiCssBaseline: {
         styleOverrides: {
-          body: { backgroundColor: t.background.default },
-          '*::selection': { backgroundColor: alpha(t.brand.main, 0.25) },
+          body: {
+            backgroundColor: t.background.default,
+            backgroundImage: doodleBackground(t.text.primary, DOODLE_OPACITY[mode]),
+            backgroundSize: `${DOODLE_TILE_PX}px ${DOODLE_TILE_PX}px`,
+            backgroundAttachment: 'fixed',
+          },
+          // Figures line up in columns (targets, sets, weights).
+          '.MuiTypography-root': { fontVariantNumeric: 'tabular-nums' },
+          '*::selection': { backgroundColor: t.brand.soft, color: t.text.primary },
           '*': { scrollbarColor: `${t.border} transparent` },
           '*::-webkit-scrollbar-thumb': { backgroundColor: t.border },
         },
@@ -69,8 +81,9 @@ export function createAppTheme(mode: ColorMode): Theme {
       MuiButton: {
         defaultProps: { disableElevation: true },
         styleOverrides: {
-          root: { borderRadius: RADIUS.sm, paddingInline: 16 },
-          outlined: { borderColor: t.border },
+          // Pill buttons: friendlier than squared corners and part of the look.
+          root: { borderRadius: RADIUS.pill, paddingInline: 18 },
+          outlined: { borderColor: t.border, backgroundColor: t.background.paper },
           sizeLarge: { paddingBlock: 10, fontSize: '0.95rem' },
         },
       },
@@ -98,10 +111,11 @@ export function createAppTheme(mode: ColorMode): Theme {
         },
       },
       MuiChip: {
-        styleOverrides: { root: { fontWeight: 600, borderRadius: RADIUS.sm } },
+        styleOverrides: { root: { fontWeight: 600, borderRadius: RADIUS.pill } },
       },
       MuiAlert: {
-        styleOverrides: { root: { borderRadius: RADIUS.md } },
+        // Outlined alerts get a paper base so the page's doodles don't show through.
+        styleOverrides: { root: { borderRadius: RADIUS.md }, outlined: { backgroundColor: t.background.paper } },
       },
       MuiDialog: {
         styleOverrides: { paper: { borderRadius: RADIUS.lg, border: `1px solid ${t.border}` } },

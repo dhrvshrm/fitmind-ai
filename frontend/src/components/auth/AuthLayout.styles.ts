@@ -8,7 +8,8 @@ export const authLayoutStyles = {
     alignItems: "center",
     justifyContent: "center",
     p: 2,
-    bgcolor: "background.default",
+    // Transparent so the page's doodle texture (set on body by the theme) shows through.
+    bgcolor: "transparent",
   },
   container: {
     width: "100%",
@@ -27,7 +28,8 @@ export const authLayoutStyles = {
     p: 5,
     borderRadius: `${RADIUS.lg}px`,
     border: `1px solid ${alpha(theme.palette.primary.main, 0.16)}`,
-    bgcolor: alpha(theme.palette.primary.main, theme.palette.mode === "light" ? 0.05 : 0.08),
+    // Tint over an opaque paper base, so the page's doodles don't show through.
+    background: `linear-gradient(${alpha(theme.palette.primary.main, theme.palette.mode === "light" ? 0.07 : 0.1)}, ${alpha(theme.palette.primary.main, theme.palette.mode === "light" ? 0.07 : 0.1)}), ${theme.palette.background.paper}`,
   })) satisfies SxProps<Theme>,
   brandRow: {
     flexDirection: "row",

@@ -4,7 +4,7 @@
  * the theme's background tokens so dark-mode users don't see a white flash.
  */
 :root {
-  font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Manrope', system-ui, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -19,12 +19,12 @@ body,
 }
 
 body {
-  background: #f7f7fa;
+  background: #f6f0e4;
 }
 
 @media (prefers-color-scheme: dark) {
   body {
-    background: #0f0d15;
+    background: #15120e;
   }
 }
 
