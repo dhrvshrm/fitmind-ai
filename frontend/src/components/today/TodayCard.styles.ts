@@ -48,7 +48,7 @@ export const todayCardStyles = {
       minWidth: 0,
       ...(highlight && {
         borderColor: alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.35 : 0.22),
-        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.07)} 0%, ${theme.palette.background.paper} 65%)`,
+        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, theme.palette.mode === 'dark' ? 0.16 : 0.07)} 0%, ${alpha(theme.palette.primary.main, 0)} 65%), ${theme.palette.background.paper}`,
       }),
       ...(interactive ? hoverLift : {}),
     }),

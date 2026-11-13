@@ -51,7 +51,8 @@ export const nudgeBannerStyles = {
         borderRadius: 3,
         border: '1px solid',
         borderColor: alpha(color, theme.palette.mode === 'dark' ? 0.32 : 0.2),
-        background: `linear-gradient(110deg, ${alpha(color, theme.palette.mode === 'dark' ? 0.16 : 0.08)} 0%, ${alpha(color, 0)} 75%)`,
+        // Tint over an opaque paper base, so the page's doodles don't show through.
+        background: `linear-gradient(110deg, ${alpha(color, theme.palette.mode === 'dark' ? 0.16 : 0.08)} 0%, ${alpha(color, 0)} 75%), ${theme.palette.background.paper}`,
       };
     },
   icon:
