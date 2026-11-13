@@ -42,6 +42,8 @@ export const QUERY_KEYS = {
     swapRoot: ['diet-plan', 'swap'] as const,
     swapOptions: (mealId: string, index: number, query: string) =>
       ['diet-plan', 'swap', mealId, index, query] as const,
+    groceryList: (days: number) => ['diet-plan', 'grocery', days] as const,
+    fastingModes: ['diet-plan', 'fasting-modes'] as const,
   },
   workouts: {
     all: ['workouts'] as const,

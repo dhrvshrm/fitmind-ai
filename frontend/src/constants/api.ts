@@ -15,6 +15,7 @@ export const USER_ENDPOINTS = {
   PROFILE: "/users/profile",
   TARGETS: "/users/targets",
   TARGETS_PREVIEW: "/users/targets/preview",
+  PERSONALISATION: "/users/personalisation",
 } as const;
 
 export const DASHBOARD_ENDPOINTS = {
@@ -158,6 +159,9 @@ export const DIET_PLAN_ENDPOINTS = {
     `/diet-plans/current/meals/${mealId}/items/${index}/alternatives`,
   swap: (mealId: string, index: number) => `/diet-plans/current/meals/${mealId}/items/${index}/swap`,
   logMeal: (mealId: string) => `/diet-plans/current/meals/${mealId}/log`,
+  GROCERY_LIST: "/diet-plans/current/grocery-list",
+  FASTING_MODES: "/diet-plans/fasting-modes",
+  fastingMode: (id: string) => `/diet-plans/fasting-modes/${encodeURIComponent(id)}`,
 } as const;
 
 export const TIP_ENDPOINTS = {

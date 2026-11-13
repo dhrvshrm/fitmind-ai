@@ -7,9 +7,14 @@ const TONES: Record<RoutineKind, 'warning' | 'success' | 'primary' | 'info' | 's
   meal: 'primary',
   wind_down: 'info',
   sleep: 'secondary',
+  fast_begins: 'info',
 };
 
 export const dayRoutineStyles = {
+  note: {
+    mt: 0.5,
+    fontWeight: 600,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'flex-start',

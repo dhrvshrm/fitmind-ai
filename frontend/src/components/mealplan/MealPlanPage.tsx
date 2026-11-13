@@ -10,6 +10,7 @@ import {
 import {
   AutorenewRounded,
   MenuBookRounded,
+  ShoppingBasketRounded,
   TuneRounded,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -23,31 +24,46 @@ import {
 import { queryErrorMessage } from "../../hooks/queries/queryHelpers";
 import { resolveApiError } from "../../lib/apiClient";
 import { formatDateLabel } from "../../utils/date";
+import { noteText } from "../../utils/mealPlan";
 import type { DietPlan } from "../../types/dietPlan";
 import { PageHeader } from "../ui/PageHeader";
 import { ErrorState } from "../ui/ErrorState";
 import { EmptyState } from "../ui/EmptyState";
 import { SectionCard } from "../ui/SectionCard";
 import { ConfirmDialog } from "../ui/ConfirmDialog";
+import { INDIA_FIRST_STRINGS } from "../../constants/indiaFirstStrings";
+import { useUserProfile } from "../../hooks/queries/useProfileQueries";
+import { FastingModesCard } from "./FastingModesCard";
+import { GroceryListDialog } from "./GroceryListDialog";
+import { ShiftTimesDialog } from "./ShiftTimesDialog";
 import { PlanSummary } from "./PlanSummary";
 import { DayRoutine } from "./DayRoutine";
 import { PlanMealCard } from "./PlanMealCard";
 import { mealPlanPageStyles as styles } from "./MealPlanPage.styles";
 
 const S = STRINGS.mealPlan;
+const I = INDIA_FIRST_STRINGS.plan;
 
+/** Plan notes as one list; medical advice stands apart as a warning. */
 function PlanNotes({ plan }: { plan: DietPlan }) {
+  const medical = plan.notes.filter((note) => note.code === "medical_advice");
+  const info = plan.notes.filter((note) => note.code !== "medical_advice");
   return (
     <>
-      {plan.notes.map((note) => (
-        <Alert
-          key={note.code}
-          severity={note.code === "medical_advice" ? "warning" : "info"}
-          variant="outlined"
-        >
-          {S.notes[note.code](note.values)}
+      {medical.map((note) => (
+        <Alert key={note.code} severity="warning" variant="outlined">
+          {noteText(note, plan.fasting_mode?.mode)}
         </Alert>
       ))}
+      {info.length > 0 && (
+        <Alert severity="info" variant="outlined">
+          <Box component="ul" sx={styles.notes}>
+            {info.map((note) => (
+              <li key={note.code}>{noteText(note, plan.fasting_mode?.mode)}</li>
+            ))}
+          </Box>
+        </Alert>
+      )}
     </>
   );
 }
@@ -58,7 +74,15 @@ export function MealPlanPage() {
   const planQuery = useDietPlan();
   const create = useCreateDietPlan();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [groceryOpen, setGroceryOpen] = useState(false);
+  const [timesOpen, setTimesOpen] = useState(false);
+  const profile = useUserProfile();
+  const lifestyle = profile.data?.lifestyle;
   const plan = planQuery.data;
+  const shiftNote =
+    plan?.shift_aware && lifestyle?.wake_time && lifestyle.sleep_time
+      ? I.shiftAware(lifestyle.wake_time, lifestyle.sleep_time)
+      : undefined;
   const error = queryErrorMessage(planQuery.error, S.loadError);
 
   async function handleCreate() {
@@ -95,6 +119,13 @@ export function MealPlanPage() {
           plan && (
             <>
               {editPreferences}
+              <Button
+                color="inherit"
+                startIcon={<ShoppingBasketRounded />}
+                onClick={() => setGroceryOpen(true)}
+              >
+                {I.groceryList}
+              </Button>
               <Button
                 variant="outlined"
                 startIcon={createIcon}
@@ -144,6 +175,11 @@ export function MealPlanPage() {
           />
         </SectionCard>
       )}
+      {planQuery.isSuccess && !plan && (
+        <Box sx={styles.section}>
+          <FastingModesCard />
+        </Box>
+      )}
 
       {plan && (
         <Box sx={styles.layout}>
@@ -164,10 +200,30 @@ export function MealPlanPage() {
               {S.stale}
             </Alert>
           )}
+          {plan.mode_changed && (
+            <Alert
+              severity="warning"
+              action={
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={() => setConfirmOpen(true)}
+                  disabled={create.isPending}
+                >
+                  {S.regenerate}
+                </Button>
+              }
+            >
+              {I.modeChanged}
+            </Alert>
+          )}
           <PlanSummary plan={plan} />
           <PlanNotes plan={plan} />
+          <FastingModesCard />
           <DayRoutine
             plan={plan}
+            onEditTimes={() => setTimesOpen(true)}
+            note={shiftNote}
             renderMeal={(meal) => (
               <PlanMealCard
                 key={`${plan.id}-${meal.id}`}
@@ -190,6 +246,9 @@ export function MealPlanPage() {
           </Box>
         </Box>
       )}
+
+      {groceryOpen && <GroceryListDialog onClose={() => setGroceryOpen(false)} />}
+      {timesOpen && <ShiftTimesDialog lifestyle={lifestyle} onClose={() => setTimesOpen(false)} />}
 
       <ConfirmDialog
         open={confirmOpen}

@@ -2,6 +2,7 @@ import { apiClient } from '../lib/apiClient';
 import { DIET_PLAN_ENDPOINTS } from '../constants/api';
 import type { ApiEnvelope } from '../types/auth';
 import type { DietPlan, PlanItem, PlanMealLogResult, PlanSlot } from '../types/dietPlan';
+import type { FastingMode, FastingModePayload, FastingModesData, GroceryList } from '../types/indiaFirst';
 
 /** Meal plan API. Unwraps the backend `{ success, message, data }` envelope. */
 export const dietPlanService = {
@@ -47,5 +48,28 @@ export const dietPlanService = {
       DIET_PLAN_ENDPOINTS.logMeal(mealId),
     );
     return data.data;
+  },
+
+  /** The plan's dishes over `days` days as one list of ingredients, grouped by aisle. */
+  async groceryList(days: number): Promise<GroceryList> {
+    const { data } = await apiClient.get<ApiEnvelope<GroceryList>>(DIET_PLAN_ENDPOINTS.GROCERY_LIST, {
+      params: { days },
+    });
+    return data.data;
+  },
+
+  /** Modes on offer, the user's current and upcoming ones, and today's. */
+  async fastingModes(): Promise<FastingModesData> {
+    const { data } = await apiClient.get<ApiEnvelope<FastingModesData>>(DIET_PLAN_ENDPOINTS.FASTING_MODES);
+    return data.data;
+  },
+
+  async addFastingMode(payload: FastingModePayload): Promise<FastingMode> {
+    const { data } = await apiClient.post<ApiEnvelope<FastingMode>>(DIET_PLAN_ENDPOINTS.FASTING_MODES, payload);
+    return data.data;
+  },
+
+  async removeFastingMode(id: string): Promise<void> {
+    await apiClient.delete(DIET_PLAN_ENDPOINTS.fastingMode(id));
   },
 };

@@ -7,6 +7,7 @@ import { STRINGS } from '../../constants/strings';
 import { MEAL_TYPE_OPTIONS } from '../../constants/nutrition';
 import { useLogPlanMeal, useRegeneratePlanMeal } from '../../hooks/queries/useDietPlanQueries';
 import { resolveApiError } from '../../lib/apiClient';
+import { fastingWarningText, slotLabel } from '../../utils/mealPlan';
 import type { PlanItem, PlanMeal } from '../../types/dietPlan';
 import { SwapFoodDialog } from './SwapFoodDialog';
 import { planMealCardStyles as styles } from './PlanMealCard.styles';
@@ -29,7 +30,7 @@ export function PlanMealCard({ meal, logged, locked }: PlanMealCardProps) {
   const regenerate = useRegeneratePlanMeal();
   const logMeal = useLogPlanMeal();
   const busy = locked || regenerate.isPending || logMeal.isPending;
-  const label = S.slots[meal.id];
+  const label = slotLabel(meal.id);
   const Icon = MEAL_TYPE_OPTIONS.find((o) => o.value === meal.meal_type)?.icon;
 
   async function handleRegenerate() {
@@ -46,6 +47,7 @@ export function PlanMealCard({ meal, logged, locked }: PlanMealCardProps) {
       const result = await logMeal.mutateAsync(meal.id);
       toast.success(result.xp_earned > 0 ? `${S.loggedToast} ${F.xpToast(result.xp_earned)}` : S.loggedToast);
       if (result.leveled_up) toast.success(F.levelUpToast(result.new_level));
+      if (result.fasting_warning) toast(fastingWarningText(result.fasting_warning));
     } catch (error) {
       toast.error(resolveApiError(error, S.error));
     }

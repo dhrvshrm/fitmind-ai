@@ -1,6 +1,7 @@
 import { apiClient } from '../lib/apiClient';
 import { USER_ENDPOINTS } from '../constants/api';
 import type { ApiEnvelope } from '../types/auth';
+import type { ShiftTimesPayload } from '../types/indiaFirst';
 import type {
   OnboardingPayload,
   OnboardingResultData,
@@ -59,5 +60,11 @@ export const userService = {
       payload,
     );
     return data.data.targets;
+  },
+
+  /** Changes only the sections sent (here, wake and sleep times and work pattern); targets are recomputed. */
+  async updatePersonalisation(payload: ShiftTimesPayload): Promise<UserProfile> {
+    const { data } = await apiClient.put<ApiEnvelope<UserProfile>>(USER_ENDPOINTS.PERSONALISATION, payload);
+    return data.data;
   },
 };

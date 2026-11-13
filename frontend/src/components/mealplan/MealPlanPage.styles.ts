@@ -17,6 +17,16 @@ export const mealPlanPageStyles = {
     display: 'grid',
     gap: 0.5,
   },
+  // Notes inside one alert: a tight list, one line per note.
+  notes: {
+    m: 0,
+    pl: 2,
+    display: 'grid',
+    gap: 0.75,
+  },
+  section: {
+    mt: 2,
+  },
   emptyActions: {
     display: 'flex',
     flexWrap: 'wrap',

@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import pytest
 
-from app.nutrition import food_db, grocery, meal_planner, routine
+from app.nutrition import fasting, food_db, grocery, meal_planner, routine
 from app.nutrition.diet_rules import DietRules
 from app.nutrition.food_db import Food, Nutrients, Serving
 from app.utils.time import local_today
@@ -262,6 +262,26 @@ def test_grocery_list_combines_dishes_into_ingredients_by_aisle():
     assert result["unmapped_count"] == 0
     order = [a["aisle"] for a in result["aisles"]]
     assert order == [a for a in grocery.AISLES if a in order]
+
+
+def test_grocery_list_follows_the_plans_fast():
+    meals = [_meal(
+        ("indb:ASC162", "Chickpeas curry", 150, 1, "bowl"),  # has onion
+        ("est:rajgira_roti", "Rajgira roti", 100, 2, "roti"),
+        ("indb:BFP044", "Aloo dish", 150, 1, "bowl"),  # has potato
+    )]
+    keys = lambda result: {i["key"] for a in result["aisles"] for i in a["items"]}  # noqa: E731
+    plain = grocery.build_list(meals, days=3)
+    assert {"onion", "rajgira_atta", "potato"} <= keys(plain) and plain["left_out"] == []
+
+    navratri = grocery.build_list(meals, days=3, mode=fasting.get_mode("navratri"))
+    assert "onion" not in keys(navratri) and "Onions" in " ".join(navratri["left_out"])
+    # A fasting flour stays, even though "atta" is also a grain word.
+    assert {"rajgira_atta", "potato"} <= keys(navratri)
+
+    # Paryushan: no root vegetables.
+    paryushan = grocery.build_list(meals, days=3, mode=fasting.get_mode("paryushan"))
+    assert "potato" not in keys(paryushan) and "onion" not in keys(paryushan)
 
 
 def test_unmapped_dishes_are_listed_as_ready_made():

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Card, CircularProgress, Stack, TextField, Typography } from '@mui/material';
 import toast from 'react-hot-toast';
+import { fastingWarningText } from '../../utils/mealPlan';
 import { STRINGS } from '../../constants/strings';
 import { MEAL_TYPE_OPTIONS } from '../../constants/nutrition';
 import { useLogMeals } from '../../hooks/queries/useNutritionQueries';
@@ -81,6 +82,7 @@ export function DayReview({ estimate, onDone }: DayReviewProps) {
       const saved = S.savedAll(result.meals.length);
       toast.success(result.xp_earned > 0 ? `${saved} ${F.xpToast(result.xp_earned)}` : saved);
       if (result.leveled_up) toast.success(F.levelUpToast(result.new_level));
+      if (result.fasting_warning) toast(fastingWarningText(result.fasting_warning));
       onDone();
     } catch (error) {
       toast.error(resolveApiError(error, F.error));
