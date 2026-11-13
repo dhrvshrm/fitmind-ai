@@ -46,4 +46,20 @@ export const workoutCompletionStyles = {
     mt: 1.5,
     fontWeight: 700,
   },
+  records: {
+    mt: 2,
+    p: 1.5,
+    borderRadius: 2,
+    bgcolor: 'action.hover',
+    textAlign: 'left',
+    display: 'grid',
+    gap: 0.5,
+  },
+  recordsTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 0.75,
+    color: 'warning.main',
+    mb: 0.25,
+  },
 } satisfies Record<string, SxProps<Theme>>;

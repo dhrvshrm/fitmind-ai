@@ -12,21 +12,23 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import { EmojiEventsRounded } from '@mui/icons-material';
 import { animate, motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useLogWorkout } from '../../hooks/queries/useWorkoutQueries';
 import { resolveApiError } from '../../lib/apiClient';
 import { STRINGS } from '../../constants/strings';
 import { formatDuration } from '../../utils/date';
-import type {
-  Exercise,
-  Intensity,
-  LoggedExercise,
-  WorkoutLogResult,
-} from '../../types/workout';
+import type { Intensity, LoggedExercise, PersonalRecord, WorkoutLogResult } from '../../types/workout';
+import { PROGRESSION_STRINGS } from '../../constants/progressionStrings';
 import { workoutCompletionStyles as styles } from './WorkoutCompletion.styles';
 
 const S = STRINGS.workout.completion;
+const R = PROGRESSION_STRINGS.records;
+
+function recordText(record: PersonalRecord): string {
+  return R[record.kind](record.name, record.value, record.previous);
+}
 const INTENSITIES: Intensity[] = ['low', 'medium', 'high'];
 
 /** Animated 0 -> xp counter shown after a successful save. */
@@ -58,9 +60,8 @@ function XpCounter({ xp }: { xp: number }) {
 type WorkoutCompletionProps = {
   open: boolean;
   onClose: () => void;
-  exercises: Exercise[];
-  /** Completed set indices per exercise name. */
-  doneSetsByExercise: Record<string, ReadonlySet<number>>;
+  /** What was done per exercise, with logged weight and reps where tracked. */
+  summary: LoggedExercise[];
   durationSeconds: number;
   /** Called once the workout is saved on the backend. */
   onLogged: (result: WorkoutLogResult) => void;
@@ -73,8 +74,7 @@ type WorkoutCompletionProps = {
 export function WorkoutCompletion({
   open,
   onClose,
-  exercises,
-  doneSetsByExercise,
+  summary,
   durationSeconds,
   onLogged,
 }: WorkoutCompletionProps) {
@@ -82,12 +82,6 @@ export function WorkoutCompletion({
   const logWorkout = useLogWorkout();
   const isSaving = logWorkout.isPending;
   const [result, setResult] = useState<WorkoutLogResult | null>(null);
-
-  const summary: LoggedExercise[] = exercises.map((exercise) => ({
-    name: exercise.name,
-    sets_completed: doneSetsByExercise[exercise.name]?.size ?? 0,
-    sets_total: Math.max(1, exercise.sets),
-  }));
 
   async function handleSave() {
     try {
@@ -129,6 +123,19 @@ export function WorkoutCompletion({
               <Typography variant="subtitle1" sx={styles.levelUp}>
                 {S.levelUp(result.new_level)}
               </Typography>
+            )}
+            {(result.new_records ?? []).length > 0 && (
+              <Box sx={styles.records}>
+                <Stack sx={styles.recordsTitle}>
+                  <EmojiEventsRounded fontSize="small" />
+                  <Typography variant="subtitle2">{R.title}</Typography>
+                </Stack>
+                {(result.new_records ?? []).map((record) => (
+                  <Typography key={`${record.exercise_id}-${record.kind}`} variant="body2">
+                    {recordText(record)}
+                  </Typography>
+                ))}
+              </Box>
             )}
             {result.new_badges.map((badge) => (
               <Chip

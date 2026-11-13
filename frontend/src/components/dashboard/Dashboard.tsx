@@ -26,6 +26,7 @@ import { PatternsCard } from './PatternsCard';
 import { ProgressPhotosCard } from './ProgressPhotosCard';
 import { RecoveryTrendChart } from './RecoveryTrendChart';
 import { ShareWeekDialog } from './ShareWeekDialog';
+import { StrengthCard } from './StrengthCard';
 import { TipOfTheDay } from './TipOfTheDay';
 import { WeeklyInsightCard } from './WeeklyInsightCard';
 import { WeightProgressCard } from './WeightProgressCard';
@@ -135,6 +136,10 @@ export function Dashboard() {
         <Reveal index={1} fill>
           <MeasurementsCard />
         </Reveal>
+      </Box>
+
+      <Box sx={styles.section}>
+        <StrengthCard />
       </Box>
 
       <Box sx={styles.section}>

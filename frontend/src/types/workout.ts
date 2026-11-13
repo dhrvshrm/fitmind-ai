@@ -23,7 +23,42 @@ export type Exercise = {
   per_side?: boolean;
   /** How hard to push, e.g. "Stop 2 reps short of failure". */
   effort?: string;
+  /** Progressive overload: last time's sets and what to aim for today. */
+  target?: ExerciseTarget;
 };
+
+/** One logged set. Bodyweight exercises store a weight of 0. */
+export type SetEntry = {
+  weight_kg: number;
+  reps: number;
+};
+
+export type TargetAction =
+  | 'first_time'
+  | 'add_weight'
+  | 'add_reps'
+  | 'hold'
+  | 'reduce'
+  | 'harder_variation'
+  | 'add_set'
+  | 'deload';
+
+/** What to aim for today, from the exercise's logged history (rules, not AI). */
+export type ExerciseTarget = {
+  action: TargetAction;
+  /** Suggested weight; null for bodyweight exercises or a first session. */
+  weight_kg: number | null;
+  /** Rep range to aim for: [low, high]. */
+  reps: [number, number];
+  /** True when the exercise takes added weight (tracked in kg). */
+  loaded: boolean;
+  last: { date: string; sets: SetEntry[] } | null;
+  harder_id?: string;
+  harder_name?: string;
+};
+
+/** How the user said an exercise felt; steers the next target. */
+export type Felt = 'easy' | 'right' | 'hard';
 
 /** Known workout types; the AI may return other strings, handled as a fallback. */
 export type WorkoutType = 'strength' | 'cardio' | 'flexibility' | 'rest';
@@ -75,6 +110,8 @@ export type TodayWorkout = {
   rounds?: number;
   /** What was planned before low recovery switched today to mobility. */
   planned_focus?: string | null;
+  /** Last day of an accepted easy week, or null. */
+  deload_until?: string | null;
 };
 
 export type QuickPlace = 'home' | 'gym';
@@ -98,6 +135,19 @@ export type LoggedExercise = {
   name: string;
   sets_completed: number;
   sets_total: number;
+  /** Catalogue id; with `sets`, feeds progressive overload. */
+  exercise_id?: string;
+  sets?: SetEntry[];
+  felt?: Felt;
+};
+
+/** A personal record set in the logged workout. */
+export type PersonalRecord = {
+  exercise_id: string;
+  name: string;
+  kind: 'weight' | 'estimated_max' | 'reps';
+  value: number;
+  previous: number;
 };
 
 /** `POST /workouts/log` body. */
@@ -114,7 +164,52 @@ export type WorkoutLogResult = {
   new_level: number;
   leveled_up: boolean;
   new_badges: string[];
+  new_records?: PersonalRecord[];
 };
+
+/** `GET /workouts/progression`: easy-week and level suggestions. */
+export type LevelLift = { pattern: string; ratio: number; needed: number; met: boolean };
+
+export type LevelCheck = {
+  level: string;
+  next_level: string | null;
+  ready: boolean;
+  workouts?: number;
+  /** 75% of the user's own planned sessions in the window (with a floor). */
+  workouts_needed?: number;
+  days_per_week?: number;
+  window_days?: number;
+  lifts?: LevelLift[];
+  lifts_needed?: number;
+  uses_bodyweight?: boolean;
+  snoozed?: boolean;
+};
+
+/** A likely reason outside the gym for stalled lifts, from logged data only. */
+export type StallReason =
+  | { kind: 'protein'; percent: number; days: number }
+  | { kind: 'sleep'; hours: number }
+  | { kind: 'recovery'; score: number };
+
+export type ProgressionSuggestions = {
+  deload: { stalled_lifts: string[]; days: number; reasons: StallReason[] } | null;
+  deload_until: string | null;
+  level: LevelCheck | null;
+};
+
+/** `GET /workouts/strength`: estimated one-rep-max trend per lift. */
+export type StrengthPoint = { date: string; estimated_max_kg: number };
+
+export type StrengthLift = {
+  exercise_id: string;
+  name: string;
+  sessions: number;
+  current_estimated_max_kg: number;
+  change_percent: number | null;
+  points: StrengthPoint[];
+};
+
+export type StrengthSummary = { lifts: StrengthLift[]; change_days: number };
 
 /** One item in `GET /workouts/history` -> data.workouts. */
 export type WorkoutHistoryItem = {

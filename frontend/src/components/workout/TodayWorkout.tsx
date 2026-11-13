@@ -27,7 +27,8 @@ import { useCompleteExercise, useEndQuickSession } from '../../hooks/queries/use
 import { resolveApiError } from '../../lib/apiClient';
 import { STRINGS } from '../../constants/strings';
 import { formatDuration } from '../../utils/date';
-import type { Exercise, TodayWorkout as TodaySession, WorkoutLogResult } from '../../types/workout';
+import type { Exercise, Felt, LoggedExercise, TodayWorkout as TodaySession, WorkoutLogResult } from '../../types/workout';
+import { completedSets, defaultDrafts, tracksSets, type SetDraft } from '../../utils/progression';
 import { SectionCard } from '../ui/SectionCard';
 import { EmptyState } from '../ui/EmptyState';
 import { ErrorState } from '../ui/ErrorState';
@@ -66,32 +67,55 @@ export function TodayWorkout({
   const completeExercise = useCompleteExercise();
   const endQuick = useEndQuickSession();
   const [detailId, setDetailId] = useState<string | null>(null);
-  const [doneSets, setDoneSets] = useState<Record<string, Set<number>>>({});
+  const [drafts, setDrafts] = useState<Record<string, SetDraft[]>>({});
+  const [felt, setFelt] = useState<Record<string, Felt>>({});
   const [completionOpen, setCompletionOpen] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
   // Exercises already reported complete to the backend (avoid duplicate PUTs).
   const syncedRef = useRef<Set<string>>(new Set());
+
+  // Each set starts from today's target, so a typical set is a single tick.
+  const draftsFor = (exercise: Exercise) => drafts[exercise.name] ?? defaultDrafts(exercise);
 
   const totalSets = useMemo(
     () => exercises.reduce((sum, exercise) => sum + Math.max(1, exercise.sets), 0),
     [exercises],
   );
   const doneCount = useMemo(
-    () => Object.values(doneSets).reduce((sum, sets) => sum + sets.size, 0),
-    [doneSets],
+    () => Object.values(drafts).reduce((sum, sets) => sum + sets.filter((d) => d.done).length, 0),
+    [drafts],
   );
   const allDone = totalSets > 0 && doneCount >= totalSets;
 
-  function toggleSet(exercise: Exercise, setIndex: number) {
-    setDoneSets((prev) => {
-      const current = new Set(prev[exercise.name] ?? []);
-      if (current.has(setIndex)) current.delete(setIndex);
-      else current.add(setIndex);
+  const summary: LoggedExercise[] = useMemo(
+    () =>
+      exercises.map((exercise) => {
+        const sets = drafts[exercise.name] ?? [];
+        const entry: LoggedExercise = {
+          name: exercise.name,
+          sets_completed: sets.filter((d) => d.done).length,
+          sets_total: Math.max(1, exercise.sets),
+        };
+        if (exercise.exercise_id && tracksSets(exercise)) {
+          entry.exercise_id = exercise.exercise_id;
+          entry.sets = completedSets(sets, Boolean(exercise.target?.loaded));
+          if (felt[exercise.name]) entry.felt = felt[exercise.name];
+        }
+        return entry;
+      }),
+    [exercises, drafts, felt],
+  );
+
+  function updateSet(exercise: Exercise, setIndex: number, patch: Partial<SetDraft>) {
+    setDrafts((prev) => {
+      const current = (prev[exercise.name] ?? defaultDrafts(exercise)).map((d, i) =>
+        i === setIndex ? { ...d, ...patch } : d,
+      );
       const next = { ...prev, [exercise.name]: current };
+      if (patch.done === undefined) return next;
 
       // Real-time sync: report the exercise once all its sets are ticked.
-      const setCount = Math.max(1, exercise.sets);
-      if (current.size >= setCount && !syncedRef.current.has(exercise.name)) {
+      if (current.every((d) => d.done) && !syncedRef.current.has(exercise.name)) {
         syncedRef.current.add(exercise.name);
         completeExercise.mutateAsync(exercise.name).catch(() => {
           // Non-fatal: the final log still records completion.
@@ -101,8 +125,8 @@ export function TodayWorkout({
 
       // Full-workout celebration the moment the last set is ticked.
       const total = exercises.reduce((sum, e) => sum + Math.max(1, e.sets), 0);
-      const done = Object.values(next).reduce((sum, sets) => sum + sets.size, 0);
-      if (total > 0 && done >= total) {
+      const done = Object.values(next).reduce((sum, sets) => sum + sets.filter((d) => d.done).length, 0);
+      if (patch.done && total > 0 && done >= total) {
         setCelebrating(true);
         window.setTimeout(() => setCelebrating(false), CELEBRATION_MS);
       }
@@ -239,8 +263,10 @@ export function TodayWorkout({
                 <ExerciseLogger
                   key={exercise.name}
                   exercise={exercise}
-                  doneSets={doneSets[exercise.name] ?? new Set()}
-                  onToggleSet={(setIndex) => toggleSet(exercise, setIndex)}
+                  drafts={draftsFor(exercise)}
+                  onChange={(setIndex, patch) => updateSet(exercise, setIndex, patch)}
+                  felt={felt[exercise.name]}
+                  onFelt={(value) => setFelt((prev) => ({ ...prev, [exercise.name]: value }))}
                   onDetails={exercise.exercise_id ? () => setDetailId(exercise.exercise_id ?? null) : undefined}
                 />
               ))}
@@ -290,8 +316,7 @@ export function TodayWorkout({
       <WorkoutCompletion
         open={completionOpen}
         onClose={() => setCompletionOpen(false)}
-        exercises={exercises}
-        doneSetsByExercise={doneSets}
+        summary={summary}
         durationSeconds={timer.seconds}
         onLogged={handleLogged}
       />
