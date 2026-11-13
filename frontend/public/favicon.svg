@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- FitMind mark: a haldi disc (roti, sun) on ink, crossed by a dumbbell. -->
-  <rect width="64" height="64" rx="16" fill="#221d16"/>
-  <circle cx="32" cy="32" r="18" fill="#e3a21a"/>
-  <g fill="#221d16">
+  <!-- FitMind mark: a paper-white disc (roti, sun) on neel ink, crossed by a dumbbell. -->
+  <rect width="64" height="64" rx="16" fill="#2f4a8a"/>
+  <circle cx="32" cy="32" r="18" fill="#f4f1ea"/>
+  <g fill="#2f4a8a">
     <rect x="20" y="30" width="24" height="4" rx="2"/>
     <rect x="14" y="23" width="6" height="18" rx="2.5"/>
     <rect x="44" y="23" width="6" height="18" rx="2.5"/>

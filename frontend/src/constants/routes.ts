@@ -1,5 +1,7 @@
 /** Central registry of client-side route paths. */
 export const ROUTES = {
+  /** Public landing page for people who haven't signed up. */
+  HOME: '/',
   LOGIN: '/login',
   SIGNUP: '/signup',
   ONBOARDING: '/onboarding',

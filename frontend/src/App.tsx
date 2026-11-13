@@ -26,6 +26,10 @@ function lazyPage<K extends string>(
   return lazy(() => load().then((module) => ({ default: module[name] })));
 }
 
+const LandingPage = lazyPage(
+  () => import("./components/landing/LandingPage"),
+  "LandingPage",
+);
 const TodayPage = lazyPage(
   () => import("./components/today/TodayPage"),
   "TodayPage",
@@ -97,6 +101,7 @@ function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
+        <Route path={ROUTES.HOME} element={<LandingPage />} />
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
         <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
 
@@ -124,8 +129,8 @@ function AppRoutes() {
           </Route>
         </Route>
 
-        {/* Default + unknown paths go to Today (which will bounce to login if needed). */}
-        <Route path="*" element={<Navigate to={ROUTES.TODAY} replace />} />
+        {/* Unknown paths go home: the landing page, or Today when signed in. */}
+        <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
       </Routes>
     </Suspense>
   );

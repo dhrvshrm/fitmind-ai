@@ -19,12 +19,12 @@ body,
 }
 
 body {
-  background: #f6f0e4;
+  background: #f4f1ea;
 }
 
 @media (prefers-color-scheme: dark) {
   body {
-    background: #15120e;
+    background: #11141b;
   }
 }
 

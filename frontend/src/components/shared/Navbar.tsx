@@ -7,28 +7,31 @@ import {
   Box,
   Divider,
   IconButton,
+  Link,
   ListItemIcon,
   Menu,
   MenuItem,
   Stack,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import {
-  FitnessCenterRounded,
   LogoutRounded,
   MenuRounded,
   NotificationsRounded,
   PersonRounded,
   SettingsRounded,
 } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useNotifications } from "../../hooks/useNotifications";
+import { useNutritionToday } from "../../hooks/queries/useNutritionQueries";
 import { useUiStore } from "../../store/uiStore";
 import { STRINGS } from "../../constants/strings";
 import { ROUTES } from "../../constants/routes";
 import { getNotificationRoute } from "../../constants/notification";
+import { Wordmark } from "../ui/Wordmark";
 import { NotificationDrawer } from "./NotificationDrawer";
 import { ColorModeMenu } from "./ColorModeMenu";
 import type { AppNotification } from "../../types/notification";
@@ -39,12 +42,21 @@ type NavbarProps = {
   onMenuClick: () => void;
 };
 
-/** Top app bar: mobile menu toggle, brand, notification bell, account menu. */
+const DATE_FORMAT: Intl.DateTimeFormatOptions = { weekday: "long", day: "numeric", month: "long" };
+
+/**
+ * Top app bar, like the header of today's diary page: the wordmark, today's
+ * date in the middle, and the controls gathered in one pill. A thin ink line
+ * along the bottom fills with the calories eaten so far today.
+ */
 export function Navbar({ onMenuClick }: NavbarProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  // Today already shows the date in its own header.
+  const showDate = useLocation().pathname !== ROUTES.TODAY;
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
   const [notifOpen, setNotifOpen] = useState(false);
+  const nutrition = useNutritionToday();
 
   // Loads notifications on mount and keeps them live over the WS channel;
   // called once here since Navbar is mounted for the whole authenticated app.
@@ -52,6 +64,10 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   const notificationCount = useUiStore((s) => s.notificationCount);
 
   const initial = initialOf(user);
+  const today = new Date().toLocaleDateString(undefined, DATE_FORMAT);
+  const eaten = Math.round(nutrition.data?.totals.calories ?? 0);
+  const goal = Math.round(nutrition.data?.goals.calories ?? 0);
+  const inkPercent = goal > 0 ? Math.min(100, (eaten / goal) * 100) : 0;
 
   function handleOpenMenu(event: MouseEvent<HTMLElement>) {
     setMenuAnchor(event.currentTarget);
@@ -77,7 +93,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
 
   return (
     <AppBar position="fixed" elevation={0} sx={styles.appBar}>
-      <Toolbar>
+      <Toolbar sx={styles.toolbar}>
         <IconButton
           aria-label={STRINGS.navbar.openMenuAria}
           onClick={onMenuClick}
@@ -86,14 +102,13 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           <MenuRounded />
         </IconButton>
 
-        <Stack sx={styles.brandRow}>
-          <FitnessCenterRounded sx={styles.brandIcon} />
-          <Typography variant="h6" sx={styles.brandName}>
-            {STRINGS.app.name}
-          </Typography>
-        </Stack>
+        <Link component={RouterLink} to={ROUTES.TODAY} underline="none" color="inherit" sx={styles.brandLink}>
+          <Wordmark size={32} />
+        </Link>
 
-        <Box sx={styles.spacer} />
+        <Typography component="p" sx={styles.date}>
+          {showDate ? today : null}
+        </Typography>
 
         <Stack sx={styles.actions}>
           <ColorModeMenu />
@@ -101,8 +116,9 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           <IconButton
             aria-label={STRINGS.navbar.notificationsAria}
             onClick={() => setNotifOpen(true)}
+            sx={styles.actionButton}
           >
-            <Badge badgeContent={notificationCount} color="error" overlap="circular">
+            <Badge badgeContent={notificationCount} color="secondary" overlap="circular" sx={styles.badge}>
               <NotificationsRounded />
             </Badge>
           </IconButton>
@@ -110,6 +126,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           <IconButton
             aria-label={STRINGS.navbar.accountAria}
             onClick={handleOpenMenu}
+            sx={styles.avatarButton}
           >
             <Avatar sx={styles.avatar}>{initial}</Avatar>
           </IconButton>
@@ -148,6 +165,22 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           </MenuItem>
         </Menu>
       </Toolbar>
+
+      {/* The day's ink line: how much of today's calorie target is eaten. */}
+      {goal > 0 && (
+        <Tooltip title={STRINGS.navbar.inkLine(eaten, goal)} placement="bottom-start">
+          <Box
+            role="progressbar"
+            aria-label={STRINGS.navbar.inkLineAria}
+            aria-valuemin={0}
+            aria-valuemax={goal}
+            aria-valuenow={eaten}
+            sx={styles.inkTrack}
+          >
+            <Box sx={styles.inkFill(inkPercent)} />
+          </Box>
+        </Tooltip>
+      )}
 
       <NotificationDrawer
         open={notifOpen}
