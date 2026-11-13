@@ -24,6 +24,7 @@ from app.models import challenge as challenge_store, progress as progress_store
 from app.models import consent as consent_store, health_profile as health_profile_store  # Phases 12-14
 from app.models import lab_report as lab_report_store, supplement as supplement_store
 from app.models import fasting_mode as fasting_mode_store  # Phase 8
+from app.models import exercise_log as exercise_log_store
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +77,9 @@ USER_DATA_COLLECTIONS: Dict[str, List[str]] = {
     "supplement_logs": ["user_id"],
     # Phase 8 fasting and festival modes.
     "fasting_modes": ["user_id"],
+    # Progressive overload.
+    "exercise_logs": ["user_id"],
+    "training_state": ["user_id"],
 }
 
 
@@ -123,6 +127,8 @@ def _memory_stores() -> List[dict]:
         supplement_store._SUPPLEMENT_MEMORY,
         supplement_store._LOG_MEMORY,
         fasting_mode_store._MEMORY_STORE,
+        exercise_log_store._MEMORY_STORE,
+        exercise_log_store._STATE_MEMORY,
     ]
 
 

@@ -244,3 +244,18 @@ Reminders run every 15 minutes (APScheduler `push_reminders` job and `/reminders
 Reuse from other features: `await push_service.send_push(user_id, title, body, url="/today", tag=None) -> int` (devices reached; never raises, 0 when push is off) and `await analytics_service.track(user_id, event, properties=None) -> bool` (event must be in `analytics_service.ALLOWED_EVENTS`). For once-a-day dedupe: `await app.models.push.claim_send(user_id, key, local_date) -> bool`.
 
 Server-side events: `signed_up`, `onboarding_completed`, `meal_logged`, `water_logged`, `workout_logged`, `recovery_logged`, `meal_plan_created`, `workout_plan_created`, `quick_session_started`, `push_subscribed`, `push_unsubscribed`, `reminder_sent`. Stored in `analytics_events`, also sent to PostHog when `POSTHOG_API_KEY` is set. `python scripts/metrics.py [--days 30]` prints day-1 activation, day-7 retention and weekly active loggers.
+
+### Progressive overload
+
+Rules live in `app/workouts/progression.py` (double progression after the ACSM 2026 position stand; no AI).
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/workouts/plan/today` | Each catalogue exercise now carries `target`: `{action, weight_kg, reps:[low,high], loaded, last:{date, sets}, harder_id?, harder_name?}`. `action` is `first_time`, `add_weight` (every set at the top of the range twice, or once marked easy; jump is the pattern's step capped at 10% of the weight), `add_reps`, `hold` (a set below the range or marked hard), `reduce` (two sessions below the range at the same weight: about 10% lighter), `harder_variation` / `add_set` (bodyweight moves at the top of the range), or `deload`. During an accepted easy week sets are trimmed to 60% and `deload_until` is set. |
+| POST | `/workouts/log` | Exercises may include `exercise_id`, `sets: [{weight_kg, reps}]` and `felt` (`easy`, `right`, `hard`). Sets are stored per exercise and day in `exercise_logs` (re-logging the same day replaces it). Response adds `new_records: [{exercise_id, name, kind: weight|estimated_max|reps, value, previous}]`. |
+| GET | `/workouts/progression` | `{deload: {stalled_lifts, days}|null, deload_until, level: {level, next_level, ready, workouts, workouts_needed, window_days, lifts:[{pattern, ratio, needed, met}], lifts_needed, uses_bodyweight, snoozed}}`. An easy week is suggested when 2+ main lifts haven't improved their estimated max in 21 days (4+ sessions); `deload.reasons` lists likely causes from the same 21 days, each only with enough data: `protein` (average under 80% of target over 5+ days with 2+ meals logged), `sleep` (average under 7 hours over 3+ check-ins), `recovery` (average score under 60). Level up needs consistency against the user's own plan (75% of planned sessions: 8 weeks for intermediate, at least 16; 26 weeks for advanced, at least 48; `workouts_needed` and `days_per_week` are returned) and 2 lifts at a strength-to-bodyweight mark (bodyweight-only: 60% of exercises at the top of their range). |
+| POST / DELETE | `/workouts/deload` | Start (7 days) or end an easy week. |
+| POST | `/workouts/progression/{deload|level}/snooze` | Hide that suggestion for 14 days. |
+| POST | `/workouts/level-up` | Only when `ready`: updates `experience_level` and rebuilds the weekly plan. 400 otherwise. |
+| GET | `/workouts/strength` | Most-trained weighted lifts (last 120 days): `{lifts: [{exercise_id, name, sessions, current_estimated_max_kg, change_percent, points:[{date, estimated_max_kg}]}], change_days}`. Estimated max uses the Epley formula. |
+| GET | `/workouts/exercises/{exercise_id}/history` | Every logged session of one exercise, oldest first. 404 for unknown ids. |

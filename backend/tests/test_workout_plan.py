@@ -162,7 +162,9 @@ def test_today_is_lighter_or_mobility_on_low_recovery(client, ai_providers, mond
     planned = plan["week"][0]["exercises"]
 
     today = client.get(f"{API}/workouts/plan/today", headers=headers).json()["data"]
-    assert today["mode"] == "normal" and today["exercises"] == planned
+    # Today adds a progressive-overload target to each exercise; the rest is the plan.
+    without_targets = [{k: v for k, v in e.items() if k != "target"} for e in today["exercises"]]
+    assert today["mode"] == "normal" and without_targets == planned
 
     client.post(f"{API}/recovery/log", headers=headers, json={
         "sleep_hours": 2, "sleep_quality": 1, "stress_level": 5, "muscle_soreness": 5,
