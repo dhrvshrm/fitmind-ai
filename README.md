@@ -44,6 +44,8 @@ Your daily plan is built from real Indian dishes that fit your targets, diet (ve
 
 Weekly plans follow ACSM and WHO guidelines for sets, reps and rest, and adapt to your equipment, injuries and how recovered you are. Every exercise has a demonstration, a body map of the muscles it works, setup, form cues and common mistakes. Short on time? A 10, 15 or 20 minute session fits the day instead.
 
+The plan grows with you. Log your weight and reps and each exercise tells you what to aim for next time: more reps first, then a little more weight, or a harder variation for bodyweight moves. Personal records are celebrated, an easy week is suggested when lifts stall, and when you've trained consistently and your lifts are strong enough, the app offers to move you from beginner to intermediate to advanced.
+
 ### Built for desk jobs
 
 Log your daily steps and the app adjusts your activity estimate. Short desk routines for the neck, back, hips and wrists, and gentle break reminders during work hours, help undo long hours of sitting.

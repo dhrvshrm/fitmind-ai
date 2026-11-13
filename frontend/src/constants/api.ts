@@ -48,6 +48,11 @@ export const WORKOUT_ENDPOINTS = {
   QUICK: "/workouts/quick",
   alternatives: (day: string, index: number) => `/workouts/plan/${day}/exercises/${index}/alternatives`,
   swap: (day: string, index: number) => `/workouts/plan/${day}/exercises/${index}/swap`,
+  PROGRESSION: "/workouts/progression",
+  DELOAD: "/workouts/deload",
+  snooze: (kind: 'deload' | 'level') => `/workouts/progression/${kind}/snooze`,
+  LEVEL_UP: "/workouts/level-up",
+  STRENGTH: "/workouts/strength",
 } as const;
 
 export const EXERCISE_ENDPOINTS = {

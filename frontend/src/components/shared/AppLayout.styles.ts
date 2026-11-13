@@ -7,7 +7,8 @@ export const appLayoutStyles = {
   root: {
     display: 'flex',
     minHeight: '100svh',
-    bgcolor: 'background.default',
+    // Transparent so the page's doodle texture (set on body by the theme) shows through.
+    bgcolor: 'transparent',
   },
   main: {
     flexGrow: 1,

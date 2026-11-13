@@ -84,3 +84,39 @@ export function useSwapExercise() {
     onSuccess: () => invalidate(QUERY_KEYS.workouts.all),
   });
 }
+
+/** Easy-week and level suggestions (progressive overload). */
+export function useProgression() {
+  return useQuery({ queryKey: QUERY_KEYS.workouts.progression, queryFn: workoutService.getProgression });
+}
+
+/** Starting or ending an easy week changes today's sets. */
+export function useDeload() {
+  const invalidate = useInvalidate();
+  const onSuccess = () => invalidate(QUERY_KEYS.workouts.all);
+  return {
+    start: useMutation({ mutationFn: workoutService.startDeload, onSuccess }),
+    end: useMutation({ mutationFn: workoutService.endDeload, onSuccess }),
+  };
+}
+
+export function useSnoozeSuggestion() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: (kind: 'deload' | 'level') => workoutService.snoozeSuggestion(kind),
+    onSuccess: () => invalidate(QUERY_KEYS.workouts.progression),
+  });
+}
+
+/** A new level rebuilds the plan and changes the profile. */
+export function useLevelUp() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: workoutService.levelUp,
+    onSuccess: () => invalidate(QUERY_KEYS.workouts.all, QUERY_KEYS.profile.all),
+  });
+}
+
+export function useStrength() {
+  return useQuery({ queryKey: QUERY_KEYS.workouts.strength, queryFn: workoutService.getStrength });
+}
