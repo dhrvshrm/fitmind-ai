@@ -9,6 +9,7 @@ import {
 } from '@mui/icons-material';
 import { STRINGS } from '../../constants/strings';
 import { ACTIVITY_STRINGS } from '../../constants/activityStrings';
+import { INDIA_FIRST_STRINGS } from '../../constants/indiaFirstStrings';
 import type { ItemSource, MealSource } from '../../types/nutrition';
 import { sourceBadgeStyles as styles } from './SourceBadge.styles';
 
@@ -28,6 +29,12 @@ const ITEM_BADGES: Record<ItemSource, BadgeConfig> = {
   USDA: { label: S.USDA, tone: 'success', icon: VerifiedRounded, tooltip: S.tooltipVerified },
   custom: { label: S.custom, tone: 'success', icon: PersonRounded },
   ai_estimate: { label: S.ai_estimate, tone: 'warning', icon: AutoAwesomeRounded, tooltip: S.tooltipEstimated },
+  estimate: {
+    label: INDIA_FIRST_STRINGS.source.estimate,
+    tone: 'warning',
+    icon: AutoAwesomeRounded,
+    tooltip: INDIA_FIRST_STRINGS.source.tooltipEstimate,
+  },
   unresolved: { label: S.unresolved, tone: 'error', icon: HelpOutlineRounded },
   manual: { label: S.manual, tone: 'default', icon: EditRounded },
   open_food_facts: {

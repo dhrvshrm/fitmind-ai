@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from '../../constants/queryKeys';
 import { dietPlanService } from '../../services/dietPlanService';
+import { userService } from '../../services/userService';
 import type { DietPlan, PlanSlot } from '../../types/dietPlan';
+import type { FastingModePayload, ShiftTimesPayload } from '../../types/indiaFirst';
 import { useInvalidate } from './queryHelpers';
 
 export function useDietPlan() {
@@ -60,5 +62,44 @@ export function useLogPlanMeal() {
       setPlan(result.plan);
       return invalidate(QUERY_KEYS.nutrition.all, QUERY_KEYS.dashboard.all, QUERY_KEYS.gamification.all);
     },
+  });
+}
+
+/** The plan's shopping list for `days` days. */
+export function useGroceryList(days: number, enabled: boolean) {
+  return useQuery({
+    queryKey: QUERY_KEYS.dietPlan.groceryList(days),
+    queryFn: () => dietPlanService.groceryList(days),
+    enabled,
+  });
+}
+
+export function useFastingModes() {
+  return useQuery({ queryKey: QUERY_KEYS.dietPlan.fastingModes, queryFn: dietPlanService.fastingModes });
+}
+
+/** Turning a mode on or off changes what the plan should follow, so refresh it. */
+export function useAddFastingMode() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: (payload: FastingModePayload) => dietPlanService.addFastingMode(payload),
+    onSuccess: () => invalidate(QUERY_KEYS.dietPlan.all),
+  });
+}
+
+export function useRemoveFastingMode() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: (id: string) => dietPlanService.removeFastingMode(id),
+    onSuccess: () => invalidate(QUERY_KEYS.dietPlan.all),
+  });
+}
+
+/** New wake and sleep times move the plan's meal times, and can change targets. */
+export function useUpdateShiftTimes() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: (payload: ShiftTimesPayload) => userService.updatePersonalisation(payload),
+    onSuccess: () => invalidate(QUERY_KEYS.dietPlan.all, QUERY_KEYS.profile.all, QUERY_KEYS.nutrition.all),
   });
 }

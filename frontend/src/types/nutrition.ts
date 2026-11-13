@@ -1,4 +1,5 @@
 import type { Targets } from './onboarding';
+import type { FastingWarning } from './indiaFirst';
 
 /** Nutrition types, aligned with the backend nutrition schemas. */
 
@@ -10,6 +11,8 @@ export type ItemSource =
   | 'USDA'
   | 'custom'
   | 'ai_estimate'
+  /** Hand-built from typical ingredients (a few fasting dishes the datasets lack). */
+  | 'estimate'
   | 'unresolved'
   | 'manual'
   /** Packaged food label values looked up by barcode. */
@@ -113,6 +116,8 @@ export type MealLogResult = {
   total_xp: number;
   new_level: number;
   leveled_up: boolean;
+  /** Set when a logged food breaks the active fast; logging still went through. */
+  fasting_warning?: FastingWarning | null;
 };
 
 export type FoodAlternative = {
@@ -151,6 +156,7 @@ export type MealBatchResult = {
   total_xp: number;
   new_level: number;
   leveled_up: boolean;
+  fasting_warning?: FastingWarning | null;
 };
 
 /** `POST /nutrition/estimate` -> data. */

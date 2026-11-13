@@ -16,6 +16,10 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List, Optional
 
+from app.nutrition.diet_rules import tags_for_tokens
+from app.nutrition.fasting import FAST_STAPLES, GRAIN_WORDS, FastingMode
+from app.nutrition.text import tokens
+
 DATA_FILE = Path(__file__).parent / "data" / "dish_ingredients.json"
 
 AISLES = (
@@ -60,13 +64,29 @@ def household_amount(amount: float, unit: Optional[str]) -> Dict[str, Optional[f
     return {"amount": int(_round_up(amount, step)), "unit": unit}
 
 
-def build_list(meals: List[dict], days: int = DEFAULT_DAYS) -> dict:
+def breaks_fast(key: str, spec: dict, mode: Optional[FastingMode]) -> bool:
+    """True when an ingredient isn't eaten during ``mode`` (onion in Navratri, potato in Paryushan).
+
+    The same food rules as plans, applied to the ingredient's own name; fasting
+    flours (rajgira atta, kuttu atta) are fine even though "atta" is a grain word.
+    """
+    if mode is None:
+        return False
+    found = tokens(f"{spec['name']} {key.replace('_', ' ')}")
+    words = found - GRAIN_WORDS if found & FAST_STAPLES else found
+    return bool(words & mode.forbidden_words or tags_for_tokens(found) & mode.forbidden_tags)
+
+
+def build_list(meals: List[dict], days: int = DEFAULT_DAYS, mode: Optional[FastingMode] = None) -> dict:
     """Combine the plan's dishes over ``days`` days into one list grouped by aisle.
 
     ``meals`` are plan meals (each item has ``food_id``, ``name``, ``grams``,
     ``quantity`` and ``unit``). The plan is one day, repeated for ``days``.
 
-    Returns ``{"days", "aisles": [{"aisle", "items": [...]}], "unmapped_count"}``.
+    With a fasting ``mode``, ingredients it rules out (a dish's onion during
+    Navratri) are left off and named in ``left_out``.
+
+    Returns ``{"days", "aisles": [{"aisle", "items": [...]}], "unmapped_count", "left_out"}``.
     Each ingredient item: ``{"key", "name", "aisle", "amount", "unit", "dishes"}``
     (``amount``/``unit`` are None for spices and herbs). Ready-made items carry
     ``servings``, ``serving_unit`` and ``grams`` instead of a converted amount.
@@ -97,8 +117,12 @@ def build_list(meals: List[dict], days: int = DEFAULT_DAYS) -> dict:
                 totals[key] = totals.get(key, 0.0) + grams / 100 * per_100g
                 used_in.setdefault(key, OrderedDict())[item["name"]] = None
     by_aisle: Dict[str, List[dict]] = {aisle: [] for aisle in AISLES}
+    left_out: List[str] = []
     for key, amount in totals.items():
         spec = ingredients[key]
+        if breaks_fast(key, spec, mode):
+            left_out.append(spec["name"])
+            continue
         by_aisle[spec["aisle"]].append({
             "key": key,
             "name": spec["name"],
@@ -115,4 +139,4 @@ def build_list(meals: List[dict], days: int = DEFAULT_DAYS) -> dict:
         for aisle, items in by_aisle.items()
         if items
     ]
-    return {"days": days, "aisles": aisles, "unmapped_count": len(ready)}
+    return {"days": days, "aisles": aisles, "unmapped_count": len(ready), "left_out": sorted(left_out)}

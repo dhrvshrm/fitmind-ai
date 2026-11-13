@@ -9,6 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import toast from 'react-hot-toast';
+import { fastingWarningText } from '../../utils/mealPlan';
 import { useLogMeal } from '../../hooks/queries/useNutritionQueries';
 import { resolveApiError } from '../../lib/apiClient';
 import { STRINGS } from '../../constants/strings';
@@ -99,6 +100,7 @@ export function MealForm() {
         result.xp_earned > 0 ? `${S.success} ${S.xpToast(result.xp_earned)}` : S.success,
       );
       if (result.leveled_up) toast.success(S.levelUpToast(result.new_level));
+      if (result.fasting_warning) toast(fastingWarningText(result.fasting_warning));
       setForm((prev) => ({ ...INITIAL_FORM, meal_type: prev.meal_type }));
     } catch (error) {
       toast.error(resolveApiError(error, S.error));

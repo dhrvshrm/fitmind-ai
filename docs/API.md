@@ -127,9 +127,15 @@ Meals carry a `source`: `verified` (all foods from a dataset or the user's own f
 | POST | `/diet-plans/current/meals/{meal_id}/regenerate` | (auth) a different option for one meal; the rest of the day is kept |
 | GET | `/diet-plans/current/meals/{meal_id}/items/{index}/alternatives?q=` | (auth) allowed foods that could replace one item (same role, e.g. a grain for a grain), sized to about the same calories |
 | POST | `/diet-plans/current/meals/{meal_id}/items/{index}/swap` | (auth) `{food_id}`; 400 if the food isn't allowed for the user |
-| POST | `/diet-plans/current/meals/{meal_id}/log` | (auth) logs the planned meal for today -> meal, plan and XP; 400 if already logged today |
+| POST | `/diet-plans/current/meals/{meal_id}/log` | (auth) logs the planned meal for today -> meal, plan and XP; 400 if already logged today. `fasting_warning` (`{mode, foods, end_date}` or null) when a food breaks the active fast; logging still succeeds |
+| GET | `/diet-plans/current/grocery-list?days=7` | (auth) the plan's dishes over 1 to 14 days as ingredients grouped by aisle (`vegetables`, `fruits`, `grains_flours`, `pulses`, `dairy`, `meat_fish_eggs`, `spices_others`, `ready_made`), in household amounts. Dishes without a curated recipe are listed under `ready_made` with servings. When the plan was made for a fast, ingredients it rules out are dropped and named in `left_out` |
+| GET | `/diet-plans/fasting-modes` | (auth) `{catalogue, modes, active}`: Navratri, Ekadashi, Jain Paryushan and Ramadan, the user's current and upcoming ones, and today's |
+| POST | `/diet-plans/fasting-modes` | (auth) `{mode, start_date, end_date?, dawn_time?, sunset_time?}`; end date defaults to the mode's usual length (Ekadashi is one day); dawn and sunset are for Ramadan only |
+| DELETE | `/diet-plans/fasting-modes/{id}` | (auth) turn a mode off |
 
 Meal ids are `breakfast`, `mid_morning`, `lunch`, `evening_snack`, `dinner` and `bedtime`, depending on meals per day. The AI only chooses dishes, by id, from foods the user's diet, allergies and exclusions allow; every number comes from the food database and portions are fitted to the targets in code. Each change is stored as a new version (`version`, `change`).
+
+While a fasting mode is on, plans follow its food rules (the same filter as allergies) and, for Ramadan, use `sehri`, `iftar` and `post_iftar` meals with a `fast_begins` routine step. Plans carry `fasting_mode` (what they were made for), `active_fasting_mode` and `mode_changed` (make a new plan). Meal times follow the user's wake and sleep times; `shift_aware` is true for night and rotating shifts, which are set with `PUT /users/personalisation` `{lifestyle: {work_schedule, wake_time, sleep_time}}` (3 to 14 hours of sleep).
 
 ### Gamification
 | Method | Path | Notes |

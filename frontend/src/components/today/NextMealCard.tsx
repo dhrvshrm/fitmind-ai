@@ -7,10 +7,10 @@ import {
   RestaurantRounded,
 } from '@mui/icons-material';
 import toast from 'react-hot-toast';
+import { fastingWarningText, slotLabel } from '../../utils/mealPlan';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes';
 import { QUERY_KEYS } from '../../constants/queryKeys';
-import { STRINGS } from '../../constants/strings';
 import { TODAY_STRINGS } from '../../constants/todayStrings';
 import { useCreateDietPlan, useLogPlanMeal } from '../../hooks/queries/useDietPlanQueries';
 import { useTodayDietPlan } from '../../hooks/queries/useHabitQueries';
@@ -22,7 +22,6 @@ import { nextMealCardStyles as styles } from './NextMealCard.styles';
 
 const S = TODAY_STRINGS.meal;
 // Other features may add plan slots (e.g. fasting meals); unknown ones fall back to the meal type.
-const SLOT_LABELS: Partial<Record<string, string>> = STRINGS.mealPlan.slots;
 const VISIBLE_ITEMS = 3;
 
 type NextMealCardProps = {
@@ -42,8 +41,9 @@ export function NextMealCard({ planPending }: NextMealCardProps) {
   function handleLog() {
     if (!meal) return;
     logMeal.mutate(meal.id, {
-      onSuccess: () => {
+      onSuccess: (result) => {
         toast.success(S.logged);
+        if (result.fasting_warning) toast(fastingWarningText(result.fasting_warning));
         void invalidate(QUERY_KEYS.today.all);
       },
       onError: (error) => toast.error(resolveApiError(error, S.logError)),
@@ -138,7 +138,7 @@ export function NextMealCard({ planPending }: NextMealCardProps) {
       }
     >
       <Typography variant="h5" component="p" sx={styles.mealName}>
-        {SLOT_LABELS[meal.id] ?? meal.meal_type}
+        {slotLabel(meal.id)}
       </Typography>
       <Box component="ul" sx={styles.items}>
         {meal.items.slice(0, VISIBLE_ITEMS).map((item) => (

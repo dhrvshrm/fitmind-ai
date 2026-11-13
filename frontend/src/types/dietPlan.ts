@@ -1,4 +1,5 @@
 import type { ItemSource, Meal, MealType, Nutrients } from './nutrition';
+import type { FastingMode, FastingWarning } from './indiaFirst';
 
 /** Which meal of the day a planned meal is (sets its label and calorie share). */
 export type PlanSlot =
@@ -8,17 +9,23 @@ export type PlanSlot =
   | 'lunch'
   | 'evening_snack'
   | 'dinner'
-  | 'bedtime';
+  | 'bedtime'
+  // Ramadan: before dawn, at sunset, and a light meal later.
+  | 'sehri'
+  | 'iftar'
+  | 'post_iftar';
 
 /** How the current version of a plan came about. */
 export type PlanChange = 'created' | 'regenerated' | 'meal_regenerated' | 'item_swapped';
 
 export type PlanNoteCode = 'protein_short' | 'check_ingredients' | 'medical_advice' | 'rule_based';
 
-export type PlanNote = {
-  code: PlanNoteCode;
-  values: Record<string, number>;
-};
+/** Notes added while a fasting or festival mode is on (values hold text, not only numbers). */
+export type FastingNoteCode = 'fasting_mode' | 'fasting_salt' | 'paryushan_practice' | 'ramadan_timings';
+
+export type PlanNote =
+  | { code: PlanNoteCode; values: Record<string, number> }
+  | { code: FastingNoteCode; values: Record<string, string | number | boolean | null> };
 
 /** One food in a planned meal; numbers always come from the food database. */
 export type PlanItem = {
@@ -70,9 +77,16 @@ export type DietPlan = {
   stale: boolean;
   /** The day from waking to sleep, built around the person's routine. */
   routine: RoutineEvent[];
+  /** The fasting mode this plan was made for, and the one on today. */
+  fasting_mode?: FastingMode | null;
+  active_fasting_mode?: FastingMode | null;
+  /** True when today's fasting mode differs from the plan's. */
+  mode_changed?: boolean;
+  /** Meal times follow the person's own wake and sleep times (night or rotating shifts). */
+  shift_aware?: boolean;
 };
 
-export type RoutineKind = 'wake' | 'workout' | 'meal' | 'wind_down' | 'sleep';
+export type RoutineKind = 'wake' | 'workout' | 'meal' | 'wind_down' | 'sleep' | 'fast_begins';
 
 export type RoutineEvent = {
   time: string;
@@ -88,4 +102,5 @@ export type PlanMealLogResult = {
   total_xp: number;
   new_level: number;
   leveled_up: boolean;
+  fasting_warning?: FastingWarning | null;
 };

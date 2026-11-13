@@ -432,7 +432,8 @@ async def grocery_list(user_id: str, days: int = grocery.DEFAULT_DAYS) -> dict:
         raise DietPlanError(f"Pick between 1 and {grocery.MAX_DAYS} days")
     plan = await _active(user_id)
     return {
-        **grocery.build_list(plan["meals"], days),
+        # Follow the fast the plan was made for: no onion or garlic in a Navratri list.
+        **grocery.build_list(plan["meals"], days, fasting.get_mode((plan.get("fasting_mode") or {}).get("mode"))),
         "plan_id": plan["id"],
         "plan_version": plan["version"],
         "fasting_mode": plan.get("fasting_mode"),

@@ -9,6 +9,12 @@ export function toIsoDate(date: Date): string {
 }
 
 /** Short axis/tooltip label for an ISO-ish date string, e.g. "Jul 5". */
+/** The ISO date `days` days after `iso` (local calendar, no time zone drift). */
+export function addDaysIso(iso: string, days: number): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  return toIsoDate(new Date(y, m - 1, d + days));
+}
+
 export function formatDateLabel(date: string): string {
   const parsed = new Date(date);
   if (Number.isNaN(parsed.getTime())) return date;

@@ -2,20 +2,21 @@ import type { ComponentType, ReactNode } from 'react';
 import { Box, Button, Stack, Typography, type SvgIconProps } from '@mui/material';
 import {
   BedtimeRounded,
+  DarkModeRounded,
   FitnessCenterRounded,
   NightsStayRounded,
   RestaurantRounded,
   TuneRounded,
   WbSunnyRounded,
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
 import { STRINGS } from '../../constants/strings';
-import { ROUTES } from '../../constants/routes';
+import { INDIA_FIRST_STRINGS } from '../../constants/indiaFirstStrings';
 import type { DietPlan, PlanMeal, RoutineEvent, RoutineKind } from '../../types/dietPlan';
 import { Reveal } from '../ui/Reveal';
 import { dayRoutineStyles as styles } from './DayRoutine.styles';
 
 const R = STRINGS.mealPlan.routine;
+const I = INDIA_FIRST_STRINGS;
 
 const ICONS: Record<RoutineKind, ComponentType<SvgIconProps>> = {
   wake: WbSunnyRounded,
@@ -23,6 +24,7 @@ const ICONS: Record<RoutineKind, ComponentType<SvgIconProps>> = {
   meal: RestaurantRounded,
   wind_down: NightsStayRounded,
   sleep: BedtimeRounded,
+  fast_begins: DarkModeRounded,
 };
 
 function stepText(event: RoutineEvent): { title: string; detail: string } {
@@ -36,6 +38,8 @@ function stepText(event: RoutineEvent): { title: string; detail: string } {
       return { title: R.windDown.title, detail: R.windDown.detail };
     case 'sleep':
       return { title: R.sleep.title, detail: R.sleep.detail(v.hours ?? 0) };
+    case 'fast_begins':
+      return { title: I.routine.fastBegins.title, detail: I.routine.fastBegins.detail };
     default:
       return { title: R.mealFallback, detail: '' };
   }
@@ -43,6 +47,10 @@ function stepText(event: RoutineEvent): { title: string; detail: string } {
 
 type DayRoutineProps = {
   plan: DietPlan;
+  /** Opens the wake, sleep and shift times editor. */
+  onEditTimes: () => void;
+  /** Shown under the subtitle, e.g. that times follow a night shift. */
+  note?: string;
   /** Renders the full card for a meal, placed at its time in the day. */
   renderMeal: (meal: PlanMeal) => ReactNode;
 };
@@ -51,8 +59,7 @@ type DayRoutineProps = {
  * The whole day in order, from waking to sleep: water, workout, each meal as
  * its full card, wind-down and bedtime. One column, so nothing is repeated.
  */
-export function DayRoutine({ plan, renderMeal }: DayRoutineProps) {
-  const navigate = useNavigate();
+export function DayRoutine({ plan, renderMeal, onEditTimes, note }: DayRoutineProps) {
   // Plans saved before the routine existed still list their meals in order.
   const events: RoutineEvent[] = plan.routine?.length
     ? plan.routine
@@ -68,8 +75,13 @@ export function DayRoutine({ plan, renderMeal }: DayRoutineProps) {
           <Typography variant="body2" color="text.secondary">
             {R.subtitle}
           </Typography>
+          {note && (
+            <Typography variant="caption" color="primary" component="p" sx={styles.note}>
+              {note}
+            </Typography>
+          )}
         </Box>
-        <Button size="small" color="inherit" startIcon={<TuneRounded />} onClick={() => navigate(`${ROUTES.ONBOARDING}?mode=update`)}>
+        <Button size="small" color="inherit" startIcon={<TuneRounded />} onClick={onEditTimes}>
           {R.edit}
         </Button>
       </Stack>

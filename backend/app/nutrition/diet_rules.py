@@ -153,6 +153,11 @@ def food_tokens(food: Food) -> FrozenSet[str]:
 PLANT_WORDS = frozenset({"coconut", "soy", "soya", "almond", "oat", "peanut", "cocoa"})
 
 
+def tags_for_tokens(found: FrozenSet[str]) -> FrozenSet[str]:
+    """Diet and allergen tags that name tokens imply (used for ingredient names too)."""
+    return frozenset(tag for tag, words in TAG_WORDS.items() if _matches(found, words))
+
+
 def food_tags(food: Food) -> FrozenSet[str]:
     """Diet and allergen tags a food's name implies (meat, dairy, gluten...)."""
     found = food_tokens(food)
