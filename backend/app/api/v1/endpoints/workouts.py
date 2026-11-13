@@ -10,13 +10,19 @@ from app.schemas.workout import (
     WorkoutLogRequest,
     WorkoutPlanRequest,
 )
-from app.services import notification_service, workout_service
+from app.services import notification_service, progression_service, workout_service
+from app.services.progression_service import ProgressionError
 from app.services.workout_service import WorkoutServiceError
 
 router = APIRouter(prefix="/workouts", tags=["Workouts"])
 
 
 def _http(exc: WorkoutServiceError) -> HTTPException:
+    code = status.HTTP_404_NOT_FOUND if exc.kind == "not_found" else status.HTTP_400_BAD_REQUEST
+    return HTTPException(status_code=code, detail=str(exc))
+
+
+def _progression_http(exc: ProgressionError) -> HTTPException:
     code = status.HTTP_404_NOT_FOUND if exc.kind == "not_found" else status.HTTP_400_BAD_REQUEST
     return HTTPException(status_code=code, detail=str(exc))
 
@@ -59,8 +65,12 @@ async def get_weekly_plan(current_user: User = Depends(get_current_user)) -> dic
 @router.get("/plan/today", response_model=SuccessResponse)
 async def get_today_workout(current_user: User = Depends(get_current_user)) -> dict:
     """Today's session: a chosen quick session, or the plan's day adjusted for
-    today's recovery score (fewer sets when low, mobility when very low)."""
+    today's recovery score (fewer sets when low, mobility when very low).
+
+    Each exercise carries a ``target`` from progressive overload (what was
+    lifted last time and what to aim for today); an accepted easy week trims sets."""
     today = await workout_service.get_today_workout(current_user)
+    today = await progression_service.decorate_today(current_user, today)
     return {"success": True, "message": "Today's workout retrieved", "data": today}
 
 
@@ -115,6 +125,8 @@ async def log_workout(
         intensity=log_data.intensity,
         xp_earned=xp["xp_earned"],
     )
+    # Sets with weight and reps feed progressive overload and personal records.
+    records = await progression_service.record_sets(current_user.id, log_data.exercises)
     new_badges = await workout_service.check_and_award_badges(current_user.id)
     message = (
         f"Workout logged. +{xp['xp_earned']} XP."
@@ -136,6 +148,7 @@ async def log_workout(
             "new_level": xp["new_level"],
             "leveled_up": xp["leveled_up"],
             "new_badges": new_badges,
+            "new_records": records,
         },
     }
 
@@ -179,3 +192,60 @@ async def complete_exercise(
         "message": "Exercise marked complete",
         "data": progress,
     }
+
+
+@router.get("/progression", response_model=SuccessResponse)
+async def progression_suggestions(current_user: User = Depends(get_current_user)) -> dict:
+    """An easy week when main lifts have stalled, and whether the user looks ready for the next level."""
+    data = await progression_service.suggestions(current_user)
+    return {"success": True, "message": "Progression suggestions", "data": data}
+
+
+@router.post("/deload", response_model=SuccessResponse)
+async def start_deload(current_user: User = Depends(get_current_user)) -> dict:
+    """Start a 7-day easy week: fewer sets, same weights, lighter effort."""
+    data = await progression_service.start_deload(current_user)
+    return {"success": True, "message": "Easy week started", "data": data}
+
+
+@router.delete("/deload", response_model=SuccessResponse)
+async def end_deload(current_user: User = Depends(get_current_user)) -> dict:
+    data = await progression_service.end_deload(current_user)
+    return {"success": True, "message": "Easy week ended", "data": data}
+
+
+@router.post("/progression/{kind}/snooze", response_model=SuccessResponse)
+async def snooze_suggestion(kind: str, current_user: User = Depends(get_current_user)) -> dict:
+    """Hide the deload or level suggestion for two weeks."""
+    try:
+        data = await progression_service.snooze(current_user, kind)
+    except ProgressionError as exc:
+        raise _progression_http(exc)
+    return {"success": True, "message": "Suggestion hidden", "data": data}
+
+
+@router.post("/level-up", response_model=SuccessResponse)
+async def level_up(current_user: User = Depends(get_current_user)) -> dict:
+    """Move to the next training level and rebuild the weekly plan (only when ready)."""
+    try:
+        data = await progression_service.level_up(current_user)
+    except ProgressionError as exc:
+        raise _progression_http(exc)
+    return {"success": True, "message": "Level updated", "data": data}
+
+
+@router.get("/strength", response_model=SuccessResponse)
+async def strength_summary(current_user: User = Depends(get_current_user)) -> dict:
+    """Most-trained weighted lifts with their estimated one-rep-max trend."""
+    data = await progression_service.strength_summary(current_user)
+    return {"success": True, "message": "Strength progress", "data": data}
+
+
+@router.get("/exercises/{exercise_id}/history", response_model=SuccessResponse)
+async def exercise_history(exercise_id: str, current_user: User = Depends(get_current_user)) -> dict:
+    """Every logged session of one exercise, oldest first."""
+    try:
+        data = await progression_service.exercise_history(current_user, exercise_id)
+    except ProgressionError as exc:
+        raise _progression_http(exc)
+    return {"success": True, "message": "Exercise history", "data": data}

@@ -6,6 +6,7 @@ import { WeeklyPlanView } from './WeeklyPlanView';
 import { TodayWorkout } from './TodayWorkout';
 import { WorkoutHistory } from './WorkoutHistory';
 import { QuickSessionCard } from './QuickSessionCard';
+import { TrainingCoachCard } from './TrainingCoachCard';
 import { ExerciseLibrary } from '../exercises/ExerciseLibrary';
 import {
   useGeneratePlan,
@@ -122,6 +123,8 @@ export function WorkoutPage() {
         )}
 
         {plan.data && <WeeklyPlanView week={plan.data.week} meta={plan.data.meta} />}
+
+        <TrainingCoachCard />
 
         <QuickSessionCard />
 

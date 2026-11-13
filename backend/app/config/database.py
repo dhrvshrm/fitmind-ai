@@ -115,6 +115,9 @@ _INDEXES = {
     "biomarkers": [([("user_id", 1), ("code", 1), ("measured_at", 1)], {}), ([("report_id", 1)], {})],
     "user_supplements": [([("user_id", 1), ("active", 1)], {})],
     "supplement_logs": [([("user_id", 1), ("local_date", 1), ("user_supplement_id", 1)], {})],
+    # Progressive overload: one entry per user, exercise and day; one training state per user.
+    "exercise_logs": [([("user_id", 1), ("exercise_id", 1), ("date", -1)], {"unique": True}), ([("user_id", 1), ("date", 1)], {})],
+    "training_state": [([("user_id", 1)], {"unique": True})],
     # Cached AI results expire on their own via a TTL index.
     "ai_cache": [
         ([("key", 1)], {"unique": True}),

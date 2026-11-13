@@ -5,7 +5,9 @@ import type { ExerciseSummary } from '../types/exercise';
 import type {
   ExerciseCompleteResult,
   GeneratePlanPayload,
+  ProgressionSuggestions,
   QuickSessionPayload,
+  StrengthSummary,
   TodayWorkout,
   WeeklyPlan,
   WorkoutHistoryItem,
@@ -90,6 +92,37 @@ export const workoutService = {
       WORKOUT_ENDPOINTS.EXERCISE_COMPLETE,
       { exercise_name: exerciseName },
     );
+    return data.data;
+  },
+
+  /** Easy-week and level suggestions from logged training. */
+  async getProgression(): Promise<ProgressionSuggestions> {
+    const { data } = await apiClient.get<ApiEnvelope<ProgressionSuggestions>>(WORKOUT_ENDPOINTS.PROGRESSION);
+    return data.data;
+  },
+
+  async startDeload(): Promise<{ deload_until: string }> {
+    const { data } = await apiClient.post<ApiEnvelope<{ deload_until: string }>>(WORKOUT_ENDPOINTS.DELOAD);
+    return data.data;
+  },
+
+  async endDeload(): Promise<void> {
+    await apiClient.delete(WORKOUT_ENDPOINTS.DELOAD);
+  },
+
+  /** Hides a suggestion for two weeks. */
+  async snoozeSuggestion(kind: 'deload' | 'level'): Promise<void> {
+    await apiClient.post(WORKOUT_ENDPOINTS.snooze(kind));
+  },
+
+  /** Moves to the next level and rebuilds the weekly plan. */
+  async levelUp(): Promise<{ level: string }> {
+    const { data } = await apiClient.post<ApiEnvelope<{ level: string }>>(WORKOUT_ENDPOINTS.LEVEL_UP);
+    return data.data;
+  },
+
+  async getStrength(): Promise<StrengthSummary> {
+    const { data } = await apiClient.get<ApiEnvelope<StrengthSummary>>(WORKOUT_ENDPOINTS.STRENGTH);
     return data.data;
   },
 };
