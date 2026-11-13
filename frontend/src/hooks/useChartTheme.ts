@@ -23,7 +23,7 @@ export function useChartTheme() {
 
   return {
     ...tokens,
-    /** Brand color for single-series charts (haldi). */
+    /** Brand color for single-series charts (neel). */
     brand: tokens.primary,
     brandMuted: tokens.primaryMuted,
     /** Older name for the brand color, kept so existing charts keep working. */

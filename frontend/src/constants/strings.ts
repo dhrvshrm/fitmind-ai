@@ -2,7 +2,7 @@
 export const STRINGS = {
   app: {
     name: "FitMind AI",
-    tagline: "Fitness and nutrition built for how India eats",
+    tagline: "Your AI coach for training and nutrition, built for how India eats",
     heroTitle: "Eat right and train smart, without the guesswork",
     features: [
 "Log a whole day of meals in one sentence, in English or Hinglish",
@@ -84,7 +84,7 @@ export const STRINGS = {
   },
   login: {
     title: "Welcome back",
-    subtitle: "Log in to continue your journey",
+    subtitle: "Your AI coach has today's workout and meals ready.",
     submit: "Log in",
     submitting: "Logging in…",
     switchPrompt: "Don't have an account?",
@@ -92,7 +92,7 @@ export const STRINGS = {
   },
   signup: {
     title: "Create your account",
-    subtitle: "Takes a minute. Your plan is ready right after.",
+    subtitle: "Two minutes of questions. Your AI coach builds your workout plan and meal plan right after.",
     submit: "Sign up",
     submitting: "Creating account…",
     switchPrompt: "Already have an account?",
@@ -158,6 +158,11 @@ export const STRINGS = {
     notificationsAria: "Notifications",
     accountAria: "Account menu",
     signedInAs: "Signed in as",
+    // The day's "ink line" under the top bar: calories eaten so far.
+    inkLine: (eaten: number, goal: number) => `${eaten.toLocaleString()} of ${goal.toLocaleString()} kcal eaten today`,
+    inkLineAria: "Calories eaten today",
+    brandAI: "AI",
+    brandName: "FitMind",
     logout: "Log out",
     colorModeAria: "Change color mode",
     colorModes: {

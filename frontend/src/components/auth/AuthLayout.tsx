@@ -1,14 +1,10 @@
 import type { ReactNode } from "react";
-import { Box, Card, Stack, Typography } from "@mui/material";
-import {
-  AutoAwesomeRounded,
-  EventNoteRounded,
-  FitnessCenterRounded,
-  MicRounded,
-  RestaurantRounded,
-} from "@mui/icons-material";
-import { STRINGS } from "../../constants/strings";
-import { IconBadge } from "../ui/IconBadge";
+import { Box, Card, Link, Stack, Typography } from "@mui/material";
+import { ArrowBackRounded } from "@mui/icons-material";
+import { Link as RouterLink } from "react-router-dom";
+import { LANDING_STRINGS } from "../../constants/landingStrings";
+import { ROUTES } from "../../constants/routes";
+import { Wordmark } from "../ui/Wordmark";
 import { authLayoutStyles as styles } from "./AuthLayout.styles";
 
 type AuthLayoutProps = {
@@ -19,61 +15,58 @@ type AuthLayoutProps = {
   footer?: ReactNode;
 };
 
-/** Icons paired positionally with `STRINGS.app.features`. */
-const FEATURE_ICONS = [MicRounded, RestaurantRounded, EventNoteRounded];
+const D = LANDING_STRINGS.day;
+const A = LANDING_STRINGS.auth;
+
+/** The landing page's day, as a few handwritten lines on today's diary page. */
+const DIARY_LINES = [
+  { time: D.wake.time, text: D.wake.note },
+  { time: D.gym.time, text: D.gym.logRows[0][2] },
+  { time: D.lunch.time, text: D.lunch.message },
+  { time: D.night.time, text: D.night.postcardLines[0] },
+];
 
 /**
- * Shared shell for the auth pages: a calm two-column layout with a tinted
- * brand panel and feature highlights on the left (md+) and the form card on
- * the right. Collapses to the form alone, with a small brand row, on mobile.
+ * Shared shell for the auth pages, in the landing page's notebook look: a
+ * slim bar back home, a diary page with today's handwritten lines (md+), and
+ * the form. On phones it's the bar and the form.
  */
 export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProps) {
   return (
     <Box sx={styles.root}>
-      <Box sx={styles.container}>
-        <Box sx={styles.brandPanel}>
-          <Box>
-            <Stack sx={styles.brandRow}>
-              <Box sx={styles.brandMark}>
-                <FitnessCenterRounded fontSize="small" />
-              </Box>
-              <Typography variant="h6" component="p">
-                {STRINGS.app.name}
-              </Typography>
-            </Stack>
-            <Typography variant="h3" component="p" sx={styles.heroTitle}>
-              {STRINGS.app.heroTitle}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              {STRINGS.app.tagline}
-            </Typography>
-          </Box>
+      <Stack component="header" sx={styles.topBar}>
+        <Link component={RouterLink} to={ROUTES.HOME} underline="none" color="inherit" aria-label={LANDING_STRINGS.home}>
+          <Wordmark size={32} />
+        </Link>
+        <Link component={RouterLink} to={ROUTES.HOME} underline="hover" color="text.secondary" sx={styles.back}>
+          <ArrowBackRounded fontSize="small" />
+          {A.backHome}
+        </Link>
+      </Stack>
 
-          <Stack spacing={2}>
-            {STRINGS.app.features.map((feature, index) => (
-              <Stack key={feature} sx={styles.featureRow}>
-                <IconBadge icon={FEATURE_ICONS[index] ?? AutoAwesomeRounded} />
-                <Typography variant="body2">{feature}</Typography>
-              </Stack>
+      <Box sx={styles.container}>
+        <Box sx={styles.diary} aria-hidden>
+          <Typography sx={styles.diaryTitle}>{LANDING_STRINGS.hero.lines.join(" ")}</Typography>
+          <Typography sx={styles.diaryTitleAccent}>{LANDING_STRINGS.hero.lastLine}</Typography>
+          <Box component="ul" sx={styles.diaryList}>
+            {DIARY_LINES.map((line) => (
+              <Box component="li" key={line.time} sx={styles.diaryLine}>
+                <Box component="span" sx={styles.diaryTime}>
+                  {line.time}
+                </Box>
+                {line.text}
+              </Box>
             ))}
-          </Stack>
+          </Box>
+          <Typography sx={styles.diaryNote}>{A.note}</Typography>
         </Box>
 
         <Card sx={styles.formCard}>
-          <Stack sx={styles.mobileBrand}>
-            <Box sx={styles.brandMark}>
-              <FitnessCenterRounded fontSize="small" />
-            </Box>
-            <Typography variant="subtitle1" component="p">
-              {STRINGS.app.name}
-            </Typography>
-          </Stack>
-
-          <Stack spacing={0.5} sx={styles.header}>
-            <Typography variant="h4" component="h1">
+          <Stack spacing={0.75} sx={styles.header}>
+            <Typography variant="h3" component="h1" sx={styles.title}>
               {title}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body1" color="text.secondary">
               {subtitle}
             </Typography>
           </Stack>
