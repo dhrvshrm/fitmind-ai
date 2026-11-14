@@ -541,3 +541,17 @@ def test_tiny_or_unmapped_fat_gets_no_note():
 
     assert cooking_fat.for_item({"food_id": "not-mapped", "grams": 200}) == []
     assert cooking_fat.for_item({"food_id": "indb:ASC096", "grams": 10}) == []  # 0.1 g oil
+
+
+def test_unmapped_cooked_dishes_get_an_estimated_oil_note():
+    from app.nutrition import cooking_fat
+
+    curry = {"food_id": "indb:ASC161", "name": "Black channa curry", "grams": 180,
+             "per_100g": {"fat": 6.61}}
+    [fat] = cooking_fat.for_item(curry)
+    assert fat["kind"] == "oil" and fat["estimated"] is True
+    assert fat["grams"] == pytest.approx((6.61 - cooking_fat.BASE_FAT_PER_100G) * 1.8, abs=0.1)
+    assert fat["tsp"] == 2.0
+    # Fat that comes from the food itself (paneer, nuts) or sweets isn't guessed at.
+    for name in ("Paneer bhurji curry", "Kaju masala", "Moong dal halwa", "Soyabean curry"):
+        assert cooking_fat.for_item({**curry, "name": name}) == []

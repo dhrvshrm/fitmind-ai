@@ -175,10 +175,10 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
           {S.macros(meal.totals.protein, meal.totals.carbs, meal.totals.fat)}
         </Typography>
         {!eatenByHand && meal.cooking_fat && meal.cooking_fat.length > 0 && (
-          <Tooltip title={S.cookingFat.tip(fatKcalPerTsp)}>
+          <Tooltip title={S.cookingFat.tip(fatKcalPerTsp, Boolean(meal.cooking_fat.some((f) => f.estimated)))}>
             <Stack sx={styles.fatLine} tabIndex={0}>
               <OpacityRounded fontSize="small" />
-              <Typography variant="caption">{S.cookingFat.meal(cookingFatText(meal.cooking_fat))}</Typography>
+              <Typography variant="caption">{S.cookingFat.meal(cookingFatText(meal.cooking_fat, false))}</Typography>
             </Stack>
           </Tooltip>
         )}

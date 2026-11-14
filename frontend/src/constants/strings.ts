@@ -890,10 +890,11 @@ export const STRINGS = {
         const part = { 0: "", 0.25: "¼", 0.5: "½", 0.75: "¾" }[tsp - whole as 0 | 0.25 | 0.5 | 0.75] ?? "";
         return `${whole > 0 ? whole : ""}${part}` || "0";
       },
-      item: (amount: string, kind: string) => `${amount} tsp ${kind}`,
+      item: (amount: string, kind: string, estimated: boolean) =>
+        `${estimated ? "about " : ""}${amount} tsp ${kind}${estimated ? " (est.)" : ""}`,
       meal: (parts: string) => `Cooking fat: about ${parts}, already in the calories.`,
-      tip: (kcal: number) =>
-        `This is the oil, ghee or butter the calories assume. Each extra teaspoon adds about ${kcal} kcal, so measure with a spoon instead of pouring.`,
+      tip: (kcal: number, estimated: boolean) =>
+        `This is the oil, ghee or butter the calories assume${estimated ? " (worked out from the dish's fat where its recipe isn't listed)" : ""}. Each extra teaspoon adds about ${kcal} kcal, so measure with a spoon instead of pouring.`,
     },
     newOption: "Different option",
     newOptionAria: (meal: string) => `Get a different option for ${meal}`,

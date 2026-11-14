@@ -41,6 +41,8 @@ export type CookingFat = {
   grams: number;
   tsp: number;
   kcal_per_tsp: number;
+  /** Worked out from the dish's fat because its recipe isn't mapped. */
+  estimated?: boolean;
 };
 
 export type PlanItem = {
@@ -66,7 +68,7 @@ export type PlanMeal = {
   items: PlanItem[];
   totals: Nutrients;
   /** The meal's cooking fat in teaspoons, by kind. */
-  cooking_fat?: { kind: CookingFatKind; tsp: number }[];
+  cooking_fat?: { kind: CookingFatKind; tsp: number; estimated?: boolean }[];
 };
 
 export type PlanTargets = {

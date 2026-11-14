@@ -63,7 +63,12 @@ export function fastingWarningText(warning: FastingWarning): string {
 }
 
 /** "1 tsp oil, ½ tsp ghee" for a dish or a meal; empty when there's none. */
-export function cookingFatText(fats: { kind: CookingFatKind; tsp: number }[] | undefined): string {
+export function cookingFatText(
+  fats: { kind: CookingFatKind; tsp: number; estimated?: boolean }[] | undefined,
+  markEstimates = true,
+): string {
   const F = S.cookingFat;
-  return (fats ?? []).map((fat) => F.item(F.tsp(fat.tsp), F.kinds[fat.kind])).join(', ');
+  return (fats ?? [])
+    .map((fat) => F.item(F.tsp(fat.tsp), F.kinds[fat.kind], markEstimates && Boolean(fat.estimated)))
+    .join(', ');
 }
