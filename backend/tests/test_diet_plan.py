@@ -4,7 +4,7 @@ import json
 import pytest
 
 from app.nutrition import food_db, meal_planner
-from app.nutrition.diet_rules import DietRules, food_tags, suitable_for_plans
+from app.nutrition.diet_rules import DietRules, food_tags, food_tokens, suitable_for_plans
 from app.nutrition.food_db import Food, Nutrients, Serving
 from tests.conftest import ONBOARDING, register_and_login
 
@@ -328,7 +328,8 @@ def test_logging_a_planned_meal_saves_it_once_per_day(client, ai_providers):
     assert res.status_code == 200
     data = res.json()["data"]
     assert data["plan"]["logged_today"] == ["breakfast"]
-    assert data["meal"]["meal_type"] == "breakfast" and data["meal"]["source"] == "verified"
+    # "mixed" when the plan added a hand-built staple (hung curd, paneer) to the dataset foods.
+    assert data["meal"]["meal_type"] == "breakfast" and data["meal"]["source"] in ("verified", "mixed")
     assert data["meal"]["calories"] == pytest.approx(plan["meals"][0]["totals"]["kcal"])
 
     today = client.get(f"{API}/nutrition/today", headers=headers).json()["data"]
@@ -568,3 +569,55 @@ def test_a_snack_with_no_plan_slot_is_kept_as_an_extra_with_its_time():
     [extra] = result["day"]["extras"]
     assert extra["name"] == "Protein bar" and extra["time"] == "16:20"
     assert result["day"]["eaten_protein"] == 10
+
+
+# --- Protein on target -------------------------------------------------------------
+PROTEIN_TARGETS = {"calories": 1895, "protein": 132, "carbs": 223, "fats": 53, "fiber": 27}
+
+
+@pytest.mark.parametrize("diet", ["vegetarian", "eggetarian", "non_vegetarian", "jain", "vegan"])
+def test_plans_reach_their_protein_target_without_breaking_calories(diet):
+    rules = DietRules.from_preferences({"diet_type": diet})
+    pool = meal_planner.food_pool(rules, {"diet_type": diet})
+    foods = {f.id: f for f in pool}
+    slots = meal_planner.plan_slots({"meals_per_day": 4, "sleep_time": "23:30"}, "early_morning", True)
+    meals = meal_planner.assemble(meal_planner.rule_based_pick(slots, pool, 0), slots, foods)
+    meal_planner.fit_portions(meals, PROTEIN_TARGETS, foods)
+    before = sum(m["totals"]["protein"] for m in meals)
+    meal_planner.boost_protein(meals, PROTEIN_TARGETS, pool, foods,
+                               extra_slot=meal_planner.bedtime_slot({"sleep_time": "23:30"}))
+    totals = {k: sum(m["totals"][k] for m in meals) for k in ("kcal", "protein", "fat")}
+    assert totals["protein"] >= PROTEIN_TARGETS["protein"] * 0.88 > before
+    assert abs(totals["kcal"] - PROTEIN_TARGETS["calories"]) <= PROTEIN_TARGETS["calories"] * meal_planner.MAX_KCAL_OVER - PROTEIN_TARGETS["calories"] + 1
+    assert totals["fat"] <= PROTEIN_TARGETS["fats"] * meal_planner.MAX_FAT_OVER + 1
+    for meal in meals:
+        # Every addition fits the diet, and nothing doubles up in one meal (curd next to hung curd).
+        assert all(rules.allows(foods[i["food_id"]]) for i in meal["items"])
+        kinds = [food_tokens(foods[i["food_id"]]) & meal_planner.SAME_KIND_WORDS for i in meal["items"]]
+        flat = [k for ks in kinds for k in ks]
+        assert len(flat) == len(set(flat)), meal
+
+
+def test_a_bedtime_protein_snack_closes_a_gap_the_meals_cannot():
+    curd = food_db.get_food("est:hung_curd")
+    rice = food_db.get_food(RICE)
+    foods = {f.id: f for f in (curd, rice)}
+    meals = [{"id": "lunch", "meal_type": "lunch", "time": "13:30", "share": 1.0,
+              "items": [meal_planner.build_item(rice, 1.0)], "totals": {}}]
+    targets = {"calories": 700, "protein": 40, "carbs": 120, "fats": 15, "fiber": 5}
+    # Lunch is fixed (as when another meal is being regenerated), so the only way to add
+    # protein is the snack before bed.
+    meal_planner.boost_protein(meals, targets, [curd], foods, fixed=["lunch"],
+                               extra_slot=meal_planner.bedtime_slot({"sleep_time": "23:00"}))
+    bedtime = next(m for m in meals if m["id"] == "bedtime")
+    assert bedtime["time"] == "22:00"
+    assert [i["food_id"] for i in bedtime["items"]] == ["est:hung_curd"]
+
+
+def test_a_plan_with_a_bedtime_snack_is_not_flagged_as_stale(client, ai_providers):
+    headers, _ = _onboard(client, payload={**VEG_ONBOARDING, "lifestyle": {"meals_per_day": 4, "sleep_time": "23:30", "wake_time": "06:30"}})
+    ai_providers.gemini.append(VALID_PICK)
+    plan = client.post(f"{API}/diet-plans", headers=headers).json()["data"]
+    protein = sum(m["totals"]["protein"] for m in plan["meals"])
+    assert protein >= plan["targets"]["protein"] * 0.88
+    assert plan["stale"] is False

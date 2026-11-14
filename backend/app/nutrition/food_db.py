@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 DATA_DIR = Path(__file__).parent / "data"
 # fasting_estimates.json: a few fasting dishes INDB lacks (kuttu roti, samak rice...),
 # hand-built from ingredient values and labelled as estimates (source "estimate").
-DATASET_FILES = ("indb_foods.json", "usda_basics.json", "fasting_estimates.json")
+DATASET_FILES = ("indb_foods.json", "usda_basics.json", "fasting_estimates.json", "protein_staples.json")
 # Sources whose numbers are hand-built estimates rather than a published dataset.
 ESTIMATE_SOURCES = frozenset({"estimate"})
 

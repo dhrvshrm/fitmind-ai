@@ -415,6 +415,16 @@
    "name": "Saffron",
    "aisle": "spices_others",
    "unit": null
+  },
+  "soya_chunks": {
+   "name": "Soya chunks",
+   "aisle": "pulses",
+   "unit": "g"
+  },
+  "roasted_chana": {
+   "name": "Roasted chana (bhuna chana)",
+   "aisle": "pulses",
+   "unit": "g"
   }
  },
  "dishes": {
@@ -2255,6 +2265,68 @@
   "usda:170457": [
    [
     "tomato",
+    100
+   ]
+  ],
+  "est:paneer": [
+   [
+    "paneer",
+    100
+   ]
+  ],
+  "est:paneer_bhurji": [
+   [
+    "paneer",
+    70
+   ],
+   [
+    "onion",
+    12
+   ],
+   [
+    "tomato",
+    13
+   ],
+   [
+    "oil",
+    4
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "est:soya_chunk_curry": [
+   [
+    "soya_chunks",
+    25
+   ],
+   [
+    "onion",
+    12
+   ],
+   [
+    "tomato",
+    13
+   ],
+   [
+    "oil",
+    3
+   ],
+   [
+    "spices",
+    0
+   ]
+  ],
+  "est:hung_curd": [
+   [
+    "curd",
+    200
+   ]
+  ],
+  "est:roasted_chana": [
+   [
+    "roasted_chana",
     100
    ]
   ]

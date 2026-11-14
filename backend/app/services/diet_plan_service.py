@@ -149,7 +149,11 @@ def _current_times(plan: dict, user: Optional[User], mode: Optional[dict]) -> Op
         return None
     slots = meal_planner.plan_slots(user.lifestyle, user.workout_time, _trains(user), mode)
     times = {s["id"]: s["time"] for s in slots}
-    return times if set(times) == {m["id"] for m in plan["meals"]} else None
+    plan_ids = {m["id"] for m in plan["meals"]}
+    # A protein snack before bed may be added on top of the routine's meals.
+    if "bedtime" in plan_ids and "bedtime" not in times:
+        times["bedtime"] = meal_planner.bedtime_slot(user.lifestyle)["time"]
+    return times if set(times) == plan_ids else None
 
 
 def _remove_disallowed(meals: List[dict], ctx: _Context) -> None:
@@ -350,6 +354,10 @@ async def create_plan(user_id: str) -> dict:
     meals = meal_planner.assemble(pick, slots, ctx.foods)
     _remove_disallowed(meals, ctx)
     meal_planner.fit_portions(meals, plan_targets, ctx.foods)
+    # Resizing can't fix a day of rice and roti: add simple protein foods (and, if
+    # still short, a protein snack before bed) until protein is on target.
+    extra = None if routine.is_ramadan(mode) else meal_planner.bedtime_slot(ctx.user.lifestyle)
+    meal_planner.boost_protein(meals, plan_targets, ctx.pool, ctx.foods, extra_slot=extra)
     doc = await _save(user_id, meals, plan_targets, ctx, "regenerated" if previous else "created",
                       previous, rule_based)
     await analytics_service.track(
@@ -389,6 +397,7 @@ async def regenerate_meal(user_id: str, meal_id: str) -> dict:
     meals[[m["id"] for m in meals].index(meal_id)] = new_meal
     _remove_disallowed([new_meal], ctx)
     meal_planner.fit_portions(meals, plan["targets"], ctx.foods, fixed=[m["id"] for m in others])
+    meal_planner.boost_protein(meals, plan["targets"], ctx.pool, ctx.foods, fixed=[m["id"] for m in others])
     doc = await _save(user_id, meals, plan["targets"], ctx, "meal_regenerated", plan, rule_based)
     return await _present(doc, ctx.user)
 

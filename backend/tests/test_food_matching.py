@@ -37,7 +37,7 @@ def test_common_indian_dishes_match_confidently(query, expected_id):
         assert match.food.id == expected_id
 
 
-@pytest.mark.parametrize("query", ["chicken biryani", "paneer bhurji", "vada pav"])
+@pytest.mark.parametrize("query", ["chicken biryani", "misal pav", "vada pav"])
 def test_dishes_not_in_the_data_are_not_force_matched(query):
     """A mutton biryani must never be returned as "chicken biryani"."""
     match = best(query)

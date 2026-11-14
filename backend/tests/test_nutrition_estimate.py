@@ -59,14 +59,14 @@ def test_unknown_food_gets_a_labelled_ai_estimate(client, ai_providers):
 def test_inconsistent_ai_numbers_are_rejected_and_retried(client, ai_providers):
     headers, _ = register_and_login(client)
     ai_providers.gemini = [
-        parsed(("paneer bhurji", 1, "bowl")),
+        parsed(("misal pav", 1, "plate")),
         # 900 kcal can't come from 10 g protein, 5 g carbs and 5 g fat.
-        json.dumps({"grams": 150, "kcal": 900, "protein": 10, "carbs": 5, "fat": 5,
+        json.dumps({"grams": 250, "kcal": 900, "protein": 10, "carbs": 5, "fat": 5,
                     "confidence": "high", "assumption": ""}),
-        json.dumps({"grams": 150, "kcal": 320, "protein": 18, "carbs": 8, "fat": 24,
-                    "confidence": "medium", "assumption": "Paneer scrambled with onion and tomato."}),
+        json.dumps({"grams": 250, "kcal": 320, "protein": 12, "carbs": 40, "fat": 12,
+                    "confidence": "medium", "assumption": "Sprouted moth usal with farsan and two pav."}),
     ]
-    item = estimate(client, headers, "a bowl of paneer bhurji")["items"][0]
+    item = estimate(client, headers, "a plate of misal pav")["items"][0]
     assert item["nutrients"]["kcal"] == 320
     assert "previous answer was invalid" in ai_providers.calls[2]["prompt"]
 
