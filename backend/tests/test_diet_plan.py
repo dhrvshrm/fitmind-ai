@@ -621,3 +621,54 @@ def test_a_plan_with_a_bedtime_snack_is_not_flagged_as_stale(client, ai_provider
     protein = sum(m["totals"]["protein"] for m in plan["meals"])
     assert protein >= plan["targets"]["protein"] * 0.88
     assert plan["stale"] is False
+
+
+# --- What suits each meal ----------------------------------------------------------
+def test_nothing_heavy_goes_into_the_snack_before_a_workout():
+    pre = {"id": "pre_workout", "workout_role": "pre"}
+    evening_pre = {"id": "evening_snack", "workout_role": "pre"}
+    raita = food_db.get_food("indb:ASC271")  # Sprouted moong raita
+    banana = food_db.get_food(BANANA)
+    for meal in (pre, evening_pre):
+        assert not meal_planner.suits_meal(raita, meal)
+        assert not meal_planner.suits_meal(food_db.get_food(CURD), meal)
+        assert not meal_planner.suits_meal(food_db.get_food("est:roasted_chana"), meal)
+        assert meal_planner.suits_meal(banana, meal)
+    # The same raita is fine as an ordinary snack.
+    assert meal_planner.suits_meal(raita, {"id": "evening_snack"})
+
+
+def test_a_pre_workout_snack_left_empty_gets_a_banana():
+    raita = food_db.get_food("indb:ASC271")
+    banana = food_db.get_food(BANANA)
+    foods = {raita.id: raita}
+    meals = [{"id": "pre_workout", "workout_role": "pre", "items": [meal_planner.build_item(raita, 1.0)]}]
+    assert meal_planner.enforce_meal_fit(meals, [raita, banana], foods) == 1
+    assert [i["food_id"] for i in meals[0]["items"]] == [BANANA]
+
+
+def test_no_tea_or_coffee_late_in_the_day():
+    tea = next(m.food for m in food_db.search("tea", 5) if "tea" in food_tokens(m.food))
+    assert not meal_planner.suits_meal(tea, {"id": "dinner"})
+    assert not meal_planner.suits_meal(tea, {"id": "bedtime"})
+    assert meal_planner.suits_meal(tea, {"id": "breakfast"})
+
+
+def test_protein_is_never_added_before_a_workout():
+    rules = DietRules.from_preferences({"diet_type": "vegetarian"})
+    pool = meal_planner.food_pool(rules, {"diet_type": "vegetarian"})
+    foods = {f.id: f for f in pool}
+    slots = meal_planner.plan_slots({"meals_per_day": 4}, "early_morning", True)
+    meals = meal_planner.assemble(meal_planner.rule_based_pick(slots, pool, 0), slots, foods)
+    meal_planner.fit_portions(meals, PROTEIN_TARGETS, foods)
+    before = [i["food_id"] for i in meals[0]["items"]]
+    assert meals[0]["id"] == "pre_workout"
+    meal_planner.boost_protein(meals, PROTEIN_TARGETS, pool, foods)
+    assert [i["food_id"] for i in meals[0]["items"]] == before
+
+
+def test_the_planner_prompt_keeps_the_pre_workout_snack_light():
+    prompt = meal_planner.build_prompt(PROTEIN_TARGETS, meal_planner.plan_slots({"meals_per_day": 4}, "early_morning", True),
+                                       [food_db.get_food(BANANA)], {}, {})
+    assert "Except the snack before a workout" in prompt
+    assert "No tea or coffee with dinner" in prompt

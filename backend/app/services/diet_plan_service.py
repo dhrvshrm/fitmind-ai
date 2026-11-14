@@ -353,6 +353,7 @@ async def create_plan(user_id: str) -> dict:
         rule_based = True
     meals = meal_planner.assemble(pick, slots, ctx.foods)
     _remove_disallowed(meals, ctx)
+    meal_planner.enforce_meal_fit(meals, ctx.pool, ctx.foods)
     meal_planner.fit_portions(meals, plan_targets, ctx.foods)
     # Resizing can't fix a day of rice and roti: add simple protein foods (and, if
     # still short, a protein snack before bed) until protein is on target.
@@ -396,6 +397,7 @@ async def regenerate_meal(user_id: str, meal_id: str) -> dict:
     new_meal = meal_planner.assemble(pick, [slot], ctx.foods)[0]
     meals[[m["id"] for m in meals].index(meal_id)] = new_meal
     _remove_disallowed([new_meal], ctx)
+    meal_planner.enforce_meal_fit([new_meal], ctx.pool, ctx.foods)
     meal_planner.fit_portions(meals, plan["targets"], ctx.foods, fixed=[m["id"] for m in others])
     meal_planner.boost_protein(meals, plan["targets"], ctx.pool, ctx.foods, fixed=[m["id"] for m in others])
     doc = await _save(user_id, meals, plan["targets"], ctx, "meal_regenerated", plan, rule_based)
@@ -410,7 +412,7 @@ async def swap_options(user_id: str, meal_id: str, index: int, query: Optional[s
     ctx = await _context(user_id)
     exclude = {i["food_id"] for i in meal["items"]}
     original = ctx.foods.get(item["food_id"]) or food_db.get_food(item["food_id"])
-    return meal_planner.swap_options(item, ctx.pool, exclude, query, original)
+    return meal_planner.swap_options(item, ctx.pool, exclude, query, original, meal=meal)
 
 
 async def swap_item(user_id: str, meal_id: str, index: int, food_id: str) -> dict:
@@ -426,6 +428,9 @@ async def swap_item(user_id: str, meal_id: str, index: int, food_id: str) -> dic
     food = ctx.foods.get(food_id)
     if food is None:
         raise DietPlanError("That food can't be added to your plan")
+    if not meal_planner.suits_meal(food, _meal(plan, meal_id)):
+        raise DietPlanError("That food doesn't suit this meal. Pick something lighter before a workout, "
+                            "and no tea or coffee late in the day")
     per_serving = food.per_100g.scaled(food.serving.grams / 100).kcal or 1
     replacement = meal_planner.build_item(
         food, meal_planner.snap(food, original["nutrients"]["kcal"] / per_serving)
