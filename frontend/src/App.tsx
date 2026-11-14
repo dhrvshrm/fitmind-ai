@@ -86,6 +86,7 @@ const OnboardingFlow = lazyPage(
   () => import("./components/onboarding/OnboardingFlow"),
   "OnboardingFlow",
 );
+const HealthPage = lazyPage(() => import("./components/health/HealthPage"), "HealthPage");
 const ActivityPage = lazyPage(
   () => import("./components/activity/ActivityPage"),
   "ActivityPage",
@@ -126,6 +127,7 @@ function AppRoutes() {
             <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
             <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
             <Route path={ROUTES.ACTIVITY} element={<ActivityPage />} />
+            <Route path={ROUTES.HEALTH} element={<HealthPage />} />
           </Route>
         </Route>
 

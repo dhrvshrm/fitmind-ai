@@ -1,6 +1,8 @@
 import { STRINGS } from '../constants/strings';
 import { INDIA_FIRST_STRINGS } from '../constants/indiaFirstStrings';
+import { HEALTH_STRINGS } from '../constants/healthStrings';
 import type { PlanNote, PlanSlot } from '../types/dietPlan';
+import type { PlanEffect } from '../types/health';
 import type { FastingModeKey, FastingWarning } from '../types/indiaFirst';
 import { formatDateLabel } from './date';
 
@@ -42,8 +44,16 @@ export function noteText(note: PlanNote, fastingMode?: string | null): string {
       if (fastingMode === 'paryushan') return I.notes.proteinShortJain(grams);
       return S.notes.protein_short(note.values);
     }
-    default:
-      return S.notes[note.code]();
+    case 'health_adjusted': {
+      // Values name the health rules applied, e.g. { blood_sugar: 1 }.
+      const effects = (Object.keys(v) as PlanEffect[]).filter((key) => key in HEALTH_STRINGS.effects.items);
+      return HEALTH_STRINGS.planNote(effects.map((key) => HEALTH_STRINGS.effects.items[key]));
+    }
+    default: {
+      // A note this version of the app doesn't know yet is left out, never a crash.
+      const known = S.notes[note.code as keyof typeof S.notes] as (() => string) | undefined;
+      return typeof known === 'function' ? known() : '';
+    }
   }
 }
 

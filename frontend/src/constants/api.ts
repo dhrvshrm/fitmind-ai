@@ -227,3 +227,10 @@ export const REMINDER_ENDPOINTS = {
 export const ANALYTICS_ENDPOINTS = {
   EVENTS: "/analytics/events",
 } as const;
+
+/** Consent and the manual health profile. */
+export const HEALTH_ENDPOINTS = {
+  CONSENTS: "/consents",
+  consent: (scope: string) => `/consents/${encodeURIComponent(scope)}`,
+  PROFILE: "/health-profile",
+} as const;
