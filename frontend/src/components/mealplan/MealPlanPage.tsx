@@ -47,7 +47,10 @@ const I = INDIA_FIRST_STRINGS.plan;
 /** Plan notes as one list; medical advice stands apart as a warning. */
 function PlanNotes({ plan }: { plan: DietPlan }) {
   const medical = plan.notes.filter((note) => note.code === "medical_advice");
-  const info = plan.notes.filter((note) => note.code !== "medical_advice");
+  // Notes with no text (a code this app version doesn't know) are skipped.
+  const info = plan.notes.filter(
+    (note) => note.code !== "medical_advice" && noteText(note, plan.fasting_mode?.mode),
+  );
   return (
     <>
       {medical.map((note) => (

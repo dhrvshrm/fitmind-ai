@@ -17,7 +17,8 @@ import { STRINGS } from './strings';
 import { ACTIVITY_STRINGS } from './activityStrings';
 import { DirectionsWalkRounded } from '@mui/icons-material';
 import { TODAY_STRINGS } from './todayStrings';
-import { TodayRounded } from '@mui/icons-material';
+import { HealthAndSafetyRounded, TodayRounded } from '@mui/icons-material';
+import { HEALTH_STRINGS } from './healthStrings';
 
 export type NavItem = {
   label: string;
@@ -51,6 +52,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: STRINGS.nav.workouts, path: ROUTES.WORKOUTS, icon: FitnessCenterRounded },
       { label: ACTIVITY_STRINGS.nav.activity, path: ROUTES.ACTIVITY, icon: DirectionsWalkRounded },
       { label: STRINGS.nav.recovery, path: ROUTES.RECOVERY, icon: MonitorHeartRounded },
+      { label: HEALTH_STRINGS.nav, path: ROUTES.HEALTH, icon: HealthAndSafetyRounded },
       { label: STRINGS.nav.voiceCheckin, path: ROUTES.VOICE_CHECKIN, icon: MicRounded },
     ],
   },

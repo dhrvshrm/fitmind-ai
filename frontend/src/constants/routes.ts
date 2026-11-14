@@ -19,6 +19,7 @@ export const ROUTES = {
   PROFILE: '/profile',
   SETTINGS: '/settings',
   ACTIVITY: '/activity',
+  HEALTH: '/health',
 } as const;
 
 /** Where a new user, or one who hasn't finished onboarding, lands after signing in. */
