@@ -156,12 +156,19 @@ def test_encrypted_data_without_the_key_is_an_error(monkeypatch):
         crypto.decrypt(token)
 
 
-def test_production_requires_a_health_data_key():
+def test_production_starts_without_a_health_data_key_but_keeps_health_data_off(client, monkeypatch, caplog):
     settings = Settings(DATABASE_ENV="production", JWT_SECRET="x" * 48,
                         CORS_EXTRA_ORIGINS="https://fitmind.example", HEALTH_DATA_KEY="")
-    with pytest.raises(RuntimeError) as exc:
-        settings.validate_for_production()
-    assert "HEALTH_DATA_KEY" in str(exc.value)
+    settings.validate_for_production()  # No error: the deploy still comes up.
+    assert "HEALTH_DATA_KEY is not set" in caplog.text
+
+    # Health data is refused, never stored in plaintext.
+    headers, _ = register_and_login(client)
+    grant(client, headers, "health_profile")
+    monkeypatch.setattr(get_settings(), "HEALTH_DATA_KEY", "")
+    monkeypatch.setattr(get_settings(), "DATABASE_ENV", "production")
+    res = client.put(f"{API}/health-profile", headers=headers, json=PROFILE)
+    assert res.status_code == 503
 
 
 # --- Health context and plan rules ----------------------------------------------

@@ -8,7 +8,8 @@ with ``enc:v1:`` so plaintext written during development can still be read.
 Without a key:
 - in development and tests values are stored as plaintext and a warning is
   logged once, so the app works out of the box;
-- staging and production refuse to start (``Settings.validate_for_production``).
+- staging and production still start (``Settings.validate_for_production`` only
+  warns), but storing or reading health data raises ``HealthCryptoError`` (503).
 """
 import json
 import logging

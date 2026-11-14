@@ -27,8 +27,8 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
-      # Fernet key that encrypts health data at rest. Production refuses to
-      # start without it. Generate one with:
+      # Fernet key that encrypts health data at rest. Without it the backend
+      # still starts, but health features answer 503 until it is set. Generate one with:
       # python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
       # Keep it safe: losing it makes stored health data unreadable.
       - key: HEALTH_DATA_KEY
