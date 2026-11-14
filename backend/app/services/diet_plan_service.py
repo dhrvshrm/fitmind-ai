@@ -5,14 +5,15 @@ offer a food they've since said they're allergic to. Each change is saved
 as a new version of the plan.
 """
 import logging
-from datetime import timedelta
+from datetime import timedelta, timezone
+from zoneinfo import ZoneInfo
 from typing import Any, Dict, List, Optional
 
 from app.ai.client import AIError, AIQuotaError
 from app.config.settings import get_settings
 from app.models import audit, diet_plan
 from app.models.user import User
-from app.nutrition import food_db, meal_planner, routine
+from app.nutrition import cooking_fat, day_sync, food_db, meal_planner, routine
 from app.nutrition.diet_rules import DietRules
 from app.nutrition.food_db import Food
 from app.services import nutrition_service, user_service
@@ -20,7 +21,7 @@ from app.nutrition import fasting, grocery  # Phase 8: fasting modes and grocery
 from app.services import fasting_service
 from app.services import analytics_service
 from app.health import plan_rules  # Phase 12 health rules
-from app.utils.time import local_today, local_today_iso
+from app.utils.time import get_current_timezone, local_today, local_today_iso
 
 logger = logging.getLogger(__name__)
 
@@ -207,8 +208,7 @@ async def _present(plan: dict, user: Optional[User] = None) -> dict:
     targets = await user_service.get_targets(user) if user else None
     if user:  # Compare against health-adjusted targets, as the plan was made with them.
         targets = await plan_rules.adjusted_targets(user.id, targets, user.weight_kg)
-    data = {k: v for k, v in plan.items() if k not in ("user_id", "logged")}
-    data["logged_today"] = plan.get("logged", {}).get(local_today_iso(), [])
+    data = {k: v for k, v in plan.items() if k not in ("user_id", "logged", "logged_links")}
     data["stale"] = bool(user) and _is_stale(plan, user, targets)
     # Fasting mode on today, and whether the plan was made for it.
     active = await fasting_service.active_mode(plan["user_id"])
@@ -219,8 +219,23 @@ async def _present(plan: dict, user: Optional[User] = None) -> dict:
     times = _current_times(plan, user, plan.get("fasting_mode"))
     if times:
         data["meals"] = [{**m, "time": times[m["id"]]} for m in plan["meals"]]
+    # How much oil, ghee or butter each dish assumes (already in its calories).
+    data["meals"] = cooking_fat.annotate(data["meals"])
     data["stale"] = data["stale"] or data["mode_changed"] or (bool(user) and times is None)
     data["shift_aware"] = bool(user) and routine.is_shift_schedule(user.lifestyle)
+    # Today's food log laid over the plan: hand-logged meals fill their slots,
+    # and the meals still to come get a portion hint.
+    today = local_today_iso()
+    logs = [_log_view(m) for m in await nutrition_service.get_daily_nutrition(plan["user_id"], today)]
+    sync = day_sync.sync_day(
+        data["meals"],
+        plan.get("logged", {}).get(today, []),
+        plan.get("logged_links", {}).get(today, {}),
+        logs,
+        plan["targets"],
+    )
+    data["logged_today"] = sync["logged_ids"]
+    data["today"] = {"meals": sync["meals"], "day": sync["day"]}
     data["routine"] = routine.daily_routine(
         data["meals"],
         user.lifestyle if user else None,
@@ -230,6 +245,23 @@ async def _present(plan: dict, user: Optional[User] = None) -> dict:
         plan.get("fasting_mode"),
     )
     return data
+
+
+def _log_view(meal) -> dict:
+    """A logged meal as day_sync reads it, with the local time it was eaten or logged."""
+    time = meal.eaten_at
+    if not time and meal.created_at:
+        created = meal.created_at if meal.created_at.tzinfo else meal.created_at.replace(tzinfo=timezone.utc)
+        time = created.astimezone(ZoneInfo(get_current_timezone())).strftime("%H:%M")
+    return {
+        "id": meal.id,
+        "name": meal.name,
+        "calories": meal.calories,
+        "protein": meal.protein,
+        "meal_type": meal.meal_type,
+        "eaten_at": meal.eaten_at,
+        "time": time,
+    }
 
 
 def _trains(user: User) -> bool:
@@ -250,9 +282,24 @@ def _meal(plan: dict, meal_id: str) -> dict:
     return meal
 
 
-def _ensure_not_logged_today(plan: dict, meal_id: str) -> None:
+async def _logged_today(plan: dict, meal_id: str) -> bool:
+    """Whether the meal was logged from the plan today and that log still exists.
+
+    Deleting the log from the food diary opens the meal again.
+    """
+    today = local_today_iso()
+    if meal_id not in plan.get("logged", {}).get(today, []):
+        return False
+    link = plan.get("logged_links", {}).get(today, {}).get(meal_id)
+    if not link:  # Logged before links were recorded.
+        return True
+    logs = await nutrition_service.get_daily_nutrition(plan["user_id"], today)
+    return any(m.id == link for m in logs)
+
+
+async def _ensure_not_logged_today(plan: dict, meal_id: str) -> None:
     """A meal already logged today can't be changed: what was eaten is on record."""
-    if meal_id in plan.get("logged", {}).get(local_today_iso(), []):
+    if await _logged_today(plan, meal_id):
         raise DietPlanError("This meal is already logged for today. You can change it from tomorrow")
 
 
@@ -319,7 +366,7 @@ async def regenerate_meal(user_id: str, meal_id: str) -> dict:
     """
     plan = await _active(user_id)
     current = _meal(plan, meal_id)
-    _ensure_not_logged_today(plan, meal_id)
+    await _ensure_not_logged_today(plan, meal_id)
     ctx = await _context(user_id)
     slot = {k: current[k] for k in ("id", "meal_type", "time", "share")}
     others = [m for m in plan["meals"] if m["id"] != meal_id]
@@ -365,7 +412,7 @@ async def swap_item(user_id: str, meal_id: str, index: int, food_id: str) -> dic
     """
     plan = await _active(user_id)
     original = _item(_meal(plan, meal_id), index)
-    _ensure_not_logged_today(plan, meal_id)
+    await _ensure_not_logged_today(plan, meal_id)
     ctx = await _context(user_id)
     food = ctx.foods.get(food_id)
     if food is None:
@@ -396,7 +443,7 @@ async def log_plan_meal(user_id: str, meal_id: str):
     today = local_today_iso()
     logged = {d: ids for d, ids in plan.get("logged", {}).items()
               if d >= (local_today() - timedelta(days=LOGGED_DAYS_KEPT)).isoformat()}
-    if meal_id in logged.get(today, []):
+    if await _logged_today(plan, meal_id):
         raise DietPlanError("You've already logged this meal today")
     totals = meal["totals"]
     logged_meal = await nutrition_service.log_meal(
@@ -414,9 +461,11 @@ async def log_plan_meal(user_id: str, meal_id: str):
         ),
         items=[{**{k: v for k, v in i.items() if k != "per_100g"}, "edited": False} for i in meal["items"]],
     )
-    logged[today] = [*logged.get(today, []), meal_id]
-    await diet_plan.set_logged(user_id, plan["id"], logged)
-    return logged_meal, await _present({**plan, "logged": logged})
+    logged[today] = [*(i for i in logged.get(today, []) if i != meal_id), meal_id]
+    links = {d: ids for d, ids in plan.get("logged_links", {}).items() if d in logged}
+    links[today] = {**links.get(today, {}), meal_id: logged_meal.id}
+    await diet_plan.set_logged(user_id, plan["id"], logged, links)
+    return logged_meal, await _present({**plan, "logged": logged, "logged_links": links})
 
 
 async def grocery_list(user_id: str, days: int = grocery.DEFAULT_DAYS) -> dict:

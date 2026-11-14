@@ -795,7 +795,8 @@ export const STRINGS = {
     editPreferences: "Edit food preferences",
     stale: "Your targets or food answers changed after this plan was made. Make a new plan to match them.",
     version: (version: number, date: string) => `Version ${version}, updated ${date}`,
-    summaryTitle: "Plan vs your targets",
+    summaryTitle: "What this plan adds up to",
+    summarySubtitle: "All the planned meals together, against your targets. Once you log food, this shows what you have eaten instead.",
     labels: {
       calories: "Calories",
       protein: "Protein",
@@ -819,6 +820,11 @@ export const STRINGS = {
       subtitle: "Built around when you wake up, train and sleep.",
       edit: "Change times",
       mealFallback: "Meal",
+      extra: {
+        title: (name: string) => `Off the plan: ${name}`,
+        detail: (kcal: number, protein: number) =>
+          `${kcal} kcal, ${Math.round(protein)} g protein. Counted in Today so far.`,
+      },
       wake: {
         title: "Wake up",
         detail: (ml: number, liters: number) =>
@@ -850,6 +856,53 @@ export const STRINGS = {
     logged: "Logged today",
     lockedUntilTomorrow: "Logged meals can be changed from tomorrow.",
     loggedToast: "Meal logged.",
+    eaten: {
+      title: "You had",
+      alsoHad: "Also had",
+      planned: "Was planned",
+      badge: "Eaten",
+      hint: "Logged from your food diary. Delete it there to bring this meal back.",
+      at: (time: string) => `at ${time}`,
+    },
+    adjust: {
+      chip: (percent: number, delta: number) =>
+        `${percent}% portions, ${delta > 0 ? "+" : "−"}${Math.abs(delta)} kcal`,
+      tip: (percent: number) =>
+        percent < 100
+          ? `You've eaten more than planned so far, so have about ${percent}% of each portion here.`
+          : `You've eaten less than planned so far, so have about ${percent}% of each portion here.`,
+    },
+    today: {
+      title: "Today so far",
+      eaten: (eaten: number, target: number) => `${eaten} of ${target} kcal eaten`,
+      protein: (eaten: number, target: number) => `${Math.round(eaten)} of ${target} g protein`,
+      mealsLeft: (n: number) => (n === 0 ? "No meals left in the plan" : n === 1 ? "1 meal left" : `${n} meals left`),
+      state: {
+        not_started: "",
+        on_track: "Right on plan. Keep going as listed.",
+        ahead: "You've eaten more than planned so far, so the meals still to come have smaller portions.",
+        behind: "You've eaten less than planned so far, so the meals still to come have bigger portions.",
+        over: "You're past today's calories. Keep the rest of the day light: dal, sabzi, salad, curd, and plenty of water.",
+      },
+      proteinGap: (grams: number) =>
+        `About ${grams} g of protein is still missing. Add curd, paneer, dal, sprouts, eggs or chicken (whatever fits your diet) to a meal still to come.`,
+      extras: (items: string) => `Also logged: ${items}.`,
+      extra: (name: string, kcal: number) => `${name} (${kcal} kcal)`,
+    },
+    cookingFat: {
+      kinds: { oil: "oil", ghee: "ghee", butter: "butter" },
+      /** 0.75 -> "¾", 1.5 -> "1½". */
+      tsp: (tsp: number) => {
+        const whole = Math.floor(tsp);
+        const part = { 0: "", 0.25: "¼", 0.5: "½", 0.75: "¾" }[tsp - whole as 0 | 0.25 | 0.5 | 0.75] ?? "";
+        return `${whole > 0 ? whole : ""}${part}` || "0";
+      },
+      item: (amount: string, kind: string, estimated: boolean) =>
+        `${estimated ? "about " : ""}${amount} tsp ${kind}${estimated ? " (est.)" : ""}`,
+      meal: (parts: string) => `Cooking fat: about ${parts}, already in the calories.`,
+      tip: (kcal: number, estimated: boolean) =>
+        `This is the oil, ghee or butter the calories assume${estimated ? " (worked out from the dish's fat where its recipe isn't listed)" : ""}. Each extra teaspoon adds about ${kcal} kcal, so measure with a spoon instead of pouring.`,
+    },
     newOption: "Different option",
     newOptionAria: (meal: string) => `Get a different option for ${meal}`,
     mealUpdated: "Meal updated.",

@@ -6,7 +6,8 @@ import type { CoachDomain, MenuAdviceRequest } from '../../types/coach';
 
 /** Which cached queries each coach action domain refreshes. */
 const DOMAIN_KEYS: Record<CoachDomain, QueryKey[]> = {
-  nutrition: [QUERY_KEYS.nutrition.all],
+  // A logged meal also shows in the meal plan's slots.
+  nutrition: [QUERY_KEYS.nutrition.all, QUERY_KEYS.dietPlan.current],
   dietPlan: [QUERY_KEYS.dietPlan.all],
   workouts: [QUERY_KEYS.workouts.all],
   recovery: [QUERY_KEYS.recovery.all],

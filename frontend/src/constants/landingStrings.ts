@@ -63,7 +63,7 @@ export const LANDING_STRINGS = {
       time: '1:30',
       period: 'pm',
       title: 'Lunch at your desk',
-      caption: 'Type it in Hinglish. The AI reads it, real food data does the maths, and you see how much protein your training still needs today.',
+      caption: 'Type it in Hinglish. The AI reads it, real food data does the maths, and the rest of today’s meal plan resizes around what you actually ate.',
       message: 'dal chawal aur ek roti, raita bhi',
       receiptTitle: 'Lunch, logged',
       receiptRows: [
@@ -131,6 +131,10 @@ export const LANDING_STRINGS = {
       {
         q: 'I am vegetarian, Jain, or fasting this week.',
         a: 'Plans follow veg, eggetarian, non-veg and Jain diets, your allergies and dislikes, plus modes for Navratri, Ekadashi, Paryushan and Ramadan.',
+      },
+      {
+        q: 'What if I eat something that is not in the plan?',
+        a: 'Log it. That meal shows what you really had, and the meals still to come shrink or grow so the day still lands near your target. Every dish also says how much oil or ghee its calories assume.',
       },
       {
         q: 'Do I have to weigh every gram?',
