@@ -795,7 +795,8 @@ export const STRINGS = {
     editPreferences: "Edit food preferences",
     stale: "Your targets or food answers changed after this plan was made. Make a new plan to match them.",
     version: (version: number, date: string) => `Version ${version}, updated ${date}`,
-    summaryTitle: "Plan vs your targets",
+    summaryTitle: "What this plan adds up to",
+    summarySubtitle: "All the planned meals together, against your targets. What you have actually eaten today is in Today so far.",
     labels: {
       calories: "Calories",
       protein: "Protein",

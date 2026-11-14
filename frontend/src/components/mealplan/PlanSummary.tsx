@@ -25,7 +25,7 @@ export function PlanSummary({ plan }: PlanSummaryProps) {
   ];
 
   return (
-    <SectionCard title={S.summaryTitle}>
+    <SectionCard title={S.summaryTitle} subtitle={S.summarySubtitle}>
       <Box sx={styles.rows}>
         {rows.map((row) => (
           <ProgressRow key={row.label} {...row} />
