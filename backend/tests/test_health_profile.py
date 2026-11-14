@@ -232,3 +232,22 @@ def test_account_deletion_removes_health_profile_and_consents(client, mock_db):
     assert res.status_code == 200, res.text
     assert asyncio.run(mock_db["health_profiles"].count_documents({"user_id": user_id})) == 0
     assert asyncio.run(mock_db["consents"].count_documents({"user_id": user_id})) == 0
+
+
+# --- Coach context ----------------------------------------------------------------
+def test_coach_context_includes_consented_health_details_only(client):
+    from app.coach import registry
+
+    headers, user_id = register_and_login(client)
+    assert "Health context" not in asyncio.run(registry.build_context(user_id))
+
+    grant(client, headers, "health_profile")
+    assert client.put(f"{API}/health-profile", headers=headers, json=PROFILE).status_code == 200
+    context = asyncio.run(registry.build_context(user_id))
+    assert "Health context" in context
+    assert "diabetes (type 2, on medication)" in context
+    assert "Metformin" in context
+    assert "not a diagnosis" in context
+
+    client.delete(f"{API}/consents/health_profile", headers=headers)
+    assert "Health context" not in asyncio.run(registry.build_context(user_id))

@@ -18,7 +18,12 @@ export type PlanSlot =
 /** How the current version of a plan came about. */
 export type PlanChange = 'created' | 'regenerated' | 'meal_regenerated' | 'item_swapped';
 
-export type PlanNoteCode = 'protein_short' | 'check_ingredients' | 'medical_advice' | 'rule_based';
+export type PlanNoteCode =
+  | 'protein_short'
+  | 'check_ingredients'
+  | 'medical_advice'
+  | 'rule_based'
+  | 'health_adjusted';
 
 /** Notes added while a fasting or festival mode is on (values hold text, not only numbers). */
 export type FastingNoteCode = 'fasting_mode' | 'fasting_salt' | 'paryushan_practice' | 'ramadan_timings';

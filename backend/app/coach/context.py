@@ -8,7 +8,13 @@ from typing import Optional
 
 from app.coach.registry import register_context
 from app.models.user import User
-from app.services import nutrition_service, recovery_service, voice_service, workout_service
+from app.services import (
+    health_profile_service,
+    nutrition_service,
+    recovery_service,
+    voice_service,
+    workout_service,
+)
 from app.utils.time import local_now
 
 
@@ -65,3 +71,12 @@ async def training_block(user_id: str) -> str:
     else:
         lines.append("No workout planned today.")
     return " ".join(lines)
+
+
+@register_context
+async def health_block(user_id: str) -> Optional[str]:
+    """Consented health details (conditions, medicines, lab values, supplements).
+
+    Empty without consent or answers, so the coach never assumes anything.
+    """
+    return await health_profile_service.health_context(user_id) or None

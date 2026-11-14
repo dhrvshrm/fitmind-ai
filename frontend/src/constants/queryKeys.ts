@@ -111,4 +111,9 @@ export const QUERY_KEYS = {
     all: ['reminders'] as const,
     state: ['reminders', 'state'] as const,
   },
+  health: {
+    all: ['health'] as const,
+    consents: ['health', 'consents'] as const,
+    profile: ['health', 'profile'] as const,
+  },
 } as const;
