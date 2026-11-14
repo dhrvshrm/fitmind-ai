@@ -1,14 +1,21 @@
 import { useState } from 'react';
 import { Box, Button, Card, Chip, CircularProgress, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import { AutorenewRounded, CheckCircleRounded, SwapHorizRounded } from '@mui/icons-material';
+import {
+  AutorenewRounded,
+  CheckCircleRounded,
+  OpacityRounded,
+  RestaurantRounded,
+  SwapHorizRounded,
+  TuneRounded,
+} from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { STRINGS } from '../../constants/strings';
 import { MEAL_TYPE_OPTIONS } from '../../constants/nutrition';
 import { useLogPlanMeal, useRegeneratePlanMeal } from '../../hooks/queries/useDietPlanQueries';
 import { resolveApiError } from '../../lib/apiClient';
-import { fastingWarningText, slotLabel } from '../../utils/mealPlan';
-import type { PlanItem, PlanMeal } from '../../types/dietPlan';
+import { cookingFatText, fastingWarningText, slotLabel } from '../../utils/mealPlan';
+import type { PlanItem, PlanMeal, PlanMealToday } from '../../types/dietPlan';
 import { SwapFoodDialog } from './SwapFoodDialog';
 import { planMealCardStyles as styles } from './PlanMealCard.styles';
 
@@ -20,18 +27,26 @@ type PlanMealCardProps = {
   logged: boolean;
   /** Another plan change is running; actions wait for it. */
   locked: boolean;
+  /** What today's food log says about this meal. */
+  today?: PlanMealToday;
 };
 
 type SwapTarget = { item: PlanItem; index: number };
 
 /** One planned meal: its foods and portions, with swap, new option and log actions. */
-export function PlanMealCard({ meal, logged, locked }: PlanMealCardProps) {
+export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps) {
   const [swapTarget, setSwapTarget] = useState<SwapTarget | null>(null);
   const regenerate = useRegeneratePlanMeal();
   const logMeal = useLogPlanMeal();
   const busy = locked || regenerate.isPending || logMeal.isPending;
   const label = slotLabel(meal.id);
   const Icon = MEAL_TYPE_OPTIONS.find((o) => o.value === meal.meal_type)?.icon;
+  // Logged by hand from the food diary (not from this card): what was eaten replaces the plan.
+  const eatenByHand = !logged && today?.status === 'eaten';
+  const done = logged || eatenByHand;
+  const adjust = done ? null : today?.adjust;
+  // The costliest fat in the meal, for "each extra teaspoon adds about ...".
+  const fatKcalPerTsp = Math.max(0, ...meal.items.flatMap((i) => (i.cooking_fat ?? []).map((f) => f.kcal_per_tsp)));
 
   async function handleRegenerate() {
     try {
@@ -69,11 +84,54 @@ export function PlanMealCard({ meal, logged, locked }: PlanMealCardProps) {
           )}
         </Stack>
         <Typography variant="subtitle2" sx={styles.number}>
-          {S.kcal(meal.totals.kcal)}
+          {S.kcal(eatenByHand ? (today?.eaten_totals?.calories ?? 0) : meal.totals.kcal)}
         </Typography>
       </Stack>
 
-      <Box component="ul" sx={styles.items}>
+      {adjust && (
+        <Tooltip title={S.adjust.tip(adjust.portion_percent)}>
+          <Chip
+            size="small"
+            color="secondary"
+            variant="outlined"
+            icon={<TuneRounded />}
+            label={S.adjust.chip(adjust.portion_percent, adjust.kcal_delta)}
+            sx={styles.adjust}
+          />
+        </Tooltip>
+      )}
+
+      {eatenByHand && (
+        <Box sx={styles.eaten}>
+          <Typography variant="overline" sx={styles.eatenTitle}>
+            {S.eaten.title}
+          </Typography>
+          <Box component="ul" sx={styles.eatenList}>
+            {today?.eaten.map((log) => (
+              <Stack component="li" key={log.id} sx={styles.eatenItem}>
+                <RestaurantRounded fontSize="small" sx={styles.eatenIcon} />
+                <Typography variant="body2" sx={styles.itemText}>
+                  {log.name}
+                  {log.eaten_at && (
+                    <Typography component="span" variant="caption" color="text.secondary">
+                      {' '}
+                      {S.eaten.at(log.eaten_at)}
+                    </Typography>
+                  )}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={styles.number}>
+                  {S.kcal(log.calories)}
+                </Typography>
+              </Stack>
+            ))}
+          </Box>
+          <Typography variant="caption" color="text.secondary" sx={styles.plannedLabel}>
+            {S.eaten.planned}
+          </Typography>
+        </Box>
+      )}
+
+      <Box component="ul" sx={eatenByHand ? styles.itemsMuted : styles.items}>
         {meal.items.map((item, index) => (
           <Stack component="li" key={`${item.food_id}-${index}`} sx={styles.item}>
             <Box sx={styles.itemText}>
@@ -82,13 +140,19 @@ export function PlanMealCard({ meal, logged, locked }: PlanMealCardProps) {
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 {S.amount(item.quantity, item.unit, item.grams)}
+                {item.cooking_fat && item.cooking_fat.length > 0 && (
+                  <Box component="span" sx={styles.fat}>
+                    {' · '}
+                    {cookingFatText(item.cooking_fat)}
+                  </Box>
+                )}
               </Typography>
             </Box>
             <Typography variant="body2" color="text.secondary" sx={styles.number}>
               {S.kcal(item.nutrients.kcal)}
             </Typography>
             {/* What was eaten today is on record, so a logged meal can't be swapped. */}
-            {!logged && (
+            {!done && (
               <Tooltip title={S.swapAria(item.name)}>
                 <span>
                   <IconButton
@@ -110,10 +174,18 @@ export function PlanMealCard({ meal, logged, locked }: PlanMealCardProps) {
         <Typography variant="caption" color="text.secondary" sx={styles.number}>
           {S.macros(meal.totals.protein, meal.totals.carbs, meal.totals.fat)}
         </Typography>
+        {!eatenByHand && meal.cooking_fat && meal.cooking_fat.length > 0 && (
+          <Tooltip title={S.cookingFat.tip(fatKcalPerTsp)}>
+            <Stack sx={styles.fatLine} tabIndex={0}>
+              <OpacityRounded fontSize="small" />
+              <Typography variant="caption">{S.cookingFat.meal(cookingFatText(meal.cooking_fat))}</Typography>
+            </Stack>
+          </Tooltip>
+        )}
         <Stack sx={styles.actions}>
-          {logged ? (
+          {done ? (
             <Typography variant="caption" color="text.secondary">
-              {S.lockedUntilTomorrow}
+              {eatenByHand ? S.eaten.hint : S.lockedUntilTomorrow}
             </Typography>
           ) : (
             <Button
@@ -127,7 +199,7 @@ export function PlanMealCard({ meal, logged, locked }: PlanMealCardProps) {
               {S.newOption}
             </Button>
           )}
-          {logged ? (
+          {done ? (
             <motion.div
               initial={{ scale: 0.6, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -135,7 +207,7 @@ export function PlanMealCard({ meal, logged, locked }: PlanMealCardProps) {
             >
               <Stack sx={styles.logged}>
                 <CheckCircleRounded fontSize="small" />
-                <Typography variant="body2">{S.logged}</Typography>
+                <Typography variant="body2">{eatenByHand ? S.eaten.badge : S.logged}</Typography>
               </Stack>
             </motion.div>
           ) : (

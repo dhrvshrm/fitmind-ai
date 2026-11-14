@@ -1,7 +1,7 @@
 import { STRINGS } from '../constants/strings';
 import { INDIA_FIRST_STRINGS } from '../constants/indiaFirstStrings';
 import { HEALTH_STRINGS } from '../constants/healthStrings';
-import type { PlanNote, PlanSlot } from '../types/dietPlan';
+import type { CookingFatKind, PlanNote, PlanSlot } from '../types/dietPlan';
 import type { PlanEffect } from '../types/health';
 import type { FastingModeKey, FastingWarning } from '../types/indiaFirst';
 import { formatDateLabel } from './date';
@@ -60,4 +60,10 @@ export function noteText(note: PlanNote, fastingMode?: string | null): string {
 /** A gentle note after logging a food that breaks the active fast (logging still went through). */
 export function fastingWarningText(warning: FastingWarning): string {
   return I.warning.toast(modeName(warning.mode), warning.foods.join(', '));
+}
+
+/** "1 tsp oil, ½ tsp ghee" for a dish or a meal; empty when there's none. */
+export function cookingFatText(fats: { kind: CookingFatKind; tsp: number }[] | undefined): string {
+  const F = S.cookingFat;
+  return (fats ?? []).map((fat) => F.item(F.tsp(fat.tsp), F.kinds[fat.kind])).join(', ');
 }

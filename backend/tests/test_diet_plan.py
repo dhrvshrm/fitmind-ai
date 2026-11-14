@@ -448,3 +448,96 @@ def test_a_logged_meal_cannot_be_swapped_or_replaced_today(client, ai_providers)
     options = client.get(f"{API}/diet-plans/current/meals/dinner/items/0/alternatives", headers=headers)
     assert options.status_code == 200
 
+
+
+# --- Today's log over the plan ---------------------------------------------------
+def test_a_hand_logged_breakfast_fills_the_plan_slot_and_rebalances_the_day(client, ai_providers):
+    headers, _ = _onboard(client)
+    ai_providers.gemini.append(VALID_PICK)
+    plan = client.post(f"{API}/diet-plans", headers=headers).json()["data"]
+    assert plan["today"]["day"]["state"] == "not_started"
+    assert all(m["status"] == "planned" for m in plan["today"]["meals"].values())
+
+    breakfast = next(m for m in plan["meals"] if m["id"] == "breakfast")
+    big = round(breakfast["totals"]["kcal"] + 500)
+    client.post(f"{API}/nutrition/meal", headers=headers, json={
+        "name": "Aloo paratha with butter", "calories": big, "protein": 12, "carbs": 90, "fats": 40,
+        "meal_type": "breakfast",
+    })
+    plan = client.get(f"{API}/diet-plans/current", headers=headers).json()["data"]
+    today = plan["today"]
+    assert today["meals"]["breakfast"]["status"] == "eaten"
+    assert today["meals"]["breakfast"]["eaten"][0]["name"] == "Aloo paratha with butter"
+    assert today["meals"]["breakfast"]["eaten_totals"]["calories"] == big
+    # Ate more than planned: the rest of the day gets smaller portions.
+    assert today["day"]["state"] == "ahead"
+    assert today["day"]["eaten_kcal"] == big and today["day"]["meals_left"] == 3
+    lunch = today["meals"]["lunch"]["adjust"]
+    assert lunch["portion_percent"] < 100 and lunch["kcal_delta"] < 0
+    assert plan["logged_today"] == []
+
+
+def test_a_hand_logged_snack_goes_to_the_nearest_snack_slot():
+    from app.nutrition import day_sync
+
+    def meal(mid, mtype, time, kcal=300):
+        return {"id": mid, "meal_type": mtype, "time": time, "items": [], "totals": {"kcal": kcal, "protein": 10}}
+
+    meals = [meal("breakfast", "breakfast", "08:30"), meal("mid_morning", "snack", "11:00", 150),
+             meal("lunch", "lunch", "13:30"), meal("evening_snack", "snack", "17:00", 150)]
+    logs = [{"id": "a", "name": "Chai and biscuits", "calories": 150, "protein": 3, "meal_type": "snack",
+             "time": "16:40"}]
+    result = day_sync.sync_day(meals, [], {}, logs, {"calories": 900, "protein": 40})
+    assert result["meals"]["evening_snack"]["status"] == "eaten"
+    assert result["meals"]["mid_morning"]["status"] == "planned"
+    # Eaten exactly what was planned there: no portion changes.
+    assert result["day"]["state"] == "on_track"
+    assert all(m["adjust"] is None for m in result["meals"].values())
+
+
+def test_deleting_a_plan_log_opens_the_meal_again(client, ai_providers):
+    headers, _ = _onboard(client)
+    ai_providers.gemini.append(VALID_PICK)
+    client.post(f"{API}/diet-plans", headers=headers)
+    meal_id = client.post(f"{API}/diet-plans/current/meals/breakfast/log", headers=headers).json()["data"]["meal"]["id"]
+    plan = client.get(f"{API}/diet-plans/current", headers=headers).json()["data"]
+    assert plan["logged_today"] == ["breakfast"]
+    assert plan["today"]["meals"]["breakfast"]["status"] == "logged"
+    # The plan's own log isn't counted again as a hand-logged meal.
+    assert plan["today"]["meals"]["breakfast"]["eaten"] == []
+
+    client.delete(f"{API}/nutrition/meal/{meal_id}", headers=headers)
+    plan = client.get(f"{API}/diet-plans/current", headers=headers).json()["data"]
+    assert plan["logged_today"] == []
+    assert plan["today"]["meals"]["breakfast"]["status"] == "planned"
+    assert client.post(f"{API}/diet-plans/current/meals/breakfast/log", headers=headers).status_code == 200
+
+
+# --- Cooking fat notes -----------------------------------------------------------
+def test_plan_items_say_how_much_cooking_fat_their_calories_assume(client, ai_providers):
+    from app.nutrition import cooking_fat, grocery
+
+    headers, _ = _onboard(client)
+    ai_providers.gemini.append(VALID_PICK)
+    plan = client.post(f"{API}/diet-plans", headers=headers).json()["data"]
+    items = [item for meal in plan["meals"] for item in meal["items"]]
+    assert all("cooking_fat" in item for item in items)
+    with_fat = [item for item in items if item["cooking_fat"]]
+    assert with_fat, "a mapped dish cooked in oil or ghee should carry a note"
+    for item in with_fat:
+        for fat in item["cooking_fat"]:
+            assert fat["kind"] in cooking_fat.COOKING_FATS
+            assert fat["tsp"] > 0 and fat["tsp"] * 4 == int(fat["tsp"] * 4)  # quarter-teaspoon steps
+            per_100g = dict(grocery.ingredients_for(item["food_id"]))[fat["kind"]]
+            assert fat["grams"] == pytest.approx(per_100g * item["grams"] / 100, abs=0.1)
+    # A meal carries its total, and logging a meal never stores the note.
+    assert any(meal["cooking_fat"] for meal in plan["meals"])
+    logged = client.post(f"{API}/diet-plans/current/meals/lunch/log", headers=headers).json()["data"]["meal"]
+    assert all("cooking_fat" not in item for item in logged["items"])
+
+
+def test_tiny_or_unmapped_fat_gets_no_note():
+    from app.nutrition import cooking_fat
+
+    assert cooking_fat.for_item({"food_id": "not-mapped", "grams": 200}) == []
+    assert cooking_fat.for_item({"food_id": "indb:ASC096", "grams": 10}) == []  # 0.1 g oil

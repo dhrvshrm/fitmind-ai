@@ -33,6 +33,16 @@ export type PlanNote =
   | { code: FastingNoteCode; values: Record<string, string | number | boolean | null> };
 
 /** One food in a planned meal; numbers always come from the food database. */
+export type CookingFatKind = 'oil' | 'ghee' | 'butter';
+
+/** Oil, ghee or butter a dish's calories assume (already counted in them). */
+export type CookingFat = {
+  kind: CookingFatKind;
+  grams: number;
+  tsp: number;
+  kcal_per_tsp: number;
+};
+
 export type PlanItem = {
   food_id: string;
   name: string;
@@ -43,6 +53,7 @@ export type PlanItem = {
   grams: number;
   nutrients: Nutrients;
   per_100g: Nutrients;
+  cooking_fat?: CookingFat[];
 };
 
 export type PlanMeal = {
@@ -54,6 +65,8 @@ export type PlanMeal = {
   workout_role?: 'pre' | 'post';
   items: PlanItem[];
   totals: Nutrients;
+  /** The meal's cooking fat in teaspoons, by kind. */
+  cooking_fat?: { kind: CookingFatKind; tsp: number }[];
 };
 
 export type PlanTargets = {
@@ -62,6 +75,51 @@ export type PlanTargets = {
   carbs: number;
   fats: number;
   fiber: number;
+};
+
+export type PlanMealStatus = 'planned' | 'logged' | 'eaten';
+
+/** A meal from today's food log, shown in the plan slot it was matched to. */
+export type EatenLog = {
+  id: string;
+  name: string;
+  calories: number;
+  protein: number;
+  eaten_at: string | null;
+};
+
+/** Smaller or bigger portions for a meal still to come, to land near the targets. */
+export type PortionAdjust = {
+  portion_percent: number;
+  kcal_delta: number;
+};
+
+export type PlanMealToday = {
+  status: PlanMealStatus;
+  eaten: EatenLog[];
+  eaten_totals?: { calories: number; protein: number };
+  adjust: PortionAdjust | null;
+};
+
+export type PlanDayState = 'not_started' | 'on_track' | 'ahead' | 'behind' | 'over';
+
+export type PlanDay = {
+  eaten_kcal: number;
+  eaten_protein: number;
+  target_kcal: number;
+  target_protein: number;
+  left_kcal: number;
+  meals_left: number;
+  state: PlanDayState;
+  protein_gap: number;
+  /** Logs that matched no plan slot (e.g. a snack when the plan has none). */
+  extras: EatenLog[];
+};
+
+/** Today's food log laid over the plan. */
+export type PlanToday = {
+  meals: Partial<Record<PlanSlot, PlanMealToday>>;
+  day: PlanDay;
 };
 
 /** `GET /diet-plans/current`. */
@@ -78,6 +136,8 @@ export type DietPlan = {
   notes: PlanNote[];
   /** Plan meals already logged today. */
   logged_today: PlanSlot[];
+  /** What was eaten today, slot by slot, and how the rest of the day adjusts. */
+  today?: PlanToday;
   /** True when targets or diet answers changed after the plan was made. */
   stale: boolean;
   /** The day from waking to sleep, built around the person's routine. */

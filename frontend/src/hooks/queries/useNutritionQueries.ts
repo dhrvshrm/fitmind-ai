@@ -42,11 +42,17 @@ export function useEstimateMeal() {
   return useMutation({ mutationFn: (text: string) => nutritionService.estimate(text) });
 }
 
-/** Everything a logged or changed meal affects: nutrition, dashboard and XP. */
+/** Everything a logged or changed meal affects: nutrition, dashboard, XP and the meal plan. */
 function useMealInvalidation() {
   const invalidate = useInvalidate();
   return () =>
-    invalidate(QUERY_KEYS.nutrition.all, QUERY_KEYS.dashboard.all, QUERY_KEYS.gamification.all);
+    invalidate(
+      QUERY_KEYS.nutrition.all,
+      QUERY_KEYS.dashboard.all,
+      QUERY_KEYS.gamification.all,
+      // The meal plan shows what was eaten today in its slots.
+      QUERY_KEYS.dietPlan.current,
+    );
 }
 
 /** Logs a meal; refreshes nutrition plus the dashboard and XP that it affects. */

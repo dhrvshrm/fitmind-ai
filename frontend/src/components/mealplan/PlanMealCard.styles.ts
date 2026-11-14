@@ -40,6 +40,53 @@ export const planMealCardStyles = {
     columnGap: 4,
     alignContent: 'start',
   },
+  // A meal eaten off-plan: the planned foods stay visible but step back.
+  itemsMuted: {
+    listStyle: 'none',
+    m: 0,
+    p: 0,
+    flex: 1,
+    opacity: 0.55,
+    display: 'grid',
+    gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'repeat(2, minmax(0, 1fr))' },
+    columnGap: 4,
+    alignContent: 'start',
+  },
+  adjust: {
+    alignSelf: 'flex-start',
+    mt: 1,
+    fontWeight: 600,
+    fontVariantNumeric: 'tabular-nums',
+  },
+  eaten: {
+    mt: 1,
+  },
+  eatenTitle: {
+    color: 'success.main',
+    fontWeight: 700,
+    lineHeight: 1.6,
+  },
+  eatenList: {
+    listStyle: 'none',
+    m: 0,
+    p: 0,
+  },
+  eatenItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 1,
+    py: 0.5,
+  },
+  eatenIcon: {
+    color: 'success.main',
+  },
+  plannedLabel: {
+    display: 'block',
+    mt: 1,
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+  },
   item: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -54,6 +101,20 @@ export const planMealCardStyles = {
   },
   itemName: {
     fontWeight: 500,
+  },
+  // The oil or ghee a dish assumes, in the clay accent so it is easy to spot.
+  fat: {
+    color: 'secondary.main',
+    fontWeight: 600,
+  },
+  fatLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 0.5,
+    alignSelf: 'flex-start',
+    color: 'secondary.main',
+    cursor: 'help',
+    '& .MuiSvgIcon-root': { fontSize: 16 },
   },
   footer: {
     gap: 1,

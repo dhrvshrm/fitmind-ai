@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timezone
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 from uuid import uuid4
 
 from app.config.database import get_database
@@ -60,10 +60,19 @@ async def save_version(user_id: str, fields: dict, change: str, previous: Option
     return doc
 
 
-async def set_logged(user_id: str, plan_id: str, logged: Dict[str, list]) -> None:
-    """Record which plan meals were logged on which days (doesn't create a version)."""
+async def set_logged(
+    user_id: str, plan_id: str, logged: Dict[str, list], links: Optional[Dict[str, Dict[str, str]]] = None
+) -> None:
+    """Record which plan meals were logged on which days (doesn't create a version).
+
+    ``links`` maps day -> plan meal id -> the meal log it created, so deleting
+    that log from the food diary frees the plan slot again.
+    """
+    fields: Dict[str, Any] = {"logged": logged}
+    if links is not None:
+        fields["logged_links"] = links
     db = get_database()
     if db is not None:
-        await db[COLLECTION_NAME].update_one({"id": plan_id, "user_id": user_id}, {"$set": {"logged": logged}})
+        await db[COLLECTION_NAME].update_one({"id": plan_id, "user_id": user_id}, {"$set": fields})
     elif plan_id in _MEMORY_STORE:
-        _MEMORY_STORE[plan_id]["logged"] = logged
+        _MEMORY_STORE[plan_id].update(fields)

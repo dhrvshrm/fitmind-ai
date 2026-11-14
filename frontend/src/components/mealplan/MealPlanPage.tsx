@@ -39,6 +39,7 @@ import { ShiftTimesDialog } from "./ShiftTimesDialog";
 import { PlanSummary } from "./PlanSummary";
 import { DayRoutine } from "./DayRoutine";
 import { PlanMealCard } from "./PlanMealCard";
+import { TodaySoFar } from "./TodaySoFar";
 import { mealPlanPageStyles as styles } from "./MealPlanPage.styles";
 
 const S = STRINGS.mealPlan;
@@ -222,6 +223,7 @@ export function MealPlanPage() {
           )}
           <PlanSummary plan={plan} />
           <PlanNotes plan={plan} />
+          {plan.today && <TodaySoFar day={plan.today.day} />}
           <FastingModesCard />
           <DayRoutine
             plan={plan}
@@ -232,6 +234,7 @@ export function MealPlanPage() {
                 key={`${plan.id}-${meal.id}`}
                 meal={meal}
                 logged={plan.logged_today.includes(meal.id)}
+                today={plan.today?.meals[meal.id]}
                 locked={create.isPending}
               />
             )}
