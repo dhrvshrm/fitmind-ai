@@ -672,3 +672,43 @@ def test_the_planner_prompt_keeps_the_pre_workout_snack_light():
                                        [food_db.get_food(BANANA)], {}, {})
     assert "Except the snack before a workout" in prompt
     assert "No tea or coffee with dinner" in prompt
+
+
+# --- Fat on target -------------------------------------------------------------------
+@pytest.mark.parametrize("diet", ["vegetarian", "eggetarian", "non_vegetarian", "jain", "vegan"])
+def test_fat_is_trimmed_without_losing_protein(diet):
+    rules = DietRules.from_preferences({"diet_type": diet})
+    pool = meal_planner.food_pool(rules, {"diet_type": diet})
+    foods = {f.id: f for f in pool}
+    for variant in range(3):
+        slots = meal_planner.plan_slots({"meals_per_day": 4, "sleep_time": "23:30"}, "early_morning", True)
+        meals = meal_planner.assemble(meal_planner.rule_based_pick(slots, pool, variant), slots, foods)
+        meal_planner.fit_portions(meals, PROTEIN_TARGETS, foods)
+        meal_planner.boost_protein(meals, PROTEIN_TARGETS, pool, foods,
+                                   extra_slot=meal_planner.bedtime_slot({"sleep_time": "23:30"}))
+        protein_before = sum(m["totals"]["protein"] for m in meals)
+        meal_planner.trim_fat(meals, PROTEIN_TARGETS, pool, foods)
+        totals = {k: sum(m["totals"][k] for m in meals) for k in ("kcal", "protein", "fat")}
+        assert totals["fat"] <= PROTEIN_TARGETS["fats"] * 1.25
+        assert totals["protein"] >= min(protein_before, PROTEIN_TARGETS["protein"] * 0.95) - 1
+        assert abs(totals["kcal"] - PROTEIN_TARGETS["calories"]) <= PROTEIN_TARGETS["calories"] * 0.05
+        for meal in meals:
+            assert all(meal_planner.suits_meal(foods[i["food_id"]], meal) for i in meal["items"])
+
+
+def test_a_fatty_dairy_side_is_swapped_for_a_leaner_one():
+    rules = DietRules.from_preferences({"diet_type": "vegetarian"})
+    pool = meal_planner.food_pool(rules, {"diet_type": "vegetarian"})
+    foods = {f.id: f for f in pool}
+    rich = food_db.get_food(CURD)  # whole-milk curd: hung curd or chaas are leaner dairy
+    rice = food_db.get_food(RICE)
+    foods[rice.id] = rice
+    meals = [{"id": "lunch", "meal_type": "lunch", "time": "13:30", "share": 1.0,
+              "items": [meal_planner.build_item(rice, 1.0), meal_planner.build_item(rich, 2.0)]}]
+    targets = {"calories": round(sum(i["nutrients"]["kcal"] for i in meals[0]["items"])), "protein": 1,
+               "carbs": 100, "fats": 5, "fiber": 5}
+    fat_before = sum(i["nutrients"]["fat"] for i in meals[0]["items"])
+    assert meal_planner.trim_fat(meals, targets, pool, foods) >= 1
+    swapped = [foods[i["food_id"]] for i in meals[0]["items"] if i["food_id"] != rice.id]
+    assert swapped and all(meal_planner.food_role(f) == "dairy" for f in swapped)
+    assert sum(i["nutrients"]["fat"] for i in meals[0]["items"]) < fat_before

@@ -359,6 +359,7 @@ async def create_plan(user_id: str) -> dict:
     # still short, a protein snack before bed) until protein is on target.
     extra = None if routine.is_ramadan(mode) else meal_planner.bedtime_slot(ctx.user.lifestyle)
     meal_planner.boost_protein(meals, plan_targets, ctx.pool, ctx.foods, extra_slot=extra)
+    meal_planner.trim_fat(meals, plan_targets, ctx.pool, ctx.foods)
     doc = await _save(user_id, meals, plan_targets, ctx, "regenerated" if previous else "created",
                       previous, rule_based)
     await analytics_service.track(
@@ -400,6 +401,7 @@ async def regenerate_meal(user_id: str, meal_id: str) -> dict:
     meal_planner.enforce_meal_fit([new_meal], ctx.pool, ctx.foods)
     meal_planner.fit_portions(meals, plan["targets"], ctx.foods, fixed=[m["id"] for m in others])
     meal_planner.boost_protein(meals, plan["targets"], ctx.pool, ctx.foods, fixed=[m["id"] for m in others])
+    meal_planner.trim_fat(meals, plan["targets"], ctx.pool, ctx.foods, fixed=[m["id"] for m in others])
     doc = await _save(user_id, meals, plan["targets"], ctx, "meal_regenerated", plan, rule_based)
     return await _present(doc, ctx.user)
 
