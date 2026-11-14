@@ -23,19 +23,28 @@ SPLITS: Dict[int, List[tuple]] = {
     5: [(0, "upper"), (1, "lower"), (3, "upper"), (4, "lower"), (5, "full")],
     6: [(0, "push"), (1, "pull"), (2, "legs"), (3, "push"), (4, "pull"), (5, "legs")],
 }
+MIN_PULLS_FOR_PULL_DAY = 2
+SIX_DAYS_WITHOUT_PULL = [(0, "upper"), (1, "lower"), (2, "full"), (3, "upper"), (4, "lower"), (5, "full")]
 DEFAULT_DAYS = {"beginner": 3, "intermediate": 4, "advanced": 5}
 
 # Each slot lists acceptable patterns, best first.
 PULL = ["pull_horizontal", "pull_vertical", "rear_delt"]
 SESSIONS: Dict[str, List[List[str]]] = {
+    # Two pulls to the two pushes, so the back keeps up with chest and shoulders.
     "full": [["squat", "lunge"], ["push_horizontal"], ["hinge", "glute"], PULL,
-             ["push_vertical", "shoulder_isolation"], ["lunge", "glute"], ["core"]],
+             ["pull_vertical", "pull_horizontal", "rear_delt"], ["push_vertical", "shoulder_isolation"],
+             ["lunge", "glute"], ["core"]],
+    # Two chest presses (flat and incline) so chest gets as much work as back and shoulders.
     "upper": [["push_horizontal"], ["pull_horizontal", "pull_vertical"], ["push_vertical"],
-              ["pull_vertical", "pull_horizontal"], ["shoulder_isolation", "rear_delt"], ["biceps"], ["triceps"]],
-    "lower": [["squat"], ["hinge"], ["lunge"], ["glute", "knee_flexion"], ["calf"], ["core"], ["core"]],
+              ["pull_vertical", "pull_horizontal"], ["push_horizontal"],
+              # Rear delts before side raises: the presses already work the front of the
+              # shoulder, and desk-bound backs need the pulling more.
+              ["rear_delt", "shoulder_isolation"], ["biceps"], ["triceps"]],
+    # Leg curls first where there's a machine: hinges alone leave hamstrings short.
+    "lower": [["squat"], ["hinge"], ["lunge"], ["knee_flexion", "glute"], ["calf"], ["core"], ["core"]],
     "push": [["push_horizontal"], ["push_vertical"], ["push_horizontal"], ["shoulder_isolation"], ["triceps"], ["core"]],
     "pull": [["pull_vertical", "pull_horizontal"], ["pull_horizontal", "pull_vertical"], ["rear_delt"], ["biceps"], ["biceps"], ["core"]],
-    "legs": [["squat"], ["hinge"], ["lunge"], ["glute", "knee_flexion"], ["calf"], ["core"]],
+    "legs": [["squat"], ["hinge"], ["lunge"], ["knee_flexion", "glute"], ["calf"], ["core"]],
 }
 SESSION_LABELS = {
     "full": "Full body", "upper": "Upper body", "lower": "Lower body",
@@ -48,7 +57,8 @@ MOBILITY_ROUTINE = [
     "Cat_Stretch", "Childs_Pose", "Kneeling_Hip_Flexor", "Upper_Back_Stretch", "Shoulder_Stretch",
     "Standing_Hamstring_and_Calf_Stretch", "Side_Neck_Stretch", "Hug_Knees_To_Chest",
 ]
-SESSION_MINUTES = {"beginner": 40, "intermediate": 50, "expert": 60}
+# Beginners get time for 3 sets of their main lifts (enough volume to build muscle).
+SESSION_MINUTES = {"beginner": 50, "intermediate": 55, "expert": 60}
 WORK_SECONDS_PER_SET = 45
 SETUP_SECONDS_PER_EXERCISE = 60
 
@@ -73,24 +83,36 @@ class _Picker:
         self.loaded = loaded
         self.used_this_week: Counter = Counter()
 
-    def options(self, pattern: str) -> List[Exercise]:
+    def _tier(self, exercise: Exercise) -> tuple:
+        """Lower is better: weights (when there are any), compound, closest level."""
         rank = catalog.LEVEL_RANK[self.level]
+        return (
+            self.loaded and not catalog.is_loaded(exercise),
+            exercise.mechanic != "compound",
+            abs(catalog.LEVEL_RANK.get(exercise.level, 0) - rank),
+        )
+
+    def options(self, pattern: str) -> List[Exercise]:
         candidates = [e for e in self.pool if e.coaching.pattern == pattern]
-        # Loaded first (if weights are available), compound, closest level, then name.
-        return sorted(candidates, key=lambda e: (
-            self.loaded and not e.coaching.needs,
-            e.mechanic != "compound",
-            abs(catalog.LEVEL_RANK.get(e.level, 0) - rank),
-            e.id,
-        ))
+        # Weighted first (if weights are available: they can be loaded up week after
+        # week), compound, closest level, then name.
+        return sorted(candidates, key=lambda e: (*self._tier(e), e.id))
 
     def pick(self, patterns: Sequence[str], taken: set) -> Optional[Exercise]:
+        """The best option, rotating only among equally good ones.
+
+        A weaker exercise (a band pull-up at a gym that has a lat pulldown) is
+        never picked for variety's sake; repeating the best one in the week is
+        fine and makes progress easy to track.
+        """
         for pattern in patterns:
             options = [e for e in self.options(pattern) if e.id not in taken]
             if options:
+                best = self._tier(options[0])
+                top = [e for e in options if self._tier(e) == best]
                 turn = self.used_this_week[pattern] + self.variant
                 self.used_this_week[pattern] += 1
-                return options[turn % len(options)]
+                return top[turn % len(top)]
         return None
 
 
@@ -144,14 +166,18 @@ def build_week(
     owned = list(equipment) or ["bodyweight"]
     joints = catalog.injured_joints(injuries)
     pool = [e for e in catalog.curated() if e.coaching.pattern != "mobility" and catalog.allowed(e, owned, joints, level)]
+    pool = without_stand_ins(pool, owned)
     picker = _Picker(pool, level, variant, loaded=has_weights(owned))
     days = training_days(days_per_week, experience)
-    schedule = dict(SPLITS[days])
     budget = SESSION_MINUTES[level]
     notes: List[str] = []
     # Back extensions stand in only when nothing to pull against is available at all,
     # not when the one pulling exercise is already used in the session.
     can_pull = any(e.coaching.pattern in PULL for e in pool)
+    # A pull day needs at least two different rows or pull-ups; otherwise six days are
+    # upper/lower/full twice.
+    pulls = [e for e in pool if e.coaching.pattern in ("pull_horizontal", "pull_vertical")]
+    schedule = dict(SPLITS[days] if len(pulls) >= MIN_PULLS_FOR_PULL_DAY or days != 6 else SIX_DAYS_WITHOUT_PULL)
 
     week = []
     mobility_day_used = False
@@ -207,7 +233,17 @@ def build_week(
     }
 
 
+# Exercises that stand in for a better one when equipment is missing: a floor
+# press is for people without a bench, not a second chest press at the gym.
+STAND_INS = {"Dumbbell_Floor_Press": {"bench", "full_gym"}}
+
+
+def without_stand_ins(pool: List[Exercise], owned: Sequence[str]) -> List[Exercise]:
+    return [e for e in pool if not (STAND_INS.get(e.id, set()) & set(owned))]
+
+
 WEIGHTS = {"full_gym", "dumbbells", "barbell", "kettlebell"}
+
 
 
 def has_weights(owned: Sequence[str]) -> bool:
@@ -215,7 +251,11 @@ def has_weights(owned: Sequence[str]) -> bool:
 
 
 def weekly_sets(week: List[dict]) -> Dict[str, int]:
-    """Hard sets per primary muscle across the week (mobility excluded)."""
+    """Hard sets per muscle across the week (mobility excluded).
+
+    A set counts fully for the muscles an exercise mainly works and half for
+    the ones it also works (a squat trains glutes too), the usual way to tally volume.
+    """
     totals: Counter = Counter()
     for day in week:
         for entry in day["exercises"]:
@@ -223,7 +263,10 @@ def weekly_sets(week: List[dict]) -> Dict[str, int]:
                 continue
             for muscle in entry["primary_muscles"]:
                 totals[muscle] += entry["sets"]
-    return dict(sorted(totals.items(), key=lambda kv: -kv[1]))
+            for muscle in entry.get("secondary_muscles") or []:
+                if muscle not in entry["primary_muscles"]:
+                    totals[muscle] += entry["sets"] / 2
+    return {m: round(v, 1) for m, v in sorted(totals.items(), key=lambda kv: -kv[1])}
 
 
 # --- Quick sessions and swaps --------------------------------------------------------

@@ -60,6 +60,11 @@ function LevelProgress({ level }: { level: LevelCheck }) {
             {S.lifts(met, liftsNeeded)}
           </Typography>
           <LinearProgress variant="determinate" value={Math.min(100, (met / liftsNeeded) * 100)} sx={styles.bar} />
+          {lifts.length === 0 && (
+            <Typography variant="caption" color="text.secondary">
+              {S.noLiftsYet}
+            </Typography>
+          )}
           {lifts.map((lift) => (
             <Typography key={lift.pattern} variant="caption" sx={styles.liftRow(lift.met)}>
               {S.liftRow(S.patterns[lift.pattern] ?? lift.pattern, lift.ratio, lift.needed)}
