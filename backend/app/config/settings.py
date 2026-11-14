@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
+import logging
 import os
 
 # Placeholder JWT secret used only for local development. Production refuses
@@ -100,7 +101,13 @@ class Settings(BaseSettings):
         if not self.CORS_EXTRA_ORIGINS.strip():
             problems.append("CORS_EXTRA_ORIGINS must list the deployed frontend origin(s)")
         if not self.HEALTH_DATA_KEY.strip():
-            problems.append("HEALTH_DATA_KEY must be set so health data is encrypted at rest")
+            # Fallback, not a failed deploy: the app starts and only the health
+            # features answer 503 (app/health/crypto.py refuses to store health
+            # data unencrypted in production), so nothing is saved in plaintext.
+            logging.getLogger(__name__).warning(
+                "HEALTH_DATA_KEY is not set: health profile, lab reports and supplements are "
+                "disabled until it is. The rest of the app runs normally"
+            )
         if problems:
             raise RuntimeError("Unsafe production configuration: " + "; ".join(problems))
 
