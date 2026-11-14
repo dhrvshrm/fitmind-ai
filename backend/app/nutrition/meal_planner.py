@@ -375,9 +375,13 @@ def build_prompt(
         "- Build normal meals: lunch and dinner are a grain (roti, rice, millet) with dal or a curry "
         "and a sabzi, salad or curd. Breakfast is one main dish with an optional drink or fruit. "
         "Snacks are small: fruit, sprouts, chana, curd, buttermilk, nuts, an egg.",
-        "- Reaching the protein target matters most after calories. Every meal, snacks included, "
-        "has a good protein source (dal, chana, rajma, sprouts, paneer, curd, tofu, soya, egg, "
-        "chicken, fish), and prefer protein-dense options over extra rice or bread.",
+        "- Reaching the protein target matters most after calories. Every meal and snack has a good "
+        "protein source (dal, chana, rajma, sprouts, paneer, curd, tofu, soya, egg, chicken, fish), "
+        "and prefer protein-dense options over extra rice or bread.",
+        "- Except the snack before a workout: only something light, low in fat and fibre, mostly "
+        "carbs (a banana or other fruit, dates, toast). No curd, raita, dal, chana, sprouts, paneer "
+        "or fried food then; they sit heavy during training.",
+        "- No tea or coffee with dinner or later in the evening; caffeine then hurts sleep.",
         "- servings is how many of the listed serving unit (2 for two roti, 1.5 for one and a half "
         "bowls). Aim near each meal's calories; portions are fine-tuned afterwards.",
         "- 2 to 4 foods per main meal, 1 or 2 per snack. Don't repeat a dish in the day.",
@@ -584,6 +588,65 @@ MAIN_SLOT_IDS = frozenset({"lunch", "dinner", "iftar"})
 BREAKFAST_SLOT_IDS = frozenset({"breakfast", "sehri"})
 
 
+# --- What suits each meal ---------------------------------------------------------
+# One rule set, used for the AI's choice, protein additions and swaps alike.
+PRE_WORKOUT_AVOID = frozenset({
+    "raita", "curd", "dahi", "lassi", "dal", "curry", "rajma", "chana", "chickpeas", "sprouted",
+    "paneer", "tofu", "soya", "soy", "peanut", "peanuts", "chicken", "fish", "mutton", "egg",
+    "omelette", "bhurji", "paratha", "biryani", "cheese", "kofta", "korma", "beans", "lentils",
+})
+# Light enough to train on 20 to 60 minutes later, per serving.
+PRE_WORKOUT_MAX_FAT = 5.0
+PRE_WORKOUT_MAX_FIBER = 5.0
+CAFFEINE_WORDS = frozenset({"tea", "coffee", "chai", "espresso", "cappuccino"})
+# Late in the day: no caffeine (it keeps you up).
+LATE_SLOT_IDS = frozenset({"dinner", "bedtime", "post_iftar"})
+
+
+def is_pre_workout(meal: dict) -> bool:
+    return meal.get("workout_role") == "pre" or meal.get("id") == "pre_workout"
+
+
+def suits_meal(food: Food, meal: dict) -> bool:
+    """Whether a food belongs in this meal at all (whatever else is in it).
+
+    Before a workout: light carbs only (no curd, dal, chana or anything fatty
+    or high in fibre). With dinner and after: no tea or coffee.
+    """
+    found = food_tokens(food)
+    if is_pre_workout(meal):
+        per = food.per_100g.scaled(food.serving.grams / 100)
+        if found & PRE_WORKOUT_AVOID or per.fat > PRE_WORKOUT_MAX_FAT or per.fiber > PRE_WORKOUT_MAX_FIBER:
+            return False
+    if meal.get("id") in LATE_SLOT_IDS and found & CAFFEINE_WORDS:
+        return False
+    return True
+
+
+def enforce_meal_fit(meals: List[dict], pool: Sequence[Food], foods: Dict[str, Food],
+                     fixed: Sequence[str] = ()) -> int:
+    """Take out foods that don't suit their meal (in place); returns how many.
+
+    A meal left empty gets the lightest suitable fruit (a banana before a workout).
+    """
+    removed = 0
+    for meal in meals:
+        if meal["id"] in fixed:
+            continue
+        kept = [i for i in meal["items"] if i["food_id"] not in foods or suits_meal(foods[i["food_id"]], meal)]
+        removed += len(meal["items"]) - len(kept)
+        if not kept and meal["items"]:
+            fruit = [f for f in pool if food_role(f) == "fruit" and suits_meal(f, meal)]
+            # A banana is the classic pre-workout snack; otherwise the first allowed fruit.
+            fruit.sort(key=lambda f: (0 if "banana" in food_tokens(f) else 1, f.name))
+            if fruit:
+                foods[fruit[0].id] = fruit[0]
+                kept = [build_item(fruit[0], snap(fruit[0], 1.0))]
+        meal["items"] = kept
+        meal["totals"] = totals_of(kept)
+    return removed
+
+
 def _is_simple(food: Food) -> bool:
     """Plain staples and the protein staples: little or no cooking, few ingredients."""
     return food.id in PROTEIN_STAPLE_IDS or food.source in CORE_SOURCES
@@ -593,19 +656,27 @@ def _protein_share(food: Food) -> float:
     return food.per_100g.protein * 4 / food.per_100g.kcal if food.per_100g.kcal else 0.0
 
 
-def _fits_slot(food: Food, slot_id: str) -> bool:
-    """Whether a protein food belongs in this meal (no paneer curry for a 5 pm snack)."""
+def _fits_slot(food: Food, meal: dict) -> bool:
+    """Whether a protein food belongs in this meal (no paneer curry for a 5 pm snack,
+    nothing heavy before a workout)."""
+    if is_pre_workout(meal) or not suits_meal(food, meal):
+        return False
+    slot_id = meal["id"]
     found = food_tokens(food)
     if slot_id == "bedtime":
         return bool(found & BEDTIME_PROTEIN_WORDS) and "curry" not in found
     if slot_id in MAIN_SLOT_IDS:
+        # Roasted chana is a snack, not part of lunch or dinner.
+        if "roasted" in found:
+            return False
         return food_role(food) in ("protein", "dairy") or bool(found & {"paneer", "soya", "tofu"})
     if slot_id in BREAKFAST_SLOT_IDS:
         return bool(found & BREAKFAST_PROTEIN_WORDS)
     return bool(found & SNACK_PROTEIN_ADD_WORDS) and "curry" not in found
 
 
-BEDTIME_PROTEIN_WORDS = frozenset({"milk", "curd", "paneer"})
+# Light before bed; roasted chana is the option for people who skip dairy.
+BEDTIME_PROTEIN_WORDS = frozenset({"milk", "curd", "paneer", "roasted"})
 SAME_KIND_WORDS = frozenset({"curd", "paneer", "egg", "milk", "tofu", "soya", "chicken", "chana", "chickpeas"})
 # An addition is undone if it pushes the day past these (portions couldn't absorb it).
 MAX_KCAL_OVER = 1.04
@@ -713,7 +784,7 @@ def boost_protein(
             for food, replace in ((f, r) for f in candidates for r in modes):
                 if (food.id in in_meal or (meal["id"], food.id, replace) in rejected
                         or food_tokens(food) & SAME_KIND_WORDS & meal_kinds
-                        or not _fits_slot(food, meal["id"])):
+                        or not _fits_slot(food, meal)):
                     continue
                 # A food not yet in the day first (no tofu three times), then a simple one
                 # (curd, eggs, paneer: little cooking), then the meal furthest behind,
@@ -830,7 +901,7 @@ def _shares(n: Nutrients) -> Tuple[float, float, float]:
 
 def swap_options(
     item: dict, pool: List[Food], exclude_ids: set, query: Optional[str] = None,
-    original: Optional[Food] = None,
+    original: Optional[Food] = None, meal: Optional[dict] = None,
 ) -> List[dict]:
     """Foods that can replace ``item``, each sized to roughly its calories.
 
@@ -839,7 +910,7 @@ def swap_options(
     the allowed list.
     """
     current = Nutrients(**item["nutrients"])
-    candidates = [f for f in pool if f.id not in exclude_ids]
+    candidates = [f for f in pool if f.id not in exclude_ids and (meal is None or suits_meal(f, meal))]
     if query:
         allowed = {f.id for f in candidates}
         chosen = [m.food for m in food_db.search(query, limit=40) if m.food.id in allowed][:SWAP_LIMIT]
