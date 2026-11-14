@@ -1,0 +1,52 @@
+[
+ {
+  "id": "est:paneer",
+  "name": "Paneer",
+  "full_name": "Paneer (Indian cottage cheese), plain, full fat",
+  "aliases": ["plain paneer", "paneer cubes", "cottage cheese"],
+  "source": "estimate",
+  "basis": "Typical full-fat paneer from Indian pack labels and IFCT 2017: about 18 g protein and 21 g fat per 100 g.",
+  "per_100g": {"kcal": 265, "protein": 18.3, "carbs": 1.2, "fat": 20.8, "fiber": 0},
+  "serving": {"unit": "small bowl", "grams": 100, "from_source": false}
+ },
+ {
+  "id": "est:paneer_bhurji",
+  "name": "Paneer bhurji",
+  "full_name": "Paneer bhurji (scrambled paneer with onion and tomato), home style",
+  "aliases": ["paneer bhurjee", "scrambled paneer"],
+  "source": "estimate",
+  "basis": "Per 100 g: about 70 g paneer, 25 g onion and tomato and 4 g oil; paneer values as for plain paneer.",
+  "per_100g": {"kcal": 230, "protein": 13.2, "carbs": 2.6, "fat": 18.6, "fiber": 0.5},
+  "serving": {"unit": "bowl", "grams": 120, "from_source": false}
+ },
+ {
+  "id": "est:soya_chunk_curry",
+  "name": "Soya chunk curry",
+  "full_name": "Soya chunk curry (soya badi in onion-tomato gravy), home style",
+  "aliases": ["soya chunks curry", "soya chunks", "soya badi", "meal maker curry"],
+  "source": "estimate",
+  "basis": "Per 100 g: about 25 g dry soya chunks (52 g protein and 345 kcal per 100 g dry on common pack labels), 25 g onion and tomato and 3 g oil.",
+  "per_100g": {"kcal": 121, "protein": 13.3, "carbs": 10.1, "fat": 3.2, "fiber": 3.7},
+  "serving": {"unit": "bowl", "grams": 150, "from_source": false}
+ },
+ {
+  "id": "est:hung_curd",
+  "name": "Hung curd",
+  "full_name": "Hung curd (thick, Greek-style curd), plain, low fat",
+  "aliases": ["greek yogurt", "greek yoghurt", "hung dahi", "chakka", "greek curd"],
+  "source": "estimate",
+  "basis": "Typical plain low-fat Greek-style yogurt from pack labels: about 10 g protein and 73 kcal per 100 g.",
+  "per_100g": {"kcal": 73, "protein": 10.0, "carbs": 4.0, "fat": 2.0, "fiber": 0},
+  "serving": {"unit": "small bowl", "grams": 100, "from_source": false}
+ },
+ {
+  "id": "est:roasted_chana",
+  "name": "Roasted chana",
+  "full_name": "Roasted Bengal gram (bhuna chana), with skin",
+  "aliases": ["bhuna chana", "roasted gram", "roasted bengal gram", "bhune chane"],
+  "source": "estimate",
+  "basis": "Roasted Bengal gram, IFCT 2017 and common pack labels: about 22 g protein and 370 kcal per 100 g.",
+  "per_100g": {"kcal": 370, "protein": 22.0, "carbs": 58.0, "fat": 5.0, "fiber": 15.0},
+  "serving": {"unit": "small bowl", "grams": 40, "from_source": false}
+ }
+]

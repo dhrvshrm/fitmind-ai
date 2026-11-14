@@ -210,6 +210,11 @@ def plan_slots(lifestyle: Optional[dict], workout_time: Optional[str] = None,
 POOL_LIMIT = 220
 # The dishes people mean by "dal", "roti", "poha"... and plain staples (curd, milk, fruit, eggs).
 CORE_FOOD_IDS = frozenset(food_db.GENERIC_ALIASES.values())
+# Everyday protein staples (paneer, hung curd, soya chunks, roasted chana) are
+# always offered when the diet allows them, so a plan can reach its protein target.
+PROTEIN_STAPLE_IDS = frozenset({
+    "est:paneer", "est:paneer_bhurji", "est:soya_chunk_curry", "est:hung_curd", "est:roasted_chana",
+})
 CORE_SOURCES = frozenset({"USDA"})
 
 
@@ -234,6 +239,7 @@ def food_pool(rules: DietRules, prefs: Optional[dict], user_foods: Sequence[Food
         found = food_tokens(food)
         score = (
             (3 if found & preferred else 0)
+            + (4 if food.id in PROTEIN_STAPLE_IDS else 0)
             + (3 if food.id in CORE_FOOD_IDS or food.source in CORE_SOURCES else 0)
             + (2 if found & liked else 0)
             + (1 if found & STAPLE_WORDS else 0)
@@ -286,7 +292,9 @@ def pick_schema(allowed_ids: set, slots: Sequence[str]) -> Type[PlanPick]:
 SYSTEM_PROMPT = (
     "You are a dietitian in India building practical home-style meal plans. You choose dishes "
     "only from the food list you are given and refer to them by id. You plan normal Indian "
-    "meals that a family would actually cook or a mess would serve."
+    "meals that a family would actually cook or a mess would serve. Keep cooking simple: "
+    "dishes with few ingredients that take about 30 minutes or less, and plain staples "
+    "(curd, eggs, roasted chana, paneer, fruit) that need no cooking at all."
 )
 
 DIET_LABELS = {
@@ -417,7 +425,7 @@ def _step(food: Food) -> float:
 
 
 # Tighter caps for foods where the general piece limit would look odd.
-MAX_BY_UNIT = {"egg": 3}
+MAX_BY_UNIT = {"egg": 3, "small bowl": 2}
 
 
 def _bounds(food: Food) -> Tuple[float, float]:
@@ -462,8 +470,12 @@ def totals_of(items: List[dict]) -> dict:
 # Below 1 so the day can still reach its target when one meal can't grow further,
 # but high enough that food goes to the meals that are short first.
 MEAL_BALANCE_WEIGHT = 0.6
-PROTEIN_WEIGHT = 0.5
-FAT_OVER_WEIGHT = 0.25
+PROTEIN_WEIGHT = 1.0
+FAT_OVER_WEIGHT = 0.5
+# Carbs and fiber count too, more lightly: with calories, protein and fat on
+# target, carbs follow, so this mostly breaks ties toward a closer fit.
+CARB_WEIGHT = 0.15
+FIBER_SHORT_WEIGHT = 0.1
 # Foods this light (tea, a salad) are left at the amount chosen; scaling them
 # only produces silly portions ("2.5 cups of tea") for a few calories.
 MIN_SCALABLE_KCAL = 60
@@ -476,21 +488,30 @@ class _Day:
         self.meal_kcal = {m["id"]: sum(i["nutrients"]["kcal"] for i in m["items"]) for m in meals}
         self.protein = sum(i["nutrients"]["protein"] for m in meals for i in m["items"])
         self.fat = sum(i["nutrients"]["fat"] for m in meals for i in m["items"])
+        self.carbs = sum(i["nutrients"]["carbs"] for m in meals for i in m["items"])
+        self.fiber = sum(i["nutrients"]["fiber"] for m in meals for i in m["items"])
 
     def score(self, meals: List[dict], targets: dict, changes: Sequence[Tuple[str, Nutrients]] = ()) -> float:
-        """Lower is better: calorie miss, protein shortfall, fat overshoot and meal balance."""
+        """Lower is better: calorie miss, protein shortfall, fat overshoot, carb miss,
+        fiber shortfall and meal balance."""
         meal_kcal, protein, fat = dict(self.meal_kcal), self.protein, self.fat
+        carbs, fiber = self.carbs, self.fiber
         for meal_id, change in changes:
             meal_kcal[meal_id] += change.kcal
             protein += change.protein
             fat += change.fat
+            carbs += change.carbs
+            fiber += change.fiber
         calories = targets["calories"]
         day_miss = abs(sum(meal_kcal.values()) - calories) / calories
         protein_short = max(targets["protein"] - protein, 0) / max(targets["protein"], 1)
         fat_over = max(fat - targets["fats"], 0) / max(targets["fats"], 1)
+        carb_miss = abs(carbs - targets["carbs"]) / max(targets.get("carbs") or 1, 1) if targets.get("carbs") else 0
+        fiber_short = (max(targets["fiber"] - fiber, 0) / max(targets["fiber"], 1)) if targets.get("fiber") else 0
         balance = sum(abs(meal_kcal[m["id"]] - calories * m["share"]) for m in meals) / calories
         return (
             day_miss + PROTEIN_WEIGHT * protein_short + FAT_OVER_WEIGHT * fat_over
+            + CARB_WEIGHT * carb_miss + FIBER_SHORT_WEIGHT * fiber_short
             + MEAL_BALANCE_WEIGHT * balance
         )
 
@@ -538,6 +559,195 @@ def fit_portions(
             meal["items"][index] = build_item(food, servings)
     for meal in meals:
         meal["totals"] = totals_of(meal["items"])
+
+
+# --- Closing the protein gap ---------------------------------------------------
+# Resizing the chosen dishes can't reach the protein target when they are
+# mostly rice, roti and sabzi. Then protein-rich foods the diet allows are
+# added to the meals furthest behind, and portions are fitted again (less
+# rice or roti, so calories stay on target).
+PROTEIN_GOAL_SHARE = 0.95       # stop once the plan has this share of the protein target
+MIN_PROTEIN_SHARE = 0.22        # a food counts as protein-rich above this share of its calories (roasted chana: 0.24)
+LEAN_PROTEIN_SHARE = 0.4        # lean (hung curd, soya, egg whites, chicken): tried before paneer
+MIN_SERVING_PROTEIN = 6.0       # grams in one serving, so an addition is worth it
+MAX_PROTEIN_ADDS = 6
+MAX_MEAL_ITEMS = 5
+# What sits naturally in each kind of meal (tokens from the food's names).
+BREAKFAST_PROTEIN_WORDS = frozenset({
+    "egg", "omelette", "scrambled", "bhurji", "curd", "milk", "paneer", "tofu", "cheela", "chilla",
+    "sprouted", "moong", "besan",
+})
+SNACK_PROTEIN_ADD_WORDS = frozenset({
+    "egg", "curd", "chana", "chickpeas", "sprouted", "paneer", "tofu", "milk", "peanuts", "roasted",
+})
+MAIN_SLOT_IDS = frozenset({"lunch", "dinner", "iftar"})
+BREAKFAST_SLOT_IDS = frozenset({"breakfast", "sehri"})
+
+
+def _is_simple(food: Food) -> bool:
+    """Plain staples and the protein staples: little or no cooking, few ingredients."""
+    return food.id in PROTEIN_STAPLE_IDS or food.source in CORE_SOURCES
+
+
+def _protein_share(food: Food) -> float:
+    return food.per_100g.protein * 4 / food.per_100g.kcal if food.per_100g.kcal else 0.0
+
+
+def _fits_slot(food: Food, slot_id: str) -> bool:
+    """Whether a protein food belongs in this meal (no paneer curry for a 5 pm snack)."""
+    found = food_tokens(food)
+    if slot_id == "bedtime":
+        return bool(found & BEDTIME_PROTEIN_WORDS) and "curry" not in found
+    if slot_id in MAIN_SLOT_IDS:
+        return food_role(food) in ("protein", "dairy") or bool(found & {"paneer", "soya", "tofu"})
+    if slot_id in BREAKFAST_SLOT_IDS:
+        return bool(found & BREAKFAST_PROTEIN_WORDS)
+    return bool(found & SNACK_PROTEIN_ADD_WORDS) and "curry" not in found
+
+
+BEDTIME_PROTEIN_WORDS = frozenset({"milk", "curd", "paneer"})
+SAME_KIND_WORDS = frozenset({"curd", "paneer", "egg", "milk", "tofu", "soya", "chicken", "chana", "chickpeas"})
+# An addition is undone if it pushes the day past these (portions couldn't absorb it).
+MAX_KCAL_OVER = 1.04
+# Protein comes first: fat may run a little over its target (a quarter) to reach it.
+MAX_FAT_OVER = 1.25
+MAX_PROTEIN_TRIES = 30
+BEDTIME_ADDS = 2
+
+
+def bedtime_slot(lifestyle: Optional[dict]) -> dict:
+    """A small protein snack an hour before sleep, for when the day's meals fall short."""
+    sleep = (lifestyle or {}).get("sleep_time")
+    time = _hhmm(_minutes(sleep) - 60) if sleep else SLOTS["bedtime"][1]
+    return {"id": "bedtime", "meal_type": "snack", "time": time, "share": SLOTS["bedtime"][2],
+            "purpose": "a protein snack before bed", "items": [], "totals": Nutrients().model_dump()}
+
+
+SIDE_ROLES = frozenset({"fruit", "drink", "vegetable"})
+
+
+def _weakest_side(meal: dict, foods: Dict[str, Food]) -> Optional[int]:
+    """Index of the meal's side with the least protein for its calories, or None.
+
+    Only fruit, drinks and vegetable sides are given up, never the grain or the
+    dal; the meal keeps at least one vegetable.
+    """
+    sides = []
+    for index, item in enumerate(meal["items"]):
+        food = foods.get(item["food_id"])
+        role = food_role(food) if food else None
+        if role in SIDE_ROLES:
+            sides.append((index, role, _protein_share(food)))
+    if not sides:
+        return None
+    vegetables = sum(1 for _, role, _ in sides if role == "vegetable")
+    options = [s for s in sides if s[1] != "vegetable" or vegetables > 1]
+    return min(options, key=lambda s: s[2])[0] if options else None
+
+
+def _open_bedtime(meals: List[dict], extra_slot: Optional[dict], targets: dict) -> bool:
+    """Add the bedtime snack slot when it's offered, not there yet, and protein is still short."""
+    import copy
+
+    if not extra_slot or any(m["id"] == extra_slot["id"] for m in meals):
+        return False
+    if _day_totals(meals)["protein"] >= targets["protein"] * PROTEIN_GOAL_SHARE:
+        return False
+    meals.append(copy.deepcopy(extra_slot))
+    return True
+
+
+def _day_totals(meals: List[dict]) -> Dict[str, float]:
+    return {k: sum(i["nutrients"][k] for m in meals for i in m["items"]) for k in ("kcal", "protein", "fat")}
+
+
+def boost_protein(
+    meals: List[dict], targets: dict, pool: Sequence[Food], foods: Dict[str, Food],
+    fixed: Sequence[str] = (), extra_slot: Optional[dict] = None,
+) -> int:
+    """Add protein-rich foods until the plan nears its protein target (in place).
+
+    Simple foods (curd, eggs, paneer, soya, roasted chana) go to the meals
+    furthest behind, one food at most once a day; portions are refitted after
+    each, and an addition that would push calories or fat over is undone.
+    When the meals still fall short, ``extra_slot`` (a snack before bed) is
+    added with milk, hung curd or paneer. Returns how many foods were added.
+    Meals in ``fixed`` aren't touched.
+    """
+    import copy
+
+    candidates = [
+        f for f in pool
+        if _protein_share(f) >= MIN_PROTEIN_SHARE
+        and f.per_100g.scaled(f.serving.grams / 100).protein >= MIN_SERVING_PROTEIN
+    ]
+    added, tries, limit = 0, 0, MAX_PROTEIN_ADDS
+    rejected: set = set()
+    while tries < MAX_PROTEIN_TRIES:
+        if added >= limit:
+            # Out of additions for the day's meals: a snack before bed can still close the gap.
+            if not _open_bedtime(meals, extra_slot, targets):
+                break
+            limit += BEDTIME_ADDS
+            continue
+        before = _day_totals(meals)
+        if before["protein"] >= targets["protein"] * PROTEIN_GOAL_SHARE:
+            break
+        used = {i["food_id"] for m in meals for i in m["items"]}
+        best = None
+        for meal in meals:
+            if meal["id"] in fixed:
+                continue
+            # Either add the food, or (a full meal, or when adding overshoots) put it in
+            # place of the meal's weakest side: fruit, a salad, a drink.
+            weakest = _weakest_side(meal, foods)
+            modes = ([None] if len(meal["items"]) < MAX_MEAL_ITEMS else []) + ([weakest] if weakest is not None else [])
+            if not modes:
+                continue
+            meal_protein = sum(i["nutrients"]["protein"] for i in meal["items"])
+            gap = targets["protein"] * meal.get("share", 0) - meal_protein
+            in_meal = {i["food_id"] for i in meal["items"]}
+            # No second curd next to curd, or egg next to egg, in one meal.
+            meal_kinds = set().union(*(food_tokens(foods[i["food_id"]]) & SAME_KIND_WORDS
+                                       for i in meal["items"] if i["food_id"] in foods))
+            for food, replace in ((f, r) for f in candidates for r in modes):
+                if (food.id in in_meal or (meal["id"], food.id, replace) in rejected
+                        or food_tokens(food) & SAME_KIND_WORDS & meal_kinds
+                        or not _fits_slot(food, meal["id"])):
+                    continue
+                # A food not yet in the day first (no tofu three times), then a simple one
+                # (curd, eggs, paneer: little cooking), then the meal furthest behind,
+                # then the leanest.
+                rank = (food.id not in used, _is_simple(food), _protein_share(food) >= LEAN_PROTEIN_SHARE,
+                        round(gap / 5), _protein_share(food), replace is None)
+                if best is None or rank > best[0]:
+                    best = (rank, meal, food, replace)
+        if best is None:
+            if _open_bedtime(meals, extra_slot, targets):
+                limit = added + BEDTIME_ADDS
+                continue
+            break
+        tries += 1
+        _, meal, food, replace = best
+        backup = copy.deepcopy(meals)
+        foods[food.id] = food
+        if replace is not None:
+            meal["items"].pop(replace)
+        meal["items"].append(build_item(food, snap(food, 1.0)))
+        fit_portions(meals, targets, foods, fixed)
+        after = _day_totals(meals)
+        too_much = (after["kcal"] > targets["calories"] * MAX_KCAL_OVER
+                    or after["fat"] > max(before["fat"], targets["fats"] * MAX_FAT_OVER))
+        if too_much:
+            meals[:] = backup
+            rejected.add((meal["id"], food.id, replace))
+            continue
+        added += 1
+    # A bedtime slot that got nothing isn't kept.
+    meals[:] = [m for m in meals if m["items"]]
+    for meal in meals:
+        meal["totals"] = totals_of(meal["items"])
+    return added
 
 
 def assemble(pick: PlanPick, slots: List[dict], foods: Dict[str, Food]) -> List[dict]:
