@@ -44,6 +44,8 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
   // Logged by hand from the food diary (not from this card): what was eaten replaces the plan.
   const eatenByHand = !logged && today?.status === 'eaten';
   const done = logged || eatenByHand;
+  // Logged from the plan, plus something logged by hand at the same meal (a protein bar).
+  const alsoHad = logged && (today?.eaten.length ?? 0) > 0;
   const adjust = done ? null : today?.adjust;
   // The costliest fat in the meal, for "each extra teaspoon adds about ...".
   const fatKcalPerTsp = Math.max(0, ...meal.items.flatMap((i) => (i.cooking_fat ?? []).map((f) => f.kcal_per_tsp)));
@@ -101,10 +103,10 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
         </Tooltip>
       )}
 
-      {eatenByHand && (
+      {(eatenByHand || alsoHad) && (
         <Box sx={styles.eaten}>
           <Typography variant="overline" sx={styles.eatenTitle}>
-            {S.eaten.title}
+            {alsoHad ? S.eaten.alsoHad : S.eaten.title}
           </Typography>
           <Box component="ul" sx={styles.eatenList}>
             {today?.eaten.map((log) => (
@@ -125,9 +127,11 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
               </Stack>
             ))}
           </Box>
-          <Typography variant="caption" color="text.secondary" sx={styles.plannedLabel}>
-            {S.eaten.planned}
-          </Typography>
+          {eatenByHand && (
+            <Typography variant="caption" color="text.secondary" sx={styles.plannedLabel}>
+              {S.eaten.planned}
+            </Typography>
+          )}
         </Box>
       )}
 

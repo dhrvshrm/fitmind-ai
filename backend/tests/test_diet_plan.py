@@ -555,3 +555,16 @@ def test_unmapped_cooked_dishes_get_an_estimated_oil_note():
     # Fat that comes from the food itself (paneer, nuts) or sweets isn't guessed at.
     for name in ("Paneer bhurji curry", "Kaju masala", "Moong dal halwa", "Soyabean curry"):
         assert cooking_fat.for_item({**curry, "name": name}) == []
+
+
+def test_a_snack_with_no_plan_slot_is_kept_as_an_extra_with_its_time():
+    from app.nutrition import day_sync
+
+    meals = [{"id": "lunch", "meal_type": "lunch", "time": "13:30", "items": [], "totals": {"kcal": 600, "protein": 30}}]
+    logs = [{"id": "bar", "name": "Protein bar", "calories": 200, "protein": 10, "meal_type": "snack",
+             "eaten_at": None, "time": "16:20"}]
+    result = day_sync.sync_day(meals, [], {}, logs, {"calories": 1800, "protein": 100})
+    assert result["meals"]["lunch"]["status"] == "planned"
+    [extra] = result["day"]["extras"]
+    assert extra["name"] == "Protein bar" and extra["time"] == "16:20"
+    assert result["day"]["eaten_protein"] == 10

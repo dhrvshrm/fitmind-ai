@@ -8,6 +8,7 @@ const TONES: Record<RoutineKind, 'warning' | 'success' | 'primary' | 'info' | 's
   wind_down: 'info',
   sleep: 'secondary',
   fast_begins: 'info',
+  extra: 'secondary',
 };
 
 export const dayRoutineStyles = {

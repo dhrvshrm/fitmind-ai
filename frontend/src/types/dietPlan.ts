@@ -88,6 +88,8 @@ export type EatenLog = {
   calories: number;
   protein: number;
   eaten_at: string | null;
+  /** When it was eaten, or else logged ("HH:MM"). */
+  time?: string | null;
 };
 
 /** Smaller or bigger portions for a meal still to come, to land near the targets. */
@@ -153,13 +155,16 @@ export type DietPlan = {
   shift_aware?: boolean;
 };
 
-export type RoutineKind = 'wake' | 'workout' | 'meal' | 'wind_down' | 'sleep' | 'fast_begins';
+/** `extra` is added by the app: something eaten today that no plan meal covers. */
+export type RoutineKind = 'wake' | 'workout' | 'meal' | 'wind_down' | 'sleep' | 'fast_begins' | 'extra';
 
 export type RoutineEvent = {
   time: string;
   kind: RoutineKind;
   meal_id?: PlanSlot;
   values: Record<string, number>;
+  /** For `extra`: the off-plan food that was eaten. */
+  log?: EatenLog;
 };
 
 export type PlanMealLogResult = {

@@ -64,6 +64,8 @@ def _summary(log: dict) -> dict:
         "calories": round(log.get("calories") or 0),
         "protein": round(log.get("protein") or 0, 1),
         "eaten_at": log.get("eaten_at"),
+        # When it was eaten, or else logged: places an off-plan snack in the day.
+        "time": log.get("eaten_at") or log.get("time"),
     }
 
 

@@ -83,6 +83,7 @@ export function MealPlanPage() {
   const profile = useUserProfile();
   const lifestyle = profile.data?.lifestyle;
   const plan = planQuery.data;
+  const started = plan?.today?.day.state !== undefined && plan.today.day.state !== 'not_started';
   const shiftNote =
     plan?.shift_aware && lifestyle?.wake_time && lifestyle.sleep_time
       ? I.shiftAware(lifestyle.wake_time, lifestyle.sleep_time)
@@ -221,9 +222,10 @@ export function MealPlanPage() {
               {I.modeChanged}
             </Alert>
           )}
-          <PlanSummary plan={plan} />
+          {/* Once something is eaten, Today so far replaces the plan's own totals, so the
+              page shows one set of numbers, the same as Today and Nutrition. */}
+          {started && plan.today ? <TodaySoFar day={plan.today.day} /> : <PlanSummary plan={plan} />}
           <PlanNotes plan={plan} />
-          {plan.today && <TodaySoFar day={plan.today.day} />}
           <FastingModesCard />
           <DayRoutine
             plan={plan}

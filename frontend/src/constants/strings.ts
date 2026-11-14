@@ -796,7 +796,7 @@ export const STRINGS = {
     stale: "Your targets or food answers changed after this plan was made. Make a new plan to match them.",
     version: (version: number, date: string) => `Version ${version}, updated ${date}`,
     summaryTitle: "What this plan adds up to",
-    summarySubtitle: "All the planned meals together, against your targets. What you have actually eaten today is in Today so far.",
+    summarySubtitle: "All the planned meals together, against your targets. Once you log food, this shows what you have eaten instead.",
     labels: {
       calories: "Calories",
       protein: "Protein",
@@ -820,6 +820,11 @@ export const STRINGS = {
       subtitle: "Built around when you wake up, train and sleep.",
       edit: "Change times",
       mealFallback: "Meal",
+      extra: {
+        title: (name: string) => `Off the plan: ${name}`,
+        detail: (kcal: number, protein: number) =>
+          `${kcal} kcal, ${Math.round(protein)} g protein. Counted in Today so far.`,
+      },
       wake: {
         title: "Wake up",
         detail: (ml: number, liters: number) =>
@@ -853,6 +858,7 @@ export const STRINGS = {
     loggedToast: "Meal logged.",
     eaten: {
       title: "You had",
+      alsoHad: "Also had",
       planned: "Was planned",
       badge: "Eaten",
       hint: "Logged from your food diary. Delete it there to bring this meal back.",
