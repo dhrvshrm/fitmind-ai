@@ -27,6 +27,12 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      # Fernet key that encrypts health data at rest. Production refuses to
+      # start without it. Generate one with:
+      # python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+      # Keep it safe: losing it makes stored health data unreadable.
+      - key: HEALTH_DATA_KEY
+        sync: false
       # Comma-separated production frontend origin(s) for CORS, e.g.
       # https://fitmind.vercel.app
       - key: CORS_EXTRA_ORIGINS
