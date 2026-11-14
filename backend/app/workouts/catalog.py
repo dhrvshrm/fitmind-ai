@@ -219,6 +219,15 @@ def injured_joints(injuries: Iterable[str]) -> set:
     return joints
 
 
+# Source equipment that can be loaded with more weight over time.
+LOADED_EQUIPMENT = frozenset({"dumbbell", "barbell", "cable", "machine", "kettlebells"})
+
+
+def is_loaded(exercise: Optional["Exercise"]) -> bool:
+    """True when weight can be added (dumbbells, barbell, cable, machine), not bodyweight or bands."""
+    return bool(exercise and exercise.equipment in LOADED_EQUIPMENT)
+
+
 def has_equipment(exercise: Exercise, owned: Sequence[str]) -> bool:
     """True if every item the exercise needs is available (a full gym has everything)."""
     if exercise.coaching is None:

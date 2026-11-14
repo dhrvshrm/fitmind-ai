@@ -72,7 +72,9 @@ def test_reps_follow_the_goal_and_equipment():
     assert programming.prescribe(bench, "athletic_performance", "intermediate")["reps"] == "4-6"
     assert programming.prescribe(bench, "athletic_performance", "intermediate", main_lift=False)["reps"] == "8-12"
     assert programming.prescribe(catalog.get("Pushups"), "athletic_performance", "intermediate")["reps"] == "12-20"
-    assert programming.prescribe(bench, "muscle_gain", "beginner")["sets"] == 2
+    # Beginners: 3 sets of compound lifts (enough weekly volume), 2 of isolation work.
+    assert programming.prescribe(bench, "muscle_gain", "beginner")["sets"] == 3
+    assert programming.prescribe(catalog.get("Dumbbell_Bicep_Curl"), "muscle_gain", "beginner")["sets"] == 2
     assert programming.prescribe(catalog.get("Plank"), "fat_loss", "beginner")["reps"] == "20s"
     assert programming.prescribe(catalog.get("One-Arm_Kettlebell_Swings"), "athletic_performance", "expert")["reps"] == "10-15 each side"
 
@@ -114,7 +116,10 @@ def test_back_extension_note_only_when_nothing_to_pull_with(client, ai_providers
     headers, _ = _onboard(client, available_equipment=["dumbbells"], workout_days_per_week=4)
     plan = _generate(client, headers)
     assert "no_pull_equipment" not in plan["meta"]["notes"]
-    assert "Superman" not in {e["exercise_id"] for e in _exercises(plan)}
+    # Every upper day has a real row (Superman may still appear as core work).
+    for day in _training_days(plan):
+        if day["focus"] == "Upper body":
+            assert any(e["pattern"] in ("pull_horizontal", "pull_vertical") for e in day["exercises"]), day
 
 
 def test_weights_are_preferred_when_available(client, ai_providers):
@@ -263,3 +268,63 @@ def test_plans_saved_before_the_catalogue_still_load(client, ai_providers):
     assert plan["meta"] is None and plan["week"][0]["exercises"][0]["name"] == "Squats"
     today = client.get(f"{API}/workouts/plan/today", headers=headers).json()["data"]
     assert today["exercises"][0]["name"] == "Squats"
+
+
+# --- Audit: volume, balance and sensible choices ------------------------------------
+def _week(**kw):
+    base = {"goal": "recomposition", "experience": "beginner", "equipment": ["full_gym"], "injuries": [],
+            "days_per_week": 4}
+    return planner.build_week(**{**base, **kw})
+
+
+def _sets(week, patterns):
+    return sum(e["sets"] for d in week["week"] for e in d["exercises"] if e["pattern"] in patterns)
+
+
+def test_a_beginner_gets_enough_weekly_volume_to_build_muscle():
+    week = _week()
+    sets = week["meta"]["weekly_sets"]
+    for muscle in ("chest", "quadriceps", "hamstrings", "glutes"):
+        assert sets.get(muscle, 0) >= 10, (muscle, sets)
+    assert sets.get("lats", 0) + sets.get("middle back", 0) >= 10, sets
+    for day in week["week"]:
+        if day["workout_type"] == "strength":
+            assert planner._minutes(day["exercises"]) <= week["meta"]["session_minutes"]
+
+
+@pytest.mark.parametrize("days", [3, 4, 5, 6])
+@pytest.mark.parametrize("equipment", [["full_gym"], ["dumbbells"], ["dumbbells", "bench"]])
+def test_pushing_and_pulling_stay_balanced(days, equipment):
+    week = _week(days_per_week=days, equipment=equipment)
+    push = _sets(week, {"push_horizontal", "push_vertical"})
+    pull = _sets(week, {"pull_horizontal", "pull_vertical", "rear_delt"})
+    assert pull and push / pull <= 1.35, (push, pull)
+
+
+def test_the_best_exercise_is_repeated_rather_than_a_weaker_one_for_variety():
+    week = _week()
+    vertical = [e["exercise_id"] for d in week["week"] for e in d["exercises"] if e["pattern"] == "pull_vertical"]
+    assert vertical and set(vertical) == {"Wide-Grip_Lat_Pulldown"}
+
+
+def test_a_floor_press_is_only_for_people_without_a_bench():
+    def presses(equipment):
+        return {e["exercise_id"] for d in _week(equipment=equipment)["week"] for e in d["exercises"]}
+    assert "Dumbbell_Floor_Press" in presses(["dumbbells"])
+    assert "Dumbbell_Floor_Press" not in presses(["dumbbells", "bench"])
+    assert "Dumbbell_Floor_Press" not in presses(["full_gym"])
+
+
+def test_a_beginner_with_a_pull_up_bar_starts_with_scapular_pull_ups():
+    week = _week(equipment=["pull_up_bar"], days_per_week=3)
+    ids = {e["exercise_id"] for d in week["week"] for e in d["exercises"]}
+    assert "Scapular_Pull-Up" in ids
+    assert catalog.get("Chin-Up").coaching.easier == "Band_Assisted_Pull-Up"
+    assert catalog.get("Scapular_Pull-Up").coaching.harder == "Chin-Up"
+
+
+@pytest.mark.parametrize("equipment", [["bodyweight"], ["resistance_bands"], ["pull_up_bar"]])
+def test_no_pull_day_without_real_pulling_exercises(equipment):
+    week = _week(equipment=equipment, days_per_week=6)
+    assert "Pull (back, biceps)" not in {d["focus"] for d in week["week"]}
+    assert all(len(d["exercises"]) >= 4 for d in week["week"] if d["workout_type"] == "strength")

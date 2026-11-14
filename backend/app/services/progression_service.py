@@ -19,7 +19,7 @@ from app.workouts import catalog, programming, progression
 logger = logging.getLogger(__name__)
 
 # Equipment that takes added weight, so progress is tracked in kg.
-LOADED_EQUIPMENT = {"dumbbell", "barbell", "cable", "machine", "kettlebells"}
+LOADED_EQUIPMENT = catalog.LOADED_EQUIPMENT
 MAX_SETS = 12
 MAX_WEIGHT_KG = 500.0
 MAX_REPS = 100
@@ -44,7 +44,7 @@ class ProgressionError(Exception):
 
 
 def is_loaded(exercise: Optional[catalog.Exercise]) -> bool:
-    return bool(exercise and exercise.equipment in LOADED_EQUIPMENT)
+    return catalog.is_loaded(exercise)
 
 
 def _clean_sets(raw: Any) -> List[dict]:
@@ -92,14 +92,30 @@ async def record_sets(user_id: str, exercises: List[dict], day: Optional[str] = 
     return records
 
 
-def _target_for(entry: dict, sessions: List[dict]) -> Optional[dict]:
+def _harder_for(exercise: catalog.Exercise, user: Optional[User]) -> Optional[catalog.Exercise]:
+    """The harder variation, only if the person has its equipment and it spares their injuries.
+
+    (Its skill level may be a step up: that is the point of moving on.)
+    """
+    harder = catalog.get(exercise.coaching.harder) if exercise.coaching.harder else None
+    if harder is None or harder.coaching is None:
+        return None
+    if user is not None:
+        owned = list(user.available_equipment or []) or ["bodyweight"]
+        joints = catalog.injured_joints(user.injuries or [])
+        if not catalog.has_equipment(harder, owned) or set(harder.coaching.loads) & joints:
+            return None
+    return harder
+
+
+def _target_for(entry: dict, sessions: List[dict], user: Optional[User] = None) -> Optional[dict]:
     exercise = catalog.get(entry.get("exercise_id") or "")
     if exercise is None or exercise.coaching is None:
         return None
     rep_range = progression.parse_rep_range(str(entry.get("reps", "")))
     if rep_range is None:
         return None
-    harder = catalog.get(exercise.coaching.harder) if exercise.coaching.harder else None
+    harder = _harder_for(exercise, user)
     target = progression.next_target(
         [progression.session_from_doc(d) for d in sessions],
         rep_range,
@@ -126,7 +142,7 @@ async def decorate_today(user: User, today: Dict[str, Any]) -> Dict[str, Any]:
     history = await store.histories(user.id, ids, before=today_iso)
     decorated = []
     for entry in exercises:
-        target = _target_for(entry, history.get(entry.get("exercise_id") or "", []))
+        target = _target_for(entry, history.get(entry.get("exercise_id") or "", []), user)
         if deload and target and target.get("weight_kg"):
             # Same weight as last time during an easy week, never more.
             last = (target.get("last") or {}).get("sets") or []
@@ -226,6 +242,12 @@ async def suggestions(user: User) -> Dict[str, Any]:
             user.workout_days_per_week,
         )
         level_info["snoozed"] = _snoozed(state, "level", today)
+        # With weights, strength is judged on lifts, even before the first one is logged.
+        from app.workouts import planner
+
+        level_info["uses_bodyweight"] = (
+            level_info.get("uses_bodyweight", False) and not planner.has_weights(user.available_equipment or [])
+        )
 
     return {
         "deload": deload,

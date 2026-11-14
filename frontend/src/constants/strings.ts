@@ -359,9 +359,9 @@ export const STRINGS = {
       "This plan was made with the older generator, so it has no exercise details or swaps. Use New plan to build one from the exercise library.",
     planNotes: {
       no_pull_equipment:
-        "With no equipment there's no proper back (pulling) exercise, so back extensions stand in. A resistance band or pull-up bar unlocks rows and pull-ups.",
+        "With nothing to pull against there's no proper back (pulling) exercise, so back extensions stand in. A pull-up bar unlocks scapular pull-ups and then chin-ups; dumbbells unlock rows.",
       injury_adjusted:
-        "Exercises that load your injured areas are left out. Check with a doctor or physiotherapist before training through pain.",
+        "Exercises that load your injured areas are left out, so some days are shorter (a shoulder injury takes out most pressing and pulling). Ask a physiotherapist which moves are safe for you, and check with them before training through pain.",
       bodyweight_only:
         "Your plan uses bodyweight exercises. Add dumbbells or bands in your profile to unlock more.",
     },

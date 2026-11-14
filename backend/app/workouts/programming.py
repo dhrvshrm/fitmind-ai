@@ -46,7 +46,10 @@ CORE_REPS = Scheme(sets=3, reps=(10, 15), rest_seconds=45, reps_in_reserve=3)
 HOLD_SECONDS = {"beginner": 20, "intermediate": 40, "expert": 60}
 INTERVAL_SECONDS = 30
 MOBILITY_HOLD_SECONDS = 30
+# Beginners: 3 sets of the big compound lifts (enough weekly volume to build muscle),
+# 2 of the small isolation and core work.
 BEGINNER_SETS = 2
+BEGINNER_COMPOUND_SETS = 3
 EXPERT_COMPOUND_SETS = 4
 
 # The exercise's skill level (how hard it is to learn), shown on plan cards.
@@ -110,7 +113,8 @@ def prescribe(exercise: Exercise, goal: str, level: str, main_lift: bool = True)
     scheme = scheme_for(exercise, goal, main_lift)
     sets = scheme.sets
     if level == "beginner":
-        sets = min(sets, BEGINNER_SETS)
+        compound = exercise.mechanic == "compound" and coaching.pattern != "core"
+        sets = min(sets, BEGINNER_COMPOUND_SETS if compound else BEGINNER_SETS)
     elif level == "expert" and exercise.mechanic == "compound" and main_lift:
         sets = EXPERT_COMPOUND_SETS
     low, high = coaching.rep_range or scheme.reps

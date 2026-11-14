@@ -276,3 +276,30 @@ def test_strength_summary_tracks_weighted_lifts(client):
     assert [lift["exercise_id"] for lift in lifts] == ["Goblet_Squat"]
     assert lifts[0]["change_percent"] == 25
     assert lifts[0]["current_estimated_max_kg"] == 26.7
+
+
+def test_a_harder_variation_is_only_offered_with_the_equipment_for_it():
+    from types import SimpleNamespace
+
+    from app.services.progression_service import _harder_for
+
+    from app.workouts import catalog
+
+    squat = catalog.get("Bodyweight_Squat")  # harder: Goblet Squat (needs a dumbbell or kettlebell)
+    at_home = SimpleNamespace(available_equipment=["bodyweight"], injuries=[])
+    with_dumbbells = SimpleNamespace(available_equipment=["dumbbells"], injuries=[])
+    sore_knee = SimpleNamespace(available_equipment=["dumbbells"], injuries=["knee pain"])
+    assert _harder_for(squat, at_home) is None
+    assert _harder_for(squat, with_dumbbells).id == "Goblet_Squat"
+    assert _harder_for(squat, sore_knee) is None
+
+
+def test_a_new_gym_user_is_judged_on_lifts_not_bodyweight_reps(client):
+    headers, _ = _onboard(client, "newlifter@example.com")  # has dumbbells
+    level = client.get(f"{API}/workouts/progression", headers=headers).json()["data"]["level"]
+    assert level["lifts"] == [] and level["uses_bodyweight"] is False
+
+    headers, _ = register_and_login(client, "athome@example.com")
+    client.post(f"{API}/users/onboarding", headers=headers, json={**ONBOARDING, "available_equipment": ["bodyweight"]})
+    level = client.get(f"{API}/workouts/progression", headers=headers).json()["data"]["level"]
+    assert level["uses_bodyweight"] is True

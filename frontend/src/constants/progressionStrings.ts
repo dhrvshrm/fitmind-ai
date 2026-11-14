@@ -73,6 +73,7 @@ export const PROGRESSION_STRINGS = {
     workoutsHint: (days: number) => `Based on your ${days}-day week: about 3 of every 4 planned sessions.`,
     lifts: (met: number, needed: number) => `${met} of ${needed} lifts at the strength mark`,
     bodyweightNote: 'Log your sets to track strength. With bodyweight training, hitting the top of your rep ranges counts.',
+    noLiftsYet: 'Log your weights to track strength: your main lifts are compared with your body weight.',
     liftRow: (pattern: string, ratio: number, needed: number) => `${pattern}: ${ratio}x body weight (aim ${needed}x)`,
     levelUpDone: (level: string) => `You're now ${level}. Your new plan is ready.`,
     deloadStarted: 'Easy week started',
