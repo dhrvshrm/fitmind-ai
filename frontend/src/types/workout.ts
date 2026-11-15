@@ -66,7 +66,7 @@ export type WorkoutType = 'strength' | 'cardio' | 'flexibility' | 'rest';
 /** One warm-up move; a move with no catalogue entry (march on the spot) has no id. */
 export type WarmUpMove = { exercise_id: string | null; name: string; dose: string; image: string | null };
 
-/** A three-phase warm-up matched to the day (legs day: bike, hips and knees; push day: rower, shoulders). */
+/** A three-phase warm-up matched to the day (legs day: bike, hips and knees; push day: treadmill walk, shoulders). */
 export type WarmUp = {
   minutes: number;
   /** Phase 1: a few easy minutes of cardio. */

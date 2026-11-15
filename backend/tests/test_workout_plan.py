@@ -342,11 +342,10 @@ def test_each_training_day_gets_a_three_phase_warm_up_for_what_it_trains():
     def ids(day, phase, owned=gym, joints=()):
         return [m["exercise_id"] or m["name"] for m in warm_up.for_day(day, owned, set(joints))[phase]]
 
-    # Phase 1: a bike before legs, a rower before upper body; easy skipping at home,
-    # marching on the spot with a bad knee.
+    # Phase 1: a bike before legs, a treadmill walk before upper body (machines most
+    # gyms have); easy skipping at home, marching on the spot with a bad knee.
     assert ids(legs, "pulse") == ["Bicycling_Stationary"]
-    assert ids(push, "pulse") == ["Rowing_Stationary"]
-    assert ids(push, "pulse", joints={"lower_back"}) == ["Elliptical_Trainer"]
+    assert ids(push, "pulse") == ["Walking_Treadmill"]
     assert ids(legs, "pulse", owned=["dumbbells"]) == ["Fast_Skipping"]
     assert ids(legs, "pulse", owned=["dumbbells"], joints={"knee"}) == ["March on the spot"]
     # Phase 2: the muscles of the day.

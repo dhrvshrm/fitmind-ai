@@ -1,8 +1,8 @@
 """A warm-up for each training day in three phases, matched to what the day trains.
 
 1. General pulse raiser: a few easy minutes of cardio to warm the body up
-   (a bike before legs, a rower before upper body; easy skipping or marching
-   at home).
+   (a bike before legs, a brisk treadmill walk before upper body; easy
+   skipping or marching at home).
 2. Dynamic mobility and activation: legs days loosen hips, knees and ankles
    and wake up the glutes; push days the shoulders and wrists; pull days the
    shoulders and shoulder blades.
@@ -30,10 +30,10 @@ PULSE: Dict[str, List[tuple]] = {
         ("Bicycling_Stationary", None, "3 to 5 min, easy pace", set(), GYM),
         ("Walking_Treadmill", None, "3 to 5 min, brisk walk", set(), GYM),
     ],
+    # A treadmill or a bike is in almost every gym; a rower or elliptical often isn't.
     "upper": [
-        ("Rowing_Stationary", None, "3 to 5 min, easy pace", {"lower_back"}, GYM),
-        ("Elliptical_Trainer", None, "3 to 5 min, easy pace", set(), GYM),
-        ("Walking_Treadmill", None, "3 to 5 min, brisk walk", set(), GYM),
+        ("Walking_Treadmill", None, "3 to 5 min, brisk walk, swing your arms", set(), GYM),
+        ("Bicycling_Stationary", None, "3 to 5 min, easy pace", set(), GYM),
     ],
     "home": [
         ("Fast_Skipping", None, "2 min, easy pace", {"knee", "ankle"}, None),
