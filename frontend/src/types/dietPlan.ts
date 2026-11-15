@@ -156,6 +156,8 @@ export type DietPlan = {
   today?: PlanToday;
   /** Made in PG or hostel mess mode. */
   mess_mode?: boolean;
+  /** No training today: the pre-workout snack and workout are left out of the day. */
+  rest_day?: { kcal_less: number } | null;
   /** Mess mode: the day's shelf extras, in rupees. */
   extras_cost_inr?: number;
   /** True when targets or diet answers changed after the plan was made. */

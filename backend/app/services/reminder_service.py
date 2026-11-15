@@ -16,7 +16,7 @@ from app.models import push as push_store
 from app.models.nutrition import Meal, get_water
 from app.models.user import User
 from app.models.workout import WorkoutLog
-from app.nutrition import routine
+from app.nutrition import meal_planner, routine
 from app.services import analytics_service, habit_service, push_service, workout_service
 from app.utils.time import local_now, use_timezone
 
@@ -255,11 +255,16 @@ async def run_for_user(user: User, now: Optional[datetime] = None) -> int:
         plan = await diet_plan.get_active(user.id) or {}
         meals_today = await Meal.get_by_date(user.id, today)
         targets = getattr(user, "targets", None) or {}
+        logged = set(plan.get("logged", {}).get(today, []))
+        plan_meals = plan.get("meals", [])
+        # No training today: no "time for your pre-workout snack" either.
+        if plan_meals and not await workout_service.trains_today(user):
+            plan_meals = meal_planner.rest_day_meals(plan_meals, logged)
         due = due_reminders(
             now,
             settings,
-            plan.get("meals", []),
-            set(plan.get("logged", {}).get(today, [])),
+            plan_meals,
+            logged,
             {m.meal_type for m in meals_today if m.meal_type},
             await _workout_state(user, settings, today),
             {"ml": await get_water(user.id, today), "goal_ml": targets.get("water_ml") or DEFAULT_WATER_GOAL_ML},

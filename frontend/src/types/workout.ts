@@ -63,12 +63,28 @@ export type Felt = 'easy' | 'right' | 'hard';
 /** Known workout types; the AI may return other strings, handled as a fallback. */
 export type WorkoutType = 'strength' | 'cardio' | 'flexibility' | 'rest';
 
+/** One warm-up move; a move with no catalogue entry (march on the spot) has no id. */
+export type WarmUpMove = { exercise_id: string | null; name: string; dose: string; image: string | null };
+
+/** A three-phase warm-up matched to the day (legs day: bike, hips and knees; push day: rower, shoulders). */
+export type WarmUp = {
+  minutes: number;
+  /** Phase 1: a few easy minutes of cardio. */
+  pulse: WarmUpMove[];
+  /** Phase 2: dynamic mobility and activation for today's muscles. */
+  mobility: WarmUpMove[];
+  /** Phase 3: lighter sets of the first lift; percent is null for one easy bodyweight set. */
+  ramp_up: { exercise_id: string | null; name: string; sets: { percent: number | null; reps: number }[] } | null;
+};
+
 export type WorkoutDay = {
   day: string;
   workout_type: string;
   /** "Upper body", "Mobility"... (newer plans). */
   focus?: string | null;
   exercises: Exercise[];
+  /** Strength days only. */
+  warm_up?: WarmUp | null;
 };
 
 export type PlanNoteCode = 'no_pull_equipment' | 'injury_adjusted' | 'bodyweight_only';
@@ -112,6 +128,8 @@ export type TodayWorkout = {
   planned_focus?: string | null;
   /** Last day of an accepted easy week, or null. */
   deload_until?: string | null;
+  /** Strength days only. */
+  warm_up?: WarmUp | null;
 };
 
 export type QuickPlace = 'home' | 'gym';

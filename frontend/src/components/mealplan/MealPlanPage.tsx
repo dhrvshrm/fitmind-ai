@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import {
   AutorenewRounded,
+  HotelRounded,
   MenuBookRounded,
   ShoppingBasketRounded,
   TuneRounded,
@@ -222,6 +223,11 @@ export function MealPlanPage() {
               }
             >
               {I.modeChanged}
+            </Alert>
+          )}
+          {plan.rest_day && (
+            <Alert severity="info" variant="outlined" icon={<HotelRounded />}>
+              {S.restDay(plan.rest_day.kcal_less)}
             </Alert>
           )}
           {/* Once something is eaten, Today so far replaces the plan's own totals, so the

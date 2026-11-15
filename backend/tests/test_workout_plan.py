@@ -328,3 +328,50 @@ def test_no_pull_day_without_real_pulling_exercises(equipment):
     week = _week(equipment=equipment, days_per_week=6)
     assert "Pull (back, biceps)" not in {d["focus"] for d in week["week"]}
     assert all(len(d["exercises"]) >= 4 for d in week["week"] if d["workout_type"] == "strength")
+
+
+def test_each_training_day_gets_a_three_phase_warm_up_for_what_it_trains():
+    from app.workouts import warm_up
+
+    legs = {"workout_type": "strength", "focus": "Legs",
+            "exercises": [{"exercise_id": "Barbell_Squat", "name": "Barbell Squat", "pattern": "squat"}]}
+    push = {"workout_type": "strength", "focus": "Push (chest, shoulders, triceps)",
+            "exercises": [{"exercise_id": "Pushups", "name": "Push-ups", "pattern": "push_horizontal"}]}
+    gym = ["full_gym"]
+
+    def ids(day, phase, owned=gym, joints=()):
+        return [m["exercise_id"] or m["name"] for m in warm_up.for_day(day, owned, set(joints))[phase]]
+
+    # Phase 1: a bike before legs, a rower before upper body; easy skipping at home,
+    # marching on the spot with a bad knee.
+    assert ids(legs, "pulse") == ["Bicycling_Stationary"]
+    assert ids(push, "pulse") == ["Rowing_Stationary"]
+    assert ids(push, "pulse", joints={"lower_back"}) == ["Elliptical_Trainer"]
+    assert ids(legs, "pulse", owned=["dumbbells"]) == ["Fast_Skipping"]
+    assert ids(legs, "pulse", owned=["dumbbells"], joints={"knee"}) == ["March on the spot"]
+    # Phase 2: the muscles of the day.
+    assert "Bodyweight_Squat" in ids(legs, "mobility") and "Arm_Circles" not in ids(legs, "mobility")
+    assert "Arm_Circles" in ids(push, "mobility") and "Bodyweight_Squat" not in ids(push, "mobility")
+    assert "Bodyweight_Squat" not in ids(legs, "mobility", joints={"knee"})
+    assert "Scapular_Pull-Up" not in ids({**push, "focus": "Upper body"}, "mobility", owned=["dumbbells"])
+    # Phase 3: two lighter sets of the first weighted lift; one easy set on a bodyweight day.
+    ramp = warm_up.for_day(legs, gym, set())["ramp_up"]
+    assert ramp["exercise_id"] == "Barbell_Squat" and [x["percent"] for x in ramp["sets"]] == [50, 75]
+    assert warm_up.for_day(push, ["bodyweight"], set())["ramp_up"]["sets"] == [{"percent": None, "reps": 5}]
+    # Rest and mobility days have none.
+    assert warm_up.for_day({"workout_type": "rest", "exercises": []}, gym, set()) is None
+    assert warm_up.for_day({"workout_type": "flexibility", "exercises": [{"pattern": "mobility"}]}, gym, set()) is None
+
+
+def test_the_plan_and_today_carry_the_warm_up(client, ai_providers):
+    headers, _ = _onboard(client, "warmup@example.com", available_equipment=["full_gym"], workout_days_per_week=4)
+    week = _generate(client, headers)["week"]
+    for day in week:
+        if day["workout_type"] == "strength":
+            assert day["warm_up"]["pulse"] and day["warm_up"]["mobility"] and day["warm_up"]["ramp_up"]
+        else:
+            assert day["warm_up"] is None
+    saved = client.get(f"{API}/workouts/plan/week", headers=headers).json()["data"]["plan"]["week"]
+    assert [bool(d["warm_up"]) for d in saved] == [bool(d["warm_up"]) for d in week]
+    today = client.get(f"{API}/workouts/plan/today", headers=headers).json()["data"]
+    assert "warm_up" in today
