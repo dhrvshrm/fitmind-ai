@@ -4,6 +4,8 @@ import {
   AutorenewRounded,
   CheckCircleRounded,
   OpacityRounded,
+  RamenDiningRounded,
+  ShoppingBasketRounded,
   RestaurantRounded,
   SwapHorizRounded,
   TuneRounded,
@@ -11,6 +13,7 @@ import {
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { STRINGS } from '../../constants/strings';
+import { MESS_STRINGS } from '../../constants/messStrings';
 import { MEAL_TYPE_OPTIONS } from '../../constants/nutrition';
 import { useLogPlanMeal, useRegeneratePlanMeal } from '../../hooks/queries/useDietPlanQueries';
 import { resolveApiError } from '../../lib/apiClient';
@@ -83,6 +86,22 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
           </Typography>
           {meal.workout_role && (
             <Chip size="small" variant="outlined" color="primary" label={S.workoutRole[meal.workout_role]} />
+          )}
+          {meal.source === 'mess' && (
+            <Chip size="small" variant="outlined" icon={<RamenDiningRounded />} label={MESS_STRINGS.plan.messBadge} />
+          )}
+          {meal.source === 'shelf' && (
+            <Chip
+              size="small"
+              variant="outlined"
+              color="secondary"
+              icon={<ShoppingBasketRounded />}
+              label={
+                meal.cost_inr
+                  ? `${MESS_STRINGS.plan.shelfBadge} · ${MESS_STRINGS.plan.shelfCost(meal.cost_inr)}`
+                  : MESS_STRINGS.plan.shelfBadge
+              }
+            />
           )}
         </Stack>
         <Typography variant="subtitle2" sx={styles.number}>
@@ -190,6 +209,11 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
           {done ? (
             <Typography variant="caption" color="text.secondary">
               {eatenByHand ? S.eaten.hint : S.lockedUntilTomorrow}
+            </Typography>
+          ) : meal.source === 'mess' ? (
+            // The mess decides the plate: no "different option", just what to take and log.
+            <Typography variant="caption" color="text.secondary" sx={styles.messHint}>
+              {MESS_STRINGS.plan.messHint}
             </Typography>
           ) : (
             <Button

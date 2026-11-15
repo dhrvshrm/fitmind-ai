@@ -71,6 +71,9 @@ def for_item(item: dict) -> List[Dict[str, float]]:
     grams = float(item.get("grams") or 0)
     if parts is None:
         return _estimate(item, grams)
+    # Butter or ghee eaten as it is is the food itself, not fat it was cooked in.
+    if parts and all(key in COOKING_FATS for key, _ in parts):
+        return []
     result = []
     for key, per_100g in parts:
         if key not in COOKING_FATS or not isinstance(per_100g, (int, float)):

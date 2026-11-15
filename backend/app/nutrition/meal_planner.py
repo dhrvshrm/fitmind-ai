@@ -13,6 +13,7 @@ The split of work:
 """
 
 import logging
+from collections import Counter
 from typing import Dict, List, Optional, Sequence, Tuple, Type
 
 from pydantic import BaseModel, Field, model_validator
@@ -260,6 +261,7 @@ PROTEIN_STAPLE_IDS = frozenset(
         "est:soya_chunk_curry",
         "est:hung_curd",
         "est:roasted_chana",
+        "est:sattu_drink",
     }
 )
 CORE_SOURCES = frozenset({"USDA"})
@@ -499,7 +501,7 @@ def _step(food: Food) -> float:
 
 
 # Tighter caps for foods where the general piece limit would look odd.
-MAX_BY_UNIT = {"egg": 3, "small bowl": 2}
+MAX_BY_UNIT = {"egg": 3, "small bowl": 2, "slice": 4}
 
 
 def _bounds(food: Food) -> Tuple[float, float]:
@@ -644,6 +646,9 @@ def fit_portions(
                 if per.kcal < MIN_SCALABLE_KCAL:
                     continue
                 low, high = _bounds(food)
+                # A mess serves a fixed katori of sabzi or curd: only refills grow.
+                high = min(high, item.get("max_quantity", high))
+                low = max(low, item.get("min_quantity", low))
                 for delta in (_step(food), -_step(food)):
                     if low <= item["quantity"] + delta <= high:
                         steps.append(
@@ -672,7 +677,9 @@ def fit_portions(
         if best_move is None:
             break
         for meal, index, food, servings, _ in best_move:
-            meal["items"][index] = build_item(food, servings)
+            kept = {k: meal["items"][index][k] for k in ("max_quantity", "min_quantity")
+                    if k in meal["items"][index]}
+            meal["items"][index] = {**build_item(food, servings), **kept}
     for meal in meals:
         meal["totals"] = totals_of(meal["items"])
 
@@ -689,6 +696,15 @@ LEAN_PROTEIN_SHARE = (
 )
 MIN_SERVING_PROTEIN = 6.0  # grams in one serving, so an addition is worth it
 MAX_PROTEIN_ADDS = 6
+MAX_SAME_FOOD_PER_DAY = 2
+# Three glasses of milk across a day (breakfast, evening, bed) is ordinary, and
+# tofu is the vegan staple that has to carry most of the protein.
+SAME_FOOD_LIMIT_BY_WORD = {"milk": 3, "tofu": 3}
+
+
+def _day_limit(food: Food) -> int:
+    found = food_tokens(food)
+    return max([MAX_SAME_FOOD_PER_DAY] + [n for word, n in SAME_FOOD_LIMIT_BY_WORD.items() if word in found])
 MAX_MEAL_ITEMS = 5
 # What sits naturally in each kind of meal (tokens from the food's names).
 BREAKFAST_PROTEIN_WORDS = frozenset(
@@ -844,8 +860,9 @@ def _fits_slot(food: Food, meal: dict) -> bool:
     if slot_id == "bedtime":
         return bool(found & BEDTIME_PROTEIN_WORDS) and "curry" not in found
     if slot_id in MAIN_SLOT_IDS:
-        # Roasted chana is a snack, not part of lunch or dinner.
-        if "roasted" in found:
+        # Roasted chana is a snack, and a glass of milk goes with breakfast or bed,
+        # not with lunch or dinner.
+        if "roasted" in found or "milk" in found:
             return False
         return food_role(food) in ("protein", "dairy") or bool(
             found & {"paneer", "soya", "tofu"}
@@ -962,6 +979,8 @@ def boost_protein(
         if before["protein"] >= targets["protein"] * PROTEIN_GOAL_SHARE:
             break
         used = {i["food_id"] for m in meals for i in m["items"]}
+        # No food more than twice a day (not five glasses of milk).
+        times_in_day = Counter(i["food_id"] for m in meals for i in m["items"])
         best = None
         for meal in meals:
             if meal["id"] in fixed:
@@ -989,6 +1008,7 @@ def boost_protein(
                 if (
                     food.id in in_meal
                     or (meal["id"], food.id, replace) in rejected
+                    or times_in_day[food.id] >= _day_limit(food)
                     or food_tokens(food) & SAME_KIND_WORDS & meal_kinds
                     or not _fits_slot(food, meal)
                 ):
@@ -1071,7 +1091,8 @@ def trim_fat(
             (
                 (meal, index, item)
                 for meal in meals
-                if meal["id"] not in fixed
+                # What the mess serves is what's on the plate: its dishes are never swapped.
+                if meal["id"] not in fixed and meal.get("source") != "mess"
                 for index, item in enumerate(meal["items"])
                 if item["food_id"] in foods
                 and item["nutrients"]["fat"] >= MIN_ITEM_FAT

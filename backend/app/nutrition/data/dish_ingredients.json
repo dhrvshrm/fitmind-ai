@@ -2329,6 +2329,28 @@
     "roasted_chana",
     100
    ]
+  ],
+  "est:mess_sabzi": [
+   [
+    "mixed_veg",
+    80
+   ],
+   [
+    "onion",
+    8
+   ],
+   [
+    "tomato",
+    8
+   ],
+   [
+    "oil",
+    5
+   ],
+   [
+    "spices",
+    0
+   ]
   ]
  }
 }

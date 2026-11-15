@@ -11,6 +11,7 @@ import { landingNavStyles as styles } from './LandingNav.styles';
 const N = LANDING_STRINGS.nav;
 const LINKS = [
   { id: 'day', label: N.day },
+  { id: 'pg', label: N.pg },
   { id: 'promises', label: N.promises },
   { id: 'faq', label: N.faq },
 ] as const;

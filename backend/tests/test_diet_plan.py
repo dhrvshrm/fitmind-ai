@@ -712,3 +712,9 @@ def test_a_fatty_dairy_side_is_swapped_for_a_leaner_one():
     swapped = [foods[i["food_id"]] for i in meals[0]["items"] if i["food_id"] != rice.id]
     assert swapped and all(meal_planner.food_role(f) == "dairy" for f in swapped)
     assert sum(i["nutrients"]["fat"] for i in meals[0]["items"]) < fat_before
+
+
+def test_butter_eaten_as_it_is_gets_no_cooking_fat_note():
+    from app.nutrition import cooking_fat
+
+    assert cooking_fat.for_item({"food_id": "usda:173410", "name": "Butter", "grams": 5}) == []

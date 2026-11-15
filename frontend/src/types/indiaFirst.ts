@@ -90,3 +90,9 @@ export type ShiftSchedule = 'day' | 'night_shift' | 'rotating_shifts';
 export type ShiftTimesPayload = {
   lifestyle: { work_schedule?: string; wake_time?: string; sleep_time?: string };
 };
+
+/** A partial update of the personalisation sections (shift times, mess mode...). */
+export type PersonalisationPayload = {
+  lifestyle?: ShiftTimesPayload['lifestyle'];
+  food_access?: { mess_meals?: string[]; shelf?: string[]; who_cooks?: string };
+};
