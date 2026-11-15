@@ -17,7 +17,7 @@ export const HEALTH_STRINGS = {
     title: 'Health',
     subtitle: 'Conditions and medicines your AI coach should know, so your meal plans and advice stay safe.',
     disclaimer:
-      'FitMind gives general wellness information, not medical advice. It never diagnoses or prescribes. Please talk to your doctor about your health.',
+      'RepEat gives general wellness information, not medical advice. It never diagnoses or prescribes. Please talk to your doctor about your health.',
     loadError: "Couldn't load your health profile. Check your connection and try again.",
   },
   common: {

@@ -263,7 +263,7 @@ export const PROGRESS_STRINGS = {
     error: "Couldn't create the image. Try again.",
     fileName: 'fitmind-week.png',
     card: {
-      brand: 'FitMind',
+      brand: 'RepEat',
       heading: 'My week',
       range: (start: string, end: string) => `${start} to ${end}`,
       consistency: (n: number) => `${n} of 7 active days`,
@@ -274,7 +274,7 @@ export const PROGRESS_STRINGS = {
       weightRate: (n: number) => `${signed(n, 'kg')} a week`,
       calories: (n: number) => `${kcal(n)} a day on average`,
       protein: (n: number) => `Protein target on ${plural(n, 'day', 'days')}`,
-      footer: 'Tracked with FitMind',
+      footer: 'Tracked with RepEat',
     },
   },
 } as const;

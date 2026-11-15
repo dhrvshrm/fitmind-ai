@@ -1,7 +1,7 @@
 /** All user-facing copy lives here so it stays consistent and easy to change. */
 export const STRINGS = {
   app: {
-    name: "FitMind AI",
+    name: "RepEat AI",
     tagline: "Your AI coach for training and nutrition, built for how India eats",
     heroTitle: "Eat right and train smart, without the guesswork",
     features: [
@@ -162,7 +162,7 @@ export const STRINGS = {
     inkLine: (eaten: number, goal: number) => `${eaten.toLocaleString()} of ${goal.toLocaleString()} kcal eaten today`,
     inkLineAria: "Calories eaten today",
     brandAI: "AI",
-    brandName: "FitMind",
+    brandName: "RepEat",
     logout: "Log out",
     colorModeAria: "Change color mode",
     colorModes: {
@@ -515,7 +515,7 @@ export const STRINGS = {
       pause: "Pause demonstration",
       demoAlt: (name: string, index: number) => `${name}, ${index === 0 ? "start" : "end"} position`,
       source: (source: string) => `Exercise data and photos: ${source} (public domain).`,
-      draft: "Coaching notes by FitMind, awaiting review by a certified trainer.",
+      draft: "Coaching notes by RepEat, awaiting review by a certified trainer.",
       reviewed: "Coaching notes reviewed by a certified trainer.",
       noCoaching: "This exercise isn't in the coached set yet, so only the source instructions are shown.",
       none: "None",
@@ -970,7 +970,7 @@ export const STRINGS = {
     inputPlaceholder: "Message your coach…",
     sendAria: "Send message",
     you: "You",
-    assistantName: "FitMind Coach",
+    assistantName: "RepEat Coach",
     connection: {
       open: "Connected",
       connecting: "Connecting…",
@@ -1206,7 +1206,7 @@ export const STRINGS = {
     subtitle: "Manage appearance, notifications, security, and your account.",
     appearance: {
       title: "Appearance",
-      subtitle: "Choose how FitMind looks on this device.",
+      subtitle: "Choose how RepEat looks on this device.",
     },
     notifications: {
       title: "Notifications",

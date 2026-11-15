@@ -23,10 +23,16 @@ export type PlanNoteCode =
   | 'check_ingredients'
   | 'medical_advice'
   | 'rule_based'
-  | 'health_adjusted';
+  | 'health_adjusted'
+  | 'mess_mode';
 
 /** Notes added while a fasting or festival mode is on (values hold text, not only numbers). */
-export type FastingNoteCode = 'fasting_mode' | 'fasting_salt' | 'paryushan_practice' | 'ramadan_timings';
+export type FastingNoteCode =
+  | 'fasting_mode'
+  | 'fasting_salt'
+  | 'paryushan_practice'
+  | 'ramadan_timings'
+  | 'shelf_suggestion';
 
 export type PlanNote =
   | { code: PlanNoteCode; values: Record<string, number> }
@@ -56,6 +62,8 @@ export type PlanItem = {
   nutrients: Nutrients;
   per_100g: Nutrients;
   cooking_fat?: CookingFat[];
+  /** Mess mode: rough cost of a shelf food, in rupees. */
+  cost_inr?: number | null;
 };
 
 export type PlanMeal = {
@@ -69,6 +77,10 @@ export type PlanMeal = {
   totals: Nutrients;
   /** The meal's cooking fat in teaspoons, by kind. */
   cooking_fat?: { kind: CookingFatKind; tsp: number; estimated?: boolean }[];
+  /** Mess mode: a typical mess plate, or foods from the person's shelf. */
+  source?: 'mess' | 'shelf';
+  /** Mess mode: rough cost of a shelf meal, in rupees. */
+  cost_inr?: number;
 };
 
 export type PlanTargets = {
@@ -142,6 +154,10 @@ export type DietPlan = {
   logged_today: PlanSlot[];
   /** What was eaten today, slot by slot, and how the rest of the day adjusts. */
   today?: PlanToday;
+  /** Made in PG or hostel mess mode. */
+  mess_mode?: boolean;
+  /** Mess mode: the day's shelf extras, in rupees. */
+  extras_cost_inr?: number;
   /** True when targets or diet answers changed after the plan was made. */
   stale: boolean;
   /** The day from waking to sleep, built around the person's routine. */

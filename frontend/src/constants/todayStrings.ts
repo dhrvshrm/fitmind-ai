@@ -107,7 +107,7 @@ export const TODAY_STRINGS = {
   },
 
   install: {
-    title: 'Add FitMind to your home screen',
+    title: 'Add RepEat to your home screen',
     body: 'Opens like an app, and on iPhone it is needed for reminders.',
     action: 'Install',
     dismiss: 'Not now',
@@ -117,7 +117,7 @@ export const TODAY_STRINGS = {
     title: 'Reminders',
     subtitle: 'Gentle nudges at your own meal times, in your timezone. Never more than one of each a day.',
     unavailable: "Reminders aren't available on this server yet.",
-    unsupported: "This browser can't show reminders. On iPhone, add FitMind to your home screen first, then turn them on there.",
+    unsupported: "This browser can't show reminders. On iPhone, add RepEat to your home screen first, then turn them on there.",
     blocked: 'Notifications are blocked for this site. Allow them in your browser settings, then try again.',
     deviceOn: 'Reminders are on for this device',
     deviceOff: 'Reminders are off for this device',
@@ -146,6 +146,6 @@ export const TODAY_STRINGS = {
   },
 
   push: {
-    defaultTitle: 'FitMind AI',
+    defaultTitle: 'RepEat AI',
   },
 } as const;

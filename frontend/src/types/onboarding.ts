@@ -1,3 +1,4 @@
+import type { MessMeal, ShelfKey } from './mess';
 /** Onboarding domain types, aligned with the backend `UserOnboarding` schema. */
 
 export type Gender = "male" | "female" | "other";
@@ -42,6 +43,10 @@ export type FoodAccess = {
   daily_budget_inr?: number;
   open_to_new_ingredients?: boolean;
   region?: string;
+  /** PG or hostel mess mode: the meals the mess serves (empty turns it off). */
+  mess_meals?: MessMeal[];
+  /** No-cook foods kept on the shelf, for the meals the mess doesn't cover. */
+  shelf?: ShelfKey[];
 };
 
 export type Lifestyle = {

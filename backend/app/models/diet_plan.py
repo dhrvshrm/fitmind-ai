@@ -43,6 +43,7 @@ async def save_version(user_id: str, fields: dict, change: str, previous: Option
         "status": STATUS_ACTIVE,
         "change": change,
         "logged": (previous or {}).get("logged", {}),
+        "logged_links": (previous or {}).get("logged_links", {}),
         "created_by": "ai" if change in ("created", "regenerated", "meal_regenerated") else "user",
         "created_at": now,
     }

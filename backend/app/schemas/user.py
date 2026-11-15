@@ -72,6 +72,12 @@ class UserResponse(BaseModel):
 GoalPace = Literal["gentle", "moderate", "aggressive"]
 ReproductiveStatus = Literal["none", "pregnant", "breastfeeding", "unknown"]
 WorkoutTime = Literal["early_morning", "morning", "afternoon", "evening", "night", "varies"]
+# PG and hostel mess mode: the meals the mess serves, and no-cook foods kept on the shelf.
+MessMeal = Literal["breakfast", "lunch", "dinner"]
+ShelfKey = Literal[
+    "milk", "curd", "banana", "dates", "almonds", "peanuts", "peanut_butter", "brown_bread",
+    "roasted_chana", "sattu", "eggs", "paneer", "oats", "apple", "whey", "butter", "coffee",
+]
 DietType = Literal["vegetarian", "eggetarian", "non_vegetarian", "vegan", "jain"]
 Cook = Literal["self", "family", "cook", "mess_or_canteen", "mixed"]
 EatOutFrequency = Literal["rarely", "weekly", "few_times_a_week", "daily"]
@@ -101,6 +107,9 @@ class FoodAccess(BaseModel):
     daily_budget_inr: Optional[int] = Field(None, ge=0, le=10000)
     open_to_new_ingredients: Optional[bool] = None
     region: Optional[str] = Field(None, max_length=60)
+    # Mess mode: an empty list turns it off.
+    mess_meals: Optional[List[MessMeal]] = Field(None, max_length=3)
+    shelf: Optional[List[ShelfKey]] = Field(None, max_length=20)
 
     _clean = field_validator("pantry")(_clean_list)
 

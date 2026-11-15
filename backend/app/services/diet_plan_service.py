@@ -13,7 +13,7 @@ from app.ai.client import AIError, AIQuotaError
 from app.config.settings import get_settings
 from app.models import audit, diet_plan
 from app.models.user import User
-from app.nutrition import cooking_fat, day_sync, food_db, meal_planner, routine
+from app.nutrition import cooking_fat, day_sync, food_db, meal_planner, mess, routine
 from app.nutrition.diet_rules import DietRules
 from app.nutrition.food_db import Food
 from app.services import nutrition_service, user_service
@@ -76,6 +76,11 @@ async def _context(user_id: str) -> _Context:
     ctx = _Context(user, targets, pool, rules)
     ctx.health_notes = health_notes
     ctx.fasting_mode = fasting_mode
+    # Mess mode: shelf foods can be planned and swapped in even when they aren't
+    # everyday plan foods (a whey shake).
+    ctx.shelf = mess.shelf_foods(ctx.access, rules) if mess.is_on(ctx.access) else []
+    for food in ctx.shelf:
+        ctx.foods.setdefault(food.id, food)
     return ctx
 
 
@@ -93,7 +98,9 @@ def _notes(meals: List[dict], plan_targets: Dict[str, int], ctx: _Context,
     if rule_based:
         notes.append({"code": "rule_based", "values": {}})
     short = meal_planner.protein_note(meals, plan_targets)
-    if short:
+    mess_plan = any(m.get("source") in ("mess", "shelf") for m in meals)
+    # In mess mode the mess plate can't be swapped: the shelf suggestion replaces this note.
+    if short and not mess_plan:
         notes.append(short)
     if ctx.prefs.get("allergies") or ctx.prefs.get("intolerances") or ctx.prefs.get("diet_type") in ("jain", "vegan"):
         notes.append({"code": "check_ingredients", "values": {}})
@@ -101,7 +108,71 @@ def _notes(meals: List[dict], plan_targets: Dict[str, int], ctx: _Context,
         notes.append({"code": "medical_advice", "values": {}})
     notes += [n for n in getattr(ctx, "health_notes", []) if n["code"] not in {x["code"] for x in notes}]
     notes += [n for n in _mode_notes(getattr(ctx, "fasting_mode", None)) if n["code"] not in {x["code"] for x in notes}]
+    if mess_plan:
+        notes += _mess_notes(meals, plan_targets, ctx, short)
     return notes
+
+
+# --- PG and hostel mess mode ---------------------------------------------------------
+# Below this share of the calorie target, a mess day gets a note (more roti, a banana).
+MESS_CALORIES_OK_SHARE = 0.92
+
+
+def _mess_notes(meals: List[dict], targets: Dict[str, int], ctx: _Context,
+                protein_short: Optional[dict]) -> List[dict]:
+    """What the shelf extras cost a day, the cheapest protein to add if short,
+    and how far the day is under its calories (someone trying not to lose weight)."""
+    # Every shelf food counts, including one added to a mess meal (milk with breakfast).
+    cost = sum(mess.item_cost(i) or 0 for m in meals for i in m["items"])
+    notes = [{"code": "mess_mode", "values": {"extras_inr": round(cost)}}]
+    if protein_short:
+        suggestion = mess.shelf_suggestion(ctx.access, ctx.rules)
+        if suggestion:
+            notes.append({"code": "shelf_suggestion", "values": {**suggestion, "grams": protein_short["values"]["grams"]}})
+    kcal = sum(m["totals"]["kcal"] for m in meals)
+    if kcal < targets["calories"] * MESS_CALORIES_OK_SHARE:
+        notes.append({"code": "mess_calories_short", "values": {"kcal": round(targets["calories"] - kcal)}})
+    return notes
+
+
+def _mess_day(ctx: _Context, slots: List[dict], targets: Dict[str, int], variant: int) -> tuple:
+    """A day where the mess serves the main meals and the shelf covers the rest.
+
+    Returns (meals, skipped slot ids): a shelf meal with nothing suitable on
+    the shelf is left out rather than filled with something to buy.
+    """
+    served = set(mess.mess_meals(ctx.access))
+    meals = []
+    for slot in slots:
+        items = []
+        if slot["id"] in served:
+            for food, servings in mess.mess_plate(slot["id"], variant, ctx.rules):
+                ctx.foods[food.id] = food
+                item = meal_planner.build_item(food, meal_planner.snap(food, servings))
+                if not mess.refillable(food):
+                    # One katori of the side dish, eaten whole; only chapati and rice grow.
+                    item["max_quantity"] = item["min_quantity"] = item["quantity"]
+                items.append(item)
+            meals.append({**slot, "source": "mess", "items": items})
+            continue
+        for food, servings in mess.shelf_combo(slot["id"], ctx.shelf):
+            if meal_planner.suits_meal(food, slot):
+                items.append(meal_planner.build_item(food, meal_planner.snap(food, servings)))
+        meals.append({**slot, "source": "shelf", "items": items})
+    for meal in meals:
+        meal["totals"] = meal_planner.totals_of(meal["items"])
+    # Everything on the shelf gets used somewhere (chana with lunch, coffee at breakfast).
+    mess.use_whole_shelf(meals, ctx.shelf, ctx.foods, targets)
+    meal_planner.fit_portions(meals, targets, ctx.foods)
+    extra = {**meal_planner.bedtime_slot(ctx.user.lifestyle), "source": "shelf"}
+    meal_planner.boost_protein(meals, targets, ctx.shelf, ctx.foods, extra_slot=extra)
+    meal_planner.trim_fat(meals, targets, ctx.shelf, ctx.foods)
+    # A fat swap can take a shelf food out of the day: put any back.
+    mess.use_whole_shelf(meals, ctx.shelf, ctx.foods, targets)
+    for meal in meals:
+        meal["totals"] = meal_planner.totals_of(meal["items"])
+    skipped = [m["id"] for m in meals if not m["items"]]
+    return [m for m in meals if m["items"]], skipped
 
 
 # --- Fasting modes and shift times (Phase 8) ----------------------------------
@@ -149,7 +220,8 @@ def _current_times(plan: dict, user: Optional[User], mode: Optional[dict]) -> Op
         return None
     slots = meal_planner.plan_slots(user.lifestyle, user.workout_time, _trains(user), mode)
     times = {s["id"]: s["time"] for s in slots}
-    plan_ids = {m["id"] for m in plan["meals"]}
+    # Shelf meals with nothing suitable on the shelf were left out on purpose.
+    plan_ids = {m["id"] for m in plan["meals"]} | set(plan.get("skipped_slots") or [])
     # A protein snack before bed may be added on top of the routine's meals.
     if "bedtime" in plan_ids and "bedtime" not in times:
         times["bedtime"] = meal_planner.bedtime_slot(user.lifestyle)["time"]
@@ -167,7 +239,8 @@ def _remove_disallowed(meals: List[dict], ctx: _Context) -> None:
 
 
 async def _save(user_id: str, meals: List[dict], plan_targets: Dict[str, int], ctx: _Context,
-                change: str, previous: Optional[dict], rule_based: bool = False) -> dict:
+                change: str, previous: Optional[dict], rule_based: bool = False,
+                extra: Optional[Dict[str, Any]] = None) -> dict:
     fields = {
         "targets": plan_targets,
         "preferences": _preferences(ctx.prefs),
@@ -181,6 +254,11 @@ async def _save(user_id: str, meals: List[dict], plan_targets: Dict[str, int], c
             else previous.get("fasting_mode")
         ),
     }
+    if extra is not None:
+        fields.update(extra)
+    elif previous is not None and change not in ("created", "regenerated"):
+        # An edit (a swap, a new option) keeps how the plan was made.
+        fields.update({k: previous[k] for k in ("mess_mode", "skipped_slots") if k in previous})
     doc = await diet_plan.save_version(user_id, fields, change, previous)
     await audit.record_change(
         user_id,
@@ -225,6 +303,14 @@ async def _present(plan: dict, user: Optional[User] = None) -> dict:
         data["meals"] = [{**m, "time": times[m["id"]]} for m in plan["meals"]]
     # How much oil, ghee or butter each dish assumes (already in its calories).
     data["meals"] = cooking_fat.annotate(data["meals"])
+    if plan.get("mess_mode"):
+        # Rough cost of the shelf extras, per item and per meal.
+        for meal in data["meals"]:
+            meal["items"] = [{**i, "cost_inr": mess.item_cost(i)} for i in meal["items"]]
+            cost = round(sum(i["cost_inr"] or 0 for i in meal["items"]))
+            if cost:
+                meal["cost_inr"] = cost
+        data["extras_cost_inr"] = sum(m.get("cost_inr", 0) for m in data["meals"])
     data["stale"] = data["stale"] or data["mode_changed"] or (bool(user) and times is None)
     data["shift_aware"] = bool(user) and routine.is_shift_schedule(user.lifestyle)
     # Today's food log laid over the plan: hand-logged meals fill their slots,
@@ -339,6 +425,13 @@ async def create_plan(user_id: str) -> dict:
     # A new plan should feel new: steer away from the dishes in the last one.
     avoid = [i["name"] for m in previous["meals"] for i in m["items"]] if previous else []
     plan_targets = _target_subset(ctx.targets)
+    if mess.is_on(ctx.access) and not routine.is_ramadan(mode):
+        # The mess decides the main meals; no AI is needed to fill a shelf.
+        meals, skipped = _mess_day(ctx, slots, plan_targets, previous["version"] if previous else 0)
+        doc = await _save(user_id, meals, plan_targets, ctx, "regenerated" if previous else "created",
+                          previous, extra={"mess_mode": True, "skipped_slots": skipped})
+        await analytics_service.track(user_id, analytics_service.MEAL_PLAN_CREATED, {"source": "mess"})
+        return await _present(doc, ctx.user)
     rule_based = False
     try:
         pick = await meal_planner.pick_meals(
@@ -378,6 +471,11 @@ async def regenerate_meal(user_id: str, meal_id: str) -> dict:
     current = _meal(plan, meal_id)
     await _ensure_not_logged_today(plan, meal_id)
     ctx = await _context(user_id)
+    if current.get("source") == "mess":
+        raise DietPlanError("This meal comes from your mess. Swap a dish for what was served, "
+                            "or log what you actually ate")
+    if current.get("source") == "shelf":
+        return await _regenerate_shelf_meal(user_id, plan, current, ctx)
     slot = {k: current[k] for k in ("id", "meal_type", "time", "share")}
     others = [m for m in plan["meals"] if m["id"] != meal_id]
     pool = meal_planner.pool_without_meal(ctx.pool, current["items"])
@@ -406,6 +504,23 @@ async def regenerate_meal(user_id: str, meal_id: str) -> dict:
     return await _present(doc, ctx.user)
 
 
+async def _regenerate_shelf_meal(user_id: str, plan: dict, current: dict, ctx: _Context) -> dict:
+    """A different shelf food for a shelf meal (roasted chana instead of peanuts)."""
+    used = {i["food_id"] for i in current["items"]}
+    options = [f for f in ctx.shelf if f.id not in used and meal_planner.suits_meal(f, current)]
+    if not options:
+        raise DietPlanError("Nothing else on your shelf suits this meal. Add more foods in mess mode")
+    food = options[plan["version"] % len(options)]
+    meals = _copy_meals(plan)
+    meal = next(m for m in meals if m["id"] == current["id"])
+    meal["items"] = [meal_planner.build_item(food, meal_planner.snap(food, 1.0))]
+    others = [m["id"] for m in meals if m["id"] != current["id"]]
+    meal_planner.fit_portions(meals, plan["targets"], ctx.foods, fixed=others)
+    meal_planner.boost_protein(meals, plan["targets"], ctx.shelf, ctx.foods, fixed=others)
+    doc = await _save(user_id, meals, plan["targets"], ctx, "meal_regenerated", plan)
+    return await _present(doc, ctx.user)
+
+
 async def swap_options(user_id: str, meal_id: str, index: int, query: Optional[str] = None) -> List[dict]:
     """Foods that could replace one item, sized to roughly the same calories."""
     plan = await _active(user_id)
@@ -414,7 +529,9 @@ async def swap_options(user_id: str, meal_id: str, index: int, query: Optional[s
     ctx = await _context(user_id)
     exclude = {i["food_id"] for i in meal["items"]}
     original = ctx.foods.get(item["food_id"]) or food_db.get_food(item["food_id"])
-    return meal_planner.swap_options(item, ctx.pool, exclude, query, original, meal=meal)
+    # A shelf meal swaps within the shelf; a mess dish for whatever the mess served.
+    pool = ctx.shelf if meal.get("source") == "shelf" else ctx.pool
+    return meal_planner.swap_options(item, pool, exclude, query, original, meal=meal)
 
 
 async def swap_item(user_id: str, meal_id: str, index: int, food_id: str) -> dict:
@@ -475,7 +592,7 @@ async def log_plan_meal(user_id: str, meal_id: str):
         eaten_at=(_current_times(plan, await User.get_by_id(user_id), plan.get("fasting_mode")) or {}).get(
             meal_id, meal["time"]
         ),
-        items=[{**{k: v for k, v in i.items() if k != "per_100g"}, "edited": False} for i in meal["items"]],
+        items=[{**{k: v for k, v in i.items() if k not in ("per_100g", "max_quantity", "min_quantity")}, "edited": False} for i in meal["items"]],
     )
     logged[today] = [*(i for i in logged.get(today, []) if i != meal_id), meal_id]
     links = {d: ids for d, ids in plan.get("logged_links", {}).items() if d in logged}
@@ -498,7 +615,9 @@ async def grocery_list(user_id: str, days: int = grocery.DEFAULT_DAYS) -> dict:
     plan = await _active(user_id)
     return {
         # Follow the fast the plan was made for: no onion or garlic in a Navratri list.
-        **grocery.build_list(plan["meals"], days, fasting.get_mode((plan.get("fasting_mode") or {}).get("mode"))),
+        # The mess buys its own food: only the shelf goes on the list.
+        **grocery.build_list([m for m in plan["meals"] if m.get("source") != "mess"], days,
+                             fasting.get_mode((plan.get("fasting_mode") or {}).get("mode"))),
         "plan_id": plan["id"],
         "plan_version": plan["version"],
         "fasting_mode": plan.get("fasting_mode"),

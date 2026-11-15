@@ -1,8 +1,8 @@
-# FitMind AI
+# RepEat AI
 
 **A fitness and nutrition coach built for how India eats, trains and works.**
 
-Most calorie apps are built around Western food and barcodes. Indian meals are home-cooked, mixed, and described in a mix of English and Hindi, and most people trying to get fit are also juggling an office day. FitMind lets you log food the way you'd tell a friend about it, then turns that into accurate nutrition, personal targets, a meal plan and a workout plan that fit around your day.
+Most calorie apps are built around Western food and barcodes. Indian meals are home-cooked, mixed, and described in a mix of English and Hindi, and most people trying to get fit are also juggling an office day. RepEat lets you log food the way you'd tell a friend about it, then turns that into accurate nutrition, personal targets, a meal plan and a workout plan that fit around your day.
 
 <p>
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black" />
@@ -30,7 +30,7 @@ Open the app and Today shows what matters right now: your next meal from the pla
 
 ### Log a whole day in one sentence
 
-Type or speak something like *"subah 2 idli aur chai, dopahar ko dal chawal, raat ko khichdi"* and FitMind splits it into meals, works out the portions, and gives you calories and macros for each one. English, Hindi and Hinglish all work. You can also scan a packaged food's barcode or snap a photo of your plate.
+Type or speak something like *"subah 2 idli aur chai, dopahar ko dal chawal, raat ko khichdi"* and RepEat splits it into meals, works out the portions, and gives you calories and macros for each one. English, Hindi and Hinglish all work. You can also scan a packaged food's barcode or snap a photo of your plate.
 
 ### Nutrition you can trust
 
@@ -52,7 +52,7 @@ Log your daily steps and the app adjusts your activity estimate. Short desk rout
 
 ### Progress you can actually see
 
-A smoothed weight trend that ignores day-to-day water swings, waist and hip measurements, and private progress photos. After a few weeks of logging, FitMind compares what you ate with how your weight moved and suggests a better calorie target, which you can accept or ignore. It points out habits worth a look, writes a short note on each week, and lets you mark weddings, festivals or trips as flexible days. Friend challenges and a shareable weekly summary keep it social.
+A smoothed weight trend that ignores day-to-day water swings, waist and hip measurements, and private progress photos. After a few weeks of logging, RepEat compares what you ate with how your weight moved and suggests a better calorie target, which you can accept or ignore. It points out habits worth a look, writes a short note on each week, and lets you mark weddings, festivals or trips as flexible days. Friend challenges and a shareable weekly summary keep it social.
 
 ### A coach that can take action
 

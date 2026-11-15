@@ -1,6 +1,7 @@
 import { STRINGS } from '../constants/strings';
 import { INDIA_FIRST_STRINGS } from '../constants/indiaFirstStrings';
 import { HEALTH_STRINGS } from '../constants/healthStrings';
+import { MESS_STRINGS } from '../constants/messStrings';
 import type { CookingFatKind, PlanNote, PlanSlot } from '../types/dietPlan';
 import type { PlanEffect } from '../types/health';
 import type { FastingModeKey, FastingWarning } from '../types/indiaFirst';
@@ -44,6 +45,10 @@ export function noteText(note: PlanNote, fastingMode?: string | null): string {
       if (fastingMode === 'paryushan') return I.notes.proteinShortJain(grams);
       return S.notes.protein_short(note.values);
     }
+    case 'mess_mode':
+      return MESS_STRINGS.notes.mess_mode(Number(v.extras_inr) || 0);
+    case 'shelf_suggestion':
+      return MESS_STRINGS.notes.shelf_suggestion(text(v.name), Number(v.price_inr) || 0, Number(v.protein_g) || 0);
     case 'health_adjusted': {
       // Values name the health rules applied, e.g. { blood_sugar: 1 }.
       const effects = (Object.keys(v) as PlanEffect[]).filter((key) => key in HEALTH_STRINGS.effects.items);

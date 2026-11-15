@@ -17,7 +17,7 @@ def turn(reply="", *calls):
 
 def coach_prompts(fake):
     """Prompts the coach sent (other features may call the AI too, e.g. onboarding)."""
-    return [c["prompt"] for c in fake.calls if "FitMind's coach" in (c["system"] or "")]
+    return [c["prompt"] for c in fake.calls if "RepEat's coach" in (c["system"] or "")]
 
 
 def setup_user(client, email="coach@example.com"):

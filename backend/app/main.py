@@ -22,7 +22,7 @@ _settings = get_settings()
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     """Start and stop the database connection and background scheduler."""
-    logger.info("Starting FitMind AI Backend (%s)...", _settings.DATABASE_ENV)
+    logger.info("Starting RepEat AI Backend (%s)...", _settings.DATABASE_ENV)
     # Both raise in production on unsafe config or an unreachable database,
     # so a broken deploy fails its health check instead of serving bad data.
     _settings.validate_for_production()
@@ -36,7 +36,7 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(
-    title="FitMind AI API",
+    title="RepEat AI API",
     description="AI-powered fitness coach. All responses use the envelope "
     "`{success: bool, message: str, data: any}`.",
     version=_settings.APP_VERSION,
@@ -60,11 +60,11 @@ app.include_router(ws_router)
 @app.get("/")
 async def root():
     return {
-        "service": "FitMind AI API",
+        "service": "RepEat AI API",
         "version": _settings.APP_VERSION,
         "docs": "/docs"
     }
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok", "service": "FitMind AI Backend"}
+    return {"status": "ok", "service": "RepEat AI Backend"}

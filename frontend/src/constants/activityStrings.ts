@@ -100,7 +100,7 @@ export const ACTIVITY_STRINGS = {
   },
   breaks: {
     title: 'Break reminders',
-    subtitle: 'A nudge to stand up and move during work hours, while FitMind is open.',
+    subtitle: 'A nudge to stand up and move during work hours, while RepEat is open.',
     enable: 'Remind me to take breaks',
     workStart: 'Work starts',
     workEnd: 'Work ends',

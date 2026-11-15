@@ -60,7 +60,7 @@ CONFIRM_PROMPT = "Check the details below and confirm if they're right."
 NO_ANSWER_REPLY = "I couldn't work that out. Could you say it another way?"
 
 _PERSONA = (
-    "You are FitMind's coach: an experienced fitness and nutrition coach who knows this "
+    "You are RepEat's coach: an experienced fitness and nutrition coach who knows this "
     "person's data. Be direct and specific. Use their numbers. No generic encouragement.\n\n"
     + STYLE_GUIDE
 )

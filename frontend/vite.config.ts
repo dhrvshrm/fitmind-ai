@@ -14,8 +14,8 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['favicon.svg', 'favicon.ico', 'apple-touch-icon-180x180.png'],
       manifest: {
-        name: 'FitMind AI',
-        short_name: 'FitMind',
+        name: 'RepEat AI',
+        short_name: 'RepEat',
         description: 'Fitness and nutrition built for how India eats.',
         theme_color: '#2f4a8a',
         background_color: '#f4f1ea',

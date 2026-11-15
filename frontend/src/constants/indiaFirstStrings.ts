@@ -147,7 +147,7 @@ export const INDIA_FIRST_STRINGS = {
     servings: (servings: number, unit: string, grams: number) => `${servings} ${unit}, about ${grams} g`,
     usedIn: (dishes: string) => `For ${dishes}`,
     tickAria: (name: string) => `Got ${name}`,
-    printTitle: 'FitMind grocery list',
+    printTitle: 'RepEat grocery list',
   },
 
   source: {

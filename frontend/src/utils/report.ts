@@ -25,7 +25,7 @@ export function reportMatchesQuery(report: WeeklyReport, query: string): boolean
 /** Plain-text recap used by both the share and download actions. */
 export function buildReportShareText(report: WeeklyReport): string {
   return [
-    `FitMind AI — Weekly Report (${formatWeekRange(report)})`,
+    `RepEat AI — Weekly Report (${formatWeekRange(report)})`,
     "",
     report.highlight,
     "",

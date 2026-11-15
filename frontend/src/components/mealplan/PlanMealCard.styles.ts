@@ -116,6 +116,11 @@ export const planMealCardStyles = {
     cursor: 'help',
     '& .MuiSvgIcon-root': { fontSize: 16 },
   },
+  messHint: {
+    flex: 1,
+    minWidth: 0,
+    pr: 1,
+  },
   footer: {
     gap: 1,
     pt: 1,

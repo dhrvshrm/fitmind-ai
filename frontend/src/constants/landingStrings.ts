@@ -6,10 +6,11 @@
 export const LANDING_STRINGS = {
   /** Marks sample content (the day's notes and numbers). */
   example: 'Example day',
-  home: 'FitMind AI home',
+  home: 'RepEat AI home',
 
   nav: {
     day: 'A day with your AI coach',
+    pg: 'PG & hostel',
     promises: 'Promises',
     faq: 'Questions',
     login: 'Log in',
@@ -23,7 +24,7 @@ export const LANDING_STRINGS = {
     lines: ['Work all day.', 'Train anyway.'],
     lastLine: 'Eat ghar ka khana.',
     body:
-      'FitMind is an AI fitness coach that plans your training and your plate as one. Say "dal chawal aur ek roti" and it logs the calories and protein. Finish a set and it tells you what to lift next time, and what to eat to recover. All of it built around office hours, not the other way round.',
+      'RepEat is an AI fitness coach that plans your training and your plate as one. Say "dal chawal aur ek roti" and it logs the calories and protein. Finish a set and it tells you what to lift next time, and what to eat to recover. All of it built around office hours, or a college day and a PG mess, not the other way round.',
     primary: 'Start free',
     secondary: 'Walk through a day',
     freeNote: 'Free while in early access. Two minutes to set up.',
@@ -102,6 +103,33 @@ export const LANDING_STRINGS = {
     },
   },
 
+  pg: {
+    eyebrow: 'Living in a PG or hostel?',
+    title: 'Mess ka khana.',
+    titleAccent: 'Poora protein.',
+    body:
+      'Nobody knows what the mess will cook tomorrow, but there is always chapati and some sabzi or dal. Tell RepEat which meals your mess serves and what you keep on your shelf. Your AI coach plans around the mess thali, tells you how many roti to take, and uses every food on your shelf somewhere in the day, priced to the rupee.',
+    points: [
+      'The mess meal is planned as chapati with whatever sabzi or dal is made. Log what was actually served in Hinglish and the rest of the day adjusts.',
+      'Before training, between classes and before bed: only foods from your shelf, and every one of them gets used.',
+      'Short on protein? It names the cheapest fix, like roasted chana at about ₹5 a bowl.',
+      'Your shopping list has only the shelf, never the mess’s rice and atta.',
+    ],
+    cta: 'Set it up in onboarding',
+    chitTitle: 'Today, mess + shelf',
+    chitRows: [
+      ['5:40', 'Shelf: dates, banana, coffee', '₹20'],
+      ['7:15', 'Mess: nashta, chai + bread, PB', '₹20'],
+      ['1:30', 'Mess: 6 roti + sabzi or dal', ''],
+      ['5:00', 'Shelf: chana, peanuts, milk', '₹19'],
+      ['8:30', 'Mess: 6 roti + sabzi or dal', ''],
+      ['10:00', 'Shelf: milk, roasted chana', '₹15'],
+    ],
+    chitTotal: ['Extras today', '₹74'],
+    chitProtein: '99 g protein · volleyball day',
+    chitNote: 'no cooking needed',
+  },
+
   promises: {
     eyebrow: 'Promises',
     title: 'What we will not do.',
@@ -112,14 +140,14 @@ export const LANDING_STRINGS = {
       'Sell your data. Health details are encrypted and deleted with your account.',
       'Pretend to be your doctor. For medical conditions, talk to one.',
     ],
-    signature: 'the FitMind team',
+    signature: 'the RepEat team',
   },
 
   faq: {
     eyebrow: 'Questions',
     title: 'Before you start',
     items: [
-      { q: 'Is it free?', a: 'Yes, while FitMind is in early access. No card needed.' },
+      { q: 'Is it free?', a: 'Yes, while RepEat is in early access. No card needed.' },
       {
         q: 'Where does the AI come in?',
         a: 'It reads your meals in plain English or Hinglish, picks dishes and exercises for your plans, and powers the coach you can chat with. The numbers come from food databases and training guidelines, never from a guess.',
@@ -131,6 +159,14 @@ export const LANDING_STRINGS = {
       {
         q: 'I am vegetarian, Jain, or fasting this week.',
         a: 'Plans follow veg, eggetarian, non-veg and Jain diets, your allergies and dislikes, plus modes for Navratri, Ekadashi, Paryushan and Ramadan.',
+      },
+      {
+        q: 'I live in a PG and eat mess food.',
+        a: 'Turn on mess mode. The plan counts on chapati with whatever sabzi or dal the mess makes, and uses every no-cook food on your shelf (milk, eggs, roasted chana, peanuts, bread and peanut butter) somewhere in the day, with what they cost.',
+      },
+      {
+        q: 'I have diabetes, thyroid or high BP.',
+        a: 'Add it to your health profile, only if you want to. Meal plans adjust (less sugar or salt, for example) and your AI coach keeps it in mind. It is never a diagnosis, and it is encrypted and yours to delete.',
       },
       {
         q: 'What if I eat something that is not in the plan?',
@@ -166,7 +202,7 @@ export const LANDING_STRINGS = {
 
   footer: {
     tagline: 'An AI coach for training and nutrition, built for how India eats, trains and works.',
-    rights: (year: number) => `${year} FitMind AI`,
-    disclaimer: 'FitMind gives general fitness and nutrition guidance, not medical advice.',
+    rights: (year: number) => `${year} RepEat AI`,
+    disclaimer: 'RepEat gives general fitness and nutrition guidance, not medical advice.',
   },
 } as const;

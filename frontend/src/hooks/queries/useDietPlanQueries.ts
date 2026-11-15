@@ -4,6 +4,7 @@ import { dietPlanService } from '../../services/dietPlanService';
 import { userService } from '../../services/userService';
 import type { DietPlan, PlanSlot } from '../../types/dietPlan';
 import type { FastingModePayload, ShiftTimesPayload } from '../../types/indiaFirst';
+import type { MessSetup } from '../../types/mess';
 import { useInvalidate } from './queryHelpers';
 
 export function useDietPlan() {
@@ -101,5 +102,24 @@ export function useUpdateShiftTimes() {
   return useMutation({
     mutationFn: (payload: ShiftTimesPayload) => userService.updatePersonalisation(payload),
     onSuccess: () => invalidate(QUERY_KEYS.dietPlan.all, QUERY_KEYS.profile.all, QUERY_KEYS.nutrition.all),
+  });
+}
+
+/**
+ * Mess mode on, changed or off: saves it, then makes a new plan, since what
+ * the mess serves and what's on the shelf decide every meal.
+ */
+export function useSaveMessSetup() {
+  const setPlan = useSetPlan();
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: async (setup: MessSetup) => {
+      await userService.updatePersonalisation({ food_access: setup });
+      return dietPlanService.create();
+    },
+    onSuccess: (plan) => {
+      setPlan(plan);
+      return invalidate(QUERY_KEYS.profile.all);
+    },
   });
 }
