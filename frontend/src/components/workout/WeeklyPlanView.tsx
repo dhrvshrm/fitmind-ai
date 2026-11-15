@@ -16,6 +16,7 @@ import {
 import { CloseRounded, HotelRounded } from "@mui/icons-material";
 import { ExerciseCard } from "./ExerciseCard";
 import { SwapExerciseDialog } from "./SwapExerciseDialog";
+import { WarmUpList } from "./WarmUpList";
 import { ExerciseDetailDialog } from "../exercises/ExerciseDetailDialog";
 import { STRINGS } from "../../constants/strings";
 import { getWorkoutTypeMeta } from "../../constants/workout";
@@ -146,7 +147,14 @@ export function WeeklyPlanView({ week, meta }: WeeklyPlanViewProps) {
                   compact
                 />
               ) : (
-                <Box sx={styles.dialogList}>
+                <>
+                  {selected.warm_up && selected.warm_up.mobility.length > 0 && (
+                    <WarmUpList
+                      warmUp={selected.warm_up}
+                      onDetails={setDetailId}
+                    />
+                  )}
+                  <Box sx={styles.dialogList}>
                   {selected.exercises.map((exercise, index) => (
                     <Reveal key={`${exercise.name}-${index}`} index={index}>
                       <ExerciseCard
@@ -170,7 +178,8 @@ export function WeeklyPlanView({ week, meta }: WeeklyPlanViewProps) {
                       />
                     </Reveal>
                   ))}
-                </Box>
+                  </Box>
+                </>
               )}
             </DialogContent>
           </>

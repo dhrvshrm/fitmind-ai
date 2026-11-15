@@ -27,9 +27,9 @@ def _progression_http(exc: ProgressionError) -> HTTPException:
     return HTTPException(status_code=code, detail=str(exc))
 
 
-def _plan_data(plan) -> dict:
+def _plan_data(plan, user: User) -> dict:
     # Plans made before the exercise catalogue have no meta; send null, not {}.
-    return {"week": plan.week, "meta": plan.meta or None}
+    return {"week": workout_service.with_warm_ups(plan.week, user), "meta": plan.meta or None}
 
 
 @router.post("/generate", response_model=SuccessResponse)
@@ -48,7 +48,7 @@ async def generate_workout_plan(
         experience_level=request.experience_level,
         equipment=request.available_equipment,
     )
-    return {"success": True, "message": "Workout plan generated", "data": {"weekly_plan": _plan_data(plan)}}
+    return {"success": True, "message": "Workout plan generated", "data": {"weekly_plan": _plan_data(plan, current_user)}}
 
 
 @router.get("/plan/week", response_model=SuccessResponse)
@@ -58,7 +58,7 @@ async def get_weekly_plan(current_user: User = Depends(get_current_user)) -> dic
     return {
         "success": True,
         "message": "Weekly plan retrieved",
-        "data": {"plan": _plan_data(plan) if plan else None},
+        "data": {"plan": _plan_data(plan, current_user) if plan else None},
     }
 
 
@@ -107,7 +107,7 @@ async def swap_exercise(
         plan = await workout_service.swap_exercise(current_user, day, index, payload.exercise_id)
     except WorkoutServiceError as exc:
         raise _http(exc) from exc
-    return {"success": True, "message": "Exercise swapped", "data": {"plan": _plan_data(plan)}}
+    return {"success": True, "message": "Exercise swapped", "data": {"plan": _plan_data(plan, current_user)}}
 
 
 @router.post("/log", response_model=SuccessResponse)
