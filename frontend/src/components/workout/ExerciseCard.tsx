@@ -9,6 +9,7 @@ import {
 import { STRINGS } from '../../constants/strings';
 import { splitReps } from '../../utils/workout';
 import type { Exercise } from '../../types/workout';
+import { FocusChip } from './FocusChip';
 import { exerciseCardStyles as styles } from './ExerciseCard.styles';
 
 const S = STRINGS.workout.exercise;
@@ -76,6 +77,7 @@ export function ExerciseCard({ exercise, checked = false, onToggle, onDetails, o
             {exercise.difficulty}
           </Typography>
         </Stack>
+        <FocusChip exercise={exercise} />
         {muscles && (
           <Typography variant="body2" color="text.secondary" noWrap>
             {muscles}

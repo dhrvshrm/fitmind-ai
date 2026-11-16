@@ -6,6 +6,7 @@ import { PROGRESSION_STRINGS } from '../../constants/progressionStrings';
 import { DIFFICULTY_CHIP_COLOR, getDifficultyBucket } from '../../utils/workout';
 import { targetText, tracksSets, type SetDraft } from '../../utils/progression';
 import type { Exercise, Felt } from '../../types/workout';
+import { FocusChip } from './FocusChip';
 import { exerciseLoggerStyles as styles } from './ExerciseLogger.styles';
 
 const S = STRINGS.workout;
@@ -75,6 +76,7 @@ export function ExerciseLogger({ exercise, drafts, onChange, felt, onFelt, onDet
           <Chip label={S.exercise.rest(exercise.rest)} size="small" variant="outlined" />
           <Chip label={exercise.difficulty} size="small" color={DIFFICULTY_CHIP_COLOR[bucket]} variant="outlined" />
         </Stack>
+        <FocusChip exercise={exercise} />
 
         {target && detailed && (
           <Box sx={styles.target(target.action)}>

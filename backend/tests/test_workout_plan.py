@@ -34,8 +34,12 @@ def _training_days(plan):
 def test_curated_exercises_are_complete_and_linked():
     curated = catalog.curated()
     assert len(curated) >= 60
+    # RepEat's own additions (custom_exercises.json) and one source entry have no photos.
+    import json
+    custom = {e["id"] for e in json.loads((catalog.DATA_DIR / "custom_exercises.json").read_text())["exercises"]}
+    no_photos = custom | {"Kettlebell_Overhead_Triceps_Extension"}
     for exercise in curated:
-        assert len(exercise.images) == 2, exercise.id
+        assert len(exercise.images) == (0 if exercise.id in no_photos else 2), exercise.id
         assert exercise.coaching.steps and exercise.coaching.cues and exercise.coaching.mistakes
         assert exercise.primary_muscles
 
@@ -109,7 +113,9 @@ def test_plan_respects_equipment_injuries_and_level(client, ai_providers):
         assert not exercise.coaching.needs, exercise.id
         assert "knee" not in exercise.coaching.loads, exercise.id
         assert exercise.level == "beginner", exercise.id
-    assert {"injury_adjusted", "bodyweight_only", "no_pull_equipment"} <= set(plan["meta"]["notes"])
+    assert {"injury_adjusted", "bodyweight_only"} <= set(plan["meta"]["notes"])
+    # With no equipment the back still gets a real row: a loaded backpack.
+    assert "Backpack_Row" in {e["exercise_id"] for e in _exercises(plan)}
 
 
 def test_back_extension_note_only_when_nothing_to_pull_with(client, ai_providers):
@@ -323,11 +329,19 @@ def test_a_beginner_with_a_pull_up_bar_starts_with_scapular_pull_ups():
     assert catalog.get("Scapular_Pull-Up").coaching.harder == "Chin-Up"
 
 
-@pytest.mark.parametrize("equipment", [["bodyweight"], ["resistance_bands"], ["pull_up_bar"]])
-def test_no_pull_day_without_real_pulling_exercises(equipment):
-    week = _week(equipment=equipment, days_per_week=6)
+def test_no_pull_day_without_real_pulling_exercises():
+    week = _week(equipment=["bodyweight"], days_per_week=6)
     assert "Pull (back, biceps)" not in {d["focus"] for d in week["week"]}
     assert all(len(d["exercises"]) >= 4 for d in week["week"] if d["workout_type"] == "strength")
+
+
+@pytest.mark.parametrize("equipment", [["resistance_bands"], ["pull_up_bar"]])
+def test_a_pull_day_gets_two_different_real_pulls(equipment):
+    # Bands (band and backpack rows) and a bar (chin-ups and backpack rows) are enough.
+    week = _week(equipment=equipment, days_per_week=6)
+    pull = next(d for d in week["week"] if d["focus"] == "Pull (back, biceps)")
+    pulls = {e["exercise_id"] for e in pull["exercises"] if e["pattern"] in ("pull_horizontal", "pull_vertical")}
+    assert len(pulls) >= 2
 
 
 def test_each_training_day_gets_a_three_phase_warm_up_for_what_it_trains():

@@ -166,6 +166,8 @@ export type DietPlan = {
   rest_day?: { kcal_less: number } | null;
   /** The supplements tracked have changed since the plan was made. */
   supplements_changed?: boolean;
+  /** New lab results or a body scan changed the health rules since the plan was made. */
+  health_changed?: boolean;
   /** Mess mode: the day's shelf extras, in rupees. */
   extras_cost_inr?: number;
   /** True when targets or diet answers changed after the plan was made. */

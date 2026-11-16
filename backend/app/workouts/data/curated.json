@@ -2881,6 +2881,875 @@
    ],
    "breathing": "Out as you raise, in as you lower.",
    "reviewed": false
+  },
+  {
+   "id": "Concentration_Curls",
+   "pattern": "biceps",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "dumbbells"
+   ],
+   "loads": [
+    "elbow"
+   ],
+   "stabilizers": [
+    "forearms"
+   ],
+   "grip": "Underhand grip on one dumbbell, palm facing away from your thigh.",
+   "stance": "Seated on a bench or chair, feet wide, back of the upper arm resting on the inner thigh.",
+   "steps": [
+    "Sit with feet wide and lean forward a little.",
+    "Rest the back of your working upper arm on the inside of the same-side thigh, arm straight.",
+    "Curl the dumbbell up towards your shoulder, moving only the forearm.",
+    "Squeeze at the top, then lower slowly until the arm is straight again.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Upper arm stays pinned to the thigh.",
+    "Slow on the way down.",
+    "Start with your weaker arm."
+   ],
+   "mistakes": [
+    "Lifting the elbow off the thigh.",
+    "Swinging the shoulder into it.",
+    "Cutting the bottom short."
+   ],
+   "breathing": "Out as you curl, in as you lower.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Dumbbell_One-Arm_Triceps_Extension",
+   "pattern": "triceps",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "dumbbells"
+   ],
+   "loads": [
+    "elbow",
+    "shoulder"
+   ],
+   "stabilizers": [
+    "abdominals",
+    "shoulders"
+   ],
+   "grip": "One dumbbell held by the handle, palm facing forward.",
+   "stance": "Seated with back support or standing tall, core braced.",
+   "steps": [
+    "Press one dumbbell straight overhead, arm next to your head.",
+    "Keeping the upper arm still, lower the dumbbell behind your head by bending the elbow.",
+    "Stop when you feel a deep stretch in the back of the arm.",
+    "Straighten the arm back up without moving the upper arm.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Elbow points to the ceiling.",
+    "Ribs down, no arching.",
+    "Start with your weaker arm."
+   ],
+   "mistakes": [
+    "Elbow flaring out to the side.",
+    "Arching the lower back.",
+    "Going too heavy to control."
+   ],
+   "breathing": "In as you lower, out as you press up.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Tricep_Dumbbell_Kickback",
+   "pattern": "triceps",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "dumbbells|kettlebell"
+   ],
+   "loads": [
+    "elbow"
+   ],
+   "stabilizers": [
+    "lower back",
+    "shoulders"
+   ],
+   "grip": "Neutral grip on a dumbbell (or a kettlebell by the handle), palm facing your body.",
+   "stance": "Hinged forward with a flat back, free hand and knee on a bench or the free hand on your knee.",
+   "steps": [
+    "Hinge forward with a flat back and support yourself with your free hand.",
+    "Lift the working upper arm until it is parallel to the floor, elbow bent at 90 degrees.",
+    "Straighten the elbow to push the dumbbell back until the arm is straight.",
+    "Squeeze the back of the arm, then lower under control.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Upper arm stays still and parallel to the floor.",
+    "Pause with the arm straight.",
+    "Start with your weaker arm."
+   ],
+   "mistakes": [
+    "Swinging the dumbbell.",
+    "Letting the upper arm drop.",
+    "Rounding the back."
+   ],
+   "breathing": "Out as you straighten the arm, in as you bend it.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Cable_One_Arm_Tricep_Extension",
+   "pattern": "triceps",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "elbow"
+   ],
+   "stabilizers": [
+    "abdominals"
+   ],
+   "grip": "Single handle on a high pulley, underhand grip.",
+   "stance": "Standing facing the machine, one foot slightly ahead for balance.",
+   "steps": [
+    "Hold the handle with the elbow tucked at your side, forearm bent up.",
+    "Push the handle down until the arm is straight.",
+    "Squeeze, then let it rise slowly back to the start.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Elbow glued to your side.",
+    "Only the forearm moves.",
+    "Start with your weaker arm."
+   ],
+   "mistakes": [
+    "Leaning over the handle.",
+    "Letting the elbow drift forward.",
+    "Rushing the way up."
+   ],
+   "breathing": "Out as you push down, in as it rises.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "One-Arm_Side_Laterals",
+   "pattern": "shoulder_isolation",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "dumbbells"
+   ],
+   "loads": [
+    "shoulder"
+   ],
+   "stabilizers": [
+    "abdominals",
+    "traps"
+   ],
+   "grip": "One dumbbell, palm facing your body; free hand holding something steady.",
+   "stance": "Standing tall, leaning slightly away from the working arm.",
+   "steps": [
+    "Hold a support with your free hand and lean slightly away from it.",
+    "With a soft bend in the elbow, raise the dumbbell out to the side to shoulder height.",
+    "Pause, then lower slowly.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Lead with the elbow.",
+    "Stop at shoulder height.",
+    "Start with your weaker arm."
+   ],
+   "mistakes": [
+    "Shrugging the shoulder up.",
+    "Swinging the body.",
+    "Lifting above shoulder height."
+   ],
+   "breathing": "Out as you raise, in as you lower.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Split_Squat_with_Dumbbells",
+   "pattern": "lunge",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "dumbbells",
+    "bench"
+   ],
+   "loads": [
+    "knee",
+    "hip"
+   ],
+   "stabilizers": [
+    "abdominals",
+    "glutes"
+   ],
+   "fixes": {
+    "name": "Bulgarian Split Squat (Dumbbells)"
+   },
+   "grip": "A dumbbell in each hand at your sides.",
+   "stance": "Rear foot on a bench behind you, front foot about two steps forward.",
+   "steps": [
+    "Stand in front of a bench and place the top of your rear foot on it.",
+    "Hold the dumbbells at your sides, chest up.",
+    "Lower straight down until the front thigh is about parallel to the floor.",
+    "Push through the front heel to stand back up.",
+    "Finish every rep on one leg, then switch."
+   ],
+   "cues": [
+    "Front knee tracks over the toes.",
+    "Most of the weight on the front leg.",
+    "Start with your weaker leg."
+   ],
+   "mistakes": [
+    "Front foot too close to the bench.",
+    "Knee caving in.",
+    "Pushing off the back foot."
+   ],
+   "breathing": "In as you lower, out as you stand.",
+   "easier": "Split_Squats",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Single-Leg_Leg_Extension",
+   "pattern": "knee_extension",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "knee"
+   ],
+   "stabilizers": [],
+   "grip": "Hold the side handles.",
+   "stance": "Seated in the leg extension machine, knee in line with the pivot, pad on the lower shin.",
+   "steps": [
+    "Set the seat so your knee lines up with the machine's pivot.",
+    "With one leg under the pad, straighten the knee fully.",
+    "Pause and squeeze the thigh at the top.",
+    "Lower slowly without letting the weight stack touch.",
+    "Finish every rep on one leg, then switch."
+   ],
+   "cues": [
+    "Full straightening at the top.",
+    "Slow on the way down.",
+    "Start with your weaker leg."
+   ],
+   "mistakes": [
+    "Kicking the weight up.",
+    "Lifting the hips off the seat.",
+    "Too heavy to pause at the top."
+   ],
+   "breathing": "Out as you straighten, in as you lower.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Kettlebell_One-Legged_Deadlift",
+   "pattern": "hinge",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "kettlebell|dumbbells"
+   ],
+   "loads": [
+    "lower_back",
+    "hip"
+   ],
+   "stabilizers": [
+    "glutes",
+    "abdominals",
+    "calves"
+   ],
+   "fixes": {
+    "name": "Single-Leg Romanian Deadlift"
+   },
+   "grip": "A kettlebell or dumbbell in the hand opposite the standing leg.",
+   "stance": "Standing on one leg, slight bend in the knee.",
+   "steps": [
+    "Stand on one leg holding the weight in the opposite hand.",
+    "Hinge at the hip, sending the free leg straight back as your chest lowers.",
+    "Lower until you feel a stretch in the back of the standing leg, back flat.",
+    "Drive the hip forward to stand tall again.",
+    "Finish every rep on one leg, then switch."
+   ],
+   "cues": [
+    "Hips stay square to the floor.",
+    "Back flat, neck long.",
+    "Start with your weaker leg."
+   ],
+   "mistakes": [
+    "Rounding the back.",
+    "Opening the hip to the side.",
+    "Locking the standing knee."
+   ],
+   "breathing": "In as you hinge down, out as you stand.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Band_Biceps_Curl",
+   "pattern": "biceps",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "resistance_bands"
+   ],
+   "loads": [
+    "elbow"
+   ],
+   "stabilizers": [
+    "forearms"
+   ],
+   "grip": "An end of the band in each hand, palms forward.",
+   "stance": "Standing on the middle of the band, feet hip-width.",
+   "steps": [
+    "Stand on the band and hold the ends at your sides.",
+    "Curl both hands up towards the shoulders.",
+    "Squeeze at the top.",
+    "Lower slowly against the band."
+   ],
+   "cues": [
+    "Elbows pinned to your sides.",
+    "Slow on the way down.",
+    "Step wider for more tension."
+   ],
+   "mistakes": [
+    "Swinging the body.",
+    "Elbows drifting forward.",
+    "Letting the band snap back."
+   ],
+   "breathing": "Out as you curl, in as you lower.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Single-Arm_Band_Curl",
+   "pattern": "biceps",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "resistance_bands"
+   ],
+   "loads": [
+    "elbow"
+   ],
+   "stabilizers": [
+    "forearms"
+   ],
+   "grip": "One end of the band in the working hand, palm forward.",
+   "stance": "Standing on the other end with the same-side foot.",
+   "steps": [
+    "Stand on one end of the band and hold the other.",
+    "Curl the hand up towards the shoulder.",
+    "Squeeze, then lower slowly.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Elbow pinned to your side.",
+    "Start with your weaker arm.",
+    "Slow on the way down."
+   ],
+   "mistakes": [
+    "Swinging the body.",
+    "Rotating the shoulder forward.",
+    "Rushing the lowering."
+   ],
+   "breathing": "Out as you curl, in as you lower.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Single-Arm_Band_Pushdown",
+   "pattern": "triceps",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "resistance_bands"
+   ],
+   "loads": [
+    "elbow"
+   ],
+   "stabilizers": [
+    "abdominals"
+   ],
+   "grip": "One end of a band anchored high, held in one hand.",
+   "stance": "Standing facing the anchor, one foot slightly ahead.",
+   "steps": [
+    "Anchor the band above head height and hold it with the elbow bent at your side.",
+    "Push the hand down until the arm is straight.",
+    "Let it rise slowly.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Elbow stays at your side.",
+    "Only the forearm moves.",
+    "Start with your weaker arm."
+   ],
+   "mistakes": [
+    "Leaning into it.",
+    "Elbow drifting forward.",
+    "Letting the band yank the arm up."
+   ],
+   "breathing": "Out as you push down, in as it rises.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Band_Seated_Row",
+   "pattern": "pull_horizontal",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "resistance_bands"
+   ],
+   "loads": [
+    "shoulder",
+    "elbow"
+   ],
+   "stabilizers": [
+    "lower back",
+    "biceps"
+   ],
+   "grip": "An end in each hand, neutral grip.",
+   "stance": "Seated on the floor, legs straight, band looped around the feet.",
+   "steps": [
+    "Sit tall with the band around your feet.",
+    "Pull the hands to your lower ribs.",
+    "Squeeze the shoulder blades together.",
+    "Return slowly until the arms are straight."
+   ],
+   "cues": [
+    "Chest up, sit tall.",
+    "Lead with the elbows.",
+    "Pause with the blades squeezed."
+   ],
+   "mistakes": [
+    "Rounding the back.",
+    "Leaning far back to finish the rep.",
+    "Shrugging the shoulders."
+   ],
+   "breathing": "Out as you pull, in as you return.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Kettlebell_Biceps_Curl",
+   "pattern": "biceps",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "kettlebell"
+   ],
+   "loads": [
+    "elbow"
+   ],
+   "stabilizers": [
+    "forearms"
+   ],
+   "grip": "One kettlebell by the handle, palm forward.",
+   "stance": "Standing tall, feet hip-width.",
+   "steps": [
+    "Hold the kettlebell at your side, arm straight.",
+    "Curl it up towards the shoulder.",
+    "Squeeze, then lower slowly.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Elbow pinned to your side.",
+    "Wrist stays straight.",
+    "Start with your weaker arm."
+   ],
+   "mistakes": [
+    "Swinging the bell.",
+    "Leaning back.",
+    "Dropping it on the way down."
+   ],
+   "breathing": "Out as you curl, in as you lower.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Backpack_Curl",
+   "pattern": "biceps",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [],
+   "loads": [
+    "elbow"
+   ],
+   "stabilizers": [
+    "forearms"
+   ],
+   "grip": "A loaded backpack held by its top loop or a strap.",
+   "stance": "Standing tall, feet hip-width.",
+   "steps": [
+    "Fill a backpack with books and hold it at your side.",
+    "Curl it up towards the shoulder.",
+    "Squeeze, then lower slowly.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Elbow pinned to your side.",
+    "Add books when 15 reps are easy.",
+    "Start with your weaker arm."
+   ],
+   "mistakes": [
+    "Swinging the bag.",
+    "Leaning back.",
+    "An overloaded bag with a weak strap."
+   ],
+   "breathing": "Out as you curl, in as you lower.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Backpack_Row",
+   "pattern": "pull_horizontal",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [],
+   "loads": [
+    "shoulder",
+    "elbow"
+   ],
+   "stabilizers": [
+    "lower back",
+    "abdominals"
+   ],
+   "grip": "A loaded backpack in one hand, neutral grip.",
+   "stance": "One hand and knee on a chair or bed, back flat.",
+   "steps": [
+    "Support yourself on a chair with one hand and knee.",
+    "Hold the bag below your shoulder, arm straight.",
+    "Pull it to your hip, elbow close to the body.",
+    "Lower slowly.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Back flat, like a table.",
+    "Pull towards the hip, not the chest.",
+    "Squeeze the shoulder blade back."
+   ],
+   "mistakes": [
+    "Twisting the body to lift it.",
+    "Rounding the back.",
+    "Shrugging."
+   ],
+   "breathing": "Out as you pull, in as you lower.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Backpack_Overhead_Triceps_Extension",
+   "pattern": "triceps",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [],
+   "loads": [
+    "elbow",
+    "shoulder"
+   ],
+   "stabilizers": [
+    "abdominals"
+   ],
+   "grip": "A loaded backpack held by its top loop.",
+   "stance": "Standing or seated tall, core braced.",
+   "steps": [
+    "Press the bag straight overhead with one hand.",
+    "Lower it behind your head by bending the elbow.",
+    "Straighten the arm back up.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Elbow points to the ceiling.",
+    "Ribs down.",
+    "Start with your weaker arm."
+   ],
+   "mistakes": [
+    "Elbow flaring out.",
+    "Arching the back.",
+    "Too heavy to control."
+   ],
+   "breathing": "In as you lower, out as you press up.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "One-Arm_Kettlebell_Row",
+   "pattern": "pull_horizontal",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "kettlebell"
+   ],
+   "loads": [
+    "shoulder",
+    "elbow",
+    "lower_back"
+   ],
+   "stabilizers": [
+    "abdominals",
+    "lower back"
+   ],
+   "grip": "One kettlebell, neutral grip.",
+   "stance": "Hinged forward, free hand on a support, flat back.",
+   "steps": [
+    "Hinge forward and support yourself with the free hand.",
+    "Let the kettlebell hang under your shoulder.",
+    "Row it to your hip.",
+    "Lower slowly.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Back flat.",
+    "Elbow close to the body.",
+    "Squeeze the shoulder blade back."
+   ],
+   "mistakes": [
+    "Rounding the back.",
+    "Twisting to lift it.",
+    "Jerking the weight."
+   ],
+   "breathing": "Out as you pull, in as you lower.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Kettlebell_Overhead_Triceps_Extension",
+   "pattern": "triceps",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "kettlebell"
+   ],
+   "loads": [
+    "elbow",
+    "shoulder"
+   ],
+   "stabilizers": [
+    "abdominals"
+   ],
+   "grip": "Both hands around the kettlebell's horns.",
+   "stance": "Standing tall, core braced.",
+   "steps": [
+    "Press the kettlebell overhead with both hands.",
+    "Lower it behind your head by bending the elbows.",
+    "Straighten the arms back up."
+   ],
+   "cues": [
+    "Elbows point forward, close to the head.",
+    "Ribs down.",
+    "Full stretch at the bottom."
+   ],
+   "mistakes": [
+    "Elbows flaring wide.",
+    "Arching the back.",
+    "Bouncing out of the bottom."
+   ],
+   "breathing": "In as you lower, out as you press.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Band_Skull_Crusher",
+   "pattern": "triceps",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "resistance_bands"
+   ],
+   "loads": [
+    "elbow"
+   ],
+   "stabilizers": [],
+   "grip": "An end of the band in each hand.",
+   "stance": "Lying on your back, band anchored under your upper back.",
+   "steps": [
+    "Lie on the band so it runs under your upper back, hands above your forehead, elbows bent.",
+    "Straighten the arms towards the ceiling.",
+    "Bend back slowly to the start."
+   ],
+   "cues": [
+    "Upper arms stay still.",
+    "Slow on the way back.",
+    "Full straightening at the top."
+   ],
+   "mistakes": [
+    "Moving the upper arms.",
+    "Letting the band pull the hands down fast.",
+    "Flaring the elbows."
+   ],
+   "breathing": "Out as you straighten, in as you bend.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Seated_Band_Hamstring_Curl",
+   "pattern": "knee_flexion",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "resistance_bands"
+   ],
+   "loads": [
+    "knee"
+   ],
+   "stabilizers": [],
+   "grip": "Hands on the seat for support.",
+   "stance": "Seated on a chair, band anchored in front at ankle height around one ankle.",
+   "steps": [
+    "Sit with the band around one ankle, leg straight out in front.",
+    "Pull the heel back under the chair against the band.",
+    "Return slowly.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Sit tall.",
+    "Pull the heel all the way back.",
+    "Start with your weaker leg."
+   ],
+   "mistakes": [
+    "Leaning back.",
+    "Letting the band snap the leg forward.",
+    "Short range."
+   ],
+   "breathing": "Out as you pull back, in as you return.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Glute_Kickback",
+   "pattern": "glute",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [],
+   "loads": [
+    "hip"
+   ],
+   "stabilizers": [
+    "hamstrings",
+    "abdominals"
+   ],
+   "grip": "Hands under the shoulders.",
+   "stance": "On hands and knees.",
+   "steps": [
+    "Kneel on all fours, back flat.",
+    "Kick one leg back and up, knee bent, until the thigh is in line with your body.",
+    "Squeeze the glute, then lower without touching down.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Back stays flat.",
+    "Squeeze at the top.",
+    "Start with your weaker leg."
+   ],
+   "mistakes": [
+    "Arching the lower back.",
+    "Swinging the leg.",
+    "Twisting the hips open."
+   ],
+   "breathing": "Out as you kick, in as you lower.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Dumbbell_Incline_Row",
+   "pattern": "pull_horizontal",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "dumbbells",
+    "bench"
+   ],
+   "loads": [
+    "shoulder",
+    "elbow"
+   ],
+   "stabilizers": [
+    "abdominals"
+   ],
+   "grip": "A dumbbell in each hand, neutral grip.",
+   "stance": "Lying face down on a bench set to a low incline, chest on the pad, feet on the floor.",
+   "steps": [
+    "Lie chest-down on an incline bench with the dumbbells hanging below your shoulders.",
+    "Row both dumbbells up to your lower ribs, squeezing the shoulder blades together.",
+    "Pause, then lower slowly until the arms are straight."
+   ],
+   "cues": [
+    "Chest stays on the pad: the bench takes the load off your lower back.",
+    "Lead with the elbows.",
+    "Pause at the top."
+   ],
+   "mistakes": [
+    "Lifting the chest off the pad.",
+    "Shrugging.",
+    "Swinging the weights."
+   ],
+   "breathing": "Out as you row, in as you lower.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Backpack_Triceps_Kickback",
+   "pattern": "triceps",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [],
+   "loads": [
+    "elbow"
+   ],
+   "stabilizers": [
+    "lower back"
+   ],
+   "grip": "A loaded backpack held by its top loop.",
+   "stance": "Hinged forward, free hand on a chair, back flat.",
+   "steps": [
+    "Support yourself on a chair with your free hand, back flat.",
+    "Lift the working upper arm parallel to the floor, elbow bent.",
+    "Straighten the elbow to push the bag back.",
+    "Bend it back slowly.",
+    "Finish every rep on one side, then switch."
+   ],
+   "cues": [
+    "Upper arm stays still.",
+    "Pause with the arm straight.",
+    "Start with your weaker arm."
+   ],
+   "mistakes": [
+    "Swinging the bag.",
+    "Letting the upper arm drop.",
+    "Rounding the back."
+   ],
+   "breathing": "Out as you straighten, in as you bend.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
   }
  ]
 }

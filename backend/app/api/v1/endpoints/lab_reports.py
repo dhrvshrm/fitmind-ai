@@ -10,10 +10,11 @@ from app.api.v1.endpoints.health_profile import consent_http, crypto_http
 from app.health.crypto import HealthCryptoError
 from app.models.user import User
 from app.schemas.general import SuccessResponse
-from app.schemas.health import BiomarkerValueIn, ConfirmReportRequest
-from app.services import lab_report_service
+from app.schemas.health import BiomarkerValueIn, BodyScanRequest, ConfirmReportRequest
+from app.services import body_scan_service, lab_report_service
+from app.services.body_scan_service import BodyScanError
 from app.services.consent_service import ConsentRequired
-from app.services.lab_report_service import MAX_FILE_BYTES, LabReportError
+from app.services.lab_report_service import KIND_BLOOD, MAX_FILE_BYTES, LabReportError
 
 router = APIRouter(tags=["Lab reports"])
 
@@ -33,24 +34,26 @@ def _http(exc: Exception) -> HTTPException:
     return HTTPException(status_code=_STATUS.get(kind, status.HTTP_400_BAD_REQUEST), detail=str(exc))
 
 
-_ERRORS = (ConsentRequired, LabReportError, HealthCryptoError)
+_ERRORS = (ConsentRequired, LabReportError, BodyScanError, HealthCryptoError)
 
 
 @router.post("/lab-reports", response_model=SuccessResponse)
 async def upload_lab_report(
     file: UploadFile = File(...),
     allow_ai: bool = Form(True),
+    kind: str = Form(KIND_BLOOD),
     current_user: User = Depends(get_current_user),
 ) -> dict:
-    """Upload a lab report (PDF or photo, up to 10 MB) and get DRAFT values to review.
+    """Upload a lab report or a body composition scan (PDF or photo, up to 10 MB)
+    and get DRAFT values to review.
 
     Values are read on the server first; when ``allow_ai`` is true, Gemini reads
-    what that missed. Nothing is added to biomarker history until confirmed.
+    what that missed. Nothing is added to history until confirmed.
     """
     content = await file.read(MAX_FILE_BYTES + 1)
     try:
         report = await lab_report_service.upload(
-            current_user.id, content, file.filename or "report", file.content_type, allow_ai
+            current_user.id, content, file.filename or "report", file.content_type, allow_ai, kind
         )
     except _ERRORS as exc:
         raise _http(exc) from exc
@@ -155,3 +158,44 @@ async def delete_biomarker(biomarker_id: str, current_user: User = Depends(get_c
     except _ERRORS as exc:
         raise _http(exc) from exc
     return {"success": True, "message": "Value deleted", "data": None}
+
+
+@router.post("/lab-reports/{report_id}/confirm-scan", response_model=SuccessResponse)
+async def confirm_body_scan(
+    report_id: str, payload: BodyScanRequest, current_user: User = Depends(get_current_user)
+) -> dict:
+    """Save the body composition values the user checked from an uploaded scan."""
+    try:
+        result = await body_scan_service.confirm(current_user.id, report_id, payload.scan, payload.use_for_profile)
+    except _ERRORS as exc:
+        raise _http(exc) from exc
+    return {"success": True, "message": "Scan saved", "data": result}
+
+
+@router.get("/body-scans", response_model=SuccessResponse)
+async def list_body_scans(current_user: User = Depends(get_current_user)) -> dict:
+    """Body composition scans, newest first, with what each says and what changed."""
+    try:
+        scans = await body_scan_service.list_scans(current_user.id)
+    except _ERRORS as exc:
+        raise _http(exc) from exc
+    return {"success": True, "message": "Body scans", "data": scans}
+
+
+@router.post("/body-scans", response_model=SuccessResponse)
+async def add_body_scan(payload: BodyScanRequest, current_user: User = Depends(get_current_user)) -> dict:
+    """Type in a scan from a printout (no upload)."""
+    try:
+        result = await body_scan_service.add_manual(current_user.id, payload.scan, payload.use_for_profile)
+    except _ERRORS as exc:
+        raise _http(exc) from exc
+    return {"success": True, "message": "Scan saved", "data": result}
+
+
+@router.delete("/body-scans/{scan_id}", response_model=SuccessResponse)
+async def delete_body_scan(scan_id: str, current_user: User = Depends(get_current_user)) -> dict:
+    try:
+        await body_scan_service.delete_scan(current_user.id, scan_id)
+    except _ERRORS as exc:
+        raise _http(exc) from exc
+    return {"success": True, "message": "Scan deleted", "data": None}

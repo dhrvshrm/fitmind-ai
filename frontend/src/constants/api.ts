@@ -235,6 +235,21 @@ export const HEALTH_ENDPOINTS = {
   PROFILE: "/health-profile",
 } as const;
 
+/** Lab reports (uploads, review, original file) and biomarker history. */
+export const LAB_REPORT_ENDPOINTS = {
+  REPORTS: "/lab-reports",
+  report: (id: string) => `/lab-reports/${encodeURIComponent(id)}`,
+  confirm: (id: string) => `/lab-reports/${encodeURIComponent(id)}/confirm`,
+  fileLink: (id: string) => `/lab-reports/${encodeURIComponent(id)}/file-link`,
+  file: (id: string) => `/lab-reports/${encodeURIComponent(id)}/file`,
+  BIOMARKERS: "/biomarkers",
+  CATALOG: "/biomarkers/catalog",
+  biomarker: (id: string) => `/biomarkers/${encodeURIComponent(id)}`,
+  confirmScan: (id: string) => `/lab-reports/${encodeURIComponent(id)}/confirm-scan`,
+  SCANS: "/body-scans",
+  scan: (id: string) => `/body-scans/${encodeURIComponent(id)}`,
+} as const;
+
 /** Supplement catalogue and the user's own list. */
 export const SUPPLEMENT_ENDPOINTS = {
   CATALOG: "/supplements/catalog",

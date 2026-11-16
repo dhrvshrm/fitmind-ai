@@ -116,6 +116,14 @@ export const QUERY_KEYS = {
     consents: ['health', 'consents'] as const,
     profile: ['health', 'profile'] as const,
   },
+  labReports: {
+    all: ['lab-reports'] as const,
+    list: ['lab-reports', 'list'] as const,
+    report: (id: string) => ['lab-reports', 'report', id] as const,
+    biomarkers: ['lab-reports', 'biomarkers'] as const,
+    catalog: ['lab-reports', 'catalog'] as const,
+    scans: ['lab-reports', 'scans'] as const,
+  },
   supplements: {
     all: ['supplements'] as const,
     catalog: ['supplements', 'catalog'] as const,

@@ -10,18 +10,25 @@ import toast from 'react-hot-toast';
 import { HEALTH_STRINGS } from '../../constants/healthStrings';
 import { useGrantConsent } from '../../hooks/queries/useHealthQueries';
 import { resolveApiError } from '../../lib/apiClient';
+import type { ConsentScope } from '../../types/health';
 import { consentCardStyles as styles } from './ConsentCard.styles';
 
-const S = HEALTH_STRINGS.consent;
 const POINT_ICONS = [Inventory2Rounded, TuneRounded, LockRounded, UndoRounded];
 
+type ConsentCardProps = {
+  /** Which kind of health data this consent covers. */
+  scope?: ConsentScope;
+  /** Its wording (the health profile's by default). */
+  strings?: typeof HEALTH_STRINGS.consent;
+};
+
 /** Plain-language consent, asked once before any health detail is stored. */
-export function ConsentCard() {
+export function ConsentCard({ scope = 'health_profile', strings: S = HEALTH_STRINGS.consent }: ConsentCardProps) {
   const grant = useGrantConsent();
 
   async function handleAgree() {
     try {
-      await grant.mutateAsync('health_profile');
+      await grant.mutateAsync(scope);
       toast.success(S.agreed);
     } catch (err) {
       toast.error(resolveApiError(err, S.error));

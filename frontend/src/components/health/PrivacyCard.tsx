@@ -5,24 +5,31 @@ import toast from 'react-hot-toast';
 import { HEALTH_STRINGS } from '../../constants/healthStrings';
 import { useWithdrawConsent } from '../../hooks/queries/useHealthQueries';
 import { resolveApiError } from '../../lib/apiClient';
+import type { ConsentScope } from '../../types/health';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { SectionCard } from '../ui/SectionCard';
 import { privacyCardStyles as styles } from './PrivacyCard.styles';
 
-const S = HEALTH_STRINGS.privacy;
-
 type PrivacyCardProps = {
   grantedAt: string | null;
+  /** Which consent this card withdraws. */
+  scope?: ConsentScope;
+  /** Its wording (the health profile's by default). */
+  strings?: typeof HEALTH_STRINGS.privacy;
 };
 
 /** When consent was given, and the way to withdraw it (which deletes the data). */
-export function PrivacyCard({ grantedAt }: PrivacyCardProps) {
+export function PrivacyCard({
+  grantedAt,
+  scope = 'health_profile',
+  strings: S = HEALTH_STRINGS.privacy,
+}: PrivacyCardProps) {
   const withdraw = useWithdrawConsent();
   const [confirming, setConfirming] = useState(false);
 
   async function handleWithdraw() {
     try {
-      await withdraw.mutateAsync('health_profile');
+      await withdraw.mutateAsync(scope);
       setConfirming(false);
       toast.success(S.withdrawn);
     } catch (err) {

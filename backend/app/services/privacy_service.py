@@ -73,6 +73,7 @@ USER_DATA_COLLECTIONS: Dict[str, List[str]] = {
     "health_reports": ["user_id"],
     "health_report_files": ["user_id"],
     "biomarkers": ["user_id"],
+    "body_scans": ["user_id"],
     "user_supplements": ["user_id"],
     "supplement_logs": ["user_id"],
     # Phase 8 fasting and festival modes.
@@ -124,6 +125,7 @@ def _memory_stores() -> List[dict]:
         lab_report_store._REPORT_MEMORY,
         lab_report_store._FILE_MEMORY,
         lab_report_store._BIOMARKER_MEMORY,
+        lab_report_store._SCAN_MEMORY,
         supplement_store._SUPPLEMENT_MEMORY,
         supplement_store._LOG_MEMORY,
         fasting_mode_store._MEMORY_STORE,

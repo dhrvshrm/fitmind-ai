@@ -7,6 +7,8 @@
 - ``biomarkers``: values the user confirmed (or entered by hand). The value,
   unit and reference range are encrypted; ``code`` and ``measured_at`` stay
   readable so history can be listed per biomarker.
+- ``body_scans``: body composition scans the user confirmed (or typed in).
+  Every value is encrypted; ``measured_at`` stays readable for ordering.
 """
 from datetime import datetime, timezone
 from typing import List, Optional
@@ -19,9 +21,11 @@ from app.health.store import Store
 REPORTS = Store("health_reports")
 FILES = Store("health_report_files")
 BIOMARKERS = Store("biomarkers")
+BODY_SCANS = Store("body_scans")
 _REPORT_MEMORY = REPORTS.memory
 _FILE_MEMORY = FILES.memory
 _BIOMARKER_MEMORY = BIOMARKERS.memory
+_SCAN_MEMORY = BODY_SCANS.memory
 
 STATUS_NEEDS_REVIEW = "needs_review"
 STATUS_CONFIRMED = "confirmed"
@@ -118,9 +122,39 @@ async def delete_biomarkers_for_report(user_id: str, report_id: str) -> int:
     return await BIOMARKERS.delete({"user_id": user_id, "report_id": report_id})
 
 
+# Body composition scans --------------------------------------------------------
+PUBLIC_SCAN_FIELDS = ("id", "user_id", "report_id", "source", "measured_at", "created_at")
+
+
+async def add_scan(doc: dict) -> dict:
+    public = {k: doc.get(k) for k in PUBLIC_SCAN_FIELDS}
+    private = {k: v for k, v in doc.items() if k not in PUBLIC_SCAN_FIELDS}
+    await BODY_SCANS.insert({**public, "data": crypto.encrypt(private)})
+    return {**public, **private}
+
+
+async def list_scans(user_id: str) -> List[dict]:
+    """Scans oldest first."""
+    docs = await BODY_SCANS.find({"user_id": user_id}, sort=("measured_at", 1))
+    return [_merge(d) for d in docs]
+
+
+async def list_scans_raw(user_id: str) -> List[dict]:
+    """Stored documents as-is (used by tests to check encryption)."""
+    return await BODY_SCANS.find({"user_id": user_id})
+
+
+async def delete_scan(user_id: str, scan_id: str) -> int:
+    return await BODY_SCANS.delete({"id": scan_id, "user_id": user_id})
+
+
+async def delete_scans_for_report(user_id: str, report_id: str) -> int:
+    return await BODY_SCANS.delete({"user_id": user_id, "report_id": report_id})
+
+
 async def delete_all(user_id: str) -> int:
-    """Remove every report, file and biomarker for the user. Returns the count."""
+    """Remove every report, file, biomarker and body scan for the user. Returns the count."""
     total = 0
-    for store in (REPORTS, FILES, BIOMARKERS):
+    for store in (REPORTS, FILES, BIOMARKERS, BODY_SCANS):
         total += await store.delete({"user_id": user_id})
     return total

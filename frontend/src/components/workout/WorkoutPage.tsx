@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Box, Button, CircularProgress, Skeleton, Tab, Tabs, Typography } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Skeleton, Tab, Tabs, Typography } from '@mui/material';
 import { AutorenewRounded, CalendarMonthRounded } from '@mui/icons-material';
 import toast from 'react-hot-toast';
 import { WeeklyPlanView } from './WeeklyPlanView';
@@ -16,6 +16,7 @@ import {
 } from '../../hooks/queries/useWorkoutQueries';
 import { queryErrorMessage } from '../../hooks/queries/queryHelpers';
 import { resolveApiError } from '../../lib/apiClient';
+import { BODY_SCAN_STRINGS } from '../../constants/bodyScanStrings';
 import { STRINGS } from '../../constants/strings';
 import { getCompletedDates, markDateCompleted } from '../../utils/workout';
 import { toIsoDate } from '../../utils/date';
@@ -122,6 +123,18 @@ export function WorkoutPage() {
           </SectionCard>
         )}
 
+        {plan.data?.scan_changed && (
+          <Alert
+            severity="info"
+            action={
+              <Button color="inherit" size="small" onClick={handleGenerate} disabled={isGenerating}>
+                {S.generate}
+              </Button>
+            }
+          >
+            {BODY_SCAN_STRINGS.workout.scanChanged}
+          </Alert>
+        )}
         {plan.data && <WeeklyPlanView week={plan.data.week} meta={plan.data.meta} />}
 
         <TrainingCoachCard />

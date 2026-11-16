@@ -2,6 +2,8 @@
 
 - ``data/exercises.json``: 820 exercises from free-exercise-db (public
   domain), built by ``scripts/import_exercises.py`` at a pinned commit.
+- ``data/custom_exercises.json``: standard exercises the source lacks
+  (a band curl and row, backpack-loaded home exercises), same shape.
 - ``data/curated.json``: the core exercises plans use, with movement
   pattern, joints loaded, equipment needed, coaching notes, stabiliser
   muscles and corrections to errors in the source data.
@@ -143,6 +145,8 @@ class Exercise(BaseModel):
 @lru_cache(maxsize=1)
 def _catalog() -> Dict[str, Exercise]:
     raw = json.loads((DATA_DIR / "exercises.json").read_text(encoding="utf-8"))
+    # Standard exercises free-exercise-db lacks (a band curl, backpack rows for home).
+    raw += json.loads((DATA_DIR / "custom_exercises.json").read_text(encoding="utf-8"))["exercises"]
     curated = json.loads((DATA_DIR / "curated.json").read_text(encoding="utf-8"))["exercises"]
     by_id = {e["id"]: e for e in raw}
     for entry in curated:

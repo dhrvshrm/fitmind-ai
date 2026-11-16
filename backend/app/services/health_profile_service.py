@@ -152,6 +152,27 @@ def _describe_condition(condition: dict) -> str:
     return f"{label} ({', '.join(parts)})" if parts else label
 
 
+def _describe_scan(scan: Dict[str, Any]) -> str:
+    """The newest body composition scan in a line, with what the workout plan does about it."""
+    parts = []
+    for field, label, unit in (("weight_kg", "weight", "kg"), ("skeletal_muscle_mass_kg", "skeletal muscle", "kg"),
+                               ("body_fat_percent", "body fat", "%"), ("visceral_fat_level", "visceral fat level", "")):
+        if scan.get(field) is not None:
+            parts.append(f"{label} {scan[field]:g}{(' ' + unit) if unit and unit != '%' else unit}")
+    training = scan["analysis"]["training"]
+    focus = []
+    if training["areas"]:
+        focus.append("extra work for " + ", ".join(training["areas"]))
+    for limb, side in training["weaker"].items():
+        focus.append(f"{side} {limb} has less muscle, trained one side at a time starting with it")
+    if training["conditioning"]:
+        focus.append("easy conditioning after strength sessions")
+    line = f"Latest body composition scan ({scan['measured_at']}): " + ", ".join(parts) + "."
+    if focus:
+        line += " The workout plan responds with: " + "; ".join(focus) + "."
+    return line
+
+
 async def health_context(user_id: str) -> str:
     """A short, factual summary of consented health data for AI prompts.
 
@@ -183,6 +204,11 @@ async def health_context(user_id: str) -> str:
             described.append(f"{item['name']} {item['value']:g} {item['unit']} ({item['measured_at']}, {state})")
         if described:
             lines.append("Latest lab values the user confirmed: " + "; ".join(described) + ".")
+        from app.services import body_scan_service
+
+        scan = await body_scan_service.latest(user_id)
+        if scan:
+            lines.append(_describe_scan(scan))
     from app.services import supplement_service
 
     taking = await supplement_service.list_user_supplements(user_id)

@@ -76,6 +76,7 @@ async def _context(user_id: str) -> _Context:
     targets, pool, health_notes = await plan_rules.apply_to_plan(user_id, targets, pool, user.weight_kg)
     ctx = _Context(user, targets, pool, rules)
     ctx.health_notes = health_notes
+    ctx.health_flags = await _health_flags(user_id)
     ctx.fasting_mode = fasting_mode
     # Mess mode: shelf foods can be planned and swapped in even when they aren't
     # everyday plan foods (a whey shake).
@@ -244,6 +245,15 @@ def _remove_disallowed(meals: List[dict], ctx: _Context) -> None:
         meal["totals"] = meal_planner.totals_of(kept)
 
 
+async def _health_flags(user_id: str) -> List[str]:
+    """The health rules in force (from the health profile, lab values and body scans)."""
+    try:
+        return sorted(await plan_rules.load_flags(user_id))
+    except Exception:  # Health data must never stop someone getting a plan.
+        logger.exception("Could not load health flags for %s", user_id)
+        return []
+
+
 async def _save(user_id: str, meals: List[dict], plan_targets: Dict[str, int], ctx: _Context,
                 change: str, previous: Optional[dict], rule_based: bool = False,
                 extra: Optional[Dict[str, Any]] = None) -> dict:
@@ -260,6 +270,12 @@ async def _save(user_id: str, meals: List[dict], plan_targets: Dict[str, int], c
             else previous.get("fasting_mode")
         ),
     }
+    # The health rules the plan was made with: a new lab report that changes them
+    # flags the plan, even when calorie targets stay the same.
+    if previous is None or change in ("created", "regenerated"):
+        fields["health_flags"] = getattr(ctx, "health_flags", [])
+    elif "health_flags" in previous:
+        fields["health_flags"] = previous["health_flags"]
     if extra is not None:
         fields.update(extra)
     elif previous is not None and change not in ("created", "regenerated"):
@@ -304,6 +320,10 @@ async def _present(plan: dict, user: Optional[User] = None) -> dict:
         from app.services import supplement_service
 
         tracked = await supplement_service.list_user_supplements(user.id)
+    if user and plan.get("health_flags") is not None:
+        data["health_changed"] = await _health_flags(user.id) != plan["health_flags"]
+        data["stale"] = data["stale"] or data["health_changed"]
+    data.pop("health_flags", None)
     if user and plan.get("supplements_used") is not None:
         now = plan_supplements.signature(tracked)
         data["supplements_changed"] = now != plan["supplements_used"]
