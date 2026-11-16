@@ -13,7 +13,7 @@ from app.ai.client import AIError, AIQuotaError
 from app.config.settings import get_settings
 from app.models import audit, diet_plan
 from app.models.user import User
-from app.nutrition import cooking_fat, day_sync, food_db, meal_planner, mess, routine
+from app.nutrition import cooking_fat, day_sync, food_db, meal_planner, mess, plan_supplements, routine
 from app.nutrition.diet_rules import DietRules
 from app.nutrition.food_db import Food
 from app.services import nutrition_service, user_service
@@ -79,6 +79,10 @@ async def _context(user_id: str) -> _Context:
     # Mess mode: shelf foods can be planned and swapped in even when they aren't
     # everyday plan foods (a whey shake).
     ctx.shelf = mess.shelf_foods(ctx.access, rules) if mess.is_on(ctx.access) else []
+    # Supplements they take go into the plan (whey as food, creatine listed).
+    from app.services import supplement_service
+
+    ctx.supplements = await supplement_service.list_user_supplements(user_id)
     for food in ctx.shelf:
         ctx.foods.setdefault(food.id, food)
     return ctx
@@ -161,6 +165,7 @@ def _mess_day(ctx: _Context, slots: List[dict], targets: Dict[str, int], variant
         meals.append({**slot, "source": "shelf", "items": items})
     for meal in meals:
         meal["totals"] = meal_planner.totals_of(meal["items"])
+    plan_supplements.add_to_meals(meals, ctx.supplements)
     # Everything on the shelf gets used somewhere (chana with lunch, coffee at breakfast).
     mess.use_whole_shelf(meals, ctx.shelf, ctx.foods, targets)
     meal_planner.fit_portions(meals, targets, ctx.foods)
@@ -258,7 +263,8 @@ async def _save(user_id: str, meals: List[dict], plan_targets: Dict[str, int], c
         fields.update(extra)
     elif previous is not None and change not in ("created", "regenerated"):
         # An edit (a swap, a new option) keeps how the plan was made.
-        fields.update({k: previous[k] for k in ("mess_mode", "skipped_slots") if k in previous})
+        fields.update({k: previous[k] for k in ("mess_mode", "skipped_slots", "supplements_used")
+                       if k in previous})
     doc = await diet_plan.save_version(user_id, fields, change, previous)
     await audit.record_change(
         user_id,
@@ -292,6 +298,15 @@ async def _present(plan: dict, user: Optional[User] = None) -> dict:
         targets = await plan_rules.adjusted_targets(user.id, targets, user.weight_kg)
     data = {k: v for k, v in plan.items() if k not in ("user_id", "logged", "logged_links")}
     data["stale"] = bool(user) and _is_stale(plan, user, targets)
+    tracked: List[dict] = []
+    if user:
+        from app.services import supplement_service
+
+        tracked = await supplement_service.list_user_supplements(user.id)
+    if user and plan.get("supplements_used") is not None:
+        now = plan_supplements.signature(tracked)
+        data["supplements_changed"] = now != plan["supplements_used"]
+        data["stale"] = data["stale"] or data["supplements_changed"]
     # Fasting mode on today, and whether the plan was made for it.
     active = await fasting_service.active_mode(plan["user_id"])
     data["fasting_mode"] = plan.get("fasting_mode")
@@ -303,6 +318,8 @@ async def _present(plan: dict, user: Optional[User] = None) -> dict:
         data["meals"] = [{**m, "time": times[m["id"]]} for m in plan["meals"]]
     # How much oil, ghee or butter each dish assumes (already in its calories).
     data["meals"] = cooking_fat.annotate(data["meals"])
+    # A supplement already ticked off today is done: the plan says so instead of asking again.
+    data["meals"] = plan_supplements.mark_taken(data["meals"], {t["id"] for t in tracked if t.get("taken_today")})
     if plan.get("mess_mode"):
         # Rough cost of the shelf extras, per item and per meal.
         for meal in data["meals"]:
@@ -343,7 +360,10 @@ def _log_view(meal) -> dict:
     if not time and meal.created_at:
         created = meal.created_at if meal.created_at.tzinfo else meal.created_at.replace(tzinfo=timezone.utc)
         time = created.astimezone(ZoneInfo(get_current_timezone())).strftime("%H:%M")
+    supplement_ids = [i.get("user_supplement_id") for i in meal.items or [] if i.get("provenance") == "supplement"]
     return {
+        "supplement": bool(supplement_ids),
+        "supplement_ids": supplement_ids,
         "id": meal.id,
         "name": meal.name,
         "calories": meal.calories,
@@ -429,7 +449,8 @@ async def create_plan(user_id: str) -> dict:
         # The mess decides the main meals; no AI is needed to fill a shelf.
         meals, skipped = _mess_day(ctx, slots, plan_targets, previous["version"] if previous else 0)
         doc = await _save(user_id, meals, plan_targets, ctx, "regenerated" if previous else "created",
-                          previous, extra={"mess_mode": True, "skipped_slots": skipped})
+                          previous, extra={"mess_mode": True, "skipped_slots": skipped,
+                                           "supplements_used": plan_supplements.signature(ctx.supplements)})
         await analytics_service.track(user_id, analytics_service.MEAL_PLAN_CREATED, {"source": "mess"})
         return await _present(doc, ctx.user)
     rule_based = False
@@ -447,6 +468,8 @@ async def create_plan(user_id: str) -> dict:
     meals = meal_planner.assemble(pick, slots, ctx.foods)
     _remove_disallowed(meals, ctx)
     meal_planner.enforce_meal_fit(meals, ctx.pool, ctx.foods)
+    # A scoop of whey is part of a meal: portions around it shrink, protein isn't counted twice.
+    plan_supplements.add_to_meals(meals, ctx.supplements)
     meal_planner.fit_portions(meals, plan_targets, ctx.foods)
     # Resizing can't fix a day of rice and roti: add simple protein foods (and, if
     # still short, a protein snack before bed) until protein is on target.
@@ -454,7 +477,8 @@ async def create_plan(user_id: str) -> dict:
     meal_planner.boost_protein(meals, plan_targets, ctx.pool, ctx.foods, extra_slot=extra)
     meal_planner.trim_fat(meals, plan_targets, ctx.pool, ctx.foods)
     doc = await _save(user_id, meals, plan_targets, ctx, "regenerated" if previous else "created",
-                      previous, rule_based)
+                      previous, rule_based,
+                      extra={"supplements_used": plan_supplements.signature(ctx.supplements)})
     await analytics_service.track(
         user_id, analytics_service.MEAL_PLAN_CREATED, {"source": "rules" if rule_based else "ai"}
     )
@@ -497,6 +521,7 @@ async def regenerate_meal(user_id: str, meal_id: str) -> dict:
     meals[[m["id"] for m in meals].index(meal_id)] = new_meal
     _remove_disallowed([new_meal], ctx)
     meal_planner.enforce_meal_fit([new_meal], ctx.pool, ctx.foods)
+    plan_supplements.add_to_meals(meals, ctx.supplements, only=[meal_id])
     meal_planner.fit_portions(meals, plan["targets"], ctx.foods, fixed=[m["id"] for m in others])
     meal_planner.boost_protein(meals, plan["targets"], ctx.pool, ctx.foods, fixed=[m["id"] for m in others])
     meal_planner.trim_fat(meals, plan["targets"], ctx.pool, ctx.foods, fixed=[m["id"] for m in others])
@@ -514,6 +539,7 @@ async def _regenerate_shelf_meal(user_id: str, plan: dict, current: dict, ctx: _
     meals = _copy_meals(plan)
     meal = next(m for m in meals if m["id"] == current["id"])
     meal["items"] = [meal_planner.build_item(food, meal_planner.snap(food, 1.0))]
+    plan_supplements.add_to_meals(meals, ctx.supplements, only=[current["id"]])
     others = [m["id"] for m in meals if m["id"] != current["id"]]
     meal_planner.fit_portions(meals, plan["targets"], ctx.foods, fixed=others)
     meal_planner.boost_protein(meals, plan["targets"], ctx.shelf, ctx.foods, fixed=others)
@@ -526,6 +552,8 @@ async def swap_options(user_id: str, meal_id: str, index: int, query: Optional[s
     plan = await _active(user_id)
     meal = _meal(plan, meal_id)
     item = _item(meal, index)
+    if plan_supplements.is_supplement_item(item):
+        return []  # Your own product: change it on the Supplements page.
     ctx = await _context(user_id)
     exclude = {i["food_id"] for i in meal["items"]}
     original = ctx.foods.get(item["food_id"]) or food_db.get_food(item["food_id"])
@@ -542,6 +570,8 @@ async def swap_item(user_id: str, meal_id: str, index: int, food_id: str) -> dic
     """
     plan = await _active(user_id)
     original = _item(_meal(plan, meal_id), index)
+    if plan_supplements.is_supplement_item(original):
+        raise DietPlanError("That's your supplement. Change it on the Supplements page")
     await _ensure_not_logged_today(plan, meal_id)
     ctx = await _context(user_id)
     food = ctx.foods.get(food_id)
@@ -578,10 +608,13 @@ async def log_plan_meal(user_id: str, meal_id: str):
               if d >= (local_today() - timedelta(days=LOGGED_DAYS_KEPT)).isoformat()}
     if await _logged_today(plan, meal_id):
         raise DietPlanError("You've already logged this meal today")
-    totals = meal["totals"]
+    # The meal's food is logged; its supplements are ticked off, which logs their
+    # macros once (ticking it on the Supplements page as well won't count it twice).
+    foods_only = [i for i in meal["items"] if not plan_supplements.is_supplement_item(i)]
+    totals = meal_planner.totals_of(foods_only)
     logged_meal = await nutrition_service.log_meal(
         user_id,
-        name=", ".join(i["name"] for i in meal["items"]),
+        name=", ".join(i["name"] for i in foods_only),
         calories=totals["kcal"],
         protein=totals["protein"],
         carbs=totals["carbs"],
@@ -592,8 +625,16 @@ async def log_plan_meal(user_id: str, meal_id: str):
         eaten_at=(_current_times(plan, await User.get_by_id(user_id), plan.get("fasting_mode")) or {}).get(
             meal_id, meal["time"]
         ),
-        items=[{**{k: v for k, v in i.items() if k not in ("per_100g", "max_quantity", "min_quantity")}, "edited": False} for i in meal["items"]],
+        items=[{**{k: v for k, v in i.items() if k not in ("per_100g", "max_quantity", "min_quantity")}, "edited": False} for i in foods_only],
     )
+    from app.services import supplement_service
+
+    for item in meal["items"]:
+        if plan_supplements.is_supplement_item(item):
+            try:
+                await supplement_service.mark_taken(user_id, item["user_supplement_id"])
+            except supplement_service.SupplementError:
+                pass  # Stopped tracking it since the plan was made.
     logged[today] = [*(i for i in logged.get(today, []) if i != meal_id), meal_id]
     links = {d: ids for d, ids in plan.get("logged_links", {}).items() if d in logged}
     links[today] = {**links.get(today, {}), meal_id: logged_meal.id}
@@ -616,7 +657,8 @@ async def grocery_list(user_id: str, days: int = grocery.DEFAULT_DAYS) -> dict:
     return {
         # Follow the fast the plan was made for: no onion or garlic in a Navratri list.
         # The mess buys its own food: only the shelf goes on the list.
-        **grocery.build_list([m for m in plan["meals"] if m.get("source") != "mess"], days,
+        **grocery.build_list([{**m, "items": [i for i in m["items"] if not plan_supplements.is_supplement_item(i)]}
+                              for m in plan["meals"] if m.get("source") != "mess"], days,
                              fasting.get_mode((plan.get("fasting_mode") or {}).get("mode"))),
         "plan_id": plan["id"],
         "plan_version": plan["version"],

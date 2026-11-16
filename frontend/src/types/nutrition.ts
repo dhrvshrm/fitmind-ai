@@ -16,7 +16,9 @@ export type ItemSource =
   | 'unresolved'
   | 'manual'
   /** Packaged food label values looked up by barcode. */
-  | 'open_food_facts';
+  | 'open_food_facts'
+  /** A supplement the person takes (a scoop of whey), placed in their meal plan. */
+  | 'supplement';
 
 /** How a whole meal's numbers were obtained. */
 export type MealSource = 'verified' | 'estimated' | 'mixed' | 'manual';

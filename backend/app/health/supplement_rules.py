@@ -10,7 +10,7 @@ Rule sources: NIH ODS fact sheets (interactions, upper limits), ISSN position
 stands (creatine, caffeine, protein), ACOG Committee Opinion 462 (caffeine in
 pregnancy under 200 mg/day), KDOQI 2020 (protein in kidney disease).
 """
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 DOCTOR_FIRST = "doctor_first"
 CAUTION = "caution"
@@ -113,21 +113,48 @@ def _fmt(item: Optional[dict]) -> str:
     return f" ({item['value']:g} {item['unit']} on {item['measured_at']})"
 
 
+# Meals covering this share of the protein target need no protein powder.
+PROTEIN_COVERED_SHARE = 0.9
+# Activity levels where most of the day is spent indoors.
+INDOOR_ACTIVITY = {"sedentary", "light"}
+
+
 def reasons(supplement_id: str, flags: Set[str], prefs: Dict[str, Any], goal: Optional[str],
             targets: Optional[Dict[str, Any]], latest: Dict[str, dict], workout_days: Optional[int],
-            serving_protein: Optional[float]) -> List[str]:
-    """Why this supplement is commonly used by people in this user's situation."""
+            serving_protein: Optional[float], intake: Optional[Dict[str, float]] = None,
+            activity: Optional[str] = None) -> List[str]:
+    """Why this supplement is commonly used by people in this user's situation.
+
+    Only from the person's own body, diet, goal, training, logged food and
+    consented health data; nothing is suggested to sell it. ``intake`` is the
+    average protein actually logged on recent days (``avg_protein``, ``days``).
+    """
     out: List[str] = []
     diet = prefs.get("diet_type")
     if supplement_id in PROTEIN_POWDERS and goal in PROTEIN_GOALS and targets:
-        out.append(f"Your protein target is {targets.get('protein')} g a day; a scoop adds about "
-                   f"{serving_protein or 20:g} g if meals fall short.")
-        if supplement_id == "plant_protein" and _avoids_dairy(prefs):
+        target = float(targets.get("protein") or 0)
+        if intake and target:
+            # Food first: only suggest powder when logged meals really fall short.
+            if intake["avg_protein"] < target * PROTEIN_COVERED_SHARE:
+                out.append(f"Over your last {int(intake['days'])} logged days you averaged "
+                           f"{round(intake['avg_protein'])} g protein against your {round(target)} g target; "
+                           f"a scoop adds about {serving_protein or 20:g} g.")
+        else:
+            out.append(f"Your protein target is {targets.get('protein')} g a day; a scoop adds about "
+                       f"{serving_protein or 20:g} g if meals fall short. Log a few days of meals to see "
+                       "whether you actually need it.")
+        if out and supplement_id == "plant_protein" and _avoids_dairy(prefs):
             out.append("It's dairy-free, which fits your diet.")
     if supplement_id == "creatine_monohydrate" and goal in STRENGTH_GOALS and (workout_days or 0) > 0:
         out.append("It has strong evidence for strength gains with the training you do.")
-    if supplement_id == "vitamin_d3" and "low_vitamin_d" in flags:
-        out.append(f"Your confirmed vitamin D{_fmt(latest.get('vitamin_d'))} was below the usual range.")
+        if diet in LOW_B12_RISK_DIETS:
+            out.append("Creatine comes only from meat and fish, so your diet gives you none.")
+    if supplement_id == "vitamin_d3":
+        if "low_vitamin_d" in flags:
+            out.append(f"Your confirmed vitamin D{_fmt(latest.get('vitamin_d'))} was below the usual range.")
+        elif "vitamin_d" not in latest and activity in INDOOR_ACTIVITY:
+            out.append("Low vitamin D is very common in India, especially with indoor work. A blood test "
+                       "tells you whether you need it, and how much.")
     if supplement_id == "vitamin_b12":
         if diet in LOW_B12_RISK_DIETS:
             out.append("B12 comes mainly from animal foods, so it's commonly low on your diet.")
@@ -152,3 +179,31 @@ def reasons(supplement_id: str, flags: Set[str], prefs: Dict[str, Any], goal: Op
     if supplement_id == "electrolytes" and (workout_days or 0) >= HEAVY_TRAINING_DAYS:
         out.append("You train most days; long, sweaty sessions can call for more than water.")
     return out
+
+
+
+# ---------------------------------------------------------------------------
+# Best time to take it, fitted to the person's training and meals
+# ---------------------------------------------------------------------------
+def suggested_timing(supplement_id: str, trains: bool) -> Tuple[str, str]:
+    """(timing, why) for one supplement. Things that don't care about timing go
+    with the protein after training (or breakfast), so it's one step, not five."""
+    after_training = "post_workout" if trains else "with_breakfast"
+    together = "after training" if trains else "with breakfast"
+    rules: Dict[str, Tuple[str, str]] = {
+        "whey_protein": (after_training, f"Easiest {together}, when protein matters most and you're eating anyway."),
+        "plant_protein": (after_training, f"Easiest {together}, when protein matters most and you're eating anyway."),
+        "creatine_monohydrate": (after_training, f"Timing doesn't matter, only taking it daily: stir it into your "
+                                                 f"protein or water {together} so it's one step."),
+        "vitamin_d3": ("with_lunch", "It's fat-soluble, so a full meal helps you absorb it."),
+        "omega_3": ("with_lunch", "With a meal it's absorbed better and repeats less."),
+        "vitamin_b12": ("with_breakfast", "Any time works; breakfast makes it easy to remember."),
+        "multivitamin": ("with_breakfast", "With food it's gentler on the stomach."),
+        "iron": ("morning", "Best on an empty stomach or with lemon or amla, away from tea, coffee and calcium."),
+        "calcium": ("with_dinner", "Kept away from iron, and the body absorbs it best in small doses with food."),
+        "magnesium": ("bedtime", "Before bed suits it; some people find it helps them unwind."),
+        "electrolytes": ("pre_workout", "Sip it during long or very sweaty sessions."),
+        "caffeine": ("pre_workout", "30 to 60 minutes before training, and never late in the day."),
+        "ashwagandha": ("bedtime", "Usually taken in the evening."),
+    }
+    return rules.get(supplement_id, ("any", "Any time that's easy to remember."))

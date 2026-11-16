@@ -5,6 +5,7 @@ import { TagInput } from "./TagInput";
 import {
   BUDGET_OPTIONS,
   COOK_OPTIONS,
+  COUNTRY_OPTIONS,
   EAT_OUT_OPTIONS,
   ONBOARDING_STRINGS,
   PANTRY_SUGGESTIONS,
@@ -51,6 +52,12 @@ export function StepAccess({ data, onChange }: StepProps) {
       <Typography variant="body2" color="text.secondary">
         {ONBOARDING_STRINGS.optionalHint}
       </Typography>
+      <ChoiceChips<string>
+        label={S.country}
+        options={COUNTRY_OPTIONS}
+        value={access.country ?? 'India'}
+        onChange={(country) => update({ country })}
+      />
       <ChoiceChips<Cook>
         label={S.whoCooks}
         options={COOK_OPTIONS}

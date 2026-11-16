@@ -1,6 +1,11 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const healthPageStyles = {
+  tabs: {
+    mb: 2.5,
+    borderBottom: 1,
+    borderColor: 'divider',
+  },
   grid: {
     display: 'grid',
     gap: 2,

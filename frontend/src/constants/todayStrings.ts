@@ -139,6 +139,8 @@ export const TODAY_STRINGS = {
       waterHint: "Once in the afternoon, if you're behind on water",
       comeback: 'Fresh start',
       comebackHint: 'One friendly note if you have been away for a couple of days',
+      supplements: 'Supplements',
+      supplementsHint: 'At the reminder time you set for each supplement, unless you already ticked it off',
     },
     workoutTime: 'Workout reminder time',
     workoutTimeAuto: 'Leave empty to use your usual workout time',

@@ -37,6 +37,7 @@ KIND_MEALS = "meals"
 KIND_WORKOUT = "workout"
 KIND_WATER = "water"
 KIND_COMEBACK = "comeback"
+KIND_SUPPLEMENTS = "supplements"
 
 DEFAULT_SETTINGS: Dict[str, Any] = {
     "enabled": True,
@@ -44,11 +45,12 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     KIND_WORKOUT: True,
     KIND_WATER: True,
     KIND_COMEBACK: True,
+    KIND_SUPPLEMENTS: True,
     # "HH:MM", or None to follow the workout time from onboarding.
     "workout_time": None,
     "water_time": DEFAULT_WATER_TIME,
 }
-TOGGLES = ("enabled", KIND_MEALS, KIND_WORKOUT, KIND_WATER, KIND_COMEBACK)
+TOGGLES = ("enabled", KIND_MEALS, KIND_WORKOUT, KIND_WATER, KIND_COMEBACK, KIND_SUPPLEMENTS)
 
 # Plan slot ids to the words used in a notification.
 SLOT_LABELS = {
@@ -264,10 +266,21 @@ async def run_for_user(user: User, now: Optional[datetime] = None) -> int:
             await _workout_state(user, settings, today),
             {"ml": await get_water(user.id, today), "goal_ml": targets.get("water_ml") or DEFAULT_WATER_GOAL_ML},
         )
+        if settings[KIND_SUPPLEMENTS]:
+            due += await _supplement_reminders(user, now)
         sent = 0
         for reminder in due:
             sent += int(await _send(user.id, reminder, today))
         return sent
+
+
+async def _supplement_reminders(user: User, now: datetime) -> List[Dict[str, str]]:
+    """Supplements whose reminder time has come and that aren't ticked off yet."""
+    from app.services import supplement_service
+
+    due = await supplement_service.due_supplement_reminders(user, now, DUE_WINDOW_MINUTES)
+    return [{"key": d["key"], "title": d["title"], "body": d["body"], "url": d["url"], "tag": "supplement"}
+            for d in due]
 
 
 async def run_due_reminders() -> Dict[str, int]:

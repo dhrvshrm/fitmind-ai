@@ -28,6 +28,8 @@ import { NextMealCard } from './NextMealCard';
 import { NudgeBanner } from './NudgeBanner';
 import { TargetsLeftCard } from './TargetsLeftCard';
 import { WaterCard } from './WaterCard';
+import { SupplementsTodayCard } from './SupplementsTodayCard';
+import { useMySupplements } from '../../hooks/queries/useSupplementQueries';
 import { WorkoutCard } from './WorkoutCard';
 import { todayPageStyles as styles } from './TodayPage.styles';
 
@@ -51,6 +53,7 @@ export function TodayPage() {
   const [params, setParams] = useSearchParams();
   const status = useTodayStatus();
   const nutrition = useNutritionToday();
+  const supplements = useMySupplements();
   const enableReminders = useEnableReminders();
   const { canInstall, install } = useInstallPrompt();
   const today = status.data?.date ?? '';
@@ -175,6 +178,13 @@ export function TodayPage() {
             <WaterCard waterMl={nutrition.data?.water_ml ?? 0} goalMl={nutrition.data?.water_goal_ml ?? null} />
           </Reveal>
         </Box>
+        {supplements.data && supplements.data.length > 0 && (
+          <Box sx={styles.full}>
+            <Reveal index={4}>
+              <SupplementsTodayCard supplements={supplements.data} />
+            </Reveal>
+          </Box>
+        )}
         {showReminders && (
           <Box sx={styles.full}>
             <Reveal index={4}>

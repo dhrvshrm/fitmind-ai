@@ -29,12 +29,13 @@ export type ReminderSettings = {
   workout: boolean;
   water: boolean;
   comeback: boolean;
+  supplements: boolean;
   /** Local "HH:MM", or null to follow the usual workout time. */
   workout_time: string | null;
   water_time: string;
 };
 
-export type ReminderToggle = 'meals' | 'workout' | 'water' | 'comeback';
+export type ReminderToggle = 'meals' | 'workout' | 'water' | 'comeback' | 'supplements';
 
 /** `GET /reminders` -> data */
 export type ReminderState = {

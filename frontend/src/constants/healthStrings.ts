@@ -15,7 +15,7 @@ export const HEALTH_STRINGS = {
   nav: 'Health',
   page: {
     title: 'Health',
-    subtitle: 'Conditions and medicines your AI coach should know, so your meal plans and advice stay safe.',
+    subtitle: 'Your health profile and supplements, so your AI coach keeps meal plans and advice safe and right for you.',
     disclaimer:
       'RepEat gives general wellness information, not medical advice. It never diagnoses or prescribes. Please talk to your doctor about your health.',
     loadError: "Couldn't load your health profile. Check your connection and try again.",

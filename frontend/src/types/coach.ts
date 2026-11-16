@@ -7,7 +7,8 @@ export type CoachDomain =
   | 'workouts'
   | 'recovery'
   | 'dashboard'
-  | 'gamification';
+  | 'gamification'
+  | 'supplements';
 
 export type ProposalStatus = 'pending' | 'executing' | 'done' | 'failed' | 'cancelled' | 'expired';
 

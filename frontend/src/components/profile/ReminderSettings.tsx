@@ -19,12 +19,13 @@ import { SectionCard } from '../ui/SectionCard';
 import { reminderSettingsStyles as styles } from './ReminderSettings.styles';
 
 const S = TODAY_STRINGS.reminders;
-const TOGGLES: ReminderToggle[] = ['meals', 'workout', 'water', 'comeback'];
+const TOGGLES: ReminderToggle[] = ['meals', 'workout', 'water', 'supplements', 'comeback'];
 const HINTS: Record<ReminderToggle, string> = {
   meals: S.toggles.mealsHint,
   workout: S.toggles.workoutHint,
   water: S.toggles.waterHint,
   comeback: S.toggles.comebackHint,
+  supplements: S.toggles.supplementsHint,
 };
 
 /** Push reminders: this device on or off, which reminders, and their times. */

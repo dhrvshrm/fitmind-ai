@@ -13,6 +13,7 @@ const DOMAIN_KEYS: Record<CoachDomain, QueryKey[]> = {
   recovery: [QUERY_KEYS.recovery.all],
   dashboard: [QUERY_KEYS.dashboard.all],
   gamification: [QUERY_KEYS.gamification.all],
+  supplements: [QUERY_KEYS.supplements.all],
 };
 
 /** Refetches every query a confirmed action touched, so other pages show the change. */

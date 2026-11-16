@@ -11,6 +11,7 @@ export const LANDING_STRINGS = {
   nav: {
     day: 'A day with your AI coach',
     pg: 'PG & hostel',
+    supplements: 'Supplements',
     promises: 'Promises',
     faq: 'Questions',
     login: 'Log in',
@@ -42,7 +43,7 @@ export const LANDING_STRINGS = {
       time: '6:45',
       period: 'am',
       title: 'Up before the alarm, mostly',
-      caption: 'Your AI coach builds the day from your wake-up time: water and a light snack before you train, even on a night shift.',
+      caption: 'Your AI coach builds the day from your wake-up time: water and a light snack before you train, even on a night shift. On rest days the snack and the workout drop out, and the day is just your meals.',
       note: '400 ml paani before chai.',
       noteSub: 'pre-workout: 1 banana',
     },
@@ -50,7 +51,7 @@ export const LANDING_STRINGS = {
       time: '7:30',
       period: 'am',
       title: 'Gym before office',
-      caption: 'Log your sets and the AI tells you what to lift next time. The breakfast after is planned as your post-workout meal.',
+      caption: 'Every session opens with a warm-up for the muscles you train that day: easy cardio, mobility, then lighter ramp-up sets. Log your sets and the AI tells you what to lift next time. The breakfast after is planned as your post-workout meal.',
       logTitle: 'Dumbbell press',
       logHead: ['Set', 'Last time', 'Today'],
       logRows: [
@@ -130,6 +131,33 @@ export const LANDING_STRINGS = {
     chitNote: 'no cooking needed',
   },
 
+  supplements: {
+    eyebrow: 'Whey? Creatine? Nothing?',
+    title: 'Supplements.',
+    titleAccent: 'Only what you need.',
+    body:
+      'Tell RepEat what you can spend a month and it suggests the bare minimum for your body, your diet and your training, food first, with no brands and nothing to sell. Track what you take and your meal plan makes room for it, at the best time for your day.',
+    points: [
+      'A few picks within your budget, each with the reason and why Indian diets often fall short of it. Protein powder only if your logged meals really miss your target.',
+      'Type the product you bought and the AI fills in the dose and macros for you.',
+      'A scoop of whey goes into your post-workout meal and the food around it shrinks. Creatine and vitamins show up with the meal you take them with.',
+      'Tick it off once and the plan and reminders know it is done.',
+      'Steroids, hormones, SARMs, fat burners and weight-loss drugs are never listed or tracked.',
+    ],
+    cta: 'Set my budget',
+    boxTitle: 'Today, budget ₹5,000 a month',
+    budgets: ['Food only', '₹1,000', '₹2,500', '₹5,000'],
+    budgetPicked: '₹5,000',
+    // [time, when, what, 'done' once ticked]
+    slots: [
+      ['08:15', 'Breakfast, after training', 'Whey 1 scoop + creatine 5 g', 'done'],
+      ['13:30', 'Lunch', 'Vitamin D3, 1000 IU', ''],
+    ],
+    total: ['Spent a month', 'about ₹2,870'],
+    never: 'No brands. No steroids or fat burners.',
+    note: 'one step, not three',
+  },
+
   promises: {
     eyebrow: 'Promises',
     title: 'What we will not do.',
@@ -138,6 +166,7 @@ export const LANDING_STRINGS = {
       'Hide an estimate. If something is approximate, it says so.',
       'Change your plan behind your back. New targets and level-ups wait for your OK.',
       'Sell your data. Health details are encrypted and deleted with your account.',
+      'Push supplements on you. No brands, no paid picks, and food comes first.',
       'Pretend to be your doctor. For medical conditions, talk to one.',
     ],
     signature: 'the RepEat team',
@@ -165,12 +194,20 @@ export const LANDING_STRINGS = {
         a: 'Turn on mess mode. The plan counts on chapati with whatever sabzi or dal the mess makes, and uses every no-cook food on your shelf (milk, eggs, roasted chana, peanuts, bread and peanut butter) somewhere in the day, with what they cost.',
       },
       {
+        q: 'Do I need whey or creatine?',
+        a: 'Maybe not. Set a monthly budget (or food only) and RepEat suggests the bare minimum for your diet and training, with no brands. Whatever you do take is placed in your meal plan at the best time for your day.',
+      },
+      {
         q: 'I have diabetes, thyroid or high BP.',
         a: 'Add it to your health profile, only if you want to. Meal plans adjust (less sugar or salt, for example) and your AI coach keeps it in mind. It is never a diagnosis, and it is encrypted and yours to delete.',
       },
       {
         q: 'What if I eat something that is not in the plan?',
         a: 'Log it. That meal shows what you really had, and the meals still to come shrink or grow so the day still lands near your target. Every dish also says how much oil or ghee its calories assume.',
+      },
+      {
+        q: 'What about warm-ups and rest days?',
+        a: 'Each training day starts with a warm-up in three phases, matched to that day: a few easy minutes on a bike or treadmill (or marching at home), mobility for the joints you are about to load, then lighter sets of your first lift. On rest days your meal plan drops the pre-workout snack and the workout, so you only see your meals.',
       },
       {
         q: 'Do I have to weigh every gram?',

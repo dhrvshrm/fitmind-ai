@@ -107,6 +107,8 @@ class FoodAccess(BaseModel):
     daily_budget_inr: Optional[int] = Field(None, ge=0, le=10000)
     open_to_new_ingredients: Optional[bool] = None
     region: Optional[str] = Field(None, max_length=60)
+    # Shapes what "your diet often misses" says (Indian diets by default).
+    country: Optional[str] = Field(None, max_length=60)
     # Mess mode: an empty list turns it off.
     mess_meals: Optional[List[MessMeal]] = Field(None, max_length=3)
     shelf: Optional[List[ShelfKey]] = Field(None, max_length=20)
