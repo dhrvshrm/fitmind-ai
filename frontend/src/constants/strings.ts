@@ -462,6 +462,25 @@ export const STRINGS = {
       count: (count: number) => (count === 1 ? "1 exercise" : `${count} exercises`),
       close: "Close",
     },
+    warmUp: {
+      title: (minutes: number) => `Warm-up, about ${minutes} min`,
+      subtitle: "Matched to today's muscles. Do the three phases in order before your first working set.",
+      detailsAria: (name: string) => `How to do ${name}`,
+      phases: {
+        pulse: { title: "Phase 1: General pulse raiser", hint: "Easy cardio to raise your heart rate and warm your muscles." },
+        mobility: {
+          title: "Phase 2: Dynamic mobility and activation",
+          hint: "Loosen the joints and wake up the muscles you train today.",
+        },
+        rampUp: { title: "Phase 3: Ramp-up sets", hint: "Lighter sets of your first exercise before the real ones." },
+      },
+      rampUp: (name: string, sets: { percent: number | null; reps: number }[]) =>
+        sets.every((s) => s.percent === null)
+          ? `${name}: one slow, easy set of ${sets[0]?.reps ?? 5} before your working sets.`
+          : `${name}: ${sets
+              .map((s) => `about ${s.percent}% of your working weight for ${s.reps} reps`)
+              .join(", then ")}. Rest about a minute between them.`,
+    },
     history: {
       title: "History",
       streak: (days: number) =>
@@ -793,6 +812,10 @@ export const STRINGS = {
         "We'll plan a day of meals from your calorie and protein targets, diet, allergies, budget and routine. Every number comes from our food database, not a guess.",
     },
     editPreferences: "Edit food preferences",
+    restDay: (kcal: number) =>
+      kcal > 0
+        ? `No training today, so there's no pre-workout snack or workout in your day. Today is about ${kcal} kcal lighter.`
+        : "No training today, so there's no workout in your day, just your meals.",
     stale: "Your targets or food answers changed after this plan was made. Make a new plan to match them.",
     version: (version: number, date: string) => `Version ${version}, updated ${date}`,
     summaryTitle: "What this plan adds up to",

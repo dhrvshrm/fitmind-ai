@@ -718,3 +718,38 @@ def test_butter_eaten_as_it_is_gets_no_cooking_fat_note():
     from app.nutrition import cooking_fat
 
     assert cooking_fat.for_item({"food_id": "usda:173410", "name": "Butter", "grams": 5}) == []
+
+
+def _plan_on(client, headers, monkeypatch, workout_type):
+    """Today's plan on a weekday whose workout day has this type."""
+    from datetime import date, timedelta
+
+    from app.services import workout_service
+
+    week = client.post(f"{API}/workouts/generate", headers=headers, json={}).json()["data"]["weekly_plan"]["week"]
+    index = next(i for i, d in enumerate(week) if d["workout_type"] == workout_type)
+    monday = date(2026, 11, 9)
+    monkeypatch.setattr(workout_service, "local_today", lambda *a, **k: monday + timedelta(days=index))
+    return client.get(f"{API}/diet-plans/current", headers=headers).json()["data"]
+
+
+def test_a_rest_day_has_no_pre_workout_snack_or_workout(client, ai_providers, monkeypatch):
+    payload = {**VEG_ONBOARDING, "workout_time": "early_morning", "workout_days_per_week": 4,
+               "lifestyle": {"meals_per_day": 4, "wake_time": "06:00", "sleep_time": "22:30"}}
+    headers, _ = _onboard(client, payload, email="restday@example.com")
+    made = client.post(f"{API}/diet-plans", headers=headers).json()["data"]
+    snack = next(m for m in made["meals"] if m["id"] == "pre_workout")
+
+    rest = _plan_on(client, headers, monkeypatch, "rest")
+    assert [m["id"] for m in rest["meals"]] == [m["id"] for m in made["meals"] if m["id"] != "pre_workout"]
+    assert not any(m.get("workout_role") for m in rest["meals"])
+    assert "workout" not in [e["kind"] for e in rest["routine"]]
+    assert rest["rest_day"] == {"kcal_less": round(snack["totals"]["kcal"])}
+    # The day's totals and calorie target drop by the snack; protein stays.
+    assert round(rest["totals"]["kcal"]) == round(made["totals"]["kcal"] - snack["totals"]["kcal"])
+    assert rest["targets"]["calories"] == made["targets"]["calories"] - round(snack["totals"]["kcal"])
+    assert rest["targets"]["protein"] == made["targets"]["protein"]
+
+    training = _plan_on(client, headers, monkeypatch, "strength")
+    assert training["meals"][0]["id"] == "pre_workout" and training["rest_day"] is None
+    assert "workout" in [e["kind"] for e in training["routine"]]

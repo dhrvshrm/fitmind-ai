@@ -19,6 +19,7 @@ from app.nutrition.food_db import Food
 from app.services import nutrition_service, user_service
 from app.nutrition import fasting, grocery  # Phase 8: fasting modes and grocery list
 from app.services import fasting_service
+from app.services import workout_service
 from app.services import analytics_service
 from app.health import plan_rules  # Phase 12 health rules
 from app.utils.time import get_current_timezone, local_today, local_today_iso
@@ -334,12 +335,33 @@ async def _present(plan: dict, user: Optional[User] = None) -> dict:
     # and the meals still to come get a portion hint.
     today = local_today_iso()
     logs = [_log_view(m) for m in await nutrition_service.get_daily_nutrition(plan["user_id"], today)]
+    logged_ids = plan.get("logged", {}).get(today, [])
+    # No training today (a rest or mobility day): no pre-workout snack, no
+    # "after workout" meal and no workout in the day. The day is lighter by
+    # the snack, so the portion hints don't ask for it back.
+    day_targets = plan["targets"]
+    training = bool(user) and await workout_service.trains_today(user)
+    data["rest_day"] = None
+    if user and _trains(user) and not training:
+        before = data["meals"]
+        data["meals"] = meal_planner.rest_day_meals(before, set(logged_ids))
+        dropped = [m for m in before if m["id"] not in {x["id"] for x in data["meals"]}]
+        kcal = round(sum(m["totals"]["kcal"] for m in dropped))
+        carbs = round(sum(m["totals"]["carbs"] for m in dropped))
+        data["rest_day"] = {"kcal_less": kcal}
+        # The day's numbers match what's on the plate: fewer calories and carbs,
+        # the same protein (recovery needs it as much on a rest day).
+        data["totals"] = meal_planner.totals_of([i for m in data["meals"] for i in m["items"]])
+        day_targets = {**day_targets, "calories": day_targets["calories"] - kcal}
+        if "carbs" in day_targets:
+            day_targets["carbs"] = day_targets["carbs"] - carbs
+        data["targets"] = day_targets
     sync = day_sync.sync_day(
         data["meals"],
-        plan.get("logged", {}).get(today, []),
+        logged_ids,
         plan.get("logged_links", {}).get(today, {}),
         logs,
-        plan["targets"],
+        day_targets,
     )
     data["logged_today"] = sync["logged_ids"]
     data["today"] = {"meals": sync["meals"], "day": sync["day"]}
@@ -347,7 +369,7 @@ async def _present(plan: dict, user: Optional[User] = None) -> dict:
         data["meals"],
         user.lifestyle if user else None,
         user.workout_time if user else None,
-        _trains(user) if user else False,
+        training,
         (targets or {}).get("water_ml"),
         plan.get("fasting_mode"),
     )

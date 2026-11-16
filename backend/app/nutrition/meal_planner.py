@@ -789,6 +789,21 @@ def is_pre_workout(meal: dict) -> bool:
     return meal.get("workout_role") == "pre" or meal.get("id") == "pre_workout"
 
 
+def rest_day_meals(meals: List[dict], keep: set) -> List[dict]:
+    """The plan's meals for a day without training.
+
+    The extra pre-workout snack is left out (unless already eaten, in ``keep``)
+    and no meal is labelled as before or after a workout. The stored plan is
+    not changed, so foods and their order stay the same for training days.
+    """
+    out = []
+    for meal in meals:
+        if meal.get("id") == "pre_workout" and meal["id"] not in keep:
+            continue
+        out.append({k: v for k, v in meal.items() if k not in ("workout_role", "purpose")})
+    return out
+
+
 def suits_meal(food: Food, meal: dict) -> bool:
     """Whether a food belongs in this meal at all (whatever else is in it).
 

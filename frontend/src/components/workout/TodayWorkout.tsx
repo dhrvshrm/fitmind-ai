@@ -20,6 +20,7 @@ import {
 import { AnimatePresence, motion } from 'framer-motion';
 import { ExerciseLogger } from './ExerciseLogger';
 import { ExerciseDetailDialog } from '../exercises/ExerciseDetailDialog';
+import { WarmUpList } from './WarmUpList';
 import { WorkoutCompletion } from './WorkoutCompletion';
 import { useWorkoutTimer } from '../../hooks/useWorkoutTimer';
 import toast from 'react-hot-toast';
@@ -258,6 +259,9 @@ export function TodayWorkout({
 
         {showLogger && (
           <>
+            {today?.warm_up && today.warm_up.mobility.length > 0 && (
+              <WarmUpList warmUp={today.warm_up} onDetails={setDetailId} />
+            )}
             <Box sx={styles.list}>
               {exercises.map((exercise) => (
                 <ExerciseLogger

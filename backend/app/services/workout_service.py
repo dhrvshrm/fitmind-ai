@@ -16,7 +16,7 @@ from app.nutrition.targets import canonical_goal
 from app.services import gamification_service
 from app.services import analytics_service
 from app.utils.time import local_today, local_today_iso
-from app.workouts import catalog, planner, programming
+from app.workouts import catalog, planner, programming, warm_up
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +96,31 @@ def _today_entry(plan: Optional[WorkoutPlan]) -> Optional[Dict[str, Any]]:
     return next((d for d in plan.week if str(d.get("day", "")).lower() == today.lower()), None)
 
 
+def with_warm_ups(week: List[Dict[str, Any]], user: User) -> List[Dict[str, Any]]:
+    """Each day with its warm-up (None on rest and mobility days), for this person's kit and injuries."""
+    profile = _profile(user)
+    joints = catalog.injured_joints(profile["injuries"])
+    owned = profile["equipment"] or ["bodyweight"]
+    return [{**day, "warm_up": warm_up.for_day(day, owned, joints)} for day in week]
+
+
+async def trains_today(user: User) -> bool:
+    """Whether today has a real workout: a quick session, or a strength day in the plan.
+
+    Rest and mobility days don't. Without a workout plan the weekly days are
+    unknown, so anyone who trains is taken to train today.
+    """
+    if not (user.workout_days_per_week or 0):
+        return False
+    if await workout_store.get_override(user.id, local_today_iso()):
+        return True
+    plan = await WorkoutPlan.get_latest_for_user(user.id)
+    if plan is None:
+        return True
+    day = _today_entry(plan)
+    return bool(day and day.get("workout_type") == "strength" and day.get("exercises"))
+
+
 async def get_today_workout(user: User) -> Dict[str, Any]:
     """Today's session: a quick session if one was chosen, else the plan's day,
     adjusted for today's recovery (fewer sets, or mobility when very low)."""
@@ -121,8 +146,9 @@ async def get_today_workout(user: User) -> Dict[str, Any]:
         return {**base, "focus": planner.SESSION_LABELS["mobility"], "workout_type": "flexibility",
                 "exercises": exercises, "mode": mode, "quick": False, "planned_focus": day.get("focus")}
     exercises = [programming.adjust_for_recovery(e, recovery) for e in exercises]
-    return {**base, "focus": day.get("focus"), "workout_type": day.get("workout_type"),
-            "exercises": exercises, "mode": mode if exercises else "normal", "quick": False}
+    session = {**base, "focus": day.get("focus"), "workout_type": day.get("workout_type"),
+               "exercises": exercises, "mode": mode if exercises else "normal", "quick": False}
+    return with_warm_ups([session], user)[0]
 
 
 async def start_quick_session(user: User, minutes: int, place: str) -> Dict[str, Any]:
