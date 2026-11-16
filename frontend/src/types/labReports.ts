@@ -1,3 +1,5 @@
+import type { BodyScanValues } from './bodyScan';
+
 /** Lab reports ("health reports"), their draft values, and confirmed biomarker history. */
 
 export type BiomarkerStatus = 'low' | 'high' | 'in_range' | 'unknown';
@@ -23,8 +25,12 @@ export type DraftValue = {
 
 export type LabReportStatus = 'needs_review' | 'confirmed';
 
+/** A blood test, or the printout of a body composition machine. */
+export type ReportKind = 'blood' | 'body_composition';
+
 export type LabReport = {
   id: string;
+  kind: ReportKind;
   mime_type: string;
   size: number;
   status: LabReportStatus;
@@ -39,6 +45,8 @@ export type LabReport = {
   report_date?: string | null;
   lab?: string | null;
   drafts?: DraftValue[];
+  /** A body composition scan's values read from the printout, to check. */
+  scan_draft?: BodyScanValues | null;
   draft_count?: number;
 };
 

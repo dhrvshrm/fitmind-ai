@@ -203,6 +203,10 @@ export const LANDING_STRINGS = {
         a: 'Add it to your health profile, only if you want to. Meal plans adjust (less sugar or salt, for example) and your AI coach keeps it in mind. It is never a diagnosis, and it is encrypted and yours to delete.',
       },
       {
+        q: 'My gym did a body composition scan (InBody). Can I use it?',
+        a: 'Yes. Upload the printout or a photo of it. RepEat reads your weight, muscle, body fat, visceral fat and the muscle in each arm, leg and your trunk, and you check every number. If one side or one area lags, your workout plan adds exercises for exactly that, right after the main lifts, never cut for time; a weaker arm or leg is trained one side at a time. Your calorie targets then use your lean mass too.',
+      },
+      {
         q: 'Can I upload my blood test report?',
         a: 'Yes. Upload a PDF or a photo of a blood test from any lab: a full body checkup, lipid profile, thyroid profile, HbA1c, vitamin D or B12. RepEat reads values like HbA1c, cholesterol, TSH, haemoglobin and vitamin D, and you check every one before it is saved. Saved results shape your meal plan and supplement suggestions, and you can see them over time. Files are private and you can delete them any time.',
       },

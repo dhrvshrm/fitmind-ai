@@ -20,7 +20,7 @@ const S = LAB_REPORT_STRINGS.results;
 const { fmtDate, fmtNumber, fmtRange } = LAB_REPORT_STRINGS;
 
 /** Saved results per test: the latest value against its range, a trend, and earlier values. */
-export function BiomarkersCard() {
+export function BiomarkersCard({ onSaved }: { onSaved: () => void }) {
   const history = useBiomarkerHistory();
   const [adding, setAdding] = useState(false);
   const error = queryErrorMessage(history.error, S.loadError);
@@ -55,7 +55,7 @@ export function BiomarkersCard() {
           </Stack>
         </>
       )}
-      {adding && <AddBiomarkerDialog onClose={() => setAdding(false)} />}
+      {adding && <AddBiomarkerDialog onClose={() => setAdding(false)} onSaved={onSaved} />}
     </SectionCard>
   );
 }

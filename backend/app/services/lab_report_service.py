@@ -37,6 +37,9 @@ FILE_SIGNATURES = {
 }
 EXTENSIONS = {"application/pdf": "pdf", "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}
 SIGNED_URL_SECONDS = 300
+KIND_BLOOD = "blood"
+KIND_BODY_COMPOSITION = "body_composition"
+KINDS = (KIND_BLOOD, KIND_BODY_COMPOSITION)
 
 
 class LabReportError(Exception):
@@ -83,14 +86,19 @@ def _with_reference(draft: dict, sex: Optional[str]) -> dict:
 
 
 async def upload(user_id: str, content: bytes, filename: str, declared_type: Optional[str],
-                 allow_ai: bool) -> dict:
+                 allow_ai: bool, kind: str = KIND_BLOOD) -> dict:
     """Store a report and extract draft values for review.
+
+    ``kind`` is a blood test (biomarker drafts) or a body composition scan
+    (one draft scan, read by body_scan_service).
 
     Raises:
         ConsentRequired: without ``health_reports`` consent.
         LabReportError: for empty, oversized or unsupported files.
     """
     await consent_service.require(user_id, SCOPE_HEALTH_REPORTS)
+    if kind not in KINDS:
+        raise LabReportError("Choose a blood test or a body composition scan")
     if not content:
         raise LabReportError("The file is empty")
     if len(content) > MAX_FILE_BYTES:
@@ -105,7 +113,13 @@ async def upload(user_id: str, content: bytes, filename: str, declared_type: Opt
         await model.save_file(user_id, report_id, content)
         storage = "database"
 
-    result = await extraction.extract(user_id, content, mime, allow_ai)
+    if kind == KIND_BODY_COMPOSITION:
+        from app.services import body_scan_service
+
+        result = await body_scan_service.extract(user_id, content, mime, allow_ai)
+        result = {**result, "drafts": [], "lab": None}
+    else:
+        result = await extraction.extract(user_id, content, mime, allow_ai)
     sex = await _sex(user_id)
     drafts = [{**_with_reference(d, sex), "id": str(uuid4())} for d in result["drafts"]]
     now = datetime.now(timezone.utc)
@@ -115,6 +129,7 @@ async def upload(user_id: str, content: bytes, filename: str, declared_type: Opt
         "mime_type": mime,
         "size": len(content),
         "storage": storage,
+        "kind": kind,
         "file_key": key if storage == "r2" else None,
         "status": model.STATUS_NEEDS_REVIEW,
         "methods": result["methods"],
@@ -127,6 +142,7 @@ async def upload(user_id: str, content: bytes, filename: str, declared_type: Opt
         "report_date": result["report_date"],
         "lab": result["lab"],
         "drafts": drafts,
+        "scan_draft": result.get("scan"),
     }
     report = await model.create_report(public, private)
     await audit.record_change(user_id, "health_report", "upload", after={"status": public["status"]},
@@ -137,7 +153,8 @@ async def upload(user_id: str, content: bytes, filename: str, declared_type: Opt
 async def list_reports(user_id: str) -> List[dict]:
     await consent_service.require(user_id, SCOPE_HEALTH_REPORTS)
     reports = await model.list_reports(user_id)
-    return [_public({**r, "draft_count": len(r.get("drafts") or [])}) for r in reports]
+    # Reports from before scans existed are blood tests.
+    return [_public({"kind": KIND_BLOOD, **r, "draft_count": len(r.get("drafts") or [])}) for r in reports]
 
 
 async def get_report(user_id: str, report_id: str) -> dict:
@@ -145,7 +162,7 @@ async def get_report(user_id: str, report_id: str) -> dict:
     report = await model.get_report(user_id, report_id)
     if report is None:
         raise LabReportError("Report not found", "not_found")
-    return _public(report)
+    return _public({"kind": KIND_BLOOD, **report})
 
 
 async def file_link(user_id: str, report_id: str) -> Dict[str, Any]:
@@ -214,6 +231,8 @@ async def confirm(user_id: str, report_id: str, report_date: Optional[str], valu
         raise LabReportError("Report not found", "not_found")
     if report["status"] == model.STATUS_CONFIRMED:
         raise LabReportError("These values are already saved. Delete the report to start again")
+    if report.get("kind") == KIND_BODY_COMPOSITION:
+        raise LabReportError("This is a body composition scan; save it as a scan")
     sex = await _sex(user_id)
     date_text = report_date or report.get("report_date")
     now = datetime.now(timezone.utc)
@@ -264,12 +283,13 @@ async def _delete_report_files(user_id: str, report: dict) -> None:
 
 
 async def delete_report(user_id: str, report_id: str) -> None:
-    """Delete a report, its file and every value confirmed from it."""
+    """Delete a report, its file and every value (or scan) confirmed from it."""
     report = await model.get_report(user_id, report_id)
     if report is None:
         raise LabReportError("Report not found", "not_found")
     await _delete_report_files(user_id, report)
     await model.delete_biomarkers_for_report(user_id, report_id)
+    await model.delete_scans_for_report(user_id, report_id)
     await model.delete_report(user_id, report_id)
     await audit.record_change(user_id, "health_report", "delete", before={"exists": True}, after={},
                               entity_id=report_id)

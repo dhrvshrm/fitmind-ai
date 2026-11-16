@@ -28,11 +28,13 @@ import {
 import toast from 'react-hot-toast';
 import { BIOMARKER_STATUS_COLOR } from '../../../constants/labReports';
 import { LAB_REPORT_STRINGS } from '../../../constants/labReportStrings';
-import { useConfirmLabReport, useLabReport } from '../../../hooks/queries/useLabReportQueries';
+import { BODY_SCAN_STRINGS } from '../../../constants/bodyScanStrings';
+import { useConfirmBodyScan, useConfirmLabReport, useLabReport } from '../../../hooks/queries/useLabReportQueries';
 import { queryErrorMessage } from '../../../hooks/queries/queryHelpers';
 import { resolveApiError } from '../../../lib/apiClient';
-import type { BiomarkerStatus, DraftValue, LabReport } from '../../../types/labReports';
+import type { BiomarkerStatus, DraftValue, LabReport, ReportKind } from '../../../types/labReports';
 import { ErrorState } from '../../ui/ErrorState';
+import { BodyScanForm } from './BodyScanForm';
 import { openReportFile } from './openReportFile';
 import { reportReviewDialogStyles as styles } from './ReportReviewDialog.styles';
 
@@ -45,6 +47,8 @@ type Row = { draft: DraftValue; value: string; unit: string; removed: boolean };
 type ReportReviewDialogProps = {
   reportId: string;
   onClose: () => void;
+  /** After a save: offer to update the plans with the new results. */
+  onSaved: (kind: ReportKind) => void;
 };
 
 const parse = (text: string) => {
@@ -60,21 +64,34 @@ function statusOf(value: number | null, low: number | null, high: number | null)
 }
 
 /** The review step: every value read from the report, to check, fix or remove, then save. */
-export function ReportReviewDialog({ reportId, onClose }: ReportReviewDialogProps) {
+export function ReportReviewDialog({ reportId, onClose, onSaved }: ReportReviewDialogProps) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const report = useLabReport(reportId);
+  const confirmScan = useConfirmBodyScan();
   const error = queryErrorMessage(report.error, LAB_REPORT_STRINGS.list.loadError);
+  const scan = report.data?.kind === 'body_composition';
+  const B = BODY_SCAN_STRINGS.form;
+  const draft = report.data?.scan_draft;
+  const read = Boolean(draft && (Object.keys(draft).length > 1 || Object.keys(draft.segments ?? {}).length));
+  const byAi = report.data?.methods.includes('ai');
+  const scanNotice = report.data?.ai_error
+    ? B.aiFailed
+    : !read
+      ? B.nothingRead
+      : byAi
+        ? B.readByAi
+        : B.readLocal;
 
   return (
     <Dialog open onClose={onClose} fullWidth maxWidth="md" fullScreen={fullScreen} scroll="paper">
       <DialogTitle component="div" sx={styles.title}>
         <Box>
           <Typography variant="h6" component="h2">
-            {S.title}
+            {scan ? B.reviewTitle : S.title}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {S.subtitle}
+            {scan ? B.reviewSubtitle : S.subtitle}
           </Typography>
         </Box>
         <IconButton aria-label={S.close} onClick={onClose}>
@@ -92,12 +109,35 @@ export function ReportReviewDialog({ reportId, onClose }: ReportReviewDialogProp
         </DialogContent>
       )}
       {/* Keyed by report so the rows start from its drafts once they've loaded. */}
-      {report.data && <ReviewForm key={report.data.id} report={report.data} onClose={onClose} />}
+      {report.data && scan && (
+        <BodyScanForm
+          key={report.data.id}
+          initial={{ ...draft, measured_at: draft?.measured_at ?? report.data.report_date ?? null }}
+          notice={scanNotice}
+          submit={(body) => confirmScan.mutateAsync({ id: reportId, body })}
+          saving={confirmScan.isPending}
+          onDone={onClose}
+          onSaved={() => onSaved('body_composition')}
+          cancelLabel={B.later}
+          extra={
+            <Button
+              size="small"
+              startIcon={<OpenInNewRounded />}
+              onClick={() => void openReportFile(reportId, B.openError)}
+            >
+              {B.openFile}
+            </Button>
+          }
+        />
+      )}
+      {report.data && !scan && (
+        <ReviewForm key={report.data.id} report={report.data} onClose={onClose} onSaved={() => onSaved('blood')} />
+      )}
     </Dialog>
   );
 }
 
-function ReviewForm({ report, onClose }: { report: LabReport; onClose: () => void }) {
+function ReviewForm({ report, onClose, onSaved }: { report: LabReport; onClose: () => void; onSaved: () => void }) {
   const confirm = useConfirmLabReport();
   const [date, setDate] = useState(report.report_date ?? report.created_at.slice(0, 10));
   const [rows, setRows] = useState<Row[]>(() =>
@@ -135,6 +175,7 @@ function ReviewForm({ report, onClose }: { report: LabReport; onClose: () => voi
         })),
       });
       toast.success(S.saved(result.saved));
+      onSaved();
       onClose();
     } catch (err) {
       toast.error(resolveApiError(err, S.error));

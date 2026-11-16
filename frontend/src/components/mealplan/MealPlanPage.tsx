@@ -205,7 +205,7 @@ export function MealPlanPage() {
                 </Button>
               }
             >
-              {plan.supplements_changed ? S.supplementsChanged : S.stale}
+              {plan.health_changed ? S.healthChanged : plan.supplements_changed ? S.supplementsChanged : S.stale}
             </Alert>
           )}
           {plan.mode_changed && (

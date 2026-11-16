@@ -122,6 +122,7 @@ export const QUERY_KEYS = {
     report: (id: string) => ['lab-reports', 'report', id] as const,
     biomarkers: ['lab-reports', 'biomarkers'] as const,
     catalog: ['lab-reports', 'catalog'] as const,
+    scans: ['lab-reports', 'scans'] as const,
   },
   supplements: {
     all: ['supplements'] as const,

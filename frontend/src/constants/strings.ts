@@ -364,6 +364,8 @@ export const STRINGS = {
         "Exercises that load your injured areas are left out, so some days are shorter (a shoulder injury takes out most pressing and pulling). Ask a physiotherapist which moves are safe for you, and check with them before training through pain.",
       bodyweight_only:
         "Your plan uses bodyweight exercises. Add dumbbells or bands in your profile to unlock more.",
+      body_scan_focus:
+        "Built around your body composition scan: areas that lag behind get dedicated exercises right after the main lifts, with an extra set, and they are never cut for time.",
     },
     quick: {
       title: "Short on time?",
@@ -883,6 +885,8 @@ export const STRINGS = {
     supplementTakenChip: "Taken today",
     takenToday: (names: string) => `Already taken today: ${names}`,
     withMeal: (names: string) => `Take with this meal: ${names}`,
+    healthChanged:
+      "Your lab results changed after this plan was made, so the foods it should use have changed. Make a new plan to match them.",
     supplementsChanged: "Your supplements changed after this plan was made. Make a new plan so your meals account for them.",
     eaten: {
       title: "You had",

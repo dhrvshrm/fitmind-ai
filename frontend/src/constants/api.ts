@@ -245,6 +245,9 @@ export const LAB_REPORT_ENDPOINTS = {
   BIOMARKERS: "/biomarkers",
   CATALOG: "/biomarkers/catalog",
   biomarker: (id: string) => `/biomarkers/${encodeURIComponent(id)}`,
+  confirmScan: (id: string) => `/lab-reports/${encodeURIComponent(id)}/confirm-scan`,
+  SCANS: "/body-scans",
+  scan: (id: string) => `/body-scans/${encodeURIComponent(id)}`,
 } as const;
 
 /** Supplement catalogue and the user's own list. */

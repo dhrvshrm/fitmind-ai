@@ -57,6 +57,43 @@ MOBILITY_ROUTINE = [
     "Cat_Stretch", "Childs_Pose", "Kneeling_Hip_Flexor", "Upper_Back_Stretch", "Shoulder_Stretch",
     "Standing_Hamstring_and_Calf_Stretch", "Side_Neck_Stretch", "Hug_Knees_To_Chest",
 ]
+# Single-arm and single-leg exercises kept for body-scan focus work (an imbalance
+# between sides), so everyday plans keep their two-sided lifts.
+FOCUS_ONLY = {
+    "Concentration_Curls", "Dumbbell_One-Arm_Triceps_Extension", "Tricep_Dumbbell_Kickback",
+    "Cable_One_Arm_Tricep_Extension", "One-Arm_Side_Laterals", "Split_Squat_with_Dumbbells",
+    "Single-Leg_Leg_Extension", "Kettlebell_One-Legged_Deadlift", "Single-Arm_Band_Curl",
+    "Single-Arm_Band_Pushdown",
+}
+# Body-scan focus area -> per session type, the slots that become focus work.
+# A slot the session already has for the same muscle is moved up and marked;
+# otherwise one is added. Focus work comes right after the main lifts, gets an
+# extra set, and is added on top: it never cuts the rest of the session.
+# Later patterns in a slot are for when the first can't be done (no machine,
+# or an injured knee: legs then get glute, hamstring and hinge work).
+FOCUS_SLOTS: Dict[str, Dict[str, List[List[str]]]] = {
+    "arms": {
+        "upper": [["biceps"], ["triceps"]], "push": [["triceps"]], "pull": [["biceps"]],
+        "full": [["biceps"], ["triceps"]],
+    },
+    "legs": {
+        "lower": [["lunge", "glute", "hinge"], ["knee_extension", "lunge", "squat", "knee_flexion", "glute"]],
+        "legs": [["lunge", "glute", "hinge"], ["knee_extension", "lunge", "squat", "knee_flexion", "glute"]],
+        "full": [["lunge", "glute", "hinge"]],
+    },
+    "trunk": {
+        "upper": [["pull_horizontal", "pull_vertical"], ["core"]], "pull": [["pull_horizontal", "pull_vertical"], ["core"]],
+        "push": [["core"]], "lower": [["core"]], "legs": [["core"]], "full": [["core"]],
+    },
+}
+# A focus area worked one side at a time when that limb is unbalanced.
+FOCUS_LIMB = {"arms": "arm", "legs": "leg"}
+FOCUS_EXTRA_SETS = 1
+FOCUS_MAX_SETS = 5
+# Main lifts that stay first in every session, before focus work.
+LEAD_SLOTS = 2
+# Easy conditioning after strength when body fat is high: joint-friendly, steady.
+FINISHER_MINUTES = 12
 # Beginners get time for 3 sets of their main lifts (enough volume to build muscle).
 SESSION_MINUTES = {"beginner": 50, "intermediate": 55, "expert": 60}
 WORK_SECONDS_PER_SET = 45
@@ -76,7 +113,9 @@ class _Picker:
     """Chooses exercises for slots, rotating through options across the week."""
 
     def __init__(self, pool: List[Exercise], level: str, variant: int, loaded: bool = False):
-        self.pool = pool
+        # Everyday slots never get the one-side-at-a-time exercises kept for focus work.
+        self.all = pool
+        self.pool = [e for e in pool if e.id not in FOCUS_ONLY]
         self.level = level
         self.variant = variant
         # When weights are available, loaded versions beat bodyweight ones.
@@ -97,6 +136,25 @@ class _Picker:
         # Weighted first (if weights are available: they can be loaded up week after
         # week), compound, closest level, then name.
         return sorted(candidates, key=lambda e: (*self._tier(e), e.id))
+
+    def focus_pick(self, patterns: Sequence[str], taken: set) -> Optional[Exercise]:
+        """For a focus slot: the usual best pick, else one of the focus-only exercises."""
+        found = self.pick(patterns, taken)
+        if found:
+            return found
+        for pattern in patterns:
+            options = [e for e in self.all if e.coaching.pattern == pattern and e.id not in taken]
+            if options:
+                return sorted(options, key=lambda e: (*self._tier(e), e.id))[0]
+        return None
+
+    def one_side(self, patterns: Sequence[str], taken: set) -> Optional[Exercise]:
+        """The best single-arm or single-leg option for a focus slot, if any."""
+        for pattern in patterns:
+            options = [e for e in self.all if e.coaching.pattern == pattern and e.coaching.per_side and e.id not in taken]
+            if options:
+                return sorted(options, key=lambda e: (*self._tier(e), e.id))[0]
+        return None
 
     def pick(self, patterns: Sequence[str], taken: set) -> Optional[Exercise]:
         """The best option, rotating only among equally good ones.
@@ -152,6 +210,28 @@ def mobility_session(goal: str, level: str, joints: set, count: int = 6, offset:
     return [entry_for(e, goal, level) for e in safe[:count]]
 
 
+def session_slots(session: str, areas: Sequence[str]) -> List[tuple]:
+    """The session's slots as (patterns, focus area or None), focus work after the main lifts."""
+    base: List[tuple] = [(patterns, None) for patterns in SESSIONS[session]]
+    focus: List[tuple] = []
+    for area in areas:
+        for patterns in FOCUS_SLOTS.get(area, {}).get(session, []):
+            # The session's own slot for that muscle becomes the focus slot.
+            same = next((i for i, (p, a) in enumerate(base) if a is None and i >= LEAD_SLOTS and p[0] == patterns[0]), None)
+            if same is not None:
+                base.pop(same)
+            focus.append((patterns, area))
+    return base[:LEAD_SLOTS] + focus + base[LEAD_SLOTS:]
+
+
+def _focus_entry(entry: dict, area: str, side: Optional[str]) -> dict:
+    """Mark focus work: an extra set and, for an unbalanced limb, the side to start with."""
+    marked = {**entry, "focus_area": area, "sets": min(entry["sets"] + FOCUS_EXTRA_SETS, FOCUS_MAX_SETS)}
+    if side and entry.get("per_side"):
+        marked["weaker_side"] = side
+    return marked
+
+
 def build_week(
     *,
     goal: str,
@@ -160,8 +240,18 @@ def build_week(
     injuries: Sequence[str],
     days_per_week: Optional[int],
     variant: int = 0,
+    focus: Optional[dict] = None,
 ) -> dict:
-    """The weekly plan: days with exercises, plus how it was built."""
+    """The weekly plan: days with exercises, plus how it was built.
+
+    ``focus`` comes from the latest body composition scan:
+    ``{"areas": ["arms", "legs", "trunk"], "weaker": {"arm": "left"}, "conditioning": bool, ...}``.
+    Each area gets dedicated exercises in the sessions that train it, and an
+    unbalanced limb is trained one side at a time, weaker side first.
+    """
+    focus = focus or {}
+    areas = [a for a in focus.get("areas", []) if a in FOCUS_SLOTS]
+    weaker = focus.get("weaker") or {}
     level = user_level(experience)
     owned = list(equipment) or ["bodyweight"]
     joints = catalog.injured_joints(injuries)
@@ -194,29 +284,65 @@ def build_week(
             continue
         entries: List[dict] = []
         taken: set = set()
-        for patterns in SESSIONS[session]:
-            exercise = picker.pick(patterns, taken)
+        for patterns, area in session_slots(session, areas):
+            side = weaker.get(FOCUS_LIMB.get(area, "")) if area else None
+            # An unbalanced limb is trained one side at a time; otherwise the usual best pick.
+            if area:
+                exercise = (picker.one_side(patterns, taken) if side else None) or picker.focus_pick(patterns, taken)
+            else:
+                exercise = picker.pick(patterns, taken)
+            if exercise is not None and area and exercise.id == NO_PULL_FALLBACK and "core" in patterns:
+                # Back extensions are kept for the back when there's nothing to pull with;
+                # core focus takes another core exercise if there is one.
+                exercise = picker.focus_pick(patterns, taken | {NO_PULL_FALLBACK}) or exercise
+            if exercise is None and area == "trunk" and set(patterns) & set(PULL):
+                # Nothing to row with (or an injured shoulder): back extensions still train the back.
+                fallback = catalog.get(NO_PULL_FALLBACK)
+                if fallback and catalog.allowed(fallback, owned, joints, level) and fallback.id not in taken:
+                    exercise = fallback
+                else:
+                    # Then a hinge, which trains the back extensors without the shoulder.
+                    exercise = picker.focus_pick(["hinge"], taken)
             if exercise is None and not can_pull and set(patterns) & set(PULL):
                 fallback = catalog.get(NO_PULL_FALLBACK)
                 if fallback and catalog.allowed(fallback, owned, joints, level) and fallback.id not in taken:
                     exercise = fallback
                     if "no_pull_equipment" not in notes:
                         notes.append("no_pull_equipment")
+            if exercise is None and area:
+                # No second option for that muscle: the session's own exercise for it
+                # becomes the focus work (an extra set), so the area is never left out.
+                own = next((i for i, e in enumerate(entries) if not e.get("focus_area") and (
+                    e["pattern"] in patterns or (area == "trunk" and e["exercise_id"] == NO_PULL_FALLBACK))), None)
+                if own is not None:
+                    entries[own] = _focus_entry(entries[own], area, side)
+                continue
             if exercise is None:
                 continue
             taken.add(exercise.id)
             compounds_so_far = sum(1 for e in entries if catalog.get(e["exercise_id"]).mechanic == "compound")
             main_lift = exercise.mechanic == "compound" and compounds_so_far < programming.MAIN_LIFTS_PER_SESSION
             entry = entry_for(exercise, goal, level, main_lift)
-            if entries and _minutes(entries + [entry]) > budget:
+            if area:
+                # Focus work is the point of the session: it is never cut for time.
+                entries.append(_focus_entry(entry, area, side))
+                continue
+            # The session's own time budget counts only its own work; focus work is on top.
+            own = [e for e in entries if not e.get("focus_area")]
+            if own and _minutes(own + [entry]) > budget:
                 break
             entries.append(entry)
-        week.append({"day": day, "workout_type": "strength", "focus": SESSION_LABELS[session], "exercises": entries})
+        day_plan = {"day": day, "workout_type": "strength", "focus": SESSION_LABELS[session], "exercises": entries}
+        if focus.get("conditioning"):
+            day_plan["finisher"] = {"minutes": FINISHER_MINUTES, "gym": "full_gym" in owned}
+        week.append(day_plan)
 
     if joints:
         notes.append("injury_adjusted")
     if not has_weights(owned):
         notes.append("bodyweight_only")
+    if areas or focus.get("conditioning"):
+        notes.append("body_scan_focus")
     return {
         "week": week,
         "meta": {
@@ -229,6 +355,11 @@ def build_week(
             "notes": notes,
             "variant": variant,
             "protected_joints": sorted(joints),
+            # The scan the plan was built around (so a newer scan can flag it).
+            "body_scan": {
+                "id": focus.get("scan_id"), "measured_at": focus.get("measured_at"), "areas": areas,
+                "weaker": weaker, "conditioning": bool(focus.get("conditioning")),
+            } if focus.get("scan_id") else None,
         },
     }
 
@@ -307,7 +438,8 @@ def quick_session(
     level = user_level(experience)
     owned = ["full_gym"] if place == "gym" else [e for e in equipment if e != "full_gym"] or ["bodyweight"]
     joints = catalog.injured_joints(injuries)
-    pool = [e for e in catalog.curated() if e.coaching.pattern != "mobility" and catalog.allowed(e, owned, joints, level)]
+    pool = [e for e in catalog.curated()
+            if e.coaching.pattern != "mobility" and e.id not in FOCUS_ONLY and catalog.allowed(e, owned, joints, level)]
     picker = _Picker(pool, level, variant, loaded=has_weights(owned))
     taken: set = set()
     picks = []

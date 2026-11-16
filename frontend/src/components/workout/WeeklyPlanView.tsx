@@ -17,6 +17,7 @@ import { CloseRounded, HotelRounded } from "@mui/icons-material";
 import { ExerciseCard } from "./ExerciseCard";
 import { SwapExerciseDialog } from "./SwapExerciseDialog";
 import { WarmUpList } from "./WarmUpList";
+import { FinisherNote } from "./FinisherNote";
 import { ExerciseDetailDialog } from "../exercises/ExerciseDetailDialog";
 import { STRINGS } from "../../constants/strings";
 import { getWorkoutTypeMeta } from "../../constants/workout";
@@ -179,6 +180,7 @@ export function WeeklyPlanView({ week, meta }: WeeklyPlanViewProps) {
                     </Reveal>
                   ))}
                   </Box>
+                  {selected.finisher && <FinisherNote finisher={selected.finisher} />}
                 </>
               )}
             </DialogContent>

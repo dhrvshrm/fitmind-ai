@@ -35,8 +35,25 @@ export const reportUploadCardStyles = {
   hiddenInput: {
     display: 'none',
   },
+  kindLabel: {
+    fontWeight: 600,
+    mb: 1,
+  },
+  kinds: {
+    mb: 2,
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+  },
+  kind: {
+    gap: 1,
+    textTransform: 'none',
+    fontWeight: 600,
+  },
   what: {
     mt: 2,
+  },
+  whatNote: {
+    mt: 1,
   },
   whatToggle: {
     mt: 1.5,

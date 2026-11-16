@@ -8,6 +8,7 @@ import {
   PlagiarismRounded,
 } from '@mui/icons-material';
 import toast from 'react-hot-toast';
+import { BODY_SCAN_STRINGS } from '../../../constants/bodyScanStrings';
 import { LAB_REPORT_STRINGS } from '../../../constants/labReportStrings';
 import { useDeleteLabReport, useLabReports } from '../../../hooks/queries/useLabReportQueries';
 import { queryErrorMessage } from '../../../hooks/queries/queryHelpers';
@@ -21,6 +22,7 @@ import { openReportFile } from './openReportFile';
 import { reportsListCardStyles as styles } from './ReportsListCard.styles';
 
 const S = LAB_REPORT_STRINGS.list;
+const B = BODY_SCAN_STRINGS;
 
 type ReportsListCardProps = {
   /** Opens the review step for a report that still needs checking. */
@@ -69,6 +71,7 @@ export function ReportsListCard({ onReview }: ReportsListCardProps) {
                     {name}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" component="p">
+                    {report.kind === 'body_composition' ? `${B.kinds.body_composition} · ` : `${B.kinds.blood} · `}
                     {report.report_date ? S.tested(report.report_date) : S.uploaded(report.created_at)}
                   </Typography>
                   <Stack sx={styles.actions}>
@@ -84,7 +87,7 @@ export function ReportsListCard({ onReview }: ReportsListCardProps) {
                         size="small"
                         color="success"
                         variant="outlined"
-                        label={S.confirmed(report.confirmed_count ?? 0)}
+                        label={report.kind === 'body_composition' ? S.scanSaved : S.confirmed(report.confirmed_count ?? 0)}
                       />
                     )}
                   </Stack>

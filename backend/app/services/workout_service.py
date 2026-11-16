@@ -55,6 +55,8 @@ async def generate_workout_plan(
 
     Each new plan rotates to different exercise choices than the last one.
     """
+    from app.services import body_scan_service
+
     profile = _profile(user, fitness_goal, experience_level, equipment)
     previous = await WorkoutPlan.get_latest_for_user(user.id)
     variant = (previous.meta.get("variant", -1) + 1) if previous and previous.meta else 0
@@ -65,6 +67,8 @@ async def generate_workout_plan(
         injuries=profile["injuries"],
         days_per_week=user.workout_days_per_week,
         variant=variant,
+        # The newest body scan: lagging areas and an unbalanced side get dedicated work.
+        focus=await body_scan_service.latest_training(user.id),
     )
     plan = WorkoutPlan(
         user_id=user.id,
@@ -94,6 +98,17 @@ def _today_entry(plan: Optional[WorkoutPlan]) -> Optional[Dict[str, Any]]:
         return None
     today = DAYS[local_today().weekday()]
     return next((d for d in plan.week if str(d.get("day", "")).lower() == today.lower()), None)
+
+
+async def scan_changed(plan: WorkoutPlan, user: User) -> bool:
+    """True when a body scan newer than the one the plan was built around exists."""
+    from app.services import body_scan_service
+
+    latest = await body_scan_service.latest_training(user.id)
+    if latest is None:
+        return False
+    used = (plan.meta or {}).get("body_scan") or {}
+    return used.get("scan_id", used.get("id")) != latest["scan_id"]
 
 
 def with_warm_ups(week: List[Dict[str, Any]], user: User) -> List[Dict[str, Any]]:
@@ -147,7 +162,8 @@ async def get_today_workout(user: User) -> Dict[str, Any]:
                 "exercises": exercises, "mode": mode, "quick": False, "planned_focus": day.get("focus")}
     exercises = [programming.adjust_for_recovery(e, recovery) for e in exercises]
     session = {**base, "focus": day.get("focus"), "workout_type": day.get("workout_type"),
-               "exercises": exercises, "mode": mode if exercises else "normal", "quick": False}
+               "exercises": exercises, "mode": mode if exercises else "normal", "quick": False,
+               "finisher": day.get("finisher")}
     return with_warm_ups([session], user)[0]
 
 

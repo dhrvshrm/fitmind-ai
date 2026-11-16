@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
+from app.health.body_composition import BodyScan
 from app.health.questionnaire import CONDITION_KEYS
 
 ConsentScope = Literal["health_profile", "health_reports"]
@@ -41,6 +42,14 @@ class BiomarkerValueIn(BaseModel):
     measured_at: Optional[date] = None
     ref_low: Optional[float] = None
     ref_high: Optional[float] = None
+
+
+class BodyScanRequest(BaseModel):
+    """A body composition scan the user checked (or typed in)."""
+
+    scan: BodyScan
+    # Put the scan's body fat (and recent weight) in the profile, so targets use lean mass.
+    use_for_profile: bool = True
 
 
 class ConfirmReportRequest(BaseModel):

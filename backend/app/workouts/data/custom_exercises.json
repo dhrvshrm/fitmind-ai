@@ -1,0 +1,191 @@
+{
+ "_about": "RepEat additions where free-exercise-db has no entry for a standard exercise people need at home or with bands: a band curl and row, and backpack-loaded curls, rows and triceps extensions for training with no equipment (a school bag filled with books is the usual Indian home weight). Same shape as exercises.json; no photos.",
+ "exercises": [
+  {
+   "id": "Band_Biceps_Curl",
+   "name": "Band Biceps Curl",
+   "force": "pull",
+   "level": "beginner",
+   "mechanic": "isolation",
+   "equipment": "bands",
+   "category": "strength",
+   "primary_muscles": [
+    "biceps"
+   ],
+   "secondary_muscles": [
+    "forearms"
+   ],
+   "instructions": [
+    "Stand on the middle of a resistance band, feet hip-width apart, holding an end in each hand, palms facing forward.",
+    "Keeping your elbows at your sides, curl your hands up towards your shoulders.",
+    "Squeeze at the top, then lower slowly against the band's pull."
+   ],
+   "images": []
+  },
+  {
+   "id": "Single-Arm_Band_Curl",
+   "name": "Single-Arm Band Curl",
+   "force": "pull",
+   "level": "beginner",
+   "mechanic": "isolation",
+   "equipment": "bands",
+   "category": "strength",
+   "primary_muscles": [
+    "biceps"
+   ],
+   "secondary_muscles": [
+    "forearms"
+   ],
+   "instructions": [
+    "Stand on one end of a resistance band with the foot on your working side and hold the other end, palm forward.",
+    "Keeping the elbow at your side, curl the hand up towards the shoulder.",
+    "Lower slowly. Finish every rep on one side, then switch."
+   ],
+   "images": []
+  },
+  {
+   "id": "Single-Arm_Band_Pushdown",
+   "name": "Single-Arm Band Pushdown",
+   "force": "push",
+   "level": "beginner",
+   "mechanic": "isolation",
+   "equipment": "bands",
+   "category": "strength",
+   "primary_muscles": [
+    "triceps"
+   ],
+   "secondary_muscles": [],
+   "instructions": [
+    "Anchor a resistance band high (over a door or a hook) and hold one end with one hand.",
+    "With the elbow tucked at your side and bent, push the hand down until the arm is straight.",
+    "Let it rise slowly. Finish every rep on one side, then switch."
+   ],
+   "images": []
+  },
+  {
+   "id": "Band_Seated_Row",
+   "name": "Band Seated Row",
+   "force": "pull",
+   "level": "beginner",
+   "mechanic": "compound",
+   "equipment": "bands",
+   "category": "strength",
+   "primary_muscles": [
+    "middle back"
+   ],
+   "secondary_muscles": [
+    "lats",
+    "biceps",
+    "shoulders"
+   ],
+   "instructions": [
+    "Sit on the floor with legs straight and loop a resistance band around your feet, holding an end in each hand.",
+    "Sit tall and pull the hands towards your lower ribs, squeezing the shoulder blades together.",
+    "Return slowly until the arms are straight, without rounding forward."
+   ],
+   "images": []
+  },
+  {
+   "id": "Kettlebell_Biceps_Curl",
+   "name": "Kettlebell Biceps Curl",
+   "force": "pull",
+   "level": "beginner",
+   "mechanic": "isolation",
+   "equipment": "kettlebells",
+   "category": "strength",
+   "primary_muscles": [
+    "biceps"
+   ],
+   "secondary_muscles": [
+    "forearms"
+   ],
+   "instructions": [
+    "Stand tall holding a kettlebell by the handle in one hand, arm straight, palm forward.",
+    "Keeping the elbow at your side, curl the kettlebell up towards your shoulder.",
+    "Lower slowly. Finish every rep on one side, then switch."
+   ],
+   "images": []
+  },
+  {
+   "id": "Backpack_Curl",
+   "name": "Backpack Curl",
+   "force": "pull",
+   "level": "beginner",
+   "mechanic": "isolation",
+   "equipment": "other",
+   "category": "strength",
+   "primary_muscles": [
+    "biceps"
+   ],
+   "secondary_muscles": [
+    "forearms"
+   ],
+   "instructions": [
+    "Fill a backpack with books or water bottles and hold it by the top loop or a strap in one hand.",
+    "Keeping the elbow at your side, curl it up towards your shoulder.",
+    "Lower slowly. Finish every rep on one side, then switch. Add books as it gets easy."
+   ],
+   "images": []
+  },
+  {
+   "id": "Backpack_Row",
+   "name": "Backpack Row",
+   "force": "pull",
+   "level": "beginner",
+   "mechanic": "compound",
+   "equipment": "other",
+   "category": "strength",
+   "primary_muscles": [
+    "middle back"
+   ],
+   "secondary_muscles": [
+    "lats",
+    "biceps"
+   ],
+   "instructions": [
+    "Fill a backpack with books. Put one hand and knee on a chair or bed, back flat, and hold the bag in the other hand.",
+    "Pull the bag up towards your hip, elbow close to your body, squeezing the shoulder blade back.",
+    "Lower slowly until the arm is straight. Finish every rep on one side, then switch."
+   ],
+   "images": []
+  },
+  {
+   "id": "Backpack_Overhead_Triceps_Extension",
+   "name": "Backpack Overhead Triceps Extension",
+   "force": "push",
+   "level": "beginner",
+   "mechanic": "isolation",
+   "equipment": "other",
+   "category": "strength",
+   "primary_muscles": [
+    "triceps"
+   ],
+   "secondary_muscles": [],
+   "instructions": [
+    "Hold a loaded backpack by its top loop in one hand and press it straight overhead.",
+    "Keeping the upper arm still, lower it behind your head by bending the elbow.",
+    "Straighten the arm back up. Finish every rep on one side, then switch."
+   ],
+   "images": []
+  },
+  {
+   "id": "Backpack_Triceps_Kickback",
+   "name": "Backpack Triceps Kickback",
+   "force": "push",
+   "level": "beginner",
+   "mechanic": "isolation",
+   "equipment": "other",
+   "category": "strength",
+   "primary_muscles": [
+    "triceps"
+   ],
+   "secondary_muscles": [],
+   "images": [],
+   "instructions": [
+    "Hold a loaded backpack by its top loop and support yourself with the other hand on a chair, back flat.",
+    "Lift the upper arm parallel to the floor, elbow bent at 90 degrees.",
+    "Straighten the elbow to push the bag back, then bend it slowly. Finish every rep on one side, then switch."
+   ]
+  }
+ ]
+}

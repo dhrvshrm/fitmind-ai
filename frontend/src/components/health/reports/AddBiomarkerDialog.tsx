@@ -24,7 +24,7 @@ const S = LAB_REPORT_STRINGS.add;
 const C = LAB_REPORT_STRINGS.results.categories;
 
 /** Add one result from a past test by hand: pick the test, type the value. */
-export function AddBiomarkerDialog({ onClose }: { onClose: () => void }) {
+export function AddBiomarkerDialog({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
   const catalog = useBiomarkerCatalog();
   const add = useAddBiomarker();
   const [test, setTest] = useState<CatalogBiomarker | null>(null);
@@ -42,6 +42,7 @@ export function AddBiomarkerDialog({ onClose }: { onClose: () => void }) {
     try {
       await add.mutateAsync({ code: test.code, name: test.name, value: number, unit: test.unit, measured_at: date });
       toast.success(S.saved);
+      onSaved();
       onClose();
     } catch (err) {
       toast.error(resolveApiError(err, S.error));

@@ -232,3 +232,19 @@ def test_confirmed_high_blood_sugar_shapes_meal_plan_rules(client):
 
     flags = asyncio.run(health_profile_service.health_flags(user_id))
     assert {"high_hba1c", "blood_sugar_high"} <= flags
+
+
+def test_a_lab_value_that_changes_the_health_rules_flags_the_meal_plan(client, ai_providers):
+    headers, _ = _consented(client, "labs-plan@example.com")
+    client.post(f"{API}/users/onboarding", headers=headers, json={
+        "age": 30, "gender": "male", "weight_kg": 75, "height_cm": 175, "fitness_goal": "general_fitness",
+        "experience_level": "beginner", "available_equipment": [], "injuries": []})
+    assert client.post(f"{API}/diet-plans", headers=headers).status_code == 200
+    assert client.get(f"{API}/diet-plans/current", headers=headers).json()["data"]["health_changed"] is False
+
+    # High blood sugar changes which foods the plan should use: the plan says so.
+    client.post(f"{API}/biomarkers", headers=headers, json={"name": "HbA1c", "value": 6.8, "unit": "%"})
+    plan = client.get(f"{API}/diet-plans/current", headers=headers).json()["data"]
+    assert plan["health_changed"] is True and plan["stale"] is True
+    fresh = client.post(f"{API}/diet-plans", headers=headers).json()["data"]
+    assert fresh["health_changed"] is False

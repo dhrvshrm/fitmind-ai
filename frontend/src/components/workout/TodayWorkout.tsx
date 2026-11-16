@@ -21,6 +21,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ExerciseLogger } from './ExerciseLogger';
 import { ExerciseDetailDialog } from '../exercises/ExerciseDetailDialog';
 import { WarmUpList } from './WarmUpList';
+import { FinisherNote } from './FinisherNote';
 import { WorkoutCompletion } from './WorkoutCompletion';
 import { useWorkoutTimer } from '../../hooks/useWorkoutTimer';
 import toast from 'react-hot-toast';
@@ -275,6 +276,7 @@ export function TodayWorkout({
                 />
               ))}
             </Box>
+            {today?.finisher && <FinisherNote finisher={today.finisher} />}
 
             <Button
               variant="contained"

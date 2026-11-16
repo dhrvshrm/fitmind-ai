@@ -65,7 +65,7 @@ export const LAB_REPORT_STRINGS = {
   },
 
   upload: {
-    title: 'Upload a lab report',
+    title: 'Upload a report',
     subtitle: 'A PDF or a clear photo of a blood test. You check every value before anything is saved.',
     pick: 'Choose a file',
     drop: 'or drop it here',
@@ -130,6 +130,7 @@ export const LAB_REPORT_STRINGS = {
     needsReview: 'Needs checking',
     review: 'Check values',
     confirmed: (count: number) => (count === 1 ? '1 value saved' : `${count} values saved`),
+    scanSaved: 'Scan saved',
     uploaded: (date: string) => `Uploaded ${fmtDate(date)}`,
     tested: (date: string) => `Test on ${fmtDate(date)}`,
     open: 'Open file',
@@ -193,6 +194,22 @@ export const LAB_REPORT_STRINGS = {
     saved: 'Value saved.',
     required: 'Pick a test and enter its value.',
     error: "Couldn't save the value. Please try again.",
+  },
+
+  updatePrompt: {
+    title: 'Use these results in your plans',
+    blood:
+      'Saved blood results can change your meal plan (for example less sugar when HbA1c is high). Your current plan was made before them. Workouts don’t change with blood results.',
+    body_composition:
+      'Your workout plan can now target what this scan shows, and your meal plan can use your new weight and body fat. Your current plans were made before it.',
+    updateMeals: 'Update meal plan',
+    updateWorkouts: 'Update workout plan',
+    updated: 'Updated',
+    mealsDone: 'Meal plan updated.',
+    workoutsDone: 'Workout plan updated.',
+    error: "Couldn't update the plan. Please try again.",
+    dismiss: 'Not now',
+    note: 'Plans never change on their own; you decide when.',
   },
 
   disclaimer:

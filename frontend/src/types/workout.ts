@@ -25,7 +25,14 @@ export type Exercise = {
   effort?: string;
   /** Progressive overload: last time's sets and what to aim for today. */
   target?: ExerciseTarget;
+  /** Body-scan focus work: the area it targets (gets an extra set, never cut). */
+  focus_area?: 'arms' | 'legs' | 'trunk';
+  /** For an unbalanced limb: the side with less muscle, trained first. */
+  weaker_side?: 'left' | 'right';
 };
+
+/** Easy conditioning after strength when a body scan shows high body fat. */
+export type Finisher = { minutes: number; gym: boolean };
 
 /** One logged set. Bodyweight exercises store a weight of 0. */
 export type SetEntry = {
@@ -85,9 +92,10 @@ export type WorkoutDay = {
   exercises: Exercise[];
   /** Strength days only. */
   warm_up?: WarmUp | null;
+  finisher?: Finisher | null;
 };
 
-export type PlanNoteCode = 'no_pull_equipment' | 'injury_adjusted' | 'bodyweight_only';
+export type PlanNoteCode = 'no_pull_equipment' | 'injury_adjusted' | 'bodyweight_only' | 'body_scan_focus';
 
 /** How the plan was built. */
 export type PlanMeta = {
@@ -100,11 +108,15 @@ export type PlanMeta = {
   notes: PlanNoteCode[];
   variant: number;
   protected_joints: string[];
+  /** The body scan the plan was built around. */
+  body_scan?: { id: string; measured_at: string; areas: string[]; weaker: Record<string, string> } | null;
 };
 
 export type WeeklyPlan = {
   week: WorkoutDay[];
   meta?: PlanMeta | null;
+  /** A body scan was saved after this plan was made. */
+  scan_changed?: boolean;
 };
 
 /** normal, light (fewer sets after poor recovery) or rest (mobility instead). */
@@ -130,6 +142,7 @@ export type TodayWorkout = {
   deload_until?: string | null;
   /** Strength days only. */
   warm_up?: WarmUp | null;
+  finisher?: Finisher | null;
 };
 
 export type QuickPlace = 'home' | 'gym';

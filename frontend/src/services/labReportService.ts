@@ -1,7 +1,15 @@
 import { apiClient } from '../lib/apiClient';
 import { LAB_REPORT_ENDPOINTS } from '../constants/api';
 import type { ApiEnvelope } from '../types/auth';
-import type { BiomarkerGroup, BiomarkerValueIn, CatalogBiomarker, FileLink, LabReport } from '../types/labReports';
+import type { BodyScan, BodyScanRequest, SavedBodyScan } from '../types/bodyScan';
+import type {
+  BiomarkerGroup,
+  BiomarkerValueIn,
+  CatalogBiomarker,
+  FileLink,
+  LabReport,
+  ReportKind,
+} from '../types/labReports';
 
 /** Lab reports and biomarker history. Unwraps the `{ success, message, data }` envelope. */
 export const labReportService = {
@@ -16,10 +24,11 @@ export const labReportService = {
   },
 
   /** Stores the file and returns draft values to check; nothing is saved to history yet. */
-  async upload(file: File, allowAi: boolean): Promise<LabReport> {
+  async upload(file: File, allowAi: boolean, kind: ReportKind = 'blood'): Promise<LabReport> {
     const form = new FormData();
     form.append('file', file, file.name);
     form.append('allow_ai', String(allowAi));
+    form.append('kind', kind);
     const { data } = await apiClient.post<ApiEnvelope<LabReport>>(
       LAB_REPORT_ENDPOINTS.REPORTS,
       form,
@@ -69,5 +78,25 @@ export const labReportService = {
 
   async removeValue(id: string): Promise<void> {
     await apiClient.delete(LAB_REPORT_ENDPOINTS.biomarker(id));
+  },
+
+  /** Saves the body scan values checked from an uploaded printout. */
+  async confirmScan(id: string, body: BodyScanRequest): Promise<SavedBodyScan> {
+    const { data } = await apiClient.post<ApiEnvelope<SavedBodyScan>>(LAB_REPORT_ENDPOINTS.confirmScan(id), body);
+    return data.data;
+  },
+
+  async scans(): Promise<BodyScan[]> {
+    const { data } = await apiClient.get<ApiEnvelope<BodyScan[]>>(LAB_REPORT_ENDPOINTS.SCANS);
+    return data.data;
+  },
+
+  async addScan(body: BodyScanRequest): Promise<SavedBodyScan> {
+    const { data } = await apiClient.post<ApiEnvelope<SavedBodyScan>>(LAB_REPORT_ENDPOINTS.SCANS, body);
+    return data.data;
+  },
+
+  async removeScan(id: string): Promise<void> {
+    await apiClient.delete(LAB_REPORT_ENDPOINTS.scan(id));
   },
 };
