@@ -64,6 +64,10 @@ export type PlanItem = {
   cooking_fat?: CookingFat[];
   /** Mess mode: rough cost of a shelf food, in rupees. */
   cost_inr?: number | null;
+  /** A supplement item: the tracked supplement it is. */
+  user_supplement_id?: string;
+  /** A supplement item already ticked off today. */
+  taken_today?: boolean;
 };
 
 export type PlanMeal = {
@@ -79,6 +83,8 @@ export type PlanMeal = {
   cooking_fat?: { kind: CookingFatKind; tsp: number; estimated?: boolean }[];
   /** Mess mode: a typical mess plate, or foods from the person's shelf. */
   source?: 'mess' | 'shelf';
+  /** Supplements without calories taken with this meal (creatine, vitamins). */
+  supplements?: { id: string; name: string; dose: string; taken_today?: boolean }[];
   /** Mess mode: rough cost of a shelf meal, in rupees. */
   cost_inr?: number;
 };
@@ -158,6 +164,8 @@ export type DietPlan = {
   mess_mode?: boolean;
   /** No training today: the pre-workout snack and workout are left out of the day. */
   rest_day?: { kcal_less: number } | null;
+  /** The supplements tracked have changed since the plan was made. */
+  supplements_changed?: boolean;
   /** Mess mode: the day's shelf extras, in rupees. */
   extras_cost_inr?: number;
   /** True when targets or diet answers changed after the plan was made. */

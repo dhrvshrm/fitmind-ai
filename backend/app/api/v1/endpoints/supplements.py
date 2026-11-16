@@ -1,4 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from typing import Optional
+
+from pydantic import BaseModel, Field
+
+from app.ai.client import AIError
 
 from app.api.v1.endpoints.auth import get_current_user
 from app.api.v1.endpoints.health_profile import crypto_http
@@ -37,6 +42,43 @@ async def supplement_detail(supplement_id: str, current_user: User = Depends(get
     if info is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Supplement not found")
     return {"success": True, "message": "Supplement", "data": info}
+
+
+@router.get("/essentials", response_model=SuccessResponse)
+async def supplement_essentials(
+    budget: int = Query(1000, ge=0, le=20000), current_user: User = Depends(get_current_user)
+) -> dict:
+    """The bare minimum for this person within a monthly budget (rupees): no brands, food first."""
+    try:
+        data = await supplement_service.essentials(current_user.id, budget)
+    except HealthCryptoError as exc:
+        raise crypto_http(exc) from exc
+    return {"success": True, "message": "Your essentials", "data": data}
+
+
+class LabelRequest(BaseModel):
+    product: str = Field(..., min_length=1, max_length=80)
+    # The catalogue supplement being tracked, so the name is read as that product.
+    supplement_id: Optional[str] = Field(None, max_length=60)
+
+
+@router.post("/estimate", response_model=SuccessResponse)
+async def estimate_label(payload: LabelRequest, current_user: User = Depends(get_current_user)) -> dict:
+    """Serving size and macros for a product name, estimated by AI for the person to check."""
+    try:
+        data = await supplement_service.estimate_label(current_user.id, payload.product, payload.supplement_id)
+    except SupplementError as exc:
+        raise _http(exc) from exc
+    except AIError as exc:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                            detail="Couldn't estimate that right now. Fill it in from the label") from exc
+    return {"success": True, "message": "Estimated from the product name", "data": data}
+
+
+@router.get("/routine", response_model=SuccessResponse)
+async def supplement_routine(current_user: User = Depends(get_current_user)) -> dict:
+    """The person's supplements grouped by when in their day they take them."""
+    return {"success": True, "message": "Your routine", "data": await supplement_service.routine(current_user.id)}
 
 
 @router.get("/mine", response_model=SuccessResponse)

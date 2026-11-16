@@ -269,6 +269,12 @@ export const BUDGET_OPTIONS: ChipOption<number>[] = [
   { value: 1000, label: "Over ₹800" },
 ];
 
+/** Where the person lives: Indian diets and prices, or not. */
+export const COUNTRY_OPTIONS: ChipOption<string>[] = [
+  { value: "India", label: "India" },
+  { value: "Other", label: "Outside India" },
+];
+
 export const PANTRY_SUGGESTIONS = [
   "Atta", "Rice", "Dal", "Besan", "Poha", "Suji", "Oats", "Milk", "Curd", "Paneer", "Eggs",
   "Chicken", "Fish", "Soya chunks", "Peanuts", "Seasonal vegetables", "Fruits", "Sprouts",
@@ -364,6 +370,7 @@ export const ONBOARDING_STRINGS = {
       eatsOut: "How often do you eat out or order in?",
       budget: "Rough daily food budget",
       pantry: "What's usually available at home?",
+      country: "Where do you live?",
       openToNew: "Happy to buy a few new ingredients?",
       region: "City or state (optional)",
       regionHint: "Helps suggest foods that are easy to find where you live.",

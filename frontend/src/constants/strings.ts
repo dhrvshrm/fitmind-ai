@@ -879,6 +879,11 @@ export const STRINGS = {
     logged: "Logged today",
     lockedUntilTomorrow: "Logged meals can be changed from tomorrow.",
     loggedToast: "Meal logged.",
+    supplementChip: "Supplement",
+    supplementTakenChip: "Taken today",
+    takenToday: (names: string) => `Already taken today: ${names}`,
+    withMeal: (names: string) => `Take with this meal: ${names}`,
+    supplementsChanged: "Your supplements changed after this plan was made. Make a new plan so your meals account for them.",
     eaten: {
       title: "You had",
       alsoHad: "Also had",

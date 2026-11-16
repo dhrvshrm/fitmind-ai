@@ -214,3 +214,242 @@ def test_account_deletion_includes_supplements(client, mock_db):
     assert client.delete(f"{API}/settings/account", headers=headers).status_code == 200
     for collection in ("user_supplements", "supplement_logs", "meals"):
         assert asyncio.run(mock_db[collection].count_documents({"user_id": user_id})) == 0
+
+
+# --- Coach tools -----------------------------------------------------------------
+def test_the_coach_lists_supplements_and_ticks_one_off_after_confirm(client, ai_providers):
+    from tests.test_coach import say, turn
+
+    headers, _ = _onboard(client, "coachsupps@example.com")
+    client.post(f"{API}/supplements/mine", headers=headers,
+                json={"supplement_id": "creatine_monohydrate", "dose": "5 g", "timing": "any"})
+    ai_providers.gemini = [
+        turn("", ("get_my_supplements", {})),
+        turn("Ready to tick off creatine.", ("mark_supplement_taken", {"name": "creatine"})),
+    ]
+    data = say(client, headers, "I took my creatine")
+    [proposal] = data["proposals"]
+    assert proposal["tool"] == "mark_supplement_taken"
+    assert "supplements" in proposal["invalidates"]
+    mine = client.get(f"{API}/supplements/mine", headers=headers).json()["data"]
+    assert mine[0]["taken_today"] is False  # nothing changes before confirming
+    res = client.post(f"{API}/coach/actions/{proposal['id']}/confirm", headers=headers)
+    assert res.status_code == 200, res.text
+    mine = client.get(f"{API}/supplements/mine", headers=headers).json()["data"]
+    assert mine[0]["taken_today"] is True
+
+
+def test_the_coach_gets_catalogue_facts_not_guesses(client, ai_providers):
+    from tests.test_coach import say, turn
+
+    headers, _ = _onboard(client, "coachinfo@example.com")
+    ai_providers.gemini = [turn("", ("get_supplement_info", {"supplement_id": "vitamin_d3"})), turn("Here you go.")]
+    say(client, headers, "should I take vitamin D?")
+    second_prompt = [c["prompt"] for c in ai_providers.calls if "RepEat's coach" in (c["system"] or "")][-1]
+    assert "typical_dose" in second_prompt and "not a prescription" in second_prompt
+
+
+# --- Reminders -------------------------------------------------------------------
+def test_supplement_reminders_are_pushed_once_and_can_be_turned_off(monkeypatch):
+    from zoneinfo import ZoneInfo
+
+    from app.config.settings import get_settings
+    from app.models import push as push_store
+    from app.services import push_service, reminder_service
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "VAPID_PUBLIC_KEY", "BTestPublicKey")
+    monkeypatch.setattr(settings, "VAPID_PRIVATE_KEY", "test-private-key")
+    monkeypatch.setattr(settings, "VAPID_SUBJECT", "mailto:team@example.com")
+    sent = []
+    monkeypatch.setattr(push_service, "_send_one", lambda sub, payload: sent.append(payload))
+
+    async def scenario():
+        user = User(email="suppremind@example.com", password_hash="x", timezone_name="Asia/Kolkata")
+        await user.save()
+        await push_store.save_subscription(user.id, "https://push.example.com/s/1",
+                                           {"p256dh": "BKey", "auth": "auth"})
+        await supplement_service.add_supplement(user.id, {"supplement_id": "vitamin_d3", "dose": "1000 IU",
+                                                          "timing": "any", "reminder_time": "08:00"})
+        now = datetime(2026, 11, 15, 8, 10, tzinfo=ZoneInfo("Asia/Kolkata"))
+        first = await reminder_service.run_for_user(user, now)
+        again = await reminder_service.run_for_user(user, now)
+        await reminder_service.update_settings(user.id, {"supplements": False})
+        user2 = User(email="suppremind2@example.com", password_hash="x", timezone_name="Asia/Kolkata")
+        await user2.save()
+        await push_store.save_subscription(user2.id, "https://push.example.com/s/2",
+                                           {"p256dh": "BKey", "auth": "auth"})
+        await supplement_service.add_supplement(user2.id, {"supplement_id": "vitamin_d3", "dose": "1000 IU",
+                                                           "timing": "any", "reminder_time": "08:00"})
+        await reminder_service.update_settings(user2.id, {"supplements": False})
+        off = await reminder_service.run_for_user(user2, now)
+        return first, again, off
+
+    first, again, off = asyncio.run(scenario())
+    assert first == 1 and again == 0 and off == 0
+    assert any("Vitamin" in p or "vitamin" in p for p in sent)
+
+
+def test_steroids_hormones_and_drugs_are_never_tracked_but_strength_words_are_fine(client):
+    from app.services.supplement_service import _is_blocked
+
+    for name in ("Testosterone booster", "Dianabol 10mg", "HGH", "Clen", "Ostarine (SARM)", "fat burner pro",
+                 "Trenbolone", "insulin", "BPC-157 peptide", "T3 cutting"):
+        assert _is_blocked(name), name
+    for name in ("Strength protein", "Trend whey", "Creatine monohydrate", "Vitamin D3", "Electrolyte mix",
+                 "Peanut butter protein"):
+        assert not _is_blocked(name), name
+    headers, _ = _onboard(client, "blockedmore@example.com")
+    res = client.post(f"{API}/supplements/mine", headers=headers, json={"name": "Dianabol", "dose": "", "timing": "any"})
+    assert res.status_code == 400 and "doctor" in res.json()["message"]
+
+
+# --- Suggestions come from the person, not from selling --------------------------
+def test_protein_powder_is_only_suggested_when_logged_meals_fall_short():
+    from app.health import supplement_rules as rules
+
+    targets = {"protein": 120}
+    covered = rules.reasons("whey_protein", set(), {}, "muscle_gain", targets, {}, 4, 24,
+                            intake={"avg_protein": 115, "days": 5})
+    short = rules.reasons("whey_protein", set(), {}, "muscle_gain", targets, {}, 4, 24,
+                          intake={"avg_protein": 70, "days": 5})
+    unknown = rules.reasons("whey_protein", set(), {}, "muscle_gain", targets, {}, 4, 24)
+    assert covered == []  # food already covers it: nothing to suggest
+    assert "averaged 70 g" in short[0]
+    assert "Log a few days" in unknown[0]
+
+
+def test_vitamin_d_suggests_a_blood_test_for_indoor_days_without_a_result():
+    from app.health import supplement_rules as rules
+
+    indoor = rules.reasons("vitamin_d3", set(), {}, "maintain", None, {}, 0, None, activity="sedentary")
+    active = rules.reasons("vitamin_d3", set(), {}, "maintain", None, {}, 0, None, activity="very_active")
+    assert "blood test" in indoor[0] and active == []
+
+
+def test_steroids_hormones_and_fat_burners_are_never_tracked(client):
+    headers, _ = _onboard(client, "nosteroids@example.com")
+    for name in ("Trenbolone", "Test booster", "HGH", "Clen", "Fat burner XT", "Insulin"):
+        res = client.post(f"{API}/supplements/mine", headers=headers, json={"name": name})
+        assert res.status_code == 400, name
+        assert "everyday supplements" in res.json()["message"]
+    for name in ("Strength greens", "Trending multivitamin", "Mass gainer"):
+        assert client.post(f"{API}/supplements/mine", headers=headers, json={"name": name}).status_code == 200
+
+
+# --- Essentials: the bare minimum, within a budget, no brands -------------------
+def test_essentials_are_few_relevant_and_within_budget(client):
+    headers, _ = _onboard(client, "essentials@example.com", fitness_goal="muscle_gain", workout_days_per_week=4,
+                          food_preferences={"diet_type": "vegetarian"}, activity_level="sedentary")
+    data = client.get(f"{API}/supplements/essentials?budget=1000", headers=headers).json()["data"]
+    assert 0 < len(data["picks"]) <= 3
+    assert data["total_inr"] <= 1000
+    ids = [p["id"] for p in data["picks"]]
+    assert ids[0] == "creatine_monohydrate"  # cheap, strong evidence, and vegetarians get none from food
+    assert "caffeine" not in ids and "ashwagandha" not in ids
+    for pick in data["picks"]:
+        assert pick["why"] and pick["food_first"] and pick["india_gap"]  # Indian by default
+    # Nothing to spend: food first, nothing picked.
+    zero = client.get(f"{API}/supplements/essentials?budget=0", headers=headers).json()["data"]
+    assert zero["picks"] == [] and zero["later"]
+
+
+def test_essentials_skip_the_india_note_for_other_countries(client):
+    headers, _ = _onboard(client, "abroad@example.com", food_preferences={"diet_type": "vegetarian"})
+    client.put(f"{API}/users/personalisation", headers=headers, json={"food_access": {"country": "Canada"}})
+    data = client.get(f"{API}/supplements/essentials?budget=2000", headers=headers).json()["data"]
+    assert data["india"] is False
+    assert all(p["india_gap"] is None for p in data["picks"] + data["later"])
+
+
+def test_a_product_label_is_estimated_and_checked(client, ai_providers):
+    headers, _ = _onboard(client, "label@example.com")
+    ai_providers.gemini = [
+        # Inconsistent first answer (calories don't add up), then a sensible one.
+        json.dumps({"serving_label": "1 scoop (35 g)", "serving_g": 35, "calories": 400, "protein": 25,
+                    "carbs": 3, "fats": 2, "adds_nutrition": True, "confidence": "medium", "note": ""}),
+        json.dumps({"serving_label": "1 scoop (35 g)", "serving_g": 35, "calories": 130, "protein": 25,
+                    "carbs": 3, "fats": 2, "adds_nutrition": True, "confidence": "medium", "note": ""}),
+    ]
+    res = client.post(f"{API}/supplements/estimate", headers=headers, json={"product": "Some brand whey 2 kg"})
+    assert res.status_code == 200, res.text
+    data = res.json()["data"]
+    assert data["protein"] == 25 and data["estimated"] is True
+    blocked = client.post(f"{API}/supplements/estimate", headers=headers, json={"product": "Trenbolone"})
+    assert blocked.status_code == 400
+
+
+def test_a_brand_name_is_read_as_the_supplement_being_tracked(client, ai_providers):
+    headers, _ = _onboard(client, "typed@example.com")
+    # Creatine: whatever the model says, it carries no calories.
+    ai_providers.gemini = [json.dumps({"serving_label": "5 g", "serving_g": 5, "calories": 20, "protein": 5,
+                                       "carbs": 0, "fats": 0, "adds_nutrition": True, "confidence": "high",
+                                       "note": "", "matches_type": True})]
+    res = client.post(f"{API}/supplements/estimate", headers=headers,
+                      json={"product": "Wellcore", "supplement_id": "creatine_monohydrate"})
+    data = res.json()["data"]
+    assert data["serving_label"] == "5 g" and data["protein"] == 0 and data["adds_nutrition"] is False
+    assert data["type_name"] == "Creatine monohydrate"
+    assert "Creatine monohydrate" in ai_providers.calls[-1]["prompt"]
+    # A creatine product typed into the whey dialog is flagged, not filled.
+    ai_providers.gemini = [json.dumps({"serving_label": "3 g", "serving_g": 3, "calories": 0, "protein": 0,
+                                       "carbs": 0, "fats": 0, "adds_nutrition": False, "confidence": "medium",
+                                       "note": "this is a creatine product", "matches_type": False})]
+    res = client.post(f"{API}/supplements/estimate", headers=headers,
+                      json={"product": "Wellcore creatine 250 g", "supplement_id": "whey_protein"})
+    assert res.json()["data"]["matches_type"] is False
+
+
+# --- Supplements in the meal plan, and when to take them --------------------------
+def test_whey_is_part_of_the_plan_and_shrinks_the_food_around_it(client, ai_providers):
+    headers, _ = _onboard(client, "planwhey@example.com", fitness_goal="muscle_gain", workout_days_per_week=4,
+                          workout_time="early_morning", food_preferences={"diet_type": "vegetarian"})
+    client.post(f"{API}/supplements/mine", headers=headers, json={
+        "supplement_id": "whey_protein", "dose": "1 scoop (30 g)", "timing": "post_workout",
+        "macros_per_serving": {"calories": 120, "protein": 24, "carbs": 3, "fats": 1.5}})
+    client.post(f"{API}/supplements/mine", headers=headers,
+                json={"supplement_id": "creatine_monohydrate", "dose": "5 g", "timing": "post_workout"})
+    plan = client.post(f"{API}/diet-plans", headers=headers).json()["data"]
+    post = next(m for m in plan["meals"] if m.get("workout_role") == "post")
+    whey = [i for i in post["items"] if i["source"] == "supplement"]
+    assert len(whey) == 1 and whey[0]["nutrients"]["protein"] == 24
+    assert [s["name"] for s in post["supplements"]] == ["Creatine monohydrate"]
+    assert plan["stale"] is False
+
+    # Logging that meal ticks the whey off; its protein is counted once.
+    res = client.post(f"{API}/diet-plans/current/meals/{post['id']}/log", headers=headers)
+    assert res.status_code == 200, res.text
+    assert "Whey" not in res.json()["data"]["meal"]["name"]
+    mine = {s["name"]: s for s in client.get(f"{API}/supplements/mine", headers=headers).json()["data"]}
+    assert mine["Whey protein"]["taken_today"] is True
+    today = client.get(f"{API}/nutrition/today", headers=headers).json()["data"]
+    whey_meals = [m for m in today["meals"] if m["name"] == "Whey protein"]
+    assert len(whey_meals) == 1
+
+    # Creatine ticked off on its own: the plan shows it as taken, not as a to-do.
+    client.post(f"{API}/supplements/mine/{mine['Creatine monohydrate']['id']}/taken", headers=headers,
+                json={"taken": True})
+    current = client.get(f"{API}/diet-plans/current", headers=headers).json()["data"]
+    post_now = next(m for m in current["meals"] if m["id"] == post["id"])
+    assert post_now["supplements"][0]["taken_today"] is True
+    assert next(i for i in post_now["items"] if i["source"] == "supplement")["taken_today"] is True
+
+    # Stopping a supplement makes the plan stale (it was made with it).
+    client.delete(f"{API}/supplements/mine/{mine['Creatine monohydrate']['id']}", headers=headers)
+    assert client.get(f"{API}/diet-plans/current", headers=headers).json()["data"]["stale"] is True
+
+
+def test_best_times_group_supplements_into_as_few_steps_as_possible(client):
+    headers, _ = _onboard(client, "routine@example.com", workout_days_per_week=4, workout_time="early_morning")
+    catalog = _catalog(client, headers)
+    assert catalog["creatine_monohydrate"]["suggested_timing"] == "post_workout"
+    assert catalog["whey_protein"]["suggested_timing"] == "post_workout"
+    assert catalog["vitamin_d3"]["suggested_timing"] == "with_lunch"
+    assert "fat-soluble" in catalog["vitamin_d3"]["timing_reason"]
+    for sid, timing in (("creatine_monohydrate", "bedtime"), ("vitamin_d3", "with_lunch")):
+        client.post(f"{API}/supplements/mine", headers=headers, json={"supplement_id": sid, "dose": "", "timing": timing})
+    groups = client.get(f"{API}/supplements/routine", headers=headers).json()["data"]["groups"]
+    by_slot = {g["slot"]: g for g in groups}
+    assert by_slot["lunch"]["items"][0]["name"] == "Vitamin D3" and by_slot["lunch"]["items"][0]["suggestion"] is None
+    creatine = next(i for g in groups for i in g["items"] if i["name"].startswith("Creatine"))
+    assert creatine["suggestion"]["timing"] == "post_workout"  # fold it into the post-workout step

@@ -234,3 +234,15 @@ export const HEALTH_ENDPOINTS = {
   consent: (scope: string) => `/consents/${encodeURIComponent(scope)}`,
   PROFILE: "/health-profile",
 } as const;
+
+/** Supplement catalogue and the user's own list. */
+export const SUPPLEMENT_ENDPOINTS = {
+  CATALOG: "/supplements/catalog",
+  MINE: "/supplements/mine",
+  mine: (id: string) => `/supplements/mine/${encodeURIComponent(id)}`,
+  taken: (id: string) => `/supplements/mine/${encodeURIComponent(id)}/taken`,
+  HISTORY: "/supplements/history",
+  ESSENTIALS: "/supplements/essentials",
+  ROUTINE: "/supplements/routine",
+  ESTIMATE: "/supplements/estimate",
+} as const;

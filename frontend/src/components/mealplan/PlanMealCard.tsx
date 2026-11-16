@@ -1,26 +1,44 @@
-import { useState } from 'react';
-import { Box, Button, Card, Chip, CircularProgress, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { useState } from "react";
+import {
+  Box,
+  Button,
+  Card,
+  Chip,
+  CircularProgress,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import {
   AutorenewRounded,
   CheckCircleRounded,
+  MedicationRounded,
   OpacityRounded,
   RamenDiningRounded,
   ShoppingBasketRounded,
   RestaurantRounded,
   SwapHorizRounded,
   TuneRounded,
-} from '@mui/icons-material';
-import { motion } from 'framer-motion';
-import toast from 'react-hot-toast';
-import { STRINGS } from '../../constants/strings';
-import { MESS_STRINGS } from '../../constants/messStrings';
-import { MEAL_TYPE_OPTIONS } from '../../constants/nutrition';
-import { useLogPlanMeal, useRegeneratePlanMeal } from '../../hooks/queries/useDietPlanQueries';
-import { resolveApiError } from '../../lib/apiClient';
-import { cookingFatText, fastingWarningText, slotLabel } from '../../utils/mealPlan';
-import type { PlanItem, PlanMeal, PlanMealToday } from '../../types/dietPlan';
-import { SwapFoodDialog } from './SwapFoodDialog';
-import { planMealCardStyles as styles } from './PlanMealCard.styles';
+} from "@mui/icons-material";
+import { motion } from "framer-motion";
+import toast from "react-hot-toast";
+import { STRINGS } from "../../constants/strings";
+import { MESS_STRINGS } from "../../constants/messStrings";
+import { MEAL_TYPE_OPTIONS } from "../../constants/nutrition";
+import {
+  useLogPlanMeal,
+  useRegeneratePlanMeal,
+} from "../../hooks/queries/useDietPlanQueries";
+import { resolveApiError } from "../../lib/apiClient";
+import {
+  cookingFatText,
+  fastingWarningText,
+  slotLabel,
+} from "../../utils/mealPlan";
+import type { PlanItem, PlanMeal, PlanMealToday } from "../../types/dietPlan";
+import { SwapFoodDialog } from "./SwapFoodDialog";
+import { planMealCardStyles as styles } from "./PlanMealCard.styles";
 
 const S = STRINGS.mealPlan;
 const F = STRINGS.nutrition.form;
@@ -36,22 +54,37 @@ type PlanMealCardProps = {
 
 type SwapTarget = { item: PlanItem; index: number };
 
+const supplementNames = (list: NonNullable<PlanMeal["supplements"]>) =>
+  list.map((s) => (s.dose ? `${s.name} ${s.dose}` : s.name)).join(", ");
+
 /** One planned meal: its foods and portions, with swap, new option and log actions. */
-export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps) {
+export function PlanMealCard({
+  meal,
+  logged,
+  locked,
+  today,
+}: PlanMealCardProps) {
   const [swapTarget, setSwapTarget] = useState<SwapTarget | null>(null);
   const regenerate = useRegeneratePlanMeal();
   const logMeal = useLogPlanMeal();
   const busy = locked || regenerate.isPending || logMeal.isPending;
+  const toTake = (meal.supplements ?? []).filter((s) => !s.taken_today);
+  const taken = (meal.supplements ?? []).filter((s) => s.taken_today);
   const label = slotLabel(meal.id);
   const Icon = MEAL_TYPE_OPTIONS.find((o) => o.value === meal.meal_type)?.icon;
   // Logged by hand from the food diary (not from this card): what was eaten replaces the plan.
-  const eatenByHand = !logged && today?.status === 'eaten';
+  const eatenByHand = !logged && today?.status === "eaten";
   const done = logged || eatenByHand;
   // Logged from the plan, plus something logged by hand at the same meal (a protein bar).
   const alsoHad = logged && (today?.eaten.length ?? 0) > 0;
   const adjust = done ? null : today?.adjust;
   // The costliest fat in the meal, for "each extra teaspoon adds about ...".
-  const fatKcalPerTsp = Math.max(0, ...meal.items.flatMap((i) => (i.cooking_fat ?? []).map((f) => f.kcal_per_tsp)));
+  const fatKcalPerTsp = Math.max(
+    0,
+    ...meal.items.flatMap((i) =>
+      (i.cooking_fat ?? []).map((f) => f.kcal_per_tsp),
+    ),
+  );
 
   async function handleRegenerate() {
     try {
@@ -65,9 +98,14 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
   async function handleLog() {
     try {
       const result = await logMeal.mutateAsync(meal.id);
-      toast.success(result.xp_earned > 0 ? `${S.loggedToast} ${F.xpToast(result.xp_earned)}` : S.loggedToast);
+      toast.success(
+        result.xp_earned > 0
+          ? `${S.loggedToast} ${F.xpToast(result.xp_earned)}`
+          : S.loggedToast,
+      );
       if (result.leveled_up) toast.success(F.levelUpToast(result.new_level));
-      if (result.fasting_warning) toast(fastingWarningText(result.fasting_warning));
+      if (result.fasting_warning)
+        toast(fastingWarningText(result.fasting_warning));
     } catch (error) {
       toast.error(resolveApiError(error, S.error));
     }
@@ -85,12 +123,22 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
             {meal.time}
           </Typography>
           {meal.workout_role && (
-            <Chip size="small" variant="outlined" color="primary" label={S.workoutRole[meal.workout_role]} />
+            <Chip
+              size="small"
+              variant="outlined"
+              color="primary"
+              label={S.workoutRole[meal.workout_role]}
+            />
           )}
-          {meal.source === 'mess' && (
-            <Chip size="small" variant="outlined" icon={<RamenDiningRounded />} label={MESS_STRINGS.plan.messBadge} />
+          {meal.source === "mess" && (
+            <Chip
+              size="small"
+              variant="outlined"
+              icon={<RamenDiningRounded />}
+              label={MESS_STRINGS.plan.messBadge}
+            />
           )}
-          {meal.source === 'shelf' && (
+          {meal.source === "shelf" && (
             <Chip
               size="small"
               variant="outlined"
@@ -105,7 +153,11 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
           )}
         </Stack>
         <Typography variant="subtitle2" sx={styles.number}>
-          {S.kcal(eatenByHand ? (today?.eaten_totals?.calories ?? 0) : meal.totals.kcal)}
+          {S.kcal(
+            eatenByHand
+              ? (today?.eaten_totals?.calories ?? 0)
+              : meal.totals.kcal,
+          )}
         </Typography>
       </Stack>
 
@@ -134,20 +186,32 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
                 <Typography variant="body2" sx={styles.itemText}>
                   {log.name}
                   {log.eaten_at && (
-                    <Typography component="span" variant="caption" color="text.secondary">
-                      {' '}
+                    <Typography
+                      component="span"
+                      variant="caption"
+                      color="text.secondary"
+                    >
+                      {" "}
                       {S.eaten.at(log.eaten_at)}
                     </Typography>
                   )}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={styles.number}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={styles.number}
+                >
                   {S.kcal(log.calories)}
                 </Typography>
               </Stack>
             ))}
           </Box>
           {eatenByHand && (
-            <Typography variant="caption" color="text.secondary" sx={styles.plannedLabel}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={styles.plannedLabel}
+            >
               {S.eaten.planned}
             </Typography>
           )}
@@ -156,26 +220,49 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
 
       <Box component="ul" sx={eatenByHand ? styles.itemsMuted : styles.items}>
         {meal.items.map((item, index) => (
-          <Stack component="li" key={`${item.food_id}-${index}`} sx={styles.item}>
+          <Stack
+            component="li"
+            key={`${item.food_id}-${index}`}
+            sx={styles.item}
+          >
             <Box sx={styles.itemText}>
               <Typography variant="body2" sx={styles.itemName}>
                 {item.name}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {S.amount(item.quantity, item.unit, item.grams)}
+                {/* A supplement's dose already says how much (1 scoop, 30 g). */}
+                {item.source === "supplement"
+                  ? item.unit
+                  : S.amount(item.quantity, item.unit, item.grams)}
                 {item.cooking_fat && item.cooking_fat.length > 0 && (
                   <Box component="span" sx={styles.fat}>
-                    {' · '}
+                    {" · "}
                     {cookingFatText(item.cooking_fat)}
                   </Box>
                 )}
               </Typography>
             </Box>
-            <Typography variant="body2" color="text.secondary" sx={styles.number}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={styles.number}
+            >
               {S.kcal(item.nutrients.kcal)}
             </Typography>
-            {/* What was eaten today is on record, so a logged meal can't be swapped. */}
-            {!done && (
+            {/* What was eaten today is on record, so a logged meal can't be swapped;
+                a supplement is changed on the Supplements page, not here. */}
+            {item.source === "supplement" && (
+              <Chip
+                size="small"
+                variant="outlined"
+                color={item.taken_today ? "success" : "secondary"}
+                icon={item.taken_today ? <CheckCircleRounded /> : undefined}
+                label={
+                  item.taken_today ? S.supplementTakenChip : S.supplementChip
+                }
+              />
+            )}
+            {!done && item.source !== "supplement" && (
               <Tooltip title={S.swapAria(item.name)}>
                 <span>
                   <IconButton
@@ -193,15 +280,40 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
         ))}
       </Box>
 
+      {/* Still to take with this meal, and what's already been ticked off today. */}
+      {toTake.length > 0 && (
+        <Stack sx={styles.supplements(false)}>
+          <MedicationRounded fontSize="small" sx={styles.supplementsIcon} />
+          <Typography variant="caption">
+            {S.withMeal(supplementNames(toTake))}
+          </Typography>
+        </Stack>
+      )}
+      {taken.length > 0 && (
+        <Stack sx={styles.supplements(true)}>
+          <CheckCircleRounded fontSize="small" sx={styles.supplementsIcon} />
+          <Typography variant="caption">
+            {S.takenToday(supplementNames(taken))}
+          </Typography>
+        </Stack>
+      )}
+
       <Stack sx={styles.footer}>
         <Typography variant="caption" color="text.secondary" sx={styles.number}>
           {S.macros(meal.totals.protein, meal.totals.carbs, meal.totals.fat)}
         </Typography>
         {!eatenByHand && meal.cooking_fat && meal.cooking_fat.length > 0 && (
-          <Tooltip title={S.cookingFat.tip(fatKcalPerTsp, Boolean(meal.cooking_fat.some((f) => f.estimated)))}>
+          <Tooltip
+            title={S.cookingFat.tip(
+              fatKcalPerTsp,
+              Boolean(meal.cooking_fat.some((f) => f.estimated)),
+            )}
+          >
             <Stack sx={styles.fatLine} tabIndex={0}>
               <OpacityRounded fontSize="small" />
-              <Typography variant="caption">{S.cookingFat.meal(cookingFatText(meal.cooking_fat, false))}</Typography>
+              <Typography variant="caption">
+                {S.cookingFat.meal(cookingFatText(meal.cooking_fat, false))}
+              </Typography>
             </Stack>
           </Tooltip>
         )}
@@ -210,9 +322,13 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
             <Typography variant="caption" color="text.secondary">
               {eatenByHand ? S.eaten.hint : S.lockedUntilTomorrow}
             </Typography>
-          ) : meal.source === 'mess' ? (
+          ) : meal.source === "mess" ? (
             // The mess decides the plate: no "different option", just what to take and log.
-            <Typography variant="caption" color="text.secondary" sx={styles.messHint}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={styles.messHint}
+            >
               {MESS_STRINGS.plan.messHint}
             </Typography>
           ) : (
@@ -222,7 +338,13 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
               onClick={handleRegenerate}
               disabled={busy}
               aria-label={S.newOptionAria(label)}
-              startIcon={regenerate.isPending ? <CircularProgress size={16} color="inherit" /> : <AutorenewRounded />}
+              startIcon={
+                regenerate.isPending ? (
+                  <CircularProgress size={16} color="inherit" />
+                ) : (
+                  <AutorenewRounded />
+                )
+              }
             >
               {S.newOption}
             </Button>
@@ -231,11 +353,13 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
             <motion.div
               initial={{ scale: 0.6, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 420, damping: 20 }}
+              transition={{ type: "spring", stiffness: 420, damping: 20 }}
             >
               <Stack sx={styles.logged}>
                 <CheckCircleRounded fontSize="small" />
-                <Typography variant="body2">{eatenByHand ? S.eaten.badge : S.logged}</Typography>
+                <Typography variant="body2">
+                  {eatenByHand ? S.eaten.badge : S.logged}
+                </Typography>
               </Stack>
             </motion.div>
           ) : (
@@ -244,7 +368,11 @@ export function PlanMealCard({ meal, logged, locked, today }: PlanMealCardProps)
               variant="contained"
               onClick={handleLog}
               disabled={busy}
-              startIcon={logMeal.isPending ? <CircularProgress size={16} color="inherit" /> : null}
+              startIcon={
+                logMeal.isPending ? (
+                  <CircularProgress size={16} color="inherit" />
+                ) : null
+              }
             >
               {S.logMeal}
             </Button>

@@ -8,6 +8,7 @@ import {
   VerifiedRounded,
 } from '@mui/icons-material';
 import { STRINGS } from '../../constants/strings';
+import { SUPPLEMENT_STRINGS } from '../../constants/supplementStrings';
 import { ACTIVITY_STRINGS } from '../../constants/activityStrings';
 import { INDIA_FIRST_STRINGS } from '../../constants/indiaFirstStrings';
 import type { ItemSource, MealSource } from '../../types/nutrition';
@@ -43,6 +44,7 @@ const ITEM_BADGES: Record<ItemSource, BadgeConfig> = {
     icon: VerifiedRounded,
     tooltip: ACTIVITY_STRINGS.source.tooltip,
   },
+  supplement: { label: SUPPLEMENT_STRINGS.sourceBadge, tone: 'default', icon: EditRounded },
 };
 
 const MEAL_BADGES: Record<MealSource, BadgeConfig> = {

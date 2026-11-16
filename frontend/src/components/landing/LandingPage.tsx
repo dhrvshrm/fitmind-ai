@@ -10,11 +10,12 @@ import { LandingFooter } from './LandingFooter';
 import { LandingNav } from './LandingNav';
 import { PgSection } from './PgSection';
 import { PromisesPage } from './PromisesPage';
+import { SupplementsSection } from './SupplementsSection';
 import { landingPageStyles as styles } from './LandingPage.styles';
 
 /**
  * The public front door, read like a notebook: a masthead, one working day
- * with FitMind, life in a PG or hostel, a page of promises, questions, and
+ * with RepEat, life in a PG or hostel, supplements on a budget, a page of promises, questions, and
  * a closing line. Someone
  * already signed in goes straight to their day.
  */
@@ -29,6 +30,7 @@ export function LandingPage() {
         <HeroMasthead />
         <DayTimeline />
         <PgSection />
+        <SupplementsSection />
         <PromisesPage />
         <FaqColumns />
         <ClosingNote />

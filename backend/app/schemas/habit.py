@@ -34,5 +34,6 @@ class ReminderSettingsUpdate(BaseModel):
     workout: Optional[bool] = None
     water: Optional[bool] = None
     comeback: Optional[bool] = None
+    supplements: Optional[bool] = None
     workout_time: Optional[str] = Field(None, max_length=5)
     water_time: Optional[str] = Field(None, max_length=5)

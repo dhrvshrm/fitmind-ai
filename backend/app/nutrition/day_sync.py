@@ -113,7 +113,7 @@ def sync_day(
     extras: List[dict] = []
     taken = set(plan_logs)
     for log in logs:
-        if log["id"] in used:
+        if log["id"] in used or log.get("supplement"):
             continue
         same_type = [m for m in meals if log.get("meal_type") and m.get("meal_type") == log["meal_type"]]
         candidates = same_type if log.get("meal_type") else meals
@@ -130,8 +130,14 @@ def sync_day(
     target_protein = float(targets.get("protein") or 0)
 
     open_meals = [m for m in meals if m["id"] not in plan_logs and not eaten[m["id"]]]
-    planned_kcal = sum(m["totals"]["kcal"] for m in open_meals)
-    planned_protein = sum(m["totals"]["protein"] for m in open_meals)
+    # A supplement already ticked off today is eaten: don't plan it again.
+    taken = {s for log in logs for s in log.get("supplement_ids", [])}
+
+    def still_planned(meal: dict, key: str) -> float:
+        return sum(i["nutrients"][key] for i in meal["items"] if i.get("user_supplement_id") not in taken)
+
+    planned_kcal = sum(still_planned(m, "kcal") for m in open_meals)
+    planned_protein = sum(still_planned(m, "protein") for m in open_meals)
     left_kcal = target_kcal - eaten_kcal
     factor = 1.0
     if open_meals and planned_kcal > 0 and logs:

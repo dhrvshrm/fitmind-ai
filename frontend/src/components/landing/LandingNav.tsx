@@ -12,6 +12,7 @@ const N = LANDING_STRINGS.nav;
 const LINKS = [
   { id: 'day', label: N.day },
   { id: 'pg', label: N.pg },
+  { id: 'supplements', label: N.supplements },
   { id: 'promises', label: N.promises },
   { id: 'faq', label: N.faq },
 ] as const;

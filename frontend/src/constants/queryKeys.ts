@@ -116,4 +116,12 @@ export const QUERY_KEYS = {
     consents: ['health', 'consents'] as const,
     profile: ['health', 'profile'] as const,
   },
+  supplements: {
+    all: ['supplements'] as const,
+    catalog: ['supplements', 'catalog'] as const,
+    mine: ['supplements', 'mine'] as const,
+    history: (days: number) => ['supplements', 'history', days] as const,
+    essentials: (budget: number) => ['supplements', 'essentials', budget] as const,
+    routine: ['supplements', 'routine'] as const,
+  },
 } as const;

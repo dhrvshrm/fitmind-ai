@@ -11,10 +11,13 @@ logged snack whose item says it came from a supplement.
 """
 import json
 import logging
+import re
 from datetime import datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
+
+from pydantic import BaseModel, Field, model_validator
 
 from app.health import supplement_rules
 from app.models import audit
@@ -66,9 +69,18 @@ def catalog_entry(supplement_id: str) -> Optional[dict]:
     return next((s for s in _catalog()["supplements"] if s["id"] == supplement_id), None)
 
 
+def _normal(text: str) -> str:
+    return " " + re.sub(r"[^a-z0-9]+", " ", text.lower()).strip() + " "
+
+
 def _is_blocked(name: str) -> bool:
-    lowered = name.lower()
-    return any(word.lower() in lowered for word in _catalog()["blocked"])
+    """Steroids, hormones, SARMs and drugs are never tracked.
+
+    Whole words only, so "clen" blocks clenbuterol talk but "strength" or
+    "trend" never trip a short word.
+    """
+    text = _normal(name)
+    return any(_normal(word) in text for word in _catalog()["blocked"])
 
 
 async def _context(user: User) -> Dict[str, Any]:
@@ -82,12 +94,35 @@ async def _context(user: User) -> Dict[str, Any]:
     return {
         "flags": flags,
         "latest": latest,
+        "intake": await _recent_protein(user.id),
+        "activity": user.activity_level,
         "prefs": user.food_preferences or {},
         "goal": user.fitness_goal,
         "targets": user.targets,
         "age": user.age,
         "workout_days": user.workout_days_per_week,
+        "trains": bool(user.workout_days_per_week),
     }
+
+
+# Recent eating, for "do you actually need protein powder": days with at least
+# this many meals in the last week (today excluded, it isn't over yet).
+INTAKE_DAYS = 7
+INTAKE_MIN_MEALS = 2
+INTAKE_MIN_DAYS = 3
+
+
+async def _recent_protein(user_id: str) -> Optional[Dict[str, float]]:
+    """Average logged protein on recent full days, or None without enough logging."""
+    from app.services import nutrition_service
+
+    today = local_today()
+    start = (today - timedelta(days=INTAKE_DAYS)).isoformat()
+    days = [d for d in await nutrition_service.get_nutrition_history(user_id, INTAKE_DAYS * 2)
+            if start <= d["date"] < today.isoformat() and d["meals_logged"] >= INTAKE_MIN_MEALS]
+    if len(days) < INTAKE_MIN_DAYS:
+        return None
+    return {"avg_protein": sum(d["protein"] for d in days) / len(days), "days": len(days)}
 
 
 def _personalise(entry: dict, ctx: Dict[str, Any]) -> dict:
@@ -95,14 +130,17 @@ def _personalise(entry: dict, ctx: Dict[str, Any]) -> dict:
     flags = supplement_rules.safety_flags(entry["id"], ctx["flags"], ctx["prefs"], ctx["age"])
     why = supplement_rules.reasons(
         entry["id"], ctx["flags"], ctx["prefs"], ctx["goal"], ctx["targets"], ctx["latest"],
-        ctx["workout_days"], macros.get("protein"),
+        ctx["workout_days"], macros.get("protein"), ctx["intake"], ctx["activity"],
     )
+    timing, timing_reason = supplement_rules.suggested_timing(entry["id"], ctx.get("trains", False))
     return {
         **entry,
         "safety_flags": flags,
         "reasons": why,
         "relevant": bool(why),
         "doctor_first": any(f["severity"] == supplement_rules.DOCTOR_FIRST for f in flags),
+        "suggested_timing": timing,
+        "timing_reason": timing_reason,
     }
 
 
@@ -166,7 +204,10 @@ async def add_supplement(user_id: str, data: Dict[str, Any]) -> dict:
     if not name:
         raise SupplementError("Give the supplement a name")
     if _is_blocked(name):
-        raise SupplementError("We can't track this product. Please talk to a doctor about it")
+        raise SupplementError(
+            "RepEat only tracks everyday supplements. Steroids, hormones, SARMs, fat burners and "
+            "weight-loss drugs can seriously harm your body; please talk to a doctor instead"
+        )
     if len(await model.list_active(user_id)) >= MAX_SUPPLEMENTS:
         raise SupplementError(f"You can track up to {MAX_SUPPLEMENTS} supplements")
     macros = data.get("macros_per_serving")
@@ -329,3 +370,195 @@ async def due_supplement_reminders(user: User, now: datetime,
                 "url": "/health?tab=supplements",
             })
     return due
+
+
+
+# ---------------------------------------------------------------------------
+# Essentials: the bare minimum for this person, within their budget
+# ---------------------------------------------------------------------------
+MAX_ESSENTIALS = 3
+# Order when several fit: a confirmed deficiency first, then cheap with strong
+# evidence, then expensive ones (protein powder only when meals fall short).
+ESSENTIAL_ORDER = ["creatine_monohydrate", "vitamin_d3", "vitamin_b12", "whey_protein", "plant_protein",
+                   "omega_3", "magnesium", "calcium", "electrolytes", "iron", "multivitamin"]
+# Training aids and herbs are never "essential".
+NOT_ESSENTIAL = {"caffeine", "ashwagandha"}
+
+
+def _is_india(country: Optional[str]) -> bool:
+    return (country or "India").strip().lower() in ("india", "in", "bharat")
+
+
+def _essential_item(entry: dict, india: bool) -> dict:
+    return {
+        "id": entry["id"],
+        "name": entry["name"],
+        "why": entry["reasons"][0] if entry["reasons"] else "",
+        "default_dose": entry.get("default_dose", ""),
+        "monthly_cost_inr": entry.get("monthly_cost_inr", 0),
+        "india_gap": entry.get("india_gap") if india else None,
+        "food_first": entry.get("food_first", ""),
+    }
+
+
+async def essentials(user_id: str, budget_inr: int) -> Dict[str, Any]:
+    """At most three supplements that fit this person and their monthly budget.
+
+    Unbiased by design: no brands, generic types only, nothing that isn't
+    relevant to their own body, diet, training or results; food is always
+    offered first. Anything needing a doctor's go-ahead is listed apart.
+    """
+    user = await _user(user_id)
+    ctx = await _context(user)
+    india = _is_india((user.food_access or {}).get("country"))
+    relevant = [_personalise(e, ctx) for e in catalog_entries() if e["id"] not in NOT_ESSENTIAL]
+    relevant = [e for e in relevant if e["relevant"]]
+    ask_doctor = [e for e in relevant if e["doctor_first"]]
+    candidates = [e for e in relevant if not e["doctor_first"]]
+
+    def rank(entry: dict) -> tuple:
+        confirmed = any("confirmed" in r for r in entry["reasons"])
+        order = ESSENTIAL_ORDER.index(entry["id"]) if entry["id"] in ESSENTIAL_ORDER else len(ESSENTIAL_ORDER)
+        return (not confirmed, order)
+
+    picks, later, spent = [], [], 0
+    for entry in sorted(candidates, key=rank):
+        cost = entry.get("monthly_cost_inr", 0)
+        if len(picks) < MAX_ESSENTIALS and spent + cost <= budget_inr:
+            picks.append(_essential_item(entry, india))
+            spent += cost
+        else:
+            later.append(_essential_item(entry, india))
+    return {
+        "budget_inr": budget_inr,
+        "india": india,
+        "picks": picks,
+        "later": later,
+        "ask_doctor": [_essential_item(e, india) for e in ask_doctor],
+        "total_inr": spent,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Label estimate: dose and macros from a product name (AI, checked)
+# ---------------------------------------------------------------------------
+class LabelEstimate(BaseModel):
+    serving_label: str = Field(..., max_length=60)
+    serving_g: float = Field(..., ge=0, le=200)
+    calories: float = Field(..., ge=0, le=1000)
+    protein: float = Field(..., ge=0, le=100)
+    carbs: float = Field(..., ge=0, le=150)
+    fats: float = Field(..., ge=0, le=60)
+    adds_nutrition: bool
+    confidence: Literal["high", "medium", "low"]
+    note: str = Field("", max_length=200)
+    # False when the named product is clearly a different kind of supplement.
+    matches_type: bool = True
+
+    @model_validator(mode="after")
+    def _consistent(self) -> "LabelEstimate":
+        if self.serving_g and self.protein + self.carbs + self.fats > self.serving_g * 1.05:
+            raise ValueError("macros weigh more than the serving")
+        energy = 4 * self.protein + 4 * self.carbs + 9 * self.fats
+        if self.calories > 20 and abs(energy - self.calories) > max(25, self.calories * 0.3):
+            raise ValueError("calories don't match the macros")
+        return self
+
+
+TYPED_LABEL_PROMPT = (
+    "The person is tracking {kind}. Their product is \"{product}\" (a brand, or a brand and product name), "
+    "sold in India. Give the label of that brand's {kind}: one serving as the label states it "
+    "(serving_label like '1 scoop (35 g)', '5 g' or '1 capsule'), its weight in grams, and calories, protein, "
+    "carbs and fats per serving. {macros_rule} "
+    "Set matches_type false only if the named product is clearly a different kind of supplement than {kind} "
+    "(say which in note). If you don't know this brand's {kind}, use typical values for {kind} and set "
+    "confidence low."
+)
+CALORIE_FREE_RULE = "It carries no meaningful calories: all macros 0 and adds_nutrition false."
+CALORIE_RULE = "adds_nutrition is true: it carries calories and protein."
+
+LABEL_PROMPT = (
+    "Estimate the label of this supplement product sold in India: \"{product}\". "
+    "Give one serving as the label states it (serving_label like '1 scoop (35 g)' or '1 capsule'), "
+    "its weight in grams, and calories, protein, carbs and fats per serving. "
+    "adds_nutrition is true only for products that carry real calories (protein powders, gainers). "
+    "Vitamins, minerals, creatine and capsules: all macros 0 and adds_nutrition false. "
+    "If you don't know this exact product, use typical values for its type and set confidence low."
+)
+
+
+async def estimate_label(user_id: str, product: str, supplement_id: Optional[str] = None) -> dict:
+    """Serving and macros for a named product, as an estimate the person can edit.
+
+    Raises:
+        SupplementError: for a blocked product (steroids, hormones, drugs).
+    """
+    product = product.strip()
+    if not product:
+        raise SupplementError("Type the product name")
+    if _is_blocked(product):
+        raise SupplementError(
+            "RepEat only tracks everyday supplements. Steroids, hormones, SARMs, fat burners and "
+            "weight-loss drugs can seriously harm your body; please talk to a doctor instead"
+        )
+    from app.ai import client as ai_client
+
+    # Read the name as the supplement being tracked: "Wellcore" while adding
+    # creatine means Wellcore's creatine, not their whey.
+    entry = catalog_entry(supplement_id) if supplement_id else None
+    calorie_free = bool(entry) and entry["category"] != "protein"
+    if entry:
+        prompt = TYPED_LABEL_PROMPT.format(
+            kind=entry["name"], product=product[:80],
+            macros_rule=CALORIE_FREE_RULE if calorie_free else CALORIE_RULE,
+        )
+    else:
+        prompt = LABEL_PROMPT.format(product=product[:80])
+    result = await ai_client.generate_json(
+        prompt, LabelEstimate, user_id=user_id, retries=2,
+        cache_key=f"supplement-label:{supplement_id or 'any'}:{product.lower()[:80]}",
+    )
+    data = result.model_dump()
+    if calorie_free:
+        # Creatine, vitamins and minerals never add calories, whatever the model says.
+        data.update(calories=0, protein=0, carbs=0, fats=0, adds_nutrition=False)
+    return {**data, "estimated": True, "type_name": entry["name"] if entry else None}
+
+
+
+# ---------------------------------------------------------------------------
+# Daily routine: everything taken, grouped by when in the person's day
+# ---------------------------------------------------------------------------
+async def routine(user_id: str) -> Dict[str, Any]:
+    """The person's supplements grouped by the plan meal they go with, in day order.
+
+    Each item says if a better time would fold it into a step they already take
+    (creatine with the post-workout protein), to save time.
+    """
+    from app.nutrition import meal_planner, plan_supplements
+
+    user = await _user(user_id)
+    items = await list_user_supplements(user_id)
+    trains = bool(user.workout_days_per_week)
+    meals = meal_planner.plan_slots(user.lifestyle, user.workout_time, trains)
+    labels = {"pre_workout": "Before training", "breakfast": "Breakfast", "mid_morning": "Mid-morning",
+              "lunch": "Lunch", "evening_snack": "Evening snack", "dinner": "Dinner", "bedtime": "Before bed",
+              "sehri": "Sehri", "iftar": "Iftar", "post_iftar": "After iftar"}
+    groups: Dict[str, dict] = {}
+    for item in items:
+        slot = plan_supplements.slot_for(item, meals)
+        if slot is None:
+            continue
+        meal = next(m for m in meals if m["id"] == slot)
+        group = groups.setdefault(slot, {
+            "slot": slot, "label": labels.get(slot, slot.replace("_", " ").capitalize()),
+            "time": meal["time"], "after_training": meal.get("workout_role") == "post", "items": [],
+        })
+        best, why = supplement_rules.suggested_timing(item.get("supplement_id") or "", trains)
+        better = None
+        if item.get("supplement_id") != CUSTOM_ID and best != (item.get("timing") or "any"):
+            better = {"timing": best, "why": why}
+        group["items"].append({"id": item["id"], "name": item["name"], "dose": item.get("dose") or "",
+                               "taken_today": item["taken_today"], "suggestion": better})
+    order = [m["id"] for m in meals]
+    return {"groups": sorted(groups.values(), key=lambda g: order.index(g["slot"]))}
