@@ -12,6 +12,7 @@ import { ConsentCard } from './ConsentCard';
 import { HealthProfileForm } from './HealthProfileForm';
 import { PlanEffectsCard } from './PlanEffectsCard';
 import { PrivacyCard } from './PrivacyCard';
+import { ReportsTab } from './reports/ReportsTab';
 import { SupplementsTab } from './supplements/SupplementsTab';
 import { healthPageStyles as styles } from './HealthPage.styles';
 
@@ -44,8 +45,8 @@ function ProfileTab() {
 }
 
 /**
- * Health: the health profile and supplements, as tabs. The tab is in the URL
- * (/health?tab=supplements) so a supplement reminder opens it directly.
+ * Health: the health profile, lab reports and supplements, as tabs. The tab
+ * is in the URL (/health?tab=supplements) so a supplement reminder opens it directly.
  */
 export function HealthPage() {
   const [params, setParams] = useSearchParams();
@@ -64,7 +65,9 @@ export function HealthPage() {
           <Tab key={key} value={key} label={T[key]} />
         ))}
       </Tabs>
-      {tab === 'profile' ? <ProfileTab /> : <SupplementsTab />}
+      {tab === 'profile' && <ProfileTab />}
+      {tab === 'reports' && <ReportsTab />}
+      {tab === 'supplements' && <SupplementsTab />}
       <Box sx={styles.disclaimer}>
         <InfoOutlined fontSize="small" sx={styles.disclaimerIcon} />
         <Typography variant="caption" color="text.secondary">

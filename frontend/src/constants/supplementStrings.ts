@@ -10,6 +10,7 @@ export const SUPPLEMENT_STRINGS = {
   sourceBadge: 'From your supplement label',
   tabs: {
     profile: 'Health profile',
+    reports: 'Lab reports',
     supplements: 'Supplements',
     aria: 'Health sections',
   },

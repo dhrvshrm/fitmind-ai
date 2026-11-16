@@ -168,6 +168,7 @@ export const LANDING_STRINGS = {
       'Sell your data. Health details are encrypted and deleted with your account.',
       'Push supplements on you. No brands, no paid picks, and food comes first.',
       'Pretend to be your doctor. For medical conditions, talk to one.',
+      'Save a lab value you have not checked. AI can read a report, but only you confirm what is kept.',
     ],
     signature: 'the RepEat team',
   },
@@ -200,6 +201,10 @@ export const LANDING_STRINGS = {
       {
         q: 'I have diabetes, thyroid or high BP.',
         a: 'Add it to your health profile, only if you want to. Meal plans adjust (less sugar or salt, for example) and your AI coach keeps it in mind. It is never a diagnosis, and it is encrypted and yours to delete.',
+      },
+      {
+        q: 'Can I upload my blood test report?',
+        a: 'Yes. Upload a PDF or a photo of a blood test from any lab: a full body checkup, lipid profile, thyroid profile, HbA1c, vitamin D or B12. RepEat reads values like HbA1c, cholesterol, TSH, haemoglobin and vitamin D, and you check every one before it is saved. Saved results shape your meal plan and supplement suggestions, and you can see them over time. Files are private and you can delete them any time.',
       },
       {
         q: 'What if I eat something that is not in the plan?',

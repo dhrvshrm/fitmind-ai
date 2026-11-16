@@ -37,5 +37,5 @@ export const BUDGET_STORAGE_KEY = 'repeat-supplement-budget';
 
 /** URL search parameter for the Health page tab (push reminders open ?tab=supplements). */
 export const HEALTH_TAB_PARAM = 'tab';
-export const HEALTH_TABS = ['profile', 'supplements'] as const;
+export const HEALTH_TABS = ['profile', 'reports', 'supplements'] as const;
 export type HealthTab = (typeof HEALTH_TABS)[number];
