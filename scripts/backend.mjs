@@ -1,7 +1,7 @@
 // Runs the FastAPI backend from backend/venv, creating the venv on first run.
 // Pass --install to (re)install requirements without starting the server.
 import { existsSync } from 'node:fs'
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import { join } from 'node:path'
 
 const isWindows = process.platform === 'win32'
@@ -26,6 +26,33 @@ if (!existsSync(venvPython)) {
   installRequirements()
 }
 
+// Restart the server if it stops on its own: uvicorn's reloader can exit on
+// Windows when many files change at once, and with `concurrently -k` that
+// would take the frontend down too. Ctrl+C and `concurrently` still stop it.
+const RESTART_DELAY_MS = 2000
+
+function serve() {
+  let stopping = false
+  let child
+
+  const stop = (signal) => {
+    stopping = true
+    if (child && child.exitCode === null) child.kill(signal)
+  }
+  process.on('SIGINT', () => stop('SIGINT'))
+  process.on('SIGTERM', () => stop('SIGTERM'))
+
+  const start = () => {
+    child = spawn(venvPython, ['main.py'], { cwd: backendDir, stdio: 'inherit' })
+    child.on('exit', (code, signal) => {
+      if (stopping || code === 0) process.exit(code ?? 0)
+      console.log(`[backend] stopped (${signal ?? `exit ${code}`}); restarting in ${RESTART_DELAY_MS / 1000}s`)
+      setTimeout(() => !stopping && start(), RESTART_DELAY_MS)
+    })
+  }
+  start()
+}
+
 if (!process.argv.includes('--install')) {
-  run(venvPython, ['main.py'])
+  serve()
 }
