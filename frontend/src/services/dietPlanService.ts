@@ -3,6 +3,7 @@ import { DIET_PLAN_ENDPOINTS } from '../constants/api';
 import type { ApiEnvelope } from '../types/auth';
 import type { DietPlan, PlanItem, PlanMealLogResult, PlanSlot } from '../types/dietPlan';
 import type { FastingMode, FastingModePayload, FastingModesData, GroceryList } from '../types/indiaFirst';
+import type { Craving, TreatLogResult, TreatOptions } from '../types/treat';
 
 /** Meal plan API. Unwraps the backend `{ success, message, data }` envelope. */
 export const dietPlanService = {
@@ -71,5 +72,17 @@ export const dietPlanService = {
 
   async removeFastingMode(id: string): Promise<void> {
     await apiClient.delete(DIET_PLAN_ENDPOINTS.fastingMode(id));
+  },
+
+  async treats(craving: Craving): Promise<TreatOptions> {
+    const { data } = await apiClient.get<ApiEnvelope<TreatOptions>>(DIET_PLAN_ENDPOINTS.TREATS, {
+      params: { craving },
+    });
+    return data.data;
+  },
+
+  async logTreat(treatId: string): Promise<TreatLogResult> {
+    const { data } = await apiClient.post<ApiEnvelope<TreatLogResult>>(DIET_PLAN_ENDPOINTS.logTreat(treatId), {});
+    return data.data;
   },
 };

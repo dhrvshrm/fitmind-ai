@@ -5,6 +5,7 @@ import { userService } from '../../services/userService';
 import type { DietPlan, PlanSlot } from '../../types/dietPlan';
 import type { FastingModePayload, ShiftTimesPayload } from '../../types/indiaFirst';
 import type { MessSetup } from '../../types/mess';
+import type { Craving } from '../../types/treat';
 import { useInvalidate } from './queryHelpers';
 
 export function useDietPlan() {
@@ -121,5 +122,30 @@ export function useSaveMessSetup() {
       setPlan(plan);
       return invalidate(QUERY_KEYS.profile.all);
     },
+  });
+}
+
+/** Lighter options for a craving that suit the person, with today's room and this week's count. */
+export function useTreats(craving: Craving | null) {
+  return useQuery({
+    queryKey: QUERY_KEYS.dietPlan.treats(craving ?? ''),
+    queryFn: () => dietPlanService.treats(craving as Craving),
+    enabled: craving !== null,
+  });
+}
+
+/** Logs a treat as a meal; the plan's portion hints, nutrition and XP all refresh. */
+export function useLogTreat() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: (treatId: string) => dietPlanService.logTreat(treatId),
+    onSuccess: () =>
+      invalidate(
+        QUERY_KEYS.dietPlan.current,
+        QUERY_KEYS.dietPlan.treatsRoot,
+        QUERY_KEYS.nutrition.all,
+        QUERY_KEYS.dashboard.all,
+        QUERY_KEYS.gamification.all,
+      ),
   });
 }

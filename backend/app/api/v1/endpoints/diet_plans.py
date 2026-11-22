@@ -3,14 +3,16 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.api.v1.endpoints.auth import get_current_user
+from app.api.v1.endpoints.nutrition import _logged_response
 from app.models.user import User
 from app.nutrition import grocery
-from app.schemas.diet_plan import SwapRequest
+from app.schemas.diet_plan import SwapRequest, TreatLogRequest
 from app.schemas.fasting import FastingModeCreate
 from app.schemas.general import SuccessResponse
-from app.services import diet_plan_service, fasting_service, nutrition_service
+from app.services import diet_plan_service, fasting_service, nutrition_service, treat_service
 from app.services.diet_plan_service import DietPlanError
 from app.services.fasting_service import FastingModeError
+from app.services.treat_service import TreatError
 
 router = APIRouter(prefix="/diet-plans", tags=["Diet plans"])
 
@@ -163,3 +165,33 @@ async def delete_fasting_mode(mode_id: str, current_user: User = Depends(get_cur
     except FastingModeError as exc:
         raise _http(exc) from exc
     return {"success": True, "message": "Fasting mode removed", "data": None}
+
+
+# ---------------------------------------------------------------------------
+# Healthy treats
+# ---------------------------------------------------------------------------
+@router.get("/treats", response_model=SuccessResponse)
+async def list_treats(
+    craving: str = Query(..., max_length=20), current_user: User = Depends(get_current_user)
+) -> dict:
+    """Lighter versions of a craving (sweet, salty, fast_food, street_food) that suit
+    the user's diet, allergies and health profile, with today's room and this week's treats."""
+    try:
+        data = await treat_service.options(current_user.id, craving)
+    except TreatError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    return {"success": True, "message": "Treats", "data": data}
+
+
+@router.post("/treats/{treat_id}/log", response_model=SuccessResponse)
+async def log_treat(
+    treat_id: str, payload: TreatLogRequest, current_user: User = Depends(get_current_user)
+) -> dict:
+    """Log a treat as a meal; the rest of today's plan makes room for it."""
+    try:
+        meal = await treat_service.log_treat(current_user.id, treat_id, payload.meal_type)
+    except TreatError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    data = await _logged_response(current_user.id, meal)
+    data["week"] = await treat_service.week_status(current_user.id)
+    return {"success": True, "message": "Treat logged", "data": data}

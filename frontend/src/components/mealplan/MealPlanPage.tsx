@@ -41,6 +41,7 @@ import { PlanSummary } from "./PlanSummary";
 import { DayRoutine } from "./DayRoutine";
 import { PlanMealCard } from "./PlanMealCard";
 import { TodaySoFar } from "./TodaySoFar";
+import { TreatCard } from "./TreatCard";
 import { MessModeCard } from "../mess/MessModeCard";
 import { mealPlanPageStyles as styles } from "./MealPlanPage.styles";
 
@@ -234,6 +235,7 @@ export function MealPlanPage() {
               page shows one set of numbers, the same as Today and Nutrition. */}
           {started && plan.today ? <TodaySoFar day={plan.today.day} /> : <PlanSummary plan={plan} />}
           <PlanNotes plan={plan} />
+          <TreatCard />
           <MessModeCard />
           <FastingModesCard />
           <DayRoutine

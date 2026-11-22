@@ -78,6 +78,8 @@ USER_DATA_COLLECTIONS: Dict[str, List[str]] = {
     "supplement_logs": ["user_id"],
     # Phase 8 fasting and festival modes.
     "fasting_modes": ["user_id"],
+    # Healthy treats logged (the meals themselves are in "meals").
+    "treat_logs": ["user_id"],
     # Progressive overload.
     "exercise_logs": ["user_id"],
     "training_state": ["user_id"],

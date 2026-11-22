@@ -118,6 +118,7 @@ _INDEXES = {
     # Progressive overload: one entry per user, exercise and day; one training state per user.
     "exercise_logs": [([("user_id", 1), ("exercise_id", 1), ("date", -1)], {"unique": True}), ([("user_id", 1), ("date", 1)], {})],
     "training_state": [([("user_id", 1)], {"unique": True})],
+    "treat_logs": [([("user_id", 1), ("meal_id", 1)], {})],
     # Cached AI results expire on their own via a TTL index.
     "ai_cache": [
         ([("key", 1)], {"unique": True}),
