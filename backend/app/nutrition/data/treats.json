@@ -1,0 +1,1069 @@
+{
+ "_about": "Healthier treats for a craving, including protein cakes, burgers, sandwiches and pizza made at home. Every number comes from the food database: each treat is a few foods with their grams, so calories and macros are worked out the same way as any logged meal. 'tags' drive health rules: 'sugar' treats are left out for people with diabetes, PCOS or high blood sugar, and 'salt' treats get a tip for people with high blood pressure. 'instead_of' names the usual treat it replaces. 'contains' lists ingredients a dish name doesn't show (onion in a bhaji), so diet rules like Jain or an allergy see them.",
+ "cravings": [
+  "sweet",
+  "cake",
+  "pizza_burger",
+  "salty",
+  "tandoori",
+  "street_food"
+ ],
+ "treats": [
+  {
+   "id": "hung_curd_apple",
+   "craving": "sweet",
+   "name": "Hung curd with apple and cinnamon",
+   "instead_of": "shrikhand or ice cream",
+   "why": "Thick and creamy like shrikhand, sweet from the fruit alone, with about 15 g of protein.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "est:hung_curd",
+     "grams": 150,
+     "label": "Hung curd",
+     "quantity": 1.5,
+     "unit": "small bowl"
+    },
+    {
+     "food_id": "usda:171688",
+     "grams": 90,
+     "label": "Apple, chopped",
+     "quantity": 0.5,
+     "unit": "piece"
+    }
+   ]
+  },
+  {
+   "id": "hung_curd_banana_honey",
+   "craving": "sweet",
+   "name": "Hung curd with banana and honey",
+   "instead_of": "shrikhand",
+   "why": "The same creamy bowl as shrikhand with a teaspoon of honey instead of half a cup of sugar.",
+   "tags": [
+    "sugar"
+   ],
+   "items": [
+    {
+     "food_id": "est:hung_curd",
+     "grams": 150,
+     "label": "Hung curd",
+     "quantity": 1.5,
+     "unit": "small bowl"
+    },
+    {
+     "food_id": "usda:173944",
+     "grams": 60,
+     "label": "Banana, sliced",
+     "quantity": 0.5,
+     "unit": "piece"
+    },
+    {
+     "food_id": "usda:169640",
+     "grams": 7,
+     "label": "Honey",
+     "quantity": 1,
+     "unit": "tsp"
+    }
+   ]
+  },
+  {
+   "id": "dark_chocolate_almonds",
+   "craving": "sweet",
+   "name": "Dark chocolate with almonds",
+   "instead_of": "a milk chocolate bar",
+   "why": "Two squares of 70% chocolate satisfy the craving with less than half the sugar of milk chocolate.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "usda:170273",
+     "grams": 20,
+     "label": "Dark chocolate (70-85%)",
+     "quantity": 2,
+     "unit": "square"
+    },
+    {
+     "food_id": "usda:170567",
+     "grams": 12,
+     "label": "Almonds",
+     "quantity": 10,
+     "unit": "piece"
+    }
+   ]
+  },
+  {
+   "id": "fruit_chaat",
+   "craving": "sweet",
+   "name": "Fruit chaat with chaat masala",
+   "instead_of": "a dessert after dinner",
+   "why": "A big, tangy bowl for very few calories, with fibre that keeps you full.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "est:fruit_chaat",
+     "grams": 200,
+     "label": "Fruit chaat",
+     "quantity": 1,
+     "unit": "large bowl"
+    }
+   ]
+  },
+  {
+   "id": "kulfi_small",
+   "craving": "sweet",
+   "name": "One small kulfi",
+   "instead_of": "a bowl of ice cream",
+   "why": "The real thing, just a small one, eaten slowly.",
+   "tags": [
+    "sugar"
+   ],
+   "items": [
+    {
+     "food_id": "indb:ASC321",
+     "grams": 75,
+     "label": "Kulfi",
+     "quantity": 1,
+     "unit": "small kulfi"
+    }
+   ]
+  },
+  {
+   "id": "rasgulla_one",
+   "craving": "sweet",
+   "name": "One rasgulla, syrup squeezed out",
+   "instead_of": "gulab jamun",
+   "why": "Boiled, not fried, so it has a fraction of the fat of a gulab jamun.",
+   "tags": [
+    "sugar"
+   ],
+   "items": [
+    {
+     "food_id": "indb:BFP392",
+     "grams": 50,
+     "label": "Rasgulla",
+     "quantity": 1,
+     "unit": "piece"
+    }
+   ]
+  },
+  {
+   "id": "dates_peanut_butter",
+   "craving": "sweet",
+   "name": "Dates with peanut butter",
+   "instead_of": "a laddoo or barfi",
+   "why": "Tastes like a mithai, with no added sugar and a little protein and healthy fat.",
+   "tags": [
+    "sugar"
+   ],
+   "items": [
+    {
+     "food_id": "est:dates",
+     "grams": 21,
+     "label": "Dates",
+     "quantity": 3,
+     "unit": "piece"
+    },
+    {
+     "food_id": "usda:172470",
+     "grams": 8,
+     "label": "Peanut butter",
+     "quantity": 0.5,
+     "unit": "tbsp"
+    }
+   ]
+  },
+  {
+   "id": "phirni_small",
+   "craving": "sweet",
+   "name": "A small bowl of phirni",
+   "instead_of": "a large bowl of kheer",
+   "why": "Milk-based, so it brings some protein along with the sweetness. Keep the bowl small.",
+   "tags": [
+    "sugar"
+   ],
+   "items": [
+    {
+     "food_id": "indb:ASC292",
+     "grams": 100,
+     "label": "Phirni",
+     "quantity": 1,
+     "unit": "small bowl"
+    }
+   ]
+  },
+  {
+   "id": "roasted_makhana",
+   "craving": "salty",
+   "name": "Roasted makhana",
+   "instead_of": "chips or namkeen",
+   "why": "A big crunchy bowl roasted in a little ghee, for about half the calories of a bowl of chips.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "est:roasted_makhana",
+     "grams": 30,
+     "label": "Roasted makhana",
+     "quantity": 2,
+     "unit": "cup"
+    }
+   ]
+  },
+  {
+   "id": "roasted_chana",
+   "craving": "salty",
+   "name": "Masala roasted chana",
+   "instead_of": "bhujia or mixture",
+   "why": "Crunchy and salty, with about 9 g of protein and plenty of fibre.",
+   "tags": [
+    "salt"
+   ],
+   "items": [
+    {
+     "food_id": "est:roasted_chana",
+     "grams": 40,
+     "label": "Roasted chana",
+     "quantity": 1,
+     "unit": "small bowl"
+    }
+   ]
+  },
+  {
+   "id": "makhana_peanut_mix",
+   "craving": "salty",
+   "name": "Makhana and peanut mix",
+   "instead_of": "a packet of namkeen",
+   "why": "Crunchy, salty and filling, without deep frying.",
+   "tags": [
+    "salt"
+   ],
+   "items": [
+    {
+     "food_id": "est:roasted_makhana",
+     "grams": 20,
+     "label": "Roasted makhana",
+     "quantity": 1.5,
+     "unit": "cup"
+    },
+    {
+     "food_id": "usda:173806",
+     "grams": 15,
+     "label": "Roasted peanuts",
+     "quantity": 1,
+     "unit": "tbsp"
+    }
+   ]
+  },
+  {
+   "id": "besan_chilla",
+   "craving": "salty",
+   "name": "Two besan chillas",
+   "instead_of": "pakoras",
+   "why": "The same besan taste as pakoras, cooked on a pan with a little oil instead of fried.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "indb:OSR100",
+     "grams": 104,
+     "label": "Besan chilla",
+     "quantity": 2,
+     "unit": "cheela"
+    }
+   ],
+   "contains": [
+    "onion"
+   ]
+  },
+  {
+   "id": "homemade_pizza",
+   "craving": "pizza_burger",
+   "name": "Two slices of homemade veg pizza",
+   "instead_of": "a delivery pizza",
+   "why": "Home pizza with lots of vegetables and less cheese. Two slices come to under 300 kcal.",
+   "tags": [
+    "salt"
+   ],
+   "items": [
+    {
+     "food_id": "indb:BFP122",
+     "grams": 200,
+     "label": "Veg pizza",
+     "quantity": 2,
+     "unit": "slice"
+    }
+   ],
+   "contains": [
+    "onion"
+   ]
+  },
+  {
+   "id": "paneer_tikka",
+   "craving": "tandoori",
+   "name": "Paneer tikka with vegetables",
+   "instead_of": "a paneer roll or burger",
+   "why": "Grilled, not fried, and full of vegetables. Smoky and filling.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "indb:ASC381",
+     "grams": 250,
+     "label": "Paneer tikka (shashlik)",
+     "quantity": 1,
+     "unit": "plate"
+    }
+   ],
+   "contains": [
+    "onion",
+    "ginger",
+    "garlic"
+   ]
+  },
+  {
+   "id": "soya_seekh",
+   "craving": "tandoori",
+   "name": "Soya seekh kebabs",
+   "instead_of": "fried snacks at a party",
+   "why": "A kebab plate for vegetarians with protein from soya.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "indb:OSR153",
+     "grams": 171,
+     "label": "Soya seekh kebab",
+     "quantity": 3,
+     "unit": "kebab"
+    }
+   ],
+   "contains": [
+    "onion",
+    "ginger",
+    "garlic"
+   ]
+  },
+  {
+   "id": "tandoori_chicken",
+   "craving": "tandoori",
+   "name": "Tandoori chicken",
+   "instead_of": "fried chicken or butter chicken",
+   "why": "About 24 g of protein, grilled rather than fried, with all the restaurant flavour.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "indb:ASC241",
+     "grams": 150,
+     "label": "Tandoori chicken",
+     "quantity": 1,
+     "unit": "bowl"
+    }
+   ],
+   "contains": [
+    "ginger",
+    "garlic"
+   ]
+  },
+  {
+   "id": "fish_tikka",
+   "craving": "tandoori",
+   "name": "Fish tikka",
+   "instead_of": "fish fry",
+   "why": "Grilled fish with a spicy marinade, high in protein and light on oil.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "indb:ASC251",
+     "grams": 142,
+     "label": "Fish tikka",
+     "quantity": 4,
+     "unit": "piece"
+    }
+   ],
+   "contains": [
+    "ginger",
+    "garlic"
+   ]
+  },
+  {
+   "id": "chicken_sandwich",
+   "craving": "pizza_burger",
+   "name": "Toasted chicken sandwich",
+   "instead_of": "a fried chicken burger",
+   "why": "Toasted bread and lean chicken: the same grab-and-go meal with less oil and more protein.",
+   "tags": [
+    "salt"
+   ],
+   "items": [
+    {
+     "food_id": "indb:ASC043",
+     "grams": 171,
+     "label": "Chicken sandwich",
+     "quantity": 2,
+     "unit": "triangle"
+    }
+   ],
+   "contains": [
+    "onion"
+   ]
+  },
+  {
+   "id": "sweet_potato_chaat",
+   "craving": "street_food",
+   "name": "Shakarkandi chaat",
+   "instead_of": "aloo tikki chaat",
+   "why": "Tangy and spicy street-style chaat, boiled instead of fried.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "est:sweet_potato_chaat",
+     "grams": 200,
+     "label": "Sweet potato chaat",
+     "quantity": 1,
+     "unit": "large bowl"
+    }
+   ]
+  },
+  {
+   "id": "sprouts_chaat",
+   "craving": "street_food",
+   "name": "Sprouts chaat",
+   "instead_of": "bhel puri or sev puri",
+   "why": "Lemon, onion, tomato and masala on sprouted moong: all the chaat flavour, almost no fat.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "indb:ASC259",
+     "grams": 200,
+     "label": "Sprouts chaat",
+     "quantity": 1,
+     "unit": "bowl"
+    }
+   ],
+   "contains": [
+    "onion"
+   ]
+  },
+  {
+   "id": "dhokla",
+   "craving": "street_food",
+   "name": "Three pieces of dhokla",
+   "instead_of": "samosa or kachori",
+   "why": "Steamed, not fried, and made from besan, so it brings protein too.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "indb:ASC474",
+     "grams": 120,
+     "label": "Dhokla",
+     "quantity": 3,
+     "unit": "piece"
+    }
+   ],
+   "contains": [
+    "ginger"
+   ]
+  },
+  {
+   "id": "pav_bhaji_light",
+   "craving": "street_food",
+   "name": "Pav bhaji with one pav, no extra butter",
+   "instead_of": "pav bhaji with two buttered pav",
+   "why": "A full bowl of bhaji with one plain pav. Most of the calories in pav bhaji are in the butter and the extra pav.",
+   "tags": [
+    "salt"
+   ],
+   "items": [
+    {
+     "food_id": "indb:OSR112",
+     "grams": 200,
+     "label": "Bhaji",
+     "quantity": 1,
+     "unit": "bowl"
+    },
+    {
+     "food_id": "usda:172796",
+     "grams": 40,
+     "label": "Pav",
+     "quantity": 1,
+     "unit": "piece"
+    }
+   ],
+   "contains": [
+    "potato",
+    "onion",
+    "garlic"
+   ]
+  },
+  {
+   "id": "protein_mug_cake",
+   "craving": "cake",
+   "name": "Chocolate protein mug cake",
+   "instead_of": "a slice of chocolate cake",
+   "why": "Oats, whey, egg whites and banana, baked in a mug in two minutes. A warm chocolate cake with over 35 g of protein.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "usda:173904",
+     "grams": 30,
+     "label": "Oats",
+     "quantity": 0.75,
+     "unit": "cup"
+    },
+    {
+     "food_id": "est:whey_protein",
+     "grams": 30,
+     "label": "Whey protein",
+     "quantity": 1,
+     "unit": "scoop"
+    },
+    {
+     "food_id": "usda:172183",
+     "grams": 66,
+     "label": "Egg whites",
+     "quantity": 2,
+     "unit": "egg"
+    },
+    {
+     "food_id": "usda:173944",
+     "grams": 60,
+     "label": "Banana, mashed",
+     "quantity": 0.5,
+     "unit": "piece"
+    },
+    {
+     "food_id": "usda:170273",
+     "grams": 10,
+     "label": "Dark chocolate",
+     "quantity": 1,
+     "unit": "square"
+    }
+   ]
+  },
+  {
+   "id": "eggless_protein_mug_cake",
+   "craving": "cake",
+   "name": "Eggless protein mug cake",
+   "instead_of": "a pastry",
+   "why": "Oats, whey, hung curd and banana, microwaved in a mug. Soft, sweet and full of protein, with no egg.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "usda:173904",
+     "grams": 30,
+     "label": "Oats",
+     "quantity": 0.75,
+     "unit": "cup"
+    },
+    {
+     "food_id": "est:whey_protein",
+     "grams": 30,
+     "label": "Whey protein",
+     "quantity": 1,
+     "unit": "scoop"
+    },
+    {
+     "food_id": "est:hung_curd",
+     "grams": 60,
+     "label": "Hung curd",
+     "quantity": 0.6,
+     "unit": "small bowl"
+    },
+    {
+     "food_id": "usda:173944",
+     "grams": 60,
+     "label": "Banana, mashed",
+     "quantity": 0.5,
+     "unit": "piece"
+    },
+    {
+     "food_id": "usda:172470",
+     "grams": 8,
+     "label": "Peanut butter",
+     "quantity": 0.5,
+     "unit": "tbsp"
+    }
+   ]
+  },
+  {
+   "id": "protein_pancakes",
+   "craving": "cake",
+   "name": "Banana oat protein pancakes",
+   "instead_of": "pancakes with syrup",
+   "why": "Two eggs, oats and a banana make a stack of soft pancakes; a teaspoon of honey is all the syrup they need.",
+   "tags": [
+    "sugar"
+   ],
+   "items": [
+    {
+     "food_id": "usda:173904",
+     "grams": 40,
+     "label": "Oats",
+     "quantity": 1,
+     "unit": "cup"
+    },
+    {
+     "food_id": "usda:173424",
+     "grams": 100,
+     "label": "Eggs",
+     "quantity": 2,
+     "unit": "egg"
+    },
+    {
+     "food_id": "usda:173944",
+     "grams": 60,
+     "label": "Banana",
+     "quantity": 0.5,
+     "unit": "piece"
+    },
+    {
+     "food_id": "usda:169640",
+     "grams": 7,
+     "label": "Honey",
+     "quantity": 1,
+     "unit": "tsp"
+    }
+   ]
+  },
+  {
+   "id": "hung_curd_cheesecake",
+   "craving": "cake",
+   "name": "No-bake hung curd cheesecake cup",
+   "instead_of": "a slice of cheesecake",
+   "why": "Creamy hung curd over an oat and date base: all the cheesecake feel, about 18 g of protein and no cream cheese.",
+   "tags": [
+    "sugar"
+   ],
+   "items": [
+    {
+     "food_id": "est:hung_curd",
+     "grams": 150,
+     "label": "Hung curd",
+     "quantity": 1.5,
+     "unit": "small bowl"
+    },
+    {
+     "food_id": "usda:173904",
+     "grams": 20,
+     "label": "Oats (base)",
+     "quantity": 0.5,
+     "unit": "cup"
+    },
+    {
+     "food_id": "est:dates",
+     "grams": 14,
+     "label": "Dates (base)",
+     "quantity": 2,
+     "unit": "piece"
+    }
+   ]
+  },
+  {
+   "id": "paneer_tikka_burger",
+   "craving": "pizza_burger",
+   "name": "Paneer tikka burger",
+   "instead_of": "a fried aloo tikki burger",
+   "why": "A grilled paneer slab with tomato, cucumber and green chutney in a bun. No fried patty, no mayo.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "usda:172796",
+     "grams": 60,
+     "label": "Bun (pav)",
+     "quantity": 1,
+     "unit": "bun"
+    },
+    {
+     "food_id": "est:paneer",
+     "grams": 60,
+     "label": "Paneer, grilled",
+     "quantity": 0.6,
+     "unit": "small bowl"
+    },
+    {
+     "food_id": "usda:170457",
+     "grams": 40,
+     "label": "Tomato",
+     "quantity": 0.33,
+     "unit": "piece"
+    },
+    {
+     "food_id": "usda:168409",
+     "grams": 40,
+     "label": "Cucumber",
+     "quantity": 0.2,
+     "unit": "piece"
+    },
+    {
+     "food_id": "indb:OSR098",
+     "grams": 15,
+     "label": "Green chutney",
+     "quantity": 1,
+     "unit": "tbsp"
+    }
+   ]
+  },
+  {
+   "id": "grilled_chicken_burger",
+   "craving": "pizza_burger",
+   "name": "Grilled chicken burger",
+   "instead_of": "a fried chicken burger",
+   "why": "Grilled chicken breast, a cheese slice and salad in a bun, with mint chutney instead of mayo. Nearly 40 g of protein.",
+   "tags": [
+    "salt"
+   ],
+   "items": [
+    {
+     "food_id": "usda:172796",
+     "grams": 60,
+     "label": "Bun (pav)",
+     "quantity": 1,
+     "unit": "bun"
+    },
+    {
+     "food_id": "usda:171477",
+     "grams": 90,
+     "label": "Chicken breast, grilled",
+     "quantity": 0.75,
+     "unit": "piece"
+    },
+    {
+     "food_id": "usda:170853",
+     "grams": 20,
+     "label": "Cheese slice",
+     "quantity": 1,
+     "unit": "slice"
+    },
+    {
+     "food_id": "usda:170457",
+     "grams": 40,
+     "label": "Tomato",
+     "quantity": 0.33,
+     "unit": "piece"
+    },
+    {
+     "food_id": "usda:168409",
+     "grams": 40,
+     "label": "Cucumber",
+     "quantity": 0.2,
+     "unit": "piece"
+    },
+    {
+     "food_id": "indb:ASC387",
+     "grams": 15,
+     "label": "Mint chutney",
+     "quantity": 1,
+     "unit": "tbsp"
+    }
+   ]
+  },
+  {
+   "id": "egg_bhurji_burger",
+   "craving": "pizza_burger",
+   "name": "Egg bhurji burger",
+   "instead_of": "a bun maska with an omelette",
+   "why": "Two eggs scrambled with onion and tomato, in a bun. Quick, filling and high in protein.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "usda:172796",
+     "grams": 60,
+     "label": "Bun (pav)",
+     "quantity": 1,
+     "unit": "bun"
+    },
+    {
+     "food_id": "indb:ASC059",
+     "grams": 140,
+     "label": "Egg bhurji",
+     "quantity": 2,
+     "unit": "egg"
+    },
+    {
+     "food_id": "usda:170457",
+     "grams": 30,
+     "label": "Tomato",
+     "quantity": 0.25,
+     "unit": "piece"
+    }
+   ],
+   "contains": [
+    "onion"
+   ]
+  },
+  {
+   "id": "paneer_sandwich",
+   "craving": "pizza_burger",
+   "name": "Paneer chutney sandwich",
+   "instead_of": "a grilled cheese sandwich",
+   "why": "Brown bread with paneer, chutney and salad. The crunch of a cafe sandwich with real protein.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "usda:172688",
+     "grams": 60,
+     "label": "Brown bread",
+     "quantity": 2,
+     "unit": "slice"
+    },
+    {
+     "food_id": "est:paneer",
+     "grams": 60,
+     "label": "Paneer",
+     "quantity": 0.6,
+     "unit": "small bowl"
+    },
+    {
+     "food_id": "usda:170457",
+     "grams": 40,
+     "label": "Tomato",
+     "quantity": 0.33,
+     "unit": "piece"
+    },
+    {
+     "food_id": "usda:168409",
+     "grams": 40,
+     "label": "Cucumber",
+     "quantity": 0.2,
+     "unit": "piece"
+    },
+    {
+     "food_id": "indb:OSR098",
+     "grams": 15,
+     "label": "Green chutney",
+     "quantity": 1,
+     "unit": "tbsp"
+    }
+   ]
+  },
+  {
+   "id": "egg_sandwich",
+   "craving": "pizza_burger",
+   "name": "Egg and salad sandwich",
+   "instead_of": "a mayo sandwich",
+   "why": "Two boiled eggs sliced on brown bread with tomato and cucumber. About 20 g of protein.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "usda:172688",
+     "grams": 60,
+     "label": "Brown bread",
+     "quantity": 2,
+     "unit": "slice"
+    },
+    {
+     "food_id": "usda:173424",
+     "grams": 100,
+     "label": "Boiled eggs",
+     "quantity": 2,
+     "unit": "egg"
+    },
+    {
+     "food_id": "usda:170457",
+     "grams": 40,
+     "label": "Tomato",
+     "quantity": 0.33,
+     "unit": "piece"
+    },
+    {
+     "food_id": "usda:168409",
+     "grams": 40,
+     "label": "Cucumber",
+     "quantity": 0.2,
+     "unit": "piece"
+    }
+   ]
+  },
+  {
+   "id": "chicken_hung_curd_sandwich",
+   "craving": "pizza_burger",
+   "name": "Chicken and hung curd sandwich",
+   "instead_of": "a chicken mayo sandwich",
+   "why": "Shredded chicken mixed with hung curd instead of mayonnaise, on brown bread. Creamy, with about 35 g of protein.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "usda:172688",
+     "grams": 60,
+     "label": "Brown bread",
+     "quantity": 2,
+     "unit": "slice"
+    },
+    {
+     "food_id": "usda:171477",
+     "grams": 80,
+     "label": "Chicken breast, shredded",
+     "quantity": 0.67,
+     "unit": "piece"
+    },
+    {
+     "food_id": "est:hung_curd",
+     "grams": 40,
+     "label": "Hung curd",
+     "quantity": 0.4,
+     "unit": "small bowl"
+    },
+    {
+     "food_id": "usda:168409",
+     "grams": 40,
+     "label": "Cucumber",
+     "quantity": 0.2,
+     "unit": "piece"
+    }
+   ]
+  },
+  {
+   "id": "chickpea_sandwich",
+   "craving": "pizza_burger",
+   "name": "Smashed chickpea sandwich",
+   "instead_of": "a veg mayo sandwich",
+   "why": "Mashed chickpeas with tomato and green chutney on brown bread. No dairy, plenty of fibre.",
+   "tags": [],
+   "items": [
+    {
+     "food_id": "usda:172688",
+     "grams": 60,
+     "label": "Brown bread",
+     "quantity": 2,
+     "unit": "slice"
+    },
+    {
+     "food_id": "usda:173757",
+     "grams": 80,
+     "label": "Chickpeas, mashed",
+     "quantity": 0.5,
+     "unit": "bowl"
+    },
+    {
+     "food_id": "usda:170457",
+     "grams": 40,
+     "label": "Tomato",
+     "quantity": 0.33,
+     "unit": "piece"
+    },
+    {
+     "food_id": "indb:OSR098",
+     "grams": 15,
+     "label": "Green chutney",
+     "quantity": 1,
+     "unit": "tbsp"
+    }
+   ]
+  },
+  {
+   "id": "roti_pizza_paneer",
+   "craving": "pizza_burger",
+   "name": "Paneer roti pizza",
+   "instead_of": "a cheese burst pizza",
+   "why": "A chapati as the base, topped with tomato, paneer and one cheese slice, crisped on a tawa. Pizza in ten minutes.",
+   "tags": [
+    "salt"
+   ],
+   "items": [
+    {
+     "food_id": "indb:ASC096",
+     "grams": 40,
+     "label": "Chapati (base)",
+     "quantity": 1,
+     "unit": "chapati"
+    },
+    {
+     "food_id": "usda:170457",
+     "grams": 50,
+     "label": "Tomato",
+     "quantity": 0.42,
+     "unit": "piece"
+    },
+    {
+     "food_id": "est:paneer",
+     "grams": 50,
+     "label": "Paneer",
+     "quantity": 0.5,
+     "unit": "small bowl"
+    },
+    {
+     "food_id": "usda:170853",
+     "grams": 20,
+     "label": "Cheese slice",
+     "quantity": 1,
+     "unit": "slice"
+    }
+   ]
+  },
+  {
+   "id": "roti_pizza_chicken",
+   "craving": "pizza_burger",
+   "name": "Chicken roti pizza",
+   "instead_of": "a chicken pizza from outside",
+   "why": "Chapati base with tomato, grilled chicken and one cheese slice. Pizza with about 30 g of protein.",
+   "tags": [
+    "salt"
+   ],
+   "items": [
+    {
+     "food_id": "indb:ASC096",
+     "grams": 40,
+     "label": "Chapati (base)",
+     "quantity": 1,
+     "unit": "chapati"
+    },
+    {
+     "food_id": "usda:170457",
+     "grams": 50,
+     "label": "Tomato",
+     "quantity": 0.42,
+     "unit": "piece"
+    },
+    {
+     "food_id": "usda:171477",
+     "grams": 70,
+     "label": "Chicken breast, grilled",
+     "quantity": 0.6,
+     "unit": "piece"
+    },
+    {
+     "food_id": "usda:170853",
+     "grams": 20,
+     "label": "Cheese slice",
+     "quantity": 1,
+     "unit": "slice"
+    }
+   ]
+  },
+  {
+   "id": "bread_pizza",
+   "craving": "pizza_burger",
+   "name": "Brown bread pizza",
+   "instead_of": "garlic bread or a small pizza",
+   "why": "Two slices of brown bread topped with tomato, paneer and a cheese slice, baked or toasted on a tawa.",
+   "tags": [
+    "salt"
+   ],
+   "items": [
+    {
+     "food_id": "usda:172688",
+     "grams": 60,
+     "label": "Brown bread",
+     "quantity": 2,
+     "unit": "slice"
+    },
+    {
+     "food_id": "usda:170457",
+     "grams": 50,
+     "label": "Tomato",
+     "quantity": 0.42,
+     "unit": "piece"
+    },
+    {
+     "food_id": "est:paneer",
+     "grams": 40,
+     "label": "Paneer",
+     "quantity": 0.4,
+     "unit": "small bowl"
+    },
+    {
+     "food_id": "usda:170853",
+     "grams": 20,
+     "label": "Cheese slice",
+     "quantity": 1,
+     "unit": "slice"
+    }
+   ]
+  }
+ ]
+}

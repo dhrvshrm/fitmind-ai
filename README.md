@@ -43,6 +43,7 @@ Your daily plan is made of real Indian dishes that fit your targets, diet (veg, 
 - **Grocery list:** the week's shopping, built from your plan and grouped by section of the shop.
 - **Fasting and festival modes:** Navratri, Ramadan (sehri and iftar), Ekadashi and Jain Paryushan, each with the right food rules and meal times.
 - **Night and rotating shifts:** meal times follow your shift, not a 9 to 5.
+- **Healthy treat meals:** craving something sweet, a cake, pizza, a burger, tikka or street food? Pick it and get lighter versions like a chocolate protein mug cake, a grilled chicken burger or a paneer roti pizza. Each one fits your diet, allergies and health profile, and once you log it the rest of the day makes room. Two a week is the suggestion.
 
 ### PG and hostel mess mode
 
@@ -62,7 +63,7 @@ Log your daily steps and the app adjusts how active it thinks you are. Short rou
 
 ### A private health profile
 
-With your clear permission, you can add conditions like diabetes, thyroid or blood pressure, and the plans become safer for you. All health data is encrypted and deleted along with your account.
+With your clear permission, you can add conditions like diabetes, thyroid or blood pressure, and the plans become safer for you. You only see options that apply to you, so pregnancy or PCOS never show up for men. All health data is encrypted and deleted along with your account.
 
 ### Upload your blood test
 
@@ -91,8 +92,7 @@ The chat coach sees your plan, targets, workouts and recovery. Ask it to log a m
 These are planned and not built yet.
 
 - **A first-time walkthrough.** Right after sign-up, a short guided tour that shows what each part of the app does and what to do first, second and third: log food, follow the meal plan, do the workout, talk to the coach, set up supplements. A new user should never feel lost.
-- **Health options that match you.** Options like pregnancy and breastfeeding, PCOS or period-related conditions will only show to the people they apply to.
-- **Healthy treat meals.** Craving something sweet, fried or street food? Pick the craving and get a healthier version with the right portion, and the rest of your day or week adjusts so your goal stays on track. Your health reports and diet type are respected.
+- **Simple recipes on request.** Ask how to cook anything, from dal or pulao to roasted paneer or a treat meal, and get the simplest recipe for your portion, with amounts in grams, katori and spoons, and little oil.
 - **Food that fits your region and season.** The plan will prefer vegetables and fruits that are actually in season where you live. In a Kashmir winter that means haak, nadru and turnip, not bhindi. Staples like dal, potato and onion stay available all year. In summer the focus is on water and chaach; in winter, warm food and soups. Following "thandi/garam taseer" will be an option you can switch on.
 - **Vitamins and minerals.** See more than calories and protein: iron, calcium, magnesium, zinc, B12, vitamins A, C and D, both for each food and as a daily total against your targets.
 - **Demo readiness.** End-to-end tests for the main journeys, demo data and error monitoring.

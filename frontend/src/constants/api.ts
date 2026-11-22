@@ -162,6 +162,8 @@ export const DIET_PLAN_ENDPOINTS = {
   GROCERY_LIST: "/diet-plans/current/grocery-list",
   FASTING_MODES: "/diet-plans/fasting-modes",
   fastingMode: (id: string) => `/diet-plans/fasting-modes/${encodeURIComponent(id)}`,
+  TREATS: "/diet-plans/treats",
+  logTreat: (id: string) => `/diet-plans/treats/${encodeURIComponent(id)}/log`,
 } as const;
 
 export const TIP_ENDPOINTS = {
