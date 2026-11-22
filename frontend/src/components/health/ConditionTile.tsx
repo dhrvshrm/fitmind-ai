@@ -2,7 +2,7 @@ import { Box, ButtonBase, Collapse, Typography } from '@mui/material';
 import { CheckBoxOutlineBlankRounded, CheckBoxRounded } from '@mui/icons-material';
 import { HEALTH_STRINGS } from '../../constants/healthStrings';
 import type { ConditionDetails, ConditionKey, FollowUpValue, HealthCondition } from '../../types/health';
-import { answerQuestion, visibleQuestions } from '../../utils/health';
+import { answerQuestion, optionsFor, visibleQuestions } from '../../utils/health';
 import { ChoiceChips } from './ChoiceChips';
 import { conditionTileStyles as styles } from './ConditionTile.styles';
 
@@ -15,11 +15,13 @@ type ConditionTileProps = {
   answers: ConditionDetails | undefined;
   /** The saved record, for where and when it was recorded. */
   saved: HealthCondition | undefined;
+  /** The person's gender, to hide answers that don't apply (e.g. gestational for men). */
+  gender?: string | null;
   onChange: (answers: ConditionDetails | undefined) => void;
 };
 
 /** One condition: a tick box that opens its follow-up questions. */
-export function ConditionTile({ condition, answers, saved, onChange }: ConditionTileProps) {
+export function ConditionTile({ condition, answers, saved, gender, onChange }: ConditionTileProps) {
   const selected = answers !== undefined;
   const label = P.conditions[condition];
   const yesNo = [
@@ -60,7 +62,7 @@ export function ConditionTile({ condition, answers, saved, onChange }: Condition
               <ChoiceChips
                 key={question.key}
                 label={P.questions[question.key]}
-                options={(question.options ?? []).map((option) => ({ value: option, label: P.options[option] }))}
+                options={optionsFor(condition, question, gender).map((option) => ({ value: option, label: P.options[option] }))}
                 value={answers?.[question.key] as string | undefined}
                 onChange={(value) => answer(question.key, value)}
               />

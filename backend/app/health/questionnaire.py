@@ -52,6 +52,42 @@ CONDITIONS: Dict[str, List[Dict[str, Any]]] = {
 
 CONDITION_KEYS = tuple(CONDITIONS)
 
+# Conditions and answers that only apply to someone with ovaries or who can be
+# pregnant. They are hidden from men and refused for them; "female", "other"
+# and an unknown gender see everything, so nobody is wrongly shut out.
+FEMALE_ONLY_CONDITIONS = ("pcos", "pregnancy")
+FEMALE_ONLY_OPTIONS: Dict[str, Dict[str, tuple]] = {"diabetes": {"type": ("gestational",)}}
+GENDER_WITHOUT_FEMALE_ONLY = "male"
+
+
+def condition_applies(condition: str, gender: Optional[str]) -> bool:
+    """Whether a condition can be recorded for someone of this gender."""
+    return not (gender == GENDER_WITHOUT_FEMALE_ONLY and condition in FEMALE_ONLY_CONDITIONS)
+
+
+def option_applies(condition: str, key: str, value: Any, gender: Optional[str]) -> bool:
+    """Whether a follow-up answer can be given by someone of this gender."""
+    if gender != GENDER_WITHOUT_FEMALE_ONLY:
+        return True
+    return value not in FEMALE_ONLY_OPTIONS.get(condition, {}).get(key, ())
+
+
+def for_gender(conditions: List[Dict[str, Any]], gender: Optional[str]) -> List[Dict[str, Any]]:
+    """Saved conditions without the ones (or answers) that don't apply to this gender.
+
+    Covers answers saved before the gender was changed, so they neither show
+    nor shape plans.
+    """
+    kept = []
+    for condition in conditions:
+        key = condition.get("key")
+        if not condition_applies(key, gender):
+            continue
+        details = condition.get("details") or {}
+        allowed = {k: v for k, v in details.items() if option_applies(key, k, v, gender)}
+        kept.append(condition if allowed == details else {**condition, "details": allowed})
+    return kept
+
 
 def _applies(question: Dict[str, Any], answers: Dict[str, Any]) -> bool:
     when = question.get("when")
@@ -60,14 +96,19 @@ def _applies(question: Dict[str, Any], answers: Dict[str, Any]) -> bool:
     return all(answers.get(key) in values for key, values in when.items())
 
 
-def clean_details(condition: str, details: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+def clean_details(
+    condition: str, details: Optional[Dict[str, Any]], gender: Optional[str] = None
+) -> Dict[str, Any]:
     """Keep only valid answers to follow-ups that apply.
 
     Raises:
-        ValueError: for an unknown condition or an invalid answer.
+        ValueError: for an unknown condition, an invalid answer, or a condition
+            or answer that doesn't apply to the person's gender.
     """
     if condition not in CONDITIONS:
         raise ValueError(f"Unknown condition: {condition}")
+    if not condition_applies(condition, gender):
+        raise ValueError(f"{condition} doesn't apply to the gender in your profile")
     details = details or {}
     cleaned: Dict[str, Any] = {}
     # Questions are ordered so a follow-up's ``when`` only refers to earlier answers.
@@ -80,6 +121,8 @@ def clean_details(condition: str, details: Optional[Dict[str, Any]]) -> Dict[str
             raise ValueError(f"{condition}.{key} must be yes or no")
         if question["kind"] == "choice" and value not in question["options"]:
             raise ValueError(f"{condition}.{key} has an unknown option")
+        if not option_applies(condition, key, value, gender):
+            raise ValueError(f"{condition}.{key} doesn't apply to the gender in your profile")
         if _applies(question, cleaned):
             cleaned[key] = value
     unknown = set(details) - {q["key"] for q in CONDITIONS[condition]}
