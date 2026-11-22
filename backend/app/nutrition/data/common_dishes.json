@@ -1,0 +1,448 @@
+[
+ {
+  "id": "est:samosa",
+  "name": "Samosa",
+  "full_name": "Aloo samosa, deep-fried (potato and pea filling in a maida crust)",
+  "aliases": [
+   "aloo samosa",
+   "samosas",
+   "samose",
+   "samosa chaat base"
+  ],
+  "source": "estimate",
+  "basis": "A typical 80 g halwai samosa: about 30 g maida crust, 35 g spiced potato and peas, and 12-15 g of absorbed oil. Ingredient values from IFCT 2017; 80 g comes to about 240 kcal.",
+  "per_100g": {
+   "kcal": 300,
+   "protein": 5,
+   "carbs": 33,
+   "fat": 17,
+   "fiber": 3
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 80,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:pyaz_kachori",
+  "name": "Pyaz kachori",
+  "full_name": "Onion kachori, deep-fried (spiced onion filling in a flaky maida crust)",
+  "aliases": [
+   "pyaz ki kachori",
+   "pyaaz kachori",
+   "onion kachori",
+   "pyaj kachori"
+  ],
+  "source": "estimate",
+  "basis": "A typical 70 g Jodhpur-style kachori: maida crust with ghee, spiced onion and besan filling, and about 15 g of absorbed oil. Ingredient values from IFCT 2017; one comes to about 260 kcal.",
+  "per_100g": {
+   "kcal": 370,
+   "protein": 7,
+   "carbs": 40,
+   "fat": 20,
+   "fiber": 3
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 70,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:dal_kachori",
+  "name": "Dal kachori",
+  "full_name": "Moong dal kachori, deep-fried",
+  "aliases": [
+   "kachori",
+   "khasta kachori",
+   "moong dal kachori"
+  ],
+  "source": "estimate",
+  "basis": "A typical 60 g khasta kachori with a spiced moong dal filling and about 12 g of absorbed oil; IFCT 2017 ingredient values. One comes to about 230 kcal.",
+  "per_100g": {
+   "kcal": 385,
+   "protein": 8,
+   "carbs": 40,
+   "fat": 21,
+   "fiber": 3
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 60,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:kadhi",
+  "name": "Kadhi",
+  "full_name": "Punjabi or Rajasthani kadhi: curd and besan curry with a tadka, without pakoras",
+  "aliases": [
+   "kadhi",
+   "kadi",
+   "besan kadhi",
+   "rajasthani kadhi",
+   "gujarati kadhi"
+  ],
+  "source": "estimate",
+  "basis": "Per 100 g: about 40 g curd, 5 g besan, 3 g oil or ghee in the tadka, the rest water. IFCT 2017 ingredient values.",
+  "per_100g": {
+   "kcal": 90,
+   "protein": 3.5,
+   "carbs": 8,
+   "fat": 5,
+   "fiber": 0.8
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:kadhi_pakora",
+  "name": "Kadhi pakora",
+  "full_name": "Kadhi with besan pakoras",
+  "aliases": [
+   "kadhi pakoda",
+   "pakode wali kadhi"
+  ],
+  "source": "estimate",
+  "basis": "Kadhi with about 20 g of fried besan pakoras per 100 g; IFCT 2017 ingredient values.",
+  "per_100g": {
+   "kcal": 145,
+   "protein": 5,
+   "carbs": 11,
+   "fat": 9,
+   "fiber": 1.2
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:aloo_tikki",
+  "name": "Aloo tikki",
+  "full_name": "Potato patty, shallow-fried",
+  "aliases": [
+   "tikki",
+   "aloo tikki chaat base",
+   "potato tikki"
+  ],
+  "source": "estimate",
+  "basis": "A 60 g potato patty with a little besan or bread binder, shallow-fried in about 5 g of oil; IFCT 2017 and USDA potato values.",
+  "per_100g": {
+   "kcal": 200,
+   "protein": 3,
+   "carbs": 26,
+   "fat": 9,
+   "fiber": 2.5
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 60,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:vada_pav",
+  "name": "Vada pav",
+  "full_name": "Batata vada in a pav with chutneys",
+  "aliases": [
+   "wada pav",
+   "vadapav",
+   "batata vada pav"
+  ],
+  "source": "estimate",
+  "basis": "One 140 g vada pav: a 40 g pav and a 90 g besan-coated potato vada with about 10 g of absorbed oil, plus chutneys. About 295 kcal each.",
+  "per_100g": {
+   "kcal": 210,
+   "protein": 5,
+   "carbs": 30,
+   "fat": 8,
+   "fiber": 2.5
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 140,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:pani_puri",
+  "name": "Pani puri",
+  "full_name": "Pani puri with potato and chana filling",
+  "aliases": [
+   "golgappa",
+   "gol gappe",
+   "golgappe",
+   "puchka",
+   "puchke",
+   "phuchka",
+   "pani poori"
+  ],
+  "source": "estimate",
+  "basis": "One 20 g puri with its potato and chana filling and some pani; the puri itself holds most of the oil. Six come to about 215 kcal.",
+  "per_100g": {
+   "kcal": 180,
+   "protein": 3.5,
+   "carbs": 28,
+   "fat": 6,
+   "fiber": 2
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 20,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:bhel_puri",
+  "name": "Bhel puri",
+  "full_name": "Bhel puri: puffed rice, sev, papdi, potato, onion and chutneys",
+  "aliases": [
+   "bhel",
+   "bhelpuri",
+   "jhalmuri"
+  ],
+  "source": "estimate",
+  "basis": "A 150 g plate: about 40 g murmura, 15 g sev and papdi, 30 g potato, onion, tomato and sweet and green chutneys. About 255 kcal a plate.",
+  "per_100g": {
+   "kcal": 170,
+   "protein": 4,
+   "carbs": 30,
+   "fat": 4,
+   "fiber": 2.5
+  },
+  "serving": {
+   "unit": "plate",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:sev_puri",
+  "name": "Sev puri",
+  "full_name": "Sev puri: papdi topped with potato, chutneys and sev",
+  "aliases": [
+   "sevpuri",
+   "dahi puri",
+   "papdi chaat"
+  ],
+  "source": "estimate",
+  "basis": "Six papdi with potato, chutneys and sev, about 130 g; the fried papdi and sev carry most of the calories.",
+  "per_100g": {
+   "kcal": 230,
+   "protein": 5,
+   "carbs": 30,
+   "fat": 10,
+   "fiber": 2.5
+  },
+  "serving": {
+   "unit": "plate",
+   "grams": 130,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:bhatura",
+  "name": "Bhatura",
+  "full_name": "Bhatura, deep-fried leavened maida bread",
+  "aliases": [
+   "bhature",
+   "bhatoora",
+   "bhaturas"
+  ],
+  "source": "estimate",
+  "basis": "One 70 g bhatura: maida dough with curd, and about 12 g of absorbed oil. About 240 kcal each.",
+  "per_100g": {
+   "kcal": 340,
+   "protein": 8,
+   "carbs": 45,
+   "fat": 14,
+   "fiber": 1.5
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 70,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:veg_momos",
+  "name": "Veg momos, steamed",
+  "full_name": "Steamed vegetable momos",
+  "aliases": [
+   "momos",
+   "momo",
+   "veg momo",
+   "steamed momos",
+   "dimsum"
+  ],
+  "source": "estimate",
+  "basis": "One 25 g steamed momo: a thin maida wrapper with cabbage, carrot and onion filling and a little oil. About 40 kcal each.",
+  "per_100g": {
+   "kcal": 160,
+   "protein": 5,
+   "carbs": 25,
+   "fat": 4,
+   "fiber": 1.5
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 25,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:jalebi",
+  "name": "Jalebi",
+  "full_name": "Jalebi, fried and soaked in sugar syrup",
+  "aliases": [
+   "jalebis",
+   "jilebi",
+   "imarti"
+  ],
+  "source": "estimate",
+  "basis": "One 30 g piece: fried maida batter soaked in sugar syrup. About 120 kcal each.",
+  "per_100g": {
+   "kcal": 400,
+   "protein": 2,
+   "carbs": 63,
+   "fat": 15,
+   "fiber": 0.3
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 30,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:gulab_jamun",
+  "name": "Gulab jamun",
+  "full_name": "Gulab jamun in sugar syrup",
+  "aliases": [
+   "gulab jamuns",
+   "gulabjamun",
+   "kala jamun"
+  ],
+  "source": "estimate",
+  "basis": "One 45 g piece with its syrup: khoya and maida dough fried in ghee or oil. About 150 kcal each.",
+  "per_100g": {
+   "kcal": 330,
+   "protein": 5,
+   "carbs": 50,
+   "fat": 13,
+   "fiber": 0.3
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 45,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:onion_pakora",
+  "name": "Pakora",
+  "full_name": "Onion or mixed vegetable pakoras (bhajiya), deep-fried",
+  "aliases": [
+   "pakoda",
+   "pakode",
+   "pakore",
+   "bhajiya",
+   "onion bhaji",
+   "pyaz pakoda",
+   "kanda bhaji"
+  ],
+  "source": "estimate",
+  "basis": "One 20 g fritter of besan batter with onion or vegetables and about 3 g of absorbed oil. About 60 kcal each.",
+  "per_100g": {
+   "kcal": 290,
+   "protein": 7,
+   "carbs": 30,
+   "fat": 16,
+   "fiber": 4
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 20,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:dahi_vada",
+  "name": "Dahi vada",
+  "full_name": "Dahi vada (dahi bhalla) with chutneys",
+  "aliases": [
+   "dahi bhalla",
+   "dahi bada",
+   "dahi vade"
+  ],
+  "source": "estimate",
+  "basis": "One 100 g serving: an urad dal vada soaked and topped with curd and sweet chutney. About 150 kcal each.",
+  "per_100g": {
+   "kcal": 150,
+   "protein": 6,
+   "carbs": 18,
+   "fat": 6,
+   "fiber": 1.5
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 100,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:maggi",
+  "name": "Instant noodles",
+  "full_name": "Instant masala noodles, cooked with the tastemaker",
+  "aliases": [
+   "maggi",
+   "maggie",
+   "instant noodles",
+   "masala noodles"
+  ],
+  "source": "estimate",
+  "basis": "One 70 g pack (about 310 kcal) cooked to about 230 g; pack label values.",
+  "per_100g": {
+   "kcal": 135,
+   "protein": 3,
+   "carbs": 18,
+   "fat": 5.5,
+   "fiber": 1
+  },
+  "serving": {
+   "unit": "pack",
+   "grams": 230,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:kulcha",
+  "name": "Kulcha",
+  "full_name": "Plain kulcha, leavened maida flatbread cooked on a tawa or in a tandoor",
+  "aliases": [
+   "kulche",
+   "plain kulcha",
+   "matar kulcha bread"
+  ],
+  "source": "estimate",
+  "basis": "One 75 g kulcha: maida dough with curd and a little oil or butter. IFCT 2017 ingredient values; about 210 kcal each.",
+  "per_100g": {
+   "kcal": 280,
+   "protein": 8,
+   "carbs": 48,
+   "fat": 6,
+   "fiber": 2
+  },
+  "serving": {
+   "unit": "piece",
+   "grams": 75,
+   "from_source": false
+  }
+ }
+]

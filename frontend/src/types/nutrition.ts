@@ -149,7 +149,17 @@ export type EstimatedItem = {
   meal_type: MealType | null;
   eaten_at: string | null;
   alternatives: FoodAlternative[];
+  /** AI estimates only: the plausible range of calories, given the confidence. */
+  kcal_low?: number | null;
+  kcal_high?: number | null;
+  /** Set when an AI estimate looks off against the datasets. */
+  check?: EstimateCheck | null;
+  similar_name?: string | null;
+  similar_kcal_per_100g?: number | null;
 };
+
+/** Why an AI estimate asks to be checked. */
+export type EstimateCheck = 'higher_than_similar' | 'very_dense' | 'large_portion';
 
 /** `POST /nutrition/meals/batch` -> data. */
 export type MealBatchResult = {

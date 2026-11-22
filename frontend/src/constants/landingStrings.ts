@@ -179,6 +179,10 @@ export const LANDING_STRINGS = {
     items: [
       { q: 'Is it free?', a: 'Yes, while RepEat is in early access. No card needed.' },
       {
+        q: 'How do I know the calories are right?',
+        a: 'Every food shows where its numbers came from. Most come from food databases, and everyday street food like samosa, kachori, pani puri and vada pav is built from standard piece weights. Only a food we do not know gets an AI estimate, and that one shows a likely range. If it looks much higher than a similar food in our database, or the portion is bigger than usual, the app asks you to check it before you save. A plate of rajma chawal counts as one plate, not a plate of each, and the meal is saved with a short name like Poha and chai.',
+      },
+      {
         q: 'Where does the AI come in?',
         a: 'It reads your meals in plain English or Hinglish, picks dishes and exercises for your plans, and powers the coach you can chat with. The numbers come from food databases and training guidelines, never from a guess.',
       },

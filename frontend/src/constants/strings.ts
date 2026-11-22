@@ -682,6 +682,20 @@ export const STRINGS = {
       kcal: (kcal: number) => `${Math.round(kcal)} kcal`,
       perUnit: (kcal: number, unit: string) => `${Math.round(kcal)} kcal per ${unit}`,
       assumedQuantity: "Typical portion assumed. Change the quantity if yours was different.",
+      mealName: {
+        fallback: "Meal",
+        list: (names: string[]) =>
+          names.length === 1 ? names[0] : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`,
+        withMore: (names: string[], rest: number) => `${names.join(", ")} and ${rest} more`,
+      },
+      kcalRange: (low: number, high: number) =>
+        `AI estimate: likely between ${Math.round(low)} and ${Math.round(high)} kcal.`,
+      checks: {
+        higher_than_similar: (name: string, kcalPer100g: number) =>
+          `Check this: it is much higher than ${name} in our database (${Math.round(kcalPer100g)} kcal per 100 g). Lower the amount or pick a database food.`,
+        very_dense: "Check this: that is a lot of calories for this kind of food. Lower the amount or pick a database food.",
+        large_portion: "Check this: the portion is bigger than a usual serving. Change the quantity if yours was smaller.",
+      },
       changeFood: "Change food",
       removeItem: "Remove",
       searchLabel: "Search foods",

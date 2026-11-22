@@ -34,7 +34,7 @@ Type or speak something like *"subah 2 idli aur chai, dopahar ko dal chawal, raa
 
 ### Nutrition numbers you can trust
 
-The numbers come from proper food databases first: INDB for Indian dishes, USDA for everyday staples and Open Food Facts for packaged food. The AI only fills in when a food isn't in any of them, and those numbers are marked as estimates. Every item shows where its numbers came from, and you can fix anything before saving.
+The numbers come from proper food databases first: INDB for Indian dishes, USDA for everyday staples and Open Food Facts for packaged food. Common street food and snacks (samosa, kachori, kadhi, pani puri, vada pav, momos and more) are built from standard piece weights, so they don't depend on a guess. The AI only fills in when a food isn't known at all; those numbers are marked as estimates with a likely range, and the app asks you to check one that looks much higher than a similar food or a portion bigger than usual. A plate of rajma chawal counts as one plate, not a plate of each. Every item shows where its numbers came from, and you can fix anything before saving.
 
 ### A meal plan that looks like home food
 

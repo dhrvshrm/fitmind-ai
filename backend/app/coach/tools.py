@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from app.nutrition.naming import concise_meal_name
 from app.coach.registry import (
     ActionResult,
     Change,
@@ -198,7 +199,7 @@ def meal_proposal_from_estimate(
               for k in ("kcal", "protein", "carbs", "fat", "fiber")}
     skipped = len(estimate["items"]) - len(items)
     is_estimate = any(not i["verified"] for i in items)
-    name = ", ".join(i["name"] for i in items)[:200]
+    name = concise_meal_name(items)[:200]
     changes = [
         Change(label="Foods", value=", ".join(f"{i['quantity']:g} {i['unit']} {i['name']}" for i in items)),
         Change(label="Calories", value=f"{_r(totals['kcal'])} kcal"),
