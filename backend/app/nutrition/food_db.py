@@ -25,7 +25,16 @@ logger = logging.getLogger(__name__)
 DATA_DIR = Path(__file__).parent / "data"
 # fasting_estimates.json: a few fasting dishes INDB lacks (kuttu roti, samak rice...),
 # hand-built from ingredient values and labelled as estimates (source "estimate").
-DATASET_FILES = ("indb_foods.json", "usda_basics.json", "fasting_estimates.json", "protein_staples.json")
+# common_dishes.json: street food and snacks INDB lacks (samosa, kachori, kadhi...), built
+# the same way from typical piece weights and recipes, also labelled as estimates.
+DATASET_FILES = (
+    "indb_foods.json", "usda_basics.json", "fasting_estimates.json", "protein_staples.json",
+    "common_dishes.json",
+)
+# Datasets for logging only: street food and snacks are never put into a meal plan.
+LOG_ONLY_FILES = frozenset({"common_dishes.json"})
+# Filled while loading: ids from LOG_ONLY_FILES.
+LOG_ONLY_IDS: set = set()
 # Sources whose numbers are hand-built estimates rather than a published dataset.
 ESTIMATE_SOURCES = frozenset({"estimate"})
 
@@ -51,7 +60,8 @@ GENERIC_ALIASES: Dict[str, str] = {
     "dosa": "indb:BFP148",
     "idli": "indb:ASC144",
     "sambar": "indb:ASC167",
-    "poha": "indb:BFP044",
+    "poha": "indb:BFP045",
+    "kanda poha": "indb:BFP045",
     "egg curry": "indb:BFP240",
     "curd rice": "indb:ASC126",
     "veg biryani": "indb:ASC123",
@@ -67,6 +77,21 @@ GENERIC_ALIASES: Dict[str, str] = {
     "sabudana khichdi": "indb:OSR099",
     "sabudana": "indb:OSR099",
 }
+
+# INDB entries whose values are per 100 g of a dried-down recipe yield, not the dish
+# as eaten: 250 g of "Poha" at 295 kcal/100 g would be 740 kcal, about twice the
+# real figure. They stay readable (old logs keep their numbers) but are never
+# matched or planned again; the cooked equivalent is used instead.
+UNRELIABLE_IDS: Dict[str, str] = {
+    "indb:BFP044": "Poha at 295 kcal/100 g; cooked poha is about 180 (Vegetable poha, indb:BFP045)",
+    "indb:BFP554": "Rice dal khichdi at 383 kcal/100 g; cooked khichdi is about 100-150",
+    "indb:OSR155": "Maa chaane ki dal at 345 kcal/100 g; a cooked dal is about 100-150",
+    "indb:BFP547": "Sajina at 345 kcal/100 g, a dry-weight figure for a cooked dish",
+    "indb:BFP546": "Bajra infant food at 362 kcal/100 g, the dry mix rather than the porridge",
+}
+
+# Display names for the entries that replace an unreliable one, so the app still says "Poha".
+NAME_OVERRIDES: Dict[str, str] = {"indb:BFP045": "Poha"}
 
 NUTRIENT_KEYS = ("kcal", "protein", "carbs", "fat", "fiber")
 
@@ -132,10 +157,14 @@ def _index() -> List[_Entry]:
             logger.info("Food dataset %s not found; skipping", filename)
             continue
         for raw in json.loads(path.read_text(encoding="utf-8")):
+            if raw["id"] in NAME_OVERRIDES:
+                raw = {**raw, "name": NAME_OVERRIDES[raw["id"]], "aliases": [*raw.get("aliases", []), raw["name"]]}
             food = Food(**raw)
             entry = _Entry(food, [food.name, *food.aliases])
             entries.append(entry)
             by_id[food.id] = entry
+            if filename in LOG_ONLY_FILES:
+                LOG_ONLY_IDS.add(food.id)
     for alias, food_id in GENERIC_ALIASES.items():
         if food_id in by_id:
             by_id[food_id].names.append((normalize(alias), tokens(alias)))
@@ -235,6 +264,8 @@ def search(query: str, limit: int = 5) -> List[FoodMatch]:
     q_norm, q_tokens = normalize(query), correct_tokens(tokens(query))
     scored = []
     for entry in _index():
+        if entry.food.id in UNRELIABLE_IDS:
+            continue
         best = max((_token_score(q_norm, q_tokens, n, t) for n, t in entry.names), default=0)
         if best >= SUGGESTION_THRESHOLD:
             scored.append(FoodMatch(food=entry.food, score=best))

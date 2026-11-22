@@ -287,6 +287,8 @@ def food_pool(
     scored = []
     for entry in food_db._index():
         food = entry.food
+        if food.id in food_db.UNRELIABLE_IDS or food.id in food_db.LOG_ONLY_IDS:
+            continue
         if not suitable_for_plans(food) or not rules.allows(food):
             continue
         found = food_tokens(food)

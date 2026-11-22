@@ -53,6 +53,10 @@ export const estimatedItemRowStyles = {
     display: 'block',
     mt: 0.5,
   },
+  check: {
+    mt: 1,
+    py: 0.25,
+  },
   manualGrid: {
     display: 'grid',
     gap: 1,

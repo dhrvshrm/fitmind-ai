@@ -10,7 +10,7 @@ from tests.conftest import ONBOARDING, register_and_login
 
 API = "/api/v1"
 
-POHA, CHAPATI, DAL, RICE = "indb:BFP044", "indb:ASC096", "indb:ASC155", "indb:ASC113"
+POHA, CHAPATI, DAL, RICE = "indb:BFP045", "indb:ASC096", "indb:ASC155", "indb:ASC113"
 RAJMA, PANEER, SPROUTS = "indb:ASC165", "indb:ASC226", "indb:ASC259"
 CURD, BANANA, EGG, CHICKEN = "usda:171284", "usda:173944", "usda:173424", "usda:171477"
 

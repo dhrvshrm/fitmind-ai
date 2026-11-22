@@ -21,7 +21,7 @@ def best(query):
         ("rice", "indb:ASC113"),
         ("chawal", "indb:ASC113"),
         ("chai", "indb:ASC001"),
-        ("poha", "indb:BFP044"),
+        ("poha", "indb:BFP045"),
         ("masala dosa", None),  # Checked by name below; id varies by dataset order.
         ("idli", "indb:ASC144"),
         ("rajma", "indb:ASC165"),
@@ -37,7 +37,7 @@ def test_common_indian_dishes_match_confidently(query, expected_id):
         assert match.food.id == expected_id
 
 
-@pytest.mark.parametrize("query", ["chicken biryani", "misal pav", "vada pav"])
+@pytest.mark.parametrize("query", ["chicken biryani", "misal pav", "dabeli"])
 def test_dishes_not_in_the_data_are_not_force_matched(query):
     """A mutton biryani must never be returned as "chicken biryani"."""
     match = best(query)

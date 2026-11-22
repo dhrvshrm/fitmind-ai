@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 # A whole day described at once (breakfast, lunch, dinner and snacks) fits in this.
 MAX_ITEMS = 30
 # Bump whenever the parse prompt changes, so cached parses from the old prompt are ignored.
-PARSE_PROMPT_VERSION = 3
+PARSE_PROMPT_VERSION = 4
 
 MealType = Literal["breakfast", "lunch", "dinner", "snack"]
 
@@ -58,9 +58,14 @@ _PARSE_INSTRUCTIONS = """Split this meal description into foods.
 Rules:
 - One item per separately eaten food. Split combinations eaten as separate dishes:
   "rajma chawal" -> rajma curry + rice; "dal chawal" -> dal + rice; "chole bhature" -> chole + bhatura;
-  "vada pav" -> batata vada (potato) + pav; "pav bhaji" -> pav bhaji (the bhaji) + pav.
+  "pav bhaji" -> pav bhaji (the bhaji) + pav. Keep "vada pav" whole: it is one item.
 - Name the specific regional dish when the combination implies it: the vada in vada pav is a
   batata vada, the vada in sambar vada or medu vada is an urad dal vada.
+- A combination with ONE amount ("1 plate rajma chawal", "ek plate chole kulche") is one plate in
+  total: split it and give each part its share of that plate, never a full plate each.
+  "1 plate rajma chawal" -> rajma curry 1 bowl + rice 0.75 plate; "1 plate dal chawal" -> dal 1 bowl
+  + rice 0.75 plate; "1 plate chole kulche" -> chole 1 bowl + kulcha 2 piece; "1 plate chole bhature"
+  -> chole 1 bowl + bhatura 2 piece; "1 plate pav bhaji" -> pav bhaji 1 bowl + pav 2 piece.
 - Keep single dishes whole: "masala dosa", "aloo paratha", "chicken biryani", "paneer bhurji".
 - Put add-ons on their own line when they add real calories: "cheese pav bhaji" -> pav bhaji + pav + cheese.
 - quantity is a number (use 0.5 for half). Leave quantity and unit null when the text doesn't say.
@@ -115,7 +120,9 @@ _NUMBER_WORDS = {
     "three": 3, "teen": 3, "four": 4, "char": 4, "chaar": 4,
     "five": 5, "paanch": 5, "panch": 5, "six": 6, "chhe": 6,
     "seven": 7, "eight": 8, "nine": 9, "ten": 10,
-    "half": 0.5, "aadha": 0.5, "adha": 0.5,
+    "half": 0.5, "aadha": 0.5, "adha": 0.5, "aadhi": 0.5,
+    "quarter": 0.25, "paav": 0.25, "pao": 0.25, "chauthai": 0.25,
+    "pauna": 0.75, "dedh": 1.5, "dhai": 2.5, "dhaai": 2.5,
 }
 _SPLIT_PATTERN = re.compile(r",|;|\+|&|\band\b|\bwith\b|\bplus\b|\baur\b|\bsath\b")
 _UNIT_WORDS = sorted(set(UNIT_GRAMS) | set(UNIT_ALIASES), key=len, reverse=True)

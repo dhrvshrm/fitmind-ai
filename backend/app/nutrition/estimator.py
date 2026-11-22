@@ -33,10 +33,30 @@ UnresolvedReason = Literal["ai_not_configured", "ai_quota", "ai_failed"]
 Confidence = Literal["high", "medium", "low"]
 
 # Bump whenever the estimate prompt or schema changes, so old cached estimates are ignored.
-ESTIMATE_PROMPT_VERSION = 2
+ESTIMATE_PROMPT_VERSION = 3
 
 # Sources whose numbers come from a published dataset or the user themselves.
 VERIFIED_SOURCES = {"INDB", "USDA", "custom"}
+
+# How far an AI estimate may plausibly be off, by its confidence: shown as a range.
+RANGE_BY_CONFIDENCE = {"high": 0.1, "medium": 0.2, "low": 0.3}
+# An AI estimate this much denser (kcal per 100 g) than the closest similar food in
+# the datasets is flagged for the person to check.
+SIMILAR_MIN_SCORE = 0.5
+SIMILAR_MAX_RATIO = 1.35
+# Above this density only fats, nuts, sweets and fried snacks belong.
+DENSE_KCAL_PER_100G = 450
+DENSE_WORDS = frozenset({
+    "oil", "ghee", "butter", "nut", "nuts", "almond", "almonds", "cashew", "cashews", "peanut",
+    "peanuts", "walnut", "walnuts", "pista", "chocolate", "chips", "namkeen", "bhujia", "mixture",
+    "sev", "chakli", "mathri", "cookie", "cookies", "biscuit", "biscuits", "seeds", "halwa",
+    "ladoo", "laddoo", "barfi", "burfi", "pinni", "chikki", "coconut", "cheese", "mayonnaise",
+})
+# Grams beyond which a stated container sounds larger than any normal serving.
+LARGE_PORTION_GRAMS = {"bowl": 400, "small bowl": 250, "plate": 500, "glass": 450, "cup": 350}
+
+# Why an estimate asks to be checked (the app words it).
+CheckReason = Literal["higher_than_similar", "very_dense", "large_portion"]
 
 
 class Alternative(BaseModel):
@@ -67,6 +87,13 @@ class EstimatedItem(BaseModel):
     meal_type: Optional[str] = None
     eaten_at: Optional[str] = None
     alternatives: List[Alternative] = []
+    # For AI estimates: the plausible range of calories, given the confidence.
+    kcal_low: Optional[float] = None
+    kcal_high: Optional[float] = None
+    # Set when an AI estimate looks off against the datasets, with what it was compared to.
+    check: Optional[CheckReason] = None
+    similar_name: Optional[str] = None
+    similar_kcal_per_100g: Optional[float] = None
 
 
 class MealEstimate(BaseModel):
@@ -103,8 +130,19 @@ class _AIFoodEstimate(BaseModel):
 
 _ESTIMATE_SYSTEM_PROMPT = (
     "You are a nutritionist estimating the nutrition of foods as typically prepared in Indian "
-    "homes and restaurants. Be realistic about oil, ghee and portion sizes. When unsure, give "
-    "your best typical estimate and lower the confidence rather than refusing."
+    "homes and restaurants. Be realistic about oil, ghee and portion sizes. Give the median, "
+    "typical value, not the upper end of a range: people log real meals and an overestimate is "
+    "as wrong as an underestimate. When unsure, give your best typical estimate and lower the "
+    "confidence rather than refusing."
+)
+
+# Standard weights so "a katori" or "one samosa" means the same thing every time.
+_PORTION_GUIDE = (
+    "Typical Indian weights: 1 katori or bowl of dal, sabzi or curry is about 150 g; 1 plate of "
+    "rice about 250 g; 1 roti about 40 g; 1 paratha about 80 g; 1 samosa about 80 g; 1 kachori "
+    "about 60-70 g; 1 idli about 40 g; 1 dosa about 100 g; 1 slice of bread about 30 g; 1 glass "
+    "about 250 ml; 1 cup of tea about 150 ml. Cooked dishes are mostly 80-250 kcal per 100 g; "
+    "only fried snacks, sweets, nuts and fats go above 350."
 )
 
 
@@ -154,6 +192,7 @@ async def _ai_estimate(item: ParsedItem, user_id: Optional[str]) -> _AIFoodEstim
     prep = f" ({item.preparation})" if item.preparation else ""
     prompt = (
         f"Food: {item.name}{prep}\nAmount eaten: {amount}\n\n"
+        f"{_PORTION_GUIDE}\n\n"
         "Give the total grams for that amount and its calories (kcal), protein, carbs, fat, "
         "fiber and alcohol in grams (alcohol is 0 unless it's an alcoholic drink). confidence is "
         "high, medium or low. assumption briefly states the portion and preparation you assumed, "
@@ -225,7 +264,32 @@ async def estimate_item(
         confidence=estimate.confidence,
         note=estimate.assumption or None,
         alternatives=_alternatives(matches),
+        **plausibility(item, estimate.grams, nutrients.kcal, estimate.confidence, matches),
     )
+
+
+def plausibility(item: ParsedItem, grams: float, kcal: float, confidence: str, matches) -> dict:
+    """A range for an AI estimate, and a reason to check it when it looks off.
+
+    Nothing is changed: the person sees the estimate, how sure it is, and, when it
+    is much denser than a similar food in the datasets, oddly dense for what it is,
+    or a very large portion for the container named, a prompt to check it.
+    """
+    spread = RANGE_BY_CONFIDENCE.get(confidence, 0.3)
+    result: dict = {"kcal_low": round(kcal * (1 - spread)), "kcal_high": round(kcal * (1 + spread))}
+    density = kcal * 100 / grams if grams else 0
+    similar = next((m for m in matches if m.score >= SIMILAR_MIN_SCORE
+                    and m.food.id not in food_db.UNRELIABLE_IDS), None)
+    unit = normalize_unit(item.unit)
+    if similar and density > similar.food.per_100g.kcal * SIMILAR_MAX_RATIO:
+        result.update(check="higher_than_similar", similar_name=similar.food.name,
+                      similar_kcal_per_100g=round(similar.food.per_100g.kcal))
+    elif density > DENSE_KCAL_PER_100G and not (tokens(item.name) & DENSE_WORDS):
+        result["check"] = "very_dense"
+    elif unit in LARGE_PORTION_GRAMS and item.quantity:
+        if grams / item.quantity > LARGE_PORTION_GRAMS[unit]:
+            result["check"] = "large_portion"
+    return result
 
 
 def _unresolved_reason(error: AIError) -> UnresolvedReason:

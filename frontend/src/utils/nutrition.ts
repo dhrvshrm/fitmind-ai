@@ -1,3 +1,4 @@
+import { STRINGS } from '../constants/strings';
 import type {
   EstimatedItem,
   Food,
@@ -43,7 +44,18 @@ export function withQuantity(item: EstimatedItem, quantity: number): EstimatedIt
   const nutrients = item.per_100g
     ? scaleNutrients(item.per_100g, grams)
     : item.nutrients && scaleLinear(item.nutrients, quantity / item.quantity);
-  return { ...item, quantity, grams, nutrients, quantity_assumed: false };
+  // The AI's range scales with the amount; a changed amount has been looked at, so its check is done.
+  const factor = quantity / item.quantity;
+  return {
+    ...item,
+    quantity,
+    grams,
+    nutrients,
+    quantity_assumed: false,
+    kcal_low: item.kcal_low != null ? Math.round(item.kcal_low * factor) : item.kcal_low,
+    kcal_high: item.kcal_high != null ? Math.round(item.kcal_high * factor) : item.kcal_high,
+    check: null,
+  };
 }
 
 function scaleLinear(n: Nutrients, factor: number): Nutrients {
@@ -66,6 +78,9 @@ export function withFood(item: EstimatedItem, food: Food): EstimatedItem {
     per_100g: food.per_100g,
     confidence: 'high',
     note: null,
+    kcal_low: null,
+    kcal_high: null,
+    check: null,
     alternatives: item.alternatives.filter((a) => a.food_id !== food.id),
   };
 }
@@ -94,12 +109,6 @@ export function toMealItems(items: EstimatedItem[]): MealItem[] {
       nutrients: item.nutrients as Nutrients,
       edited: false,
     }));
-}
-
-/** "Aloo paratha, Curd" style title from the user's own words, capitalised. */
-export function mealNameFrom(text: string): string {
-  const trimmed = text.trim().replace(/\s+/g, ' ');
-  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 }
 
 /** Local time as "HH:MM", for the "eaten at" field. */
@@ -153,5 +162,39 @@ export function groupByMeal(items: EstimatedItem[], fallback: MealType): MealGro
 
 /** "Poha, Chai" from a meal's foods, for naming a meal logged from a whole day. */
 export function nameFromItems(items: EstimatedItem[]): string {
-  return items.map((i) => i.name).join(', ');
+  return conciseMealName(items);
+}
+
+/** Foods with almost no calories (water, black tea) are left out of a meal's name. */
+const MIN_KCAL_IN_NAME = 10;
+const MAX_FOODS_IN_NAME = 3;
+
+function foodLabel(item: EstimatedItem): string {
+  const raw = (item.query || item.name || '').replace(/\s*\(.*?\)/g, '').trim();
+  return raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : '';
+}
+
+/**
+ * A short meal name from its foods: the three heaviest at most, in the order they
+ * were said ("Poha and chai", "Rajma curry, rice and salad"). Mirrors backend
+ * app/nutrition/naming.py.
+ */
+export function conciseMealName(items: EstimatedItem[]): string {
+  const S = STRINGS.nutrition.review.mealName;
+  const labelled = items
+    .map((item, index) => ({ kcal: item.nutrients?.kcal ?? 0, index, label: foodLabel(item) }))
+    .filter((x) => x.label);
+  const main = labelled.filter((x) => x.kcal >= MIN_KCAL_IN_NAME);
+  const unique = (main.length ? main : labelled).filter(
+    (x, i, all) => all.findIndex((y) => y.label.toLowerCase() === x.label.toLowerCase()) === i,
+  );
+  if (unique.length === 0) return S.fallback;
+  const shown = [...unique]
+    .sort((a, b) => b.kcal - a.kcal)
+    .slice(0, MAX_FOODS_IN_NAME)
+    .sort((a, b) => a.index - b.index)
+    .map((x, i) => (i === 0 ? x.label : x.label.charAt(0).toLowerCase() + x.label.slice(1)));
+  const rest = unique.length - shown.length;
+  if (rest > 0) return S.withMore(shown, rest);
+  return S.list(shown);
 }

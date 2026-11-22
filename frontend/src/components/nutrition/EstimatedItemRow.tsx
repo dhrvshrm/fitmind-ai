@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Button, IconButton, Stack, TextField, Tooltip, Typography } from '@mui/material';
+import { Alert, Box, Button, IconButton, Stack, TextField, Tooltip, Typography } from '@mui/material';
 import { CloseRounded, SwapHorizRounded } from '@mui/icons-material';
 import { STRINGS } from '../../constants/strings';
 import type { EstimatedItem, Food, Nutrients } from '../../types/nutrition';
@@ -116,6 +116,18 @@ export function EstimatedItemRow({ item, onChange, onRemove, disabled = false }:
         <Typography variant="caption" color="text.secondary" sx={styles.hint}>
           {item.note}
         </Typography>
+      )}
+      {item.source === 'ai_estimate' && item.kcal_low != null && item.kcal_high != null && (
+        <Typography variant="caption" color="text.secondary" sx={styles.hint}>
+          {S.kcalRange(item.kcal_low, item.kcal_high)}
+        </Typography>
+      )}
+      {item.source === 'ai_estimate' && item.check && (
+        <Alert severity="warning" variant="outlined" sx={styles.check}>
+          {item.check === 'higher_than_similar'
+            ? S.checks.higher_than_similar(item.similar_name ?? '', item.similar_kcal_per_100g ?? 0)
+            : S.checks[item.check]}
+        </Alert>
       )}
 
       {(needsValues || manual) && (

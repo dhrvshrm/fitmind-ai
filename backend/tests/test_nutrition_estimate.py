@@ -43,11 +43,11 @@ def test_missing_quantity_uses_default_serving_and_is_flagged(client, ai_provide
 def test_unknown_food_gets_a_labelled_ai_estimate(client, ai_providers):
     headers, _ = register_and_login(client)
     ai_providers.gemini = [
-        parsed(("vada pav", 1, None)),
+        parsed(("misal pav", 1, None)),
         json.dumps({"grams": 130, "kcal": 290, "protein": 7, "carbs": 40, "fat": 11, "fiber": 3,
-                    "confidence": "medium", "assumption": "One street-style vada pav with chutney."}),
+                    "confidence": "medium", "assumption": "One street-style misal pav with two pav."}),
     ]
-    item = estimate(client, headers, "1 vada pav")["items"][0]
+    item = estimate(client, headers, "1 misal pav")["items"][0]
     assert item["source"] == "ai_estimate"
     assert item["verified"] is False
     assert item["nutrients"]["kcal"] == 290
@@ -73,11 +73,11 @@ def test_inconsistent_ai_numbers_are_rejected_and_retried(client, ai_providers):
 
 def test_without_ai_known_foods_still_resolve_and_unknown_ones_are_unresolved(client, ai_providers):
     headers, _ = register_and_login(client)
-    data = estimate(client, headers, "2 rotis and vada pav")
+    data = estimate(client, headers, "2 rotis and misal pav")
     by_query = {i["query"]: i for i in data["items"]}
     assert by_query["rotis"]["source"] == "INDB"
-    assert by_query["vada pav"]["source"] == "unresolved"
-    assert by_query["vada pav"]["nutrients"] is None
+    assert by_query["misal pav"]["source"] == "unresolved"
+    assert by_query["misal pav"]["nutrients"] is None
     assert data["unresolved_count"] == 1
 
 
@@ -114,7 +114,7 @@ def test_unresolved_items_say_why(client, ai_providers, monkeypatch):
     from app.config.settings import get_settings
 
     headers, _ = register_and_login(client)
-    item = estimate(client, headers, "vada pav")["items"][0]
+    item = estimate(client, headers, "misal pav")["items"][0]
     assert item["unresolved_reason"] == "ai_not_configured"
 
     monkeypatch.setattr(get_settings(), "GEMINI_API_KEY", "set-but-failing")

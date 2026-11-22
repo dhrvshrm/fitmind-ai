@@ -18,7 +18,7 @@ import type { EstimatedItem, MealEstimate, MealType } from '../../types/nutritio
 import {
   DEFAULT_MEAL_TIMES,
   currentTimeHHMM,
-  mealNameFrom,
+  conciseMealName,
   mealTypeForTime,
   mealTypesIn,
   sumNutrients,
@@ -50,7 +50,7 @@ export function EstimateReview({ estimate, onDone }: EstimateReviewProps) {
 /** Fix quantities or foods, then save one meal with its items. */
 function SingleMealReview({ estimate, onDone }: EstimateReviewProps) {
   const [items, setItems] = useState<EstimatedItem[]>(estimate.items);
-  const [name, setName] = useState(() => mealNameFrom(estimate.text));
+  const [name, setName] = useState(() => conciseMealName(estimate.items));
   // A meal or time named in the description ("lunch", "at 5 pm") wins over the clock.
   const statedType = mealTypesIn(estimate.items)[0];
   const statedTime = estimate.items.find((i) => i.eaten_at)?.eaten_at;
