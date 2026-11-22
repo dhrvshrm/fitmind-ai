@@ -1,4 +1,10 @@
-import { CONDITION_ORDER, HEALTH_CONDITIONS } from '../constants/health';
+import {
+  CONDITION_ORDER,
+  FEMALE_ONLY_CONDITIONS,
+  FEMALE_ONLY_OPTIONS,
+  GENDER_WITHOUT_FEMALE_ONLY,
+  HEALTH_CONDITIONS,
+} from '../constants/health';
 import type {
   ConditionDetails,
   ConditionKey,
@@ -16,6 +22,24 @@ export function questionApplies(question: FollowUpQuestion, answers: ConditionDe
 }
 
 /** The follow-ups to show for a condition, in order. */
+/** The conditions someone of this gender can record (men don't see pregnancy or PCOS). */
+export function conditionsFor(gender: string | null | undefined): ConditionKey[] {
+  if (gender !== GENDER_WITHOUT_FEMALE_ONLY) return CONDITION_ORDER;
+  return CONDITION_ORDER.filter((key) => !FEMALE_ONLY_CONDITIONS.includes(key));
+}
+
+/** A choice question's options for this gender (men don't see "gestational"). */
+export function optionsFor(
+  condition: ConditionKey,
+  question: FollowUpQuestion,
+  gender: string | null | undefined,
+): string[] {
+  const options = question.options ?? [];
+  if (gender !== GENDER_WITHOUT_FEMALE_ONLY) return options;
+  const hidden = FEMALE_ONLY_OPTIONS[condition]?.[question.key] ?? [];
+  return options.filter((option) => !hidden.includes(option));
+}
+
 export function visibleQuestions(condition: ConditionKey, answers: ConditionDetails): FollowUpQuestion[] {
   return HEALTH_CONDITIONS[condition].filter((q) => questionApplies(q, answers));
 }

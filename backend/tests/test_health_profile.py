@@ -258,3 +258,61 @@ def test_coach_context_includes_consented_health_details_only(client):
 
     client.delete(f"{API}/consents/health_profile", headers=headers)
     assert "Health context" not in asyncio.run(registry.build_context(user_id))
+
+
+# --- Gender-specific conditions ---------------------------------------------------
+PREGNANT = {"key": "pregnancy", "details": {"status": "pregnant", "trimester": "second"}}
+
+
+def _onboard(client, headers, gender):
+    res = client.post(f"{API}/users/onboarding", headers=headers, json={**ONBOARDING, "gender": gender})
+    assert res.status_code == 200, res.text
+
+
+@pytest.mark.parametrize(
+    "condition",
+    [PREGNANT, {"key": "pcos", "details": {}}, {"key": "diabetes", "details": {"type": "gestational"}}],
+)
+def test_men_cannot_record_pregnancy_pcos_or_gestational_diabetes(client, condition):
+    headers, _ = register_and_login(client)
+    _onboard(client, headers, "male")
+    grant(client, headers, "health_profile")
+    res = client.put(f"{API}/health-profile", headers=headers, json={"conditions": [condition]})
+    assert res.status_code == 400
+    assert "gender" in res.json()["message"]
+
+
+@pytest.mark.parametrize("gender", ["female", "other"])
+def test_women_and_other_genders_can_record_them(client, gender):
+    headers, _ = register_and_login(client)
+    _onboard(client, headers, gender)
+    grant(client, headers, "health_profile")
+    res = client.put(f"{API}/health-profile", headers=headers, json={"conditions": [PREGNANT]})
+    assert res.status_code == 200, res.text
+    assert "pregnancy" in res.json()["data"]["plan_effects"]
+
+
+def test_answers_from_before_a_gender_change_stop_applying(client):
+    headers, user_id = register_and_login(client)
+    _onboard(client, headers, "female")
+    grant(client, headers, "health_profile")
+    conditions = [PREGNANT, {"key": "diabetes", "details": {"type": "gestational", "on_medication": False}}]
+    assert client.put(f"{API}/health-profile", headers=headers, json={"conditions": conditions}).status_code == 200
+
+    res = client.put(f"{API}/users/profile", headers=headers, json={"gender": "male"})
+    assert res.status_code == 200, res.text
+    view = client.get(f"{API}/health-profile", headers=headers).json()["data"]
+    assert [c["key"] for c in view["profile"]["conditions"]] == ["diabetes"]
+    assert view["profile"]["conditions"][0]["details"] == {"on_medication": False}
+    assert "pregnancy" not in view["plan_effects"]
+    flags = asyncio.run(health_profile_service.health_flags(user_id))
+    assert not {"pregnancy", "pregnant"} & flags
+
+
+def test_a_leftover_pregnancy_answer_never_changes_a_mans_targets():
+    from app.nutrition.targets import TargetInputs, calculate_targets
+
+    base = dict(age=30, weight_kg=80, height_cm=178, goal="fat_loss", activity_level="moderate")
+    man = calculate_targets(TargetInputs(gender="male", reproductive_status="pregnant", **base))
+    plain = calculate_targets(TargetInputs(gender="male", **base))
+    assert man.calories == plain.calories

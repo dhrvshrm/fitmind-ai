@@ -8,6 +8,9 @@ export const healthProfileFormStyles = {
     gridTemplateColumns: { xs: 'minmax(0, 1fr)', sm: 'repeat(2, minmax(0, 1fr))' },
     alignItems: 'start',
   },
+  conditionsLoading: {
+    height: 260,
+  },
   divider: {
     my: 3,
     borderStyle: 'dashed',

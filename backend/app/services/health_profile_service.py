@@ -10,9 +10,10 @@ import logging
 from typing import Any, Dict, List, Optional, Set
 
 from app.health import plan_rules
-from app.health.questionnaire import CONDITIONS, PROVENANCE_SELF, clean_details
+from app.health.questionnaire import CONDITIONS, PROVENANCE_SELF, clean_details, for_gender
 from app.models import audit
 from app.models import health_profile as profile_model
+from app.models.user import User
 from app.services import consent_service
 from app.services.consent_service import SCOPE_HEALTH_PROFILE, SCOPE_HEALTH_REPORTS
 from app.utils.time import local_today_iso
@@ -50,11 +51,22 @@ def _entry(value: Any, previous: Optional[dict], today: str) -> Optional[dict]:
     return {"value": value, "provenance": PROVENANCE_SELF, "recorded_at": today}
 
 
+async def _gender(user_id: str) -> Optional[str]:
+    user = await User.get_by_id(user_id)
+    return user.gender if user else None
+
+
 async def get_profile(user_id: str) -> Optional[dict]:
-    """The decrypted profile, or None without consent or answers."""
+    """The decrypted profile, or None without consent or answers.
+
+    Conditions that don't apply to the person's gender are left out.
+    """
     if not await consent_service.has_consent(user_id, SCOPE_HEALTH_PROFILE):
         return None
-    return await profile_model.get(user_id)
+    profile = await profile_model.get(user_id)
+    if profile and profile.get("conditions"):
+        profile = {**profile, "conditions": for_gender(profile["conditions"], await _gender(user_id))}
+    return profile
 
 
 async def save_profile(user_id: str, answers: Dict[str, Any]) -> dict:
@@ -68,6 +80,7 @@ async def save_profile(user_id: str, answers: Dict[str, Any]) -> dict:
     previous = await profile_model.get(user_id) or {}
     previous_conditions = {c["key"]: c for c in previous.get("conditions") or []}
     today = local_today_iso()
+    gender = await _gender(user_id)
 
     conditions = []
     seen: Set[str] = set()
@@ -77,7 +90,7 @@ async def save_profile(user_id: str, answers: Dict[str, Any]) -> dict:
             continue
         seen.add(key)
         try:
-            details = clean_details(key, item.get("details"))
+            details = clean_details(key, item.get("details"), gender)
         except ValueError as e:
             raise HealthProfileError(str(e)) from e
         before = previous_conditions.get(key)
@@ -236,6 +249,6 @@ def questionnaire() -> Dict[str, Any]:
 async def profile_view(user_id: str) -> dict:
     """What the profile screen needs: consent, answers and their effects."""
     granted = await consent_service.has_consent(user_id, SCOPE_HEALTH_PROFILE)
-    profile = await profile_model.get(user_id) if granted else None
+    profile = await get_profile(user_id) if granted else None
     flags = await health_flags(user_id) if granted else set()
     return {"consented": granted, "profile": profile, "plan_effects": plan_effects(flags)}

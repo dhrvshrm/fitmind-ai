@@ -204,7 +204,7 @@ export const LANDING_STRINGS = {
       },
       {
         q: 'I have diabetes, thyroid or high BP.',
-        a: 'Add it to your health profile, only if you want to. Meal plans adjust (less sugar or salt, for example) and your AI coach keeps it in mind. It is never a diagnosis, and it is encrypted and yours to delete.',
+        a: 'Add it to your health profile, only if you want to. Meal plans adjust (less sugar or salt, for example) and your AI coach keeps it in mind. You only see the options that apply to you, so pregnancy or PCOS never show up for men. It is never a diagnosis, and it is encrypted and yours to delete.',
       },
       {
         q: 'My gym did a body composition scan (InBody). Can I use it?',

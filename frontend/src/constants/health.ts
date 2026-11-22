@@ -31,6 +31,17 @@ export const HEALTH_CONDITIONS: Record<ConditionKey, FollowUpQuestion[]> = {
 
 export const CONDITION_ORDER = Object.keys(HEALTH_CONDITIONS) as ConditionKey[];
 
+/**
+ * Conditions and answers that only apply to someone with ovaries or who can be
+ * pregnant. Hidden from men; female, other and an unknown gender see them all.
+ * Mirrors FEMALE_ONLY_* in backend app/health/questionnaire.py.
+ */
+export const FEMALE_ONLY_CONDITIONS: ConditionKey[] = ['pcos', 'pregnancy'];
+export const FEMALE_ONLY_OPTIONS: Partial<Record<ConditionKey, Record<string, string[]>>> = {
+  diabetes: { type: ['gestational'] },
+};
+export const GENDER_WITHOUT_FEMALE_ONLY = 'male';
+
 /** Free-text limits; the backend enforces the same. */
 export const OTHER_CONDITIONS_MAX = 300;
 export const MEDICATIONS_MAX = 500;

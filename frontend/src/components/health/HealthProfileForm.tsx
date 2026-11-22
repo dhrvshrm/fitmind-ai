@@ -1,15 +1,16 @@
 import { useState } from 'react';
-import { Box, Button, CircularProgress, Divider, Link, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Divider, Link, Skeleton, Stack, TextField, Typography } from '@mui/material';
 import { SaveRounded } from '@mui/icons-material';
 import { Link as RouterLink } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { CONDITION_ORDER, MEDICATIONS_MAX, OTHER_CONDITIONS_MAX } from '../../constants/health';
+import { MEDICATIONS_MAX, OTHER_CONDITIONS_MAX } from '../../constants/health';
 import { HEALTH_STRINGS } from '../../constants/healthStrings';
 import { ROUTES } from '../../constants/routes';
 import { useSaveHealthProfile } from '../../hooks/queries/useHealthQueries';
+import { useUserProfile } from '../../hooks/queries/useProfileQueries';
 import { resolveApiError } from '../../lib/apiClient';
 import type { ConditionDetails, ConditionKey, HealthDraft, HealthProfile } from '../../types/health';
-import { draftFromProfile, payloadFromDraft, sameDraft } from '../../utils/health';
+import { conditionsFor, draftFromProfile, payloadFromDraft, sameDraft } from '../../utils/health';
 import { SectionCard } from '../ui/SectionCard';
 import { ChoiceChips } from './ChoiceChips';
 import { ConditionTile } from './ConditionTile';
@@ -25,6 +26,9 @@ type HealthProfileFormProps = {
 /** The health questionnaire: conditions with follow-ups, medicines, blood thinners. */
 export function HealthProfileForm({ profile }: HealthProfileFormProps) {
   const save = useSaveHealthProfile();
+  // Wait for the gender so options that don't apply (pregnancy for men) never flash up.
+  const user = useUserProfile();
+  const gender = user.data?.gender;
   const saved = draftFromProfile(profile);
   const [draft, setDraft] = useState<HealthDraft>(saved);
   const dirty = !sameDraft(draft, saved);
@@ -51,17 +55,22 @@ export function HealthProfileForm({ profile }: HealthProfileFormProps) {
 
   return (
     <SectionCard title={P.title} subtitle={P.subtitle}>
-      <Box role="group" aria-label={P.conditionsAria} sx={styles.conditions}>
-        {CONDITION_ORDER.map((key) => (
-          <ConditionTile
-            key={key}
-            condition={key}
-            answers={draft.conditions[key]}
-            saved={savedConditions.get(key)}
-            onChange={(answers) => setCondition(key, answers)}
-          />
-        ))}
-      </Box>
+      {user.isPending ? (
+        <Skeleton variant="rounded" sx={styles.conditionsLoading} />
+      ) : (
+        <Box role="group" aria-label={P.conditionsAria} sx={styles.conditions}>
+          {conditionsFor(gender).map((key) => (
+            <ConditionTile
+              key={key}
+              condition={key}
+              answers={draft.conditions[key]}
+              saved={savedConditions.get(key)}
+              gender={gender}
+              onChange={(answers) => setCondition(key, answers)}
+            />
+          ))}
+        </Box>
+      )}
 
       <Divider sx={styles.divider} />
 

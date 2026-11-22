@@ -176,7 +176,8 @@ def calculate_targets(inputs: TargetInputs) -> Targets:
     goal = canonical_goal(inputs.goal)
     sex = inputs.gender.lower() if inputs.gender.lower() in CALORIE_FLOOR else "other"
     minor = inputs.age < 18
-    expecting = inputs.reproductive_status in ("pregnant", "breastfeeding")
+    # A pregnancy answer left over from before a gender change never applies to a man.
+    expecting = inputs.reproductive_status in ("pregnant", "breastfeeding") and sex != "male"
 
     bmr = _bmr(inputs, notes)
     level = inputs.activity_level if inputs.activity_level in ACTIVITY_FACTORS else DEFAULT_ACTIVITY
