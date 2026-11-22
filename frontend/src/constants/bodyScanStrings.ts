@@ -125,6 +125,23 @@ export const BODY_SCAN_STRINGS = {
       'Body composition machines estimate; readings move with water, food and time of day. Compare scans taken the same way, ideally in the morning before eating.',
   },
 
+  /** When the scan and the chosen goal pull apart. The person decides; the plan follows their goal. */
+  goalAdvice: {
+    title: (goal: string) => `Your scan suggests ${goal} may suit you better`,
+    reason: {
+      surplus_with_high_fat:
+        'Your body fat is on the high side, and building muscle means eating above maintenance, so some of that surplus is stored as more fat. Recomposition keeps a small deficit and high protein with the same muscle-building workouts: you build muscle while the fat comes down.',
+      deficit_when_very_lean:
+        'Your body fat is already very low. Eating below maintenance from here mostly costs muscle, energy and recovery. Building muscle on a small surplus fits your body better right now.',
+    } as Record<string, string>,
+    keep: 'Your plan keeps following your current goal until you change it.',
+    switch: (goal: string) => `Switch to ${goal}`,
+    switching: 'Switching',
+    dismiss: 'Keep my goal',
+    switched: 'Goal changed. Your targets are updated; make a new meal and workout plan so they follow it.',
+    error: "Couldn't change your goal. Please try again.",
+  },
+
   status: {
     under: 'Below standard',
     normal: 'Standard',

@@ -9,14 +9,15 @@ import {
   Stack,
   Switch,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { SearchOffRounded, VerifiedRounded } from "@mui/icons-material";
+import { SearchOffRounded, VerifiedRounded, WorkspacePremiumRounded } from "@mui/icons-material";
 import { STRINGS } from "../../constants/strings";
 import { MUSCLE_GROUPS } from "../../constants/exercises";
 import { useExerciseSearch } from "../../hooks/queries/useExerciseQueries";
 import { queryErrorMessage } from "../../hooks/queries/queryHelpers";
-import type { MuscleGroup } from "../../types/exercise";
+import type { ExerciseTier, MuscleGroup } from "../../types/exercise";
 import { SectionCard } from "../ui/SectionCard";
 import { EmptyState } from "../ui/EmptyState";
 import { ErrorState } from "../ui/ErrorState";
@@ -26,15 +27,18 @@ import { exerciseLibraryStyles as styles } from "./ExerciseLibrary.styles";
 
 const S = STRINGS.exercises;
 const SKELETON_COUNT = 8;
+const TIERS: ExerciseTier[] = ["S", "A", "B"];
+const TIER_COLOR = { S: "success", A: "info", B: "default" } as const;
 
 /** Browse and search the exercise catalogue; any exercise opens its detail page. */
 export function ExerciseLibrary() {
   const [query, setQuery] = useState("");
   const [muscle, setMuscle] = useState<MuscleGroup | "">("");
   const [curatedOnly, setCuratedOnly] = useState(true);
+  const [tier, setTier] = useState<ExerciseTier | "">("");
   const [openId, setOpenId] = useState<string | null>(null);
   const deferredQuery = useDeferredValue(query);
-  const search = useExerciseSearch(deferredQuery, muscle, curatedOnly);
+  const search = useExerciseSearch(deferredQuery, muscle, curatedOnly, tier);
   const error = queryErrorMessage(search.error, S.library.error);
   const results = search.data?.exercises ?? [];
 
@@ -66,10 +70,27 @@ export function ExerciseLibrary() {
             </MenuItem>
           ))}
         </TextField>
+        <TextField
+          select
+          size="small"
+          label={S.library.tier}
+          value={tier}
+          onChange={(e) => setTier(e.target.value as ExerciseTier | "")}
+          sx={styles.tier}
+        >
+          <MenuItem value="">{S.library.allTiers}</MenuItem>
+          {TIERS.map((t) => (
+            <MenuItem key={t} value={t}>
+              {S.library.tiers[t]}
+            </MenuItem>
+          ))}
+        </TextField>
         <FormControlLabel
           control={
             <Switch
-              checked={curatedOnly}
+              // Only exercises with coaching notes are ranked, so a tier implies them.
+              checked={curatedOnly || Boolean(tier)}
+              disabled={Boolean(tier)}
               onChange={(e) => setCuratedOnly(e.target.checked)}
             />
           }
@@ -118,14 +139,28 @@ export function ExerciseLibrary() {
                     .join(", ")}
                 </Typography>
                 {exercise.curated && (
-                  <Chip
-                    size="small"
-                    icon={<VerifiedRounded />}
-                    label={S.library.coached}
-                    color="success"
-                    variant="outlined"
-                    sx={styles.chip}
-                  />
+                  <Stack sx={styles.chips}>
+                    <Chip
+                      size="small"
+                      icon={<VerifiedRounded />}
+                      label={S.library.coached}
+                      color="success"
+                      variant="outlined"
+                      sx={styles.chip}
+                    />
+                    {exercise.tier && (
+                      <Tooltip title={S.library.tierHelp[exercise.tier]}>
+                        <Chip
+                          size="small"
+                          icon={exercise.tier === "S" ? <WorkspacePremiumRounded /> : undefined}
+                          label={S.library.tierChip(exercise.tier)}
+                          color={TIER_COLOR[exercise.tier]}
+                          variant={exercise.tier === "S" ? "filled" : "outlined"}
+                          sx={styles.chip}
+                        />
+                      </Tooltip>
+                    )}
+                  </Stack>
                 )}
               </Box>
             </Paper>

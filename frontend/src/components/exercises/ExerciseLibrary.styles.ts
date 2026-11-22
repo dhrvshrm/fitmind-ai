@@ -15,6 +15,9 @@ export const exerciseLibraryStyles = {
   muscle: {
     minWidth: 170,
   },
+  tier: {
+    minWidth: 180,
+  },
   grid: {
     display: 'grid',
     gap: 1.5,
@@ -49,6 +52,11 @@ export const exerciseLibraryStyles = {
   },
   name: {
     fontWeight: 600,
+  },
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 0.75,
   },
   chip: {
     justifySelf: 'start',

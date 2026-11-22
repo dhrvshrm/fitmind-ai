@@ -40,15 +40,28 @@ EQUIPMENT_KEYS = frozenset({
 })
 Pattern = Literal[
     "squat", "hinge", "lunge", "glute", "calf", "knee_flexion", "knee_extension",
-    "push_horizontal", "push_vertical", "pull_horizontal", "pull_vertical", "shoulder_isolation",
+    "push_horizontal", "push_vertical", "chest_fly", "pull_horizontal", "pull_vertical", "shoulder_isolation",
     "rear_delt", "biceps", "triceps", "core", "cardio", "mobility",
 ]
+
+Tier = Literal["S", "A", "B"]
+TIER_RANK = {"S": 0, "A": 1, "B": 2}
+
+
+def tier_rank(exercise: "Exercise") -> int:
+    """S first; an unranked exercise counts as A."""
+    tier = exercise.coaching.tier if exercise.coaching else None
+    return TIER_RANK.get(tier or "A", 1)
 
 
 class Coaching(BaseModel):
     """The curated layer for one exercise."""
 
     pattern: Pattern
+    # How good the exercise is for its muscle: S (best-evidenced), A (solid), B (a
+    # stand-in when nothing better fits). Plans pick the highest tier available.
+    # Warm-up, cardio and stretching moves aren't ranked.
+    tier: Optional[Tier] = None
     unit: Literal["reps", "seconds"]
     per_side: bool
     needs: List[str]
@@ -64,6 +77,9 @@ class Coaching(BaseModel):
     harder: Optional[str] = None
     # Fixed reps for explosive exercises (swings, jumps), whatever the goal.
     rep_range: Optional[List[int]] = None
+    # For an exercise with no photos of its own: show the photos of this one,
+    # the same movement with other equipment (a backpack curl shows a dumbbell curl).
+    photos_from: Optional[str] = None
     video_url: Optional[str] = None
     reviewed: bool = False
 
@@ -102,6 +118,8 @@ class Exercise(BaseModel):
     secondary_muscles: List[str]
     instructions: List[str]
     images: List[str]
+    # Who took the photos, when they come from somewhere other than the source catalogue.
+    photo_credit: Optional[Dict[str, str]] = None
     coaching: Optional[Coaching] = None
 
     @property
@@ -109,7 +127,17 @@ class Exercise(BaseModel):
         return self.coaching is not None
 
     def image_urls(self) -> List[str]:
-        return [IMAGE_BASE + path for path in self.images]
+        # Photos from other sources are served by the app ("/exercises/..."); the rest from the source.
+        return [path if path.startswith("/") else IMAGE_BASE + path for path in self.images]
+
+    def photo_note(self) -> Optional[dict]:
+        """What the pictures show when they aren't photos of this exact exercise."""
+        if self.coaching and self.coaching.photos_from:
+            stand_in = get(self.coaching.photos_from)
+            return {"kind": "stand_in", "id": stand_in.id, "name": stand_in.name}
+        if self.photo_credit:
+            return {"kind": "credit", **self.photo_credit}
+        return None
 
     def summary(self) -> dict:
         """What lists and plans show: name, muscles, equipment, first photo."""
@@ -126,6 +154,7 @@ class Exercise(BaseModel):
             "image": self.image_urls()[0] if self.images else None,
             "curated": self.curated,
             "pattern": self.coaching.pattern if self.coaching else None,
+            "tier": self.coaching.tier if self.coaching else None,
         }
 
     def detail(self) -> dict:
@@ -134,6 +163,7 @@ class Exercise(BaseModel):
         return {
             **self.summary(),
             "images": self.image_urls(),
+            "photo_note": self.photo_note(),
             # Curated steps replace the source text, which has some outdated cues.
             "instructions": coaching["steps"] if coaching else self.instructions,
             "stabilizers": coaching["stabilizers"] if coaching else [],
@@ -156,6 +186,13 @@ def _catalog() -> Dict[str, Exercise]:
         if exercise_id not in by_id:
             raise ValueError(f"curated exercise {exercise_id} isn't in the catalogue")
         by_id[exercise_id] = {**by_id[exercise_id], **fixes, "coaching": Coaching(**entry)}
+    for exercise_id, value in by_id.items():
+        coaching = value.get("coaching")
+        if coaching is not None and coaching.photos_from:
+            source = by_id.get(coaching.photos_from)
+            if not source or not source["images"] or value["images"]:
+                raise ValueError(f"{exercise_id} can't borrow photos from {coaching.photos_from}")
+            value["images"] = source["images"]
     catalog = {key: Exercise(**value) for key, value in by_id.items()}
     for exercise in catalog.values():
         if exercise.coaching:
@@ -180,21 +217,30 @@ def search(
     equipment: Optional[str] = None,
     curated_only: bool = False,
     limit: int = 40,
+    tier: Optional[str] = None,
 ) -> List[Exercise]:
-    """Exercises matching all given filters; curated ones first, then by name."""
+    """Exercises matching all given filters; curated ones first, best tier first, then by name.
+
+    A muscle filter matches the muscles an exercise mainly trains, not the ones it
+    also works. A tier filter (S, A or B) only matches curated exercises: only
+    those are ranked.
+    """
     words = normalize(query).split() if query else []
     results = []
     for exercise in _catalog().values():
         if curated_only and not exercise.curated:
             continue
-        if muscle and muscle not in exercise.primary_muscles + exercise.secondary_muscles:
+        if tier and not (exercise.coaching and exercise.coaching.tier == tier):
+            continue
+        # The muscle an exercise mainly trains: a bench press is a chest exercise, not a triceps one.
+        if muscle and muscle not in exercise.primary_muscles:
             continue
         if equipment and exercise.equipment != equipment:
             continue
         if words and not all(w in normalize(exercise.name) for w in words):
             continue
         results.append(exercise)
-    results.sort(key=lambda e: (not e.curated, e.name))
+    results.sort(key=lambda e: (not e.curated, tier_rank(e) if e.coaching else 9, e.name))
     return results[:limit]
 
 

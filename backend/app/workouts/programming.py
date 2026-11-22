@@ -82,7 +82,7 @@ def scheme_for(exercise: Exercise, goal: str, main_lift: bool = True) -> Scheme:
     if pattern == "core":
         return CORE_REPS
     if exercise.mechanic == "isolation" or pattern in (
-        "calf", "knee_flexion", "knee_extension", "shoulder_isolation", "rear_delt", "biceps", "triceps",
+        "calf", "knee_flexion", "knee_extension", "chest_fly", "shoulder_isolation", "rear_delt", "biceps", "triceps",
     ):
         return ISOLATION_SCHEME
     name = GOAL_SCHEME.get(goal, "general")

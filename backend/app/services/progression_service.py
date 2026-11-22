@@ -92,20 +92,32 @@ async def record_sets(user_id: str, exercises: List[dict], day: Optional[str] = 
     return records
 
 
+# How many harder variations ahead to look for one the person can load.
+HARDER_LOOKAHEAD = 2
+
+
 def _harder_for(exercise: catalog.Exercise, user: Optional[User]) -> Optional[catalog.Exercise]:
     """The harder variation, only if the person has its equipment and it spares their injuries.
 
+    Walks the chain of harder variations a couple of steps: with weights, the
+    first one that takes weight wins (a goblet squat, not a backpack squat, for
+    someone with dumbbells); otherwise the first one they can do.
     (Its skill level may be a step up: that is the point of moving on.)
     """
-    harder = catalog.get(exercise.coaching.harder) if exercise.coaching.harder else None
-    if harder is None or harder.coaching is None:
+    owned = (list(user.available_equipment or []) or ["bodyweight"]) if user is not None else None
+    joints = catalog.injured_joints(user.injuries or []) if user is not None else set()
+    reachable: List[catalog.Exercise] = []
+    step = exercise
+    for _ in range(HARDER_LOOKAHEAD):
+        step = catalog.get(step.coaching.harder) if step.coaching and step.coaching.harder else None
+        if step is None or step.coaching is None:
+            break
+        if owned is None or (catalog.has_equipment(step, owned) and not set(step.coaching.loads) & joints):
+            reachable.append(step)
+    if not reachable:
         return None
-    if user is not None:
-        owned = list(user.available_equipment or []) or ["bodyweight"]
-        joints = catalog.injured_joints(user.injuries or [])
-        if not catalog.has_equipment(harder, owned) or set(harder.coaching.loads) & joints:
-            return None
-    return harder
+    loaded = [e for e in reachable if catalog.is_loaded(e)]
+    return loaded[0] if loaded and owned is not None and set(owned) - {"bodyweight"} else reachable[0]
 
 
 def _target_for(entry: dict, sessions: List[dict], user: Optional[User] = None) -> Optional[dict]:

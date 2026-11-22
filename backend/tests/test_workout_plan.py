@@ -34,14 +34,26 @@ def _training_days(plan):
 def test_curated_exercises_are_complete_and_linked():
     curated = catalog.curated()
     assert len(curated) >= 60
-    # RepEat's own additions (custom_exercises.json) and one source entry have no photos.
-    import json
-    custom = {e["id"] for e in json.loads((catalog.DATA_DIR / "custom_exercises.json").read_text())["exercises"]}
-    no_photos = custom | {"Kettlebell_Overhead_Triceps_Extension"}
     for exercise in curated:
-        assert len(exercise.images) == (0 if exercise.id in no_photos else 2), exercise.id
+        # Every exercise has pictures: its own, the same movement with other equipment, or an illustration.
+        assert len(exercise.images) == 2, exercise.id
         assert exercise.coaching.steps and exercise.coaching.cues and exercise.coaching.mistakes
         assert exercise.primary_muscles
+
+
+def test_exercises_without_their_own_photos_say_what_the_pictures_show():
+    backpack = catalog.get("Backpack_Squat").detail()
+    assert backpack["images"][0].endswith("Goblet_Squat/0.jpg")
+    assert backpack["photo_note"] == {"kind": "stand_in", "id": "Goblet_Squat", "name": "Goblet Squat"}
+    pike = catalog.get("Pike_Push-Up").detail()
+    assert pike["images"] == ["/exercises/Pike_Push-Up/0.jpg", "/exercises/Pike_Push-Up/1.jpg"]
+    # Openly licensed photos carry their credit (CC BY-SA needs the author and licence shown).
+    assert pike["photo_note"]["kind"] == "credit"
+    assert pike["photo_note"]["license"] == "CC BY-SA 4.0" and pike["photo_note"]["author"]
+    assert catalog.get("Goblet_Squat").detail()["photo_note"] is None
+    # The photo files ship with the app.
+    public = catalog.DATA_DIR.parents[3] / "frontend" / "public"
+    assert all((public / path.lstrip("/")).is_file() for path in pike["images"])
 
 
 def test_curated_layer_corrects_source_errors():
@@ -388,3 +400,68 @@ def test_the_plan_and_today_carry_the_warm_up(client, ai_providers):
     assert [bool(d["warm_up"]) for d in saved] == [bool(d["warm_up"]) for d in week]
     today = client.get(f"{API}/workouts/plan/today", headers=headers).json()["data"]
     assert "warm_up" in today
+
+
+# --- Exercise quality ---------------------------------------------------------------
+def test_every_strength_exercise_is_ranked():
+    import json
+    raw = json.loads((catalog.DATA_DIR / "curated.json").read_text(encoding="utf-8"))["exercises"]
+    unranked = [e["id"] for e in raw if e["pattern"] not in ("mobility", "cardio") and "tier" not in e]
+    assert not unranked
+
+
+TIER_SETUPS = [["full_gym"], ["dumbbells", "bench"], ["dumbbells"], ["resistance_bands", "pull_up_bar"],
+               ["kettlebell"], []]
+
+
+@pytest.mark.parametrize("owned", TIER_SETUPS)
+@pytest.mark.parametrize("level", ["beginner", "intermediate", "advanced"])
+@pytest.mark.parametrize("injuries", [[], ["knee pain"], ["shoulder"]])
+def test_plans_pick_the_best_exercise_the_person_can_do(owned, level, injuries):
+    """Every exercise is the highest tier allowed for its movement, given equipment, injuries and level."""
+    joints = catalog.injured_joints(injuries)
+    lvl = planner.user_level(level)
+    pool = [e for e in catalog.curated() if catalog.allowed(e, owned, joints, lvl) and e.id not in planner.FOCUS_ONLY]
+    for days in (3, 4, 6):
+        week = planner.build_week(goal="muscle_gain", experience=level, equipment=owned, injuries=injuries,
+                                  days_per_week=days)["week"]
+        for day in (d for d in week if d["workout_type"] == "strength"):
+            taken = set()
+            for entry in day["exercises"]:
+                exercise = catalog.get(entry["exercise_id"])
+                taken.add(exercise.id)
+                if exercise.id == planner.NO_PULL_FALLBACK:
+                    continue  # Stands in for a row when there's nothing to pull against.
+                others = [e for e in pool if e.coaching.pattern == entry["pattern"] and e.id not in taken]
+                best = min([catalog.tier_rank(e) for e in others], default=9)
+                assert catalog.tier_rank(exercise) <= best, (day["focus"], exercise.id)
+
+
+def test_a_full_gym_plan_is_all_top_tier_main_work():
+    for level in ("beginner", "intermediate", "advanced"):
+        week = planner.build_week(goal="muscle_gain", experience=level, equipment=["full_gym"], injuries=[],
+                                  days_per_week=6)["week"]
+        lifts = [catalog.get(e["exercise_id"]) for d in week for e in d["exercises"] if d["workout_type"] == "strength"]
+        assert all(e.coaching.tier == "S" for e in lifts if e.coaching.pattern != "core"), level
+        push = next(d for d in week if d["focus"].startswith("Push"))
+        # A fly after the presses: the chest gets a loaded stretch the presses don't give.
+        assert "chest_fly" in [e["pattern"] for e in push["exercises"]]
+
+
+def test_the_library_filters_by_tier(client):
+    headers, _ = _onboard(client, email="tier-filter@example.com")
+    top = client.get(f"{API}/exercises?muscle=chest&tier=S", headers=headers).json()["data"]["exercises"]
+    assert top and all(e["tier"] == "S" and e["curated"] for e in top)
+    stand_ins = client.get(f"{API}/exercises?tier=B&limit=100", headers=headers).json()["data"]["exercises"]
+    assert stand_ins and all(e["tier"] == "B" for e in stand_ins)
+    # Without a filter, ranked exercises come best tier first.
+    chest = client.get(f"{API}/exercises?muscle=chest&curated=true&limit=100", headers=headers).json()["data"]["exercises"]
+    ranks = [catalog.TIER_RANK.get(e["tier"] or "A") for e in chest]
+    assert ranks == sorted(ranks)
+    assert client.get(f"{API}/exercises?tier=C", headers=headers).status_code == 422
+    # A muscle filter means the muscle the exercise mainly trains: no bench press under triceps.
+    for muscle in ("triceps", "biceps"):
+        found = client.get(f"{API}/exercises?muscle={muscle}&tier=S", headers=headers).json()["data"]["exercises"]
+        assert found and all(muscle in e["primary_muscles"] for e in found)
+    # Cardio and stretches aren't ranked.
+    assert catalog.get("Mountain_Climbers").summary()["tier"] is None

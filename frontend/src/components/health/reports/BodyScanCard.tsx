@@ -35,6 +35,7 @@ import { ErrorState } from '../../ui/ErrorState';
 import { SectionCard } from '../../ui/SectionCard';
 import { BodyMap } from './BodyMap';
 import { BodyScanForm } from './BodyScanForm';
+import { GoalAdviceAlert } from './GoalAdviceAlert';
 import { bodyScanCardStyles as styles } from './BodyScanCard.styles';
 
 const S = BODY_SCAN_STRINGS;
@@ -150,6 +151,8 @@ export function BodyScanCard({ onSaved }: { onSaved: () => void }) {
               ))}
             </Box>
           </Box>
+
+          {latest.goal_advice && <GoalAdviceAlert key={latest.id} advice={latest.goal_advice} />}
 
           {plan.data?.scan_changed && (
             <Alert

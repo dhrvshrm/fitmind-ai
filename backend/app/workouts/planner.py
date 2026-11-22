@@ -42,7 +42,9 @@ SESSIONS: Dict[str, List[List[str]]] = {
               ["rear_delt", "shoulder_isolation"], ["biceps"], ["triceps"]],
     # Leg curls first where there's a machine: hinges alone leave hamstrings short.
     "lower": [["squat"], ["hinge"], ["lunge"], ["knee_flexion", "glute"], ["calf"], ["core"], ["core"]],
-    "push": [["push_horizontal"], ["push_vertical"], ["push_horizontal"], ["shoulder_isolation"], ["triceps"], ["core"]],
+    # A fly after the presses where there's a machine or cables: the chest gets a
+    # loaded stretch the presses don't give. Without one, a second press.
+    "push": [["push_horizontal"], ["push_vertical"], ["chest_fly", "push_horizontal"], ["shoulder_isolation"], ["triceps"], ["core"]],
     "pull": [["pull_vertical", "pull_horizontal"], ["pull_horizontal", "pull_vertical"], ["rear_delt"], ["biceps"], ["biceps"], ["core"]],
     "legs": [["squat"], ["hinge"], ["lunge"], ["knee_flexion", "glute"], ["calf"], ["core"]],
 }
@@ -61,7 +63,7 @@ MOBILITY_ROUTINE = [
 # between sides), so everyday plans keep their two-sided lifts.
 FOCUS_ONLY = {
     "Concentration_Curls", "Dumbbell_One-Arm_Triceps_Extension", "Tricep_Dumbbell_Kickback",
-    "Cable_One_Arm_Tricep_Extension", "One-Arm_Side_Laterals", "Split_Squat_with_Dumbbells",
+    "Cable_One_Arm_Tricep_Extension", "One-Arm_Side_Laterals",
     "Single-Leg_Leg_Extension", "Kettlebell_One-Legged_Deadlift", "Single-Arm_Band_Curl",
     "Single-Arm_Band_Pushdown",
 }
@@ -123,9 +125,10 @@ class _Picker:
         self.used_this_week: Counter = Counter()
 
     def _tier(self, exercise: Exercise) -> tuple:
-        """Lower is better: weights (when there are any), compound, closest level."""
+        """Lower is better: quality tier, weights (when there are any), compound, closest level."""
         rank = catalog.LEVEL_RANK[self.level]
         return (
+            catalog.tier_rank(exercise),
             self.loaded and not catalog.is_loaded(exercise),
             exercise.mechanic != "compound",
             abs(catalog.LEVEL_RANK.get(exercise.level, 0) - rank),
@@ -133,8 +136,8 @@ class _Picker:
 
     def options(self, pattern: str) -> List[Exercise]:
         candidates = [e for e in self.pool if e.coaching.pattern == pattern]
-        # Weighted first (if weights are available: they can be loaded up week after
-        # week), compound, closest level, then name.
+        # Best tier first (S before A before B), then weighted (if weights are available:
+        # they can be loaded up week after week), compound, closest level, then name.
         return sorted(candidates, key=lambda e: (*self._tier(e), e.id))
 
     def focus_pick(self, patterns: Sequence[str], taken: set) -> Optional[Exercise]:
@@ -193,6 +196,7 @@ def entry_for(exercise: Exercise, goal: str, level: str, main_lift: bool = True)
         "difficulty": programming.DIFFICULTY.get(exercise.level, "medium"),
         "video_url": exercise.coaching.video_url,
         "pattern": exercise.coaching.pattern,
+        "tier": exercise.coaching.tier,
         "primary_muscles": exercise.primary_muscles,
         "secondary_muscles": exercise.secondary_muscles,
         "equipment": exercise.equipment,

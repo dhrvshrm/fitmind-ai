@@ -446,6 +446,9 @@ export const STRINGS = {
     },
     exercise: {
       setsReps: (sets: number, reps: string) => `${sets} × ${reps}`,
+      topPick: "Top pick",
+      topPickTooltip:
+        "One of the best-proven exercises for this muscle: loaded through a full range, stable enough to push hard, and easy to add weight to.",
       rest: (rest: string) => `Rest ${rest}`,
       videoAria: "Watch exercise video",
       doneAria: (name: string) => `Mark ${name} as done`,
@@ -507,6 +510,19 @@ export const STRINGS = {
       muscle: "Muscle",
       allMuscles: "All muscles",
       curatedOnly: "With coaching notes",
+      tier: "Tier",
+      allTiers: "All tiers",
+      tiers: {
+        S: "S tier: top picks",
+        A: "A tier: solid",
+        B: "B tier: stand-ins",
+      },
+      tierChip: (tier: string) => `${tier} tier`,
+      tierHelp: {
+        S: "One of the best-proven exercises for this muscle. Plans pick these first.",
+        A: "A solid choice. Plans use it when no S tier exercise fits your equipment or injuries.",
+        B: "A stand-in for when nothing better fits your equipment or injuries.",
+      },
       coached: "Coaching notes",
       empty: "No exercises match your search.",
       error: "Couldn't load exercises.",
@@ -535,6 +551,10 @@ export const STRINGS = {
       play: "Play demonstration",
       pause: "Pause demonstration",
       demoAlt: (name: string, index: number) => `${name}, ${index === 0 ? "start" : "end"} position`,
+      photoStandIn: (name: string) =>
+        `Photos show the ${name}: the same movement with different equipment. Follow the steps below for this version.`,
+      photoBy: "Photos:",
+      photoSource: "source",
       source: (source: string) => `Exercise data and photos: ${source} (public domain).`,
       draft: "Coaching notes by RepEat, awaiting review by a certified trainer.",
       reviewed: "Coaching notes reviewed by a certified trainer.",

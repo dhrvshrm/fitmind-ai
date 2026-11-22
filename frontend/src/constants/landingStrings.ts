@@ -187,6 +187,10 @@ export const LANDING_STRINGS = {
         a: 'Workouts are built from what you have, from nothing at all to a full gym, and any exercise can be swapped.',
       },
       {
+        q: 'Which exercises will I get?',
+        a: 'The best-proven ones you can do. Every exercise is ranked for its muscle, and plans always pick the top one that fits your equipment, level and injuries: hack squats, incline curls and overhead triceps extensions at the gym; Bulgarian split squats and incline rows with dumbbells; pike push-ups and backpack squats at home. Beginners and advanced lifters both get top picks, matched to their level.',
+      },
+      {
         q: 'I am vegetarian, Jain, or fasting this week.',
         a: 'Plans follow veg, eggetarian, non-veg and Jain diets, your allergies and dislikes, plus modes for Navratri, Ekadashi, Paryushan and Ramadan.',
       },
@@ -204,7 +208,7 @@ export const LANDING_STRINGS = {
       },
       {
         q: 'My gym did a body composition scan (InBody). Can I use it?',
-        a: 'Yes. Upload the printout or a photo of it. RepEat reads your weight, muscle, body fat, visceral fat and the muscle in each arm, leg and your trunk, and you check every number. If one side or one area lags, your workout plan adds exercises for exactly that, right after the main lifts, never cut for time; a weaker arm or leg is trained one side at a time. Your calorie targets then use your lean mass too.',
+        a: 'Yes. Upload the printout or a photo of it. RepEat reads your weight, muscle, body fat, visceral fat and the muscle in each arm, leg and your trunk, and you check every number. If one side or one area lags, your workout plan adds exercises for exactly that, right after the main lifts, never cut for time; a weaker arm or leg is trained one side at a time. Your calorie targets then use your lean mass too, and if the scan and your goal pull apart (building muscle with high body fat, say), RepEat suggests a better-suited goal. You decide.',
       },
       {
         q: 'Can I upload my blood test report?',

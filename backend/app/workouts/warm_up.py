@@ -73,9 +73,9 @@ ROUTINES: Dict[str, List[str]] = {
 ROUTINES["legs"] = ROUTINES["lower"]
 
 LOWER_PATTERNS = {"squat", "hinge", "lunge", "glute", "calf", "knee_flexion", "knee_extension"}
-UPPER_PATTERNS = {"push_horizontal", "push_vertical", "pull_horizontal", "pull_vertical",
+UPPER_PATTERNS = {"push_horizontal", "push_vertical", "chest_fly", "pull_horizontal", "pull_vertical",
                   "shoulder_isolation", "rear_delt", "biceps", "triceps"}
-PUSH_PATTERNS = {"push_horizontal", "push_vertical", "shoulder_isolation", "triceps"}
+PUSH_PATTERNS = {"push_horizontal", "push_vertical", "chest_fly", "shoulder_isolation", "triceps"}
 LABEL_TO_KIND = {label: kind for kind, label in planner.SESSION_LABELS.items()}
 
 

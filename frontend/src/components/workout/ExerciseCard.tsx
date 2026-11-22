@@ -1,16 +1,28 @@
-import { Box, Button, Checkbox, IconButton, Link, Paper, Stack, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Checkbox,
+  Chip,
+  IconButton,
+  Link,
+  Paper,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import {
   FitnessCenterRounded,
   InfoOutlined,
   PlayCircleOutlineRounded,
   SpeedRounded,
   SwapHorizRounded,
-} from '@mui/icons-material';
-import { STRINGS } from '../../constants/strings';
-import { splitReps } from '../../utils/workout';
-import type { Exercise } from '../../types/workout';
-import { FocusChip } from './FocusChip';
-import { exerciseCardStyles as styles } from './ExerciseCard.styles';
+  WorkspacePremiumRounded,
+} from "@mui/icons-material";
+import { STRINGS } from "../../constants/strings";
+import { splitReps } from "../../utils/workout";
+import type { Exercise } from "../../types/workout";
+import { FocusChip } from "./FocusChip";
+import { exerciseCardStyles as styles } from "./ExerciseCard.styles";
 
 const S = STRINGS.workout.exercise;
 const M = STRINGS.exercises.muscles;
@@ -40,13 +52,25 @@ function Stat({ value, label }: { value: string; label: string }) {
 }
 
 /** One planned exercise: photo, sets, reps and rest, muscles worked, and how-to or swap actions. */
-export function ExerciseCard({ exercise, checked = false, onToggle, onDetails, onSwap }: ExerciseCardProps) {
+export function ExerciseCard({
+  exercise,
+  checked = false,
+  onToggle,
+  onDetails,
+  onSwap,
+}: ExerciseCardProps) {
   const done = Boolean(onToggle) && checked;
   const reps = splitReps(exercise.reps);
   const repsLabel = reps.timed
-    ? reps.eachSide ? S.statTimeEachSide : S.statTime
-    : reps.eachSide ? S.statRepsEachSide : S.statReps;
-  const muscles = (exercise.primary_muscles ?? []).map((m) => M[m] ?? m).join(', ');
+    ? reps.eachSide
+      ? S.statTimeEachSide
+      : S.statTime
+    : reps.eachSide
+      ? S.statRepsEachSide
+      : S.statReps;
+  const muscles = (exercise.primary_muscles ?? [])
+    .map((m) => M[m] ?? m)
+    .join(", ");
   const canDetail = Boolean(onDetails && exercise.exercise_id);
   const canSwap = Boolean(onSwap && exercise.exercise_id);
 
@@ -56,12 +80,18 @@ export function ExerciseCard({ exercise, checked = false, onToggle, onDetails, o
         <Checkbox
           checked={checked}
           onChange={onToggle}
-          slotProps={{ input: { 'aria-label': S.doneAria(exercise.name) } }}
+          slotProps={{ input: { "aria-label": S.doneAria(exercise.name) } }}
         />
       )}
 
       {exercise.image ? (
-        <Box component="img" src={exercise.image} alt="" loading="lazy" sx={styles.thumb} />
+        <Box
+          component="img"
+          src={exercise.image}
+          alt=""
+          loading="lazy"
+          sx={styles.thumb}
+        />
       ) : (
         <Box sx={styles.thumbPlaceholder}>
           <FitnessCenterRounded color="disabled" />
@@ -73,9 +103,25 @@ export function ExerciseCard({ exercise, checked = false, onToggle, onDetails, o
           <Typography variant="subtitle1" component="h4" sx={styles.name(done)}>
             {exercise.name}
           </Typography>
-          <Typography variant="caption" color="text.secondary" sx={styles.level}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={styles.level}
+          >
             {exercise.difficulty}
           </Typography>
+          {exercise.tier === "S" && (
+            <Tooltip title={S.topPickTooltip}>
+              <Chip
+                size="small"
+                variant="outlined"
+                color="success"
+                icon={<WorkspacePremiumRounded />}
+                label={S.topPick}
+                sx={styles.topPick}
+              />
+            </Tooltip>
+          )}
         </Stack>
         <FocusChip exercise={exercise} />
         {muscles && (
@@ -85,7 +131,10 @@ export function ExerciseCard({ exercise, checked = false, onToggle, onDetails, o
         )}
 
         <Stack sx={styles.stats}>
-          <Stat value={String(exercise.sets)} label={S.statSets(exercise.sets)} />
+          <Stat
+            value={String(exercise.sets)}
+            label={S.statSets(exercise.sets)}
+          />
           <Box sx={styles.divider} />
           <Stat value={reps.value} label={repsLabel} />
           <Box sx={styles.divider} />
@@ -103,17 +152,35 @@ export function ExerciseCard({ exercise, checked = false, onToggle, onDetails, o
       {(canDetail || canSwap || exercise.video_url) && (
         <Stack sx={styles.actions}>
           {canDetail && (
-            <Button size="small" startIcon={<InfoOutlined />} onClick={onDetails} aria-label={S.detailsAria(exercise.name)}>
+            <Button
+              size="small"
+              startIcon={<InfoOutlined />}
+              onClick={onDetails}
+              aria-label={S.detailsAria(exercise.name)}
+            >
               {S.howTo}
             </Button>
           )}
           {canSwap && (
-            <Button size="small" color="inherit" startIcon={<SwapHorizRounded />} onClick={onSwap} aria-label={S.swapAria(exercise.name)}>
+            <Button
+              size="small"
+              color="inherit"
+              startIcon={<SwapHorizRounded />}
+              onClick={onSwap}
+              aria-label={S.swapAria(exercise.name)}
+            >
               {S.swap}
             </Button>
           )}
           {exercise.video_url && (
-            <IconButton component={Link} href={exercise.video_url} target="_blank" rel="noopener" aria-label={S.videoAria} color="primary">
+            <IconButton
+              component={Link}
+              href={exercise.video_url}
+              target="_blank"
+              rel="noopener"
+              aria-label={S.videoAria}
+              color="primary"
+            >
               <PlayCircleOutlineRounded />
             </IconButton>
           )}

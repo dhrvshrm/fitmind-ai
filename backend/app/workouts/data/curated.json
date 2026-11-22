@@ -1,9 +1,10 @@
 {
- "_about": "Coaching layer over free-exercise-db for the exercises plans use. Written by the FitMind team from standard strength and conditioning practice; 'reviewed' turns true only after a certified trainer checks the entry. 'fixes' corrects known errors in the source data. 'needs' lists required equipment (onboarding values; 'a|b' means either; empty means bodyweight). 'loads' lists joints the exercise stresses, used to avoid injured areas. 'rep_range' fixes the reps for explosive exercises whatever the goal.",
+ "_about": "Coaching layer over free-exercise-db for the exercises plans use. Written by the FitMind team from standard strength and conditioning practice; 'reviewed' turns true only after a certified trainer checks the entry. 'fixes' corrects known errors in the source data. 'needs' lists required equipment (onboarding values; 'a|b' means either; empty means bodyweight). 'loads' lists joints the exercise stresses, used to avoid injured areas. 'rep_range' fixes the reps for explosive exercises whatever the goal. 'tier' ranks an exercise for its muscle: S is a best-evidenced choice (loaded through a full range, ideally with a deep stretch, stable enough to push close to failure, easy to progress), A is solid, B is a stand-in for when nothing better fits the equipment or injuries. Plans always pick the highest tier the person can do. 'photos_from' shows another exercise's photos (the same movement with other equipment) for one that has none.",
  "exercises": [
   {
    "id": "Bodyweight_Squat",
    "pattern": "squat",
+   "tier": "B",
    "unit": "reps",
    "per_side": false,
    "needs": [],
@@ -36,12 +37,13 @@
    ],
    "breathing": "Breathe in on the way down, out as you stand.",
    "easier": null,
-   "harder": "Goblet_Squat",
+   "harder": "Backpack_Squat",
    "reviewed": false
   },
   {
    "id": "Goblet_Squat",
    "pattern": "squat",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -85,6 +87,7 @@
   {
    "id": "Barbell_Squat",
    "pattern": "squat",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -129,6 +132,7 @@
   {
    "id": "Split_Squats",
    "pattern": "lunge",
+   "tier": "A",
    "unit": "reps",
    "per_side": true,
    "needs": [],
@@ -181,6 +185,7 @@
   {
    "id": "Bodyweight_Walking_Lunge",
    "pattern": "lunge",
+   "tier": "A",
    "unit": "reps",
    "per_side": true,
    "needs": [],
@@ -222,6 +227,7 @@
   {
    "id": "Dumbbell_Lunges",
    "pattern": "lunge",
+   "tier": "A",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -262,6 +268,7 @@
   {
    "id": "Dumbbell_Step_Ups",
    "pattern": "lunge",
+   "tier": "A",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -303,6 +310,7 @@
   {
    "id": "Romanian_Deadlift",
    "pattern": "hinge",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -344,6 +352,7 @@
   {
    "id": "Stiff-Legged_Dumbbell_Deadlift",
    "pattern": "hinge",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -384,6 +393,7 @@
   {
    "id": "Barbell_Deadlift",
    "pattern": "hinge",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -424,6 +434,7 @@
   {
    "id": "Butt_Lift_Bridge",
    "pattern": "glute",
+   "tier": "B",
    "unit": "reps",
    "per_side": false,
    "needs": [],
@@ -460,6 +471,7 @@
   {
    "id": "Single_Leg_Glute_Bridge",
    "pattern": "glute",
+   "tier": "A",
    "unit": "reps",
    "per_side": true,
    "needs": [],
@@ -497,6 +509,7 @@
   {
    "id": "Leg_Press",
    "pattern": "squat",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -535,6 +548,7 @@
   {
    "id": "Lying_Leg_Curls",
    "pattern": "knee_flexion",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -572,6 +586,7 @@
   {
    "id": "Leg_Extensions",
    "pattern": "knee_extension",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -607,6 +622,7 @@
   {
    "id": "Standing_Calf_Raises",
    "pattern": "calf",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [],
@@ -645,6 +661,7 @@
   {
    "id": "Pushups",
    "pattern": "push_horizontal",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [],
@@ -684,6 +701,7 @@
   {
    "id": "Incline_Push-Up",
    "pattern": "push_horizontal",
+   "tier": "B",
    "unit": "reps",
    "per_side": false,
    "needs": [],
@@ -722,6 +740,7 @@
   {
    "id": "Dumbbell_Bench_Press",
    "pattern": "push_horizontal",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -762,6 +781,7 @@
   {
    "id": "Barbell_Bench_Press_-_Medium_Grip",
    "pattern": "push_horizontal",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -804,6 +824,7 @@
   {
    "id": "Incline_Dumbbell_Press",
    "pattern": "push_horizontal",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -844,6 +865,7 @@
   {
    "id": "Dumbbell_Shoulder_Press",
    "pattern": "push_vertical",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -886,6 +908,7 @@
   {
    "id": "Barbell_Shoulder_Press",
    "pattern": "push_vertical",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -927,6 +950,7 @@
   {
    "id": "Side_Lateral_Raise",
    "pattern": "shoulder_isolation",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -965,6 +989,7 @@
   {
    "id": "Bench_Dips",
    "pattern": "triceps",
+   "tier": "B",
    "unit": "reps",
    "per_side": false,
    "needs": [],
@@ -1005,6 +1030,7 @@
   {
    "id": "Triceps_Pushdown",
    "pattern": "triceps",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -1043,6 +1069,7 @@
   {
    "id": "Standing_Dumbbell_Triceps_Extension",
    "pattern": "triceps",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -1081,6 +1108,7 @@
   {
    "id": "Pullups",
    "pattern": "pull_vertical",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -1123,6 +1151,7 @@
   {
    "id": "Chin-Up",
    "pattern": "pull_vertical",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -1165,6 +1194,7 @@
   {
    "id": "Band_Assisted_Pull-Up",
    "pattern": "pull_vertical",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -1209,6 +1239,7 @@
   {
    "id": "Wide-Grip_Lat_Pulldown",
    "pattern": "pull_vertical",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -1248,6 +1279,7 @@
   {
    "id": "Seated_Cable_Rows",
    "pattern": "pull_horizontal",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -1289,6 +1321,7 @@
   {
    "id": "One-Arm_Dumbbell_Row",
    "pattern": "pull_horizontal",
+   "tier": "S",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -1330,6 +1363,7 @@
   {
    "id": "Bent_Over_Barbell_Row",
    "pattern": "pull_horizontal",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -1376,6 +1410,7 @@
   {
    "id": "Inverted_Row",
    "pattern": "pull_horizontal",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -1418,6 +1453,7 @@
   {
    "id": "Face_Pull",
    "pattern": "rear_delt",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -1460,6 +1496,7 @@
   {
    "id": "Band_Pull_Apart",
    "pattern": "rear_delt",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -1497,6 +1534,7 @@
   {
    "id": "Dumbbell_Bicep_Curl",
    "pattern": "biceps",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -1535,6 +1573,7 @@
   {
    "id": "Hammer_Curls",
    "pattern": "biceps",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -1577,6 +1616,7 @@
   {
    "id": "Plank",
    "pattern": "core",
+   "tier": "B",
    "unit": "seconds",
    "per_side": false,
    "needs": [],
@@ -1615,6 +1655,7 @@
   {
    "id": "Side_Bridge",
    "pattern": "core",
+   "tier": "A",
    "unit": "seconds",
    "per_side": true,
    "needs": [],
@@ -1654,6 +1695,7 @@
   {
    "id": "Dead_Bug",
    "pattern": "core",
+   "tier": "A",
    "unit": "reps",
    "per_side": true,
    "needs": [],
@@ -1692,6 +1734,7 @@
   {
    "id": "Crunches",
    "pattern": "core",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [],
@@ -1725,6 +1768,7 @@
   {
    "id": "Reverse_Crunch",
    "pattern": "core",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [],
@@ -1758,6 +1802,7 @@
   {
    "id": "Hanging_Leg_Raise",
    "pattern": "core",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -1800,6 +1845,7 @@
   {
    "id": "Russian_Twist",
    "pattern": "core",
+   "tier": "B",
    "unit": "reps",
    "per_side": true,
    "needs": [],
@@ -1838,6 +1884,7 @@
   {
    "id": "Superman",
    "pattern": "core",
+   "tier": "B",
    "unit": "reps",
    "per_side": false,
    "needs": [],
@@ -1997,6 +2044,7 @@
   {
    "id": "One-Arm_Kettlebell_Swings",
    "pattern": "hinge",
+   "tier": "B",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -2705,6 +2753,7 @@
   {
    "id": "Scapular_Pull-Up",
    "pattern": "pull_vertical",
+   "tier": "B",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -2754,6 +2803,7 @@
   {
    "id": "Dumbbell_Floor_Press",
    "pattern": "push_horizontal",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -2803,6 +2853,7 @@
   {
    "id": "Bent_Over_Two-Dumbbell_Row",
    "pattern": "pull_horizontal",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -2843,6 +2894,7 @@
   {
    "id": "Reverse_Flyes",
    "pattern": "rear_delt",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -2885,6 +2937,7 @@
   {
    "id": "Concentration_Curls",
    "pattern": "biceps",
+   "tier": "A",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -2923,6 +2976,7 @@
   {
    "id": "Dumbbell_One-Arm_Triceps_Extension",
    "pattern": "triceps",
+   "tier": "A",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -2963,6 +3017,7 @@
   {
    "id": "Tricep_Dumbbell_Kickback",
    "pattern": "triceps",
+   "tier": "B",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -3002,6 +3057,7 @@
   {
    "id": "Cable_One_Arm_Tricep_Extension",
    "pattern": "triceps",
+   "tier": "A",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -3039,6 +3095,7 @@
   {
    "id": "One-Arm_Side_Laterals",
    "pattern": "shoulder_isolation",
+   "tier": "A",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -3077,6 +3134,7 @@
   {
    "id": "Split_Squat_with_Dumbbells",
    "pattern": "lunge",
+   "tier": "S",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -3087,13 +3145,21 @@
     "knee",
     "hip"
    ],
+   "fixes": {
+    "name": "Bulgarian Split Squat (Dumbbells)",
+    "primary_muscles": [
+     "quadriceps",
+     "glutes"
+    ],
+    "secondary_muscles": [
+     "hamstrings",
+     "adductors"
+    ]
+   },
    "stabilizers": [
     "abdominals",
     "glutes"
    ],
-   "fixes": {
-    "name": "Bulgarian Split Squat (Dumbbells)"
-   },
    "grip": "A dumbbell in each hand at your sides.",
    "stance": "Rear foot on a bench behind you, front foot about two steps forward.",
    "steps": [
@@ -3121,6 +3187,7 @@
   {
    "id": "Single-Leg_Leg_Extension",
    "pattern": "knee_extension",
+   "tier": "S",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -3157,6 +3224,7 @@
   {
    "id": "Kettlebell_One-Legged_Deadlift",
    "pattern": "hinge",
+   "tier": "A",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -3201,6 +3269,7 @@
   {
    "id": "Band_Biceps_Curl",
    "pattern": "biceps",
+   "tier": "B",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -3233,11 +3302,13 @@
    "breathing": "Out as you curl, in as you lower.",
    "easier": null,
    "harder": null,
+   "photos_from": "Standing_Biceps_Cable_Curl",
    "reviewed": false
   },
   {
    "id": "Single-Arm_Band_Curl",
    "pattern": "biceps",
+   "tier": "B",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -3270,11 +3341,13 @@
    "breathing": "Out as you curl, in as you lower.",
    "easier": null,
    "harder": null,
+   "photos_from": "Standing_One-Arm_Cable_Curl",
    "reviewed": false
   },
   {
    "id": "Single-Arm_Band_Pushdown",
    "pattern": "triceps",
+   "tier": "B",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -3307,11 +3380,13 @@
    "breathing": "Out as you push down, in as it rises.",
    "easier": null,
    "harder": null,
+   "photos_from": "Cable_One_Arm_Tricep_Extension",
    "reviewed": false
   },
   {
    "id": "Band_Seated_Row",
    "pattern": "pull_horizontal",
+   "tier": "B",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -3346,11 +3421,13 @@
    "breathing": "Out as you pull, in as you return.",
    "easier": null,
    "harder": null,
+   "photos_from": "Seated_Cable_Rows",
    "reviewed": false
   },
   {
    "id": "Kettlebell_Biceps_Curl",
    "pattern": "biceps",
+   "tier": "B",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -3383,11 +3460,13 @@
    "breathing": "Out as you curl, in as you lower.",
    "easier": null,
    "harder": null,
+   "photos_from": "Dumbbell_Alternate_Bicep_Curl",
    "reviewed": false
   },
   {
    "id": "Backpack_Curl",
    "pattern": "biceps",
+   "tier": "B",
    "unit": "reps",
    "per_side": true,
    "needs": [],
@@ -3418,11 +3497,13 @@
    "breathing": "Out as you curl, in as you lower.",
    "easier": null,
    "harder": null,
+   "photos_from": "Dumbbell_Alternate_Bicep_Curl",
    "reviewed": false
   },
   {
    "id": "Backpack_Row",
    "pattern": "pull_horizontal",
+   "tier": "B",
    "unit": "reps",
    "per_side": true,
    "needs": [],
@@ -3456,11 +3537,13 @@
    "breathing": "Out as you pull, in as you lower.",
    "easier": null,
    "harder": null,
+   "photos_from": "One-Arm_Dumbbell_Row",
    "reviewed": false
   },
   {
    "id": "Backpack_Overhead_Triceps_Extension",
    "pattern": "triceps",
+   "tier": "A",
    "unit": "reps",
    "per_side": true,
    "needs": [],
@@ -3492,11 +3575,13 @@
    "breathing": "In as you lower, out as you press up.",
    "easier": null,
    "harder": null,
+   "photos_from": "Dumbbell_One-Arm_Triceps_Extension",
    "reviewed": false
   },
   {
    "id": "One-Arm_Kettlebell_Row",
    "pattern": "pull_horizontal",
+   "tier": "A",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -3538,6 +3623,7 @@
   {
    "id": "Kettlebell_Overhead_Triceps_Extension",
    "pattern": "triceps",
+   "tier": "A",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -3570,11 +3656,13 @@
    "breathing": "In as you lower, out as you press.",
    "easier": null,
    "harder": null,
+   "photos_from": "Standing_Dumbbell_Triceps_Extension",
    "reviewed": false
   },
   {
    "id": "Band_Skull_Crusher",
    "pattern": "triceps",
+   "tier": "B",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -3609,6 +3697,7 @@
   {
    "id": "Seated_Band_Hamstring_Curl",
    "pattern": "knee_flexion",
+   "tier": "B",
    "unit": "reps",
    "per_side": true,
    "needs": [
@@ -3644,6 +3733,7 @@
   {
    "id": "Glute_Kickback",
    "pattern": "glute",
+   "tier": "B",
    "unit": "reps",
    "per_side": true,
    "needs": [],
@@ -3680,6 +3770,7 @@
   {
    "id": "Dumbbell_Incline_Row",
    "pattern": "pull_horizontal",
+   "tier": "S",
    "unit": "reps",
    "per_side": false,
    "needs": [
@@ -3718,6 +3809,7 @@
   {
    "id": "Backpack_Triceps_Kickback",
    "pattern": "triceps",
+   "tier": "B",
    "unit": "reps",
    "per_side": true,
    "needs": [],
@@ -3749,6 +3841,1152 @@
    "breathing": "Out as you straighten, in as you bend.",
    "easier": null,
    "harder": null,
+   "photos_from": "Tricep_Dumbbell_Kickback",
+   "reviewed": false
+  },
+  {
+   "id": "Incline_Dumbbell_Curl",
+   "pattern": "biceps",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "dumbbells",
+    "bench"
+   ],
+   "loads": [
+    "elbow",
+    "shoulder"
+   ],
+   "stabilizers": [
+    "forearms"
+   ],
+   "grip": "A dumbbell in each hand, palms facing forward.",
+   "stance": "Sit back on a bench set to 45 to 60 degrees, arms hanging straight down behind your body.",
+   "steps": [
+    "Let your arms hang straight down, slightly behind your torso.",
+    "Curl both dumbbells up without moving your upper arms forward.",
+    "Squeeze at the top, then lower all the way until your arms are fully straight."
+   ],
+   "cues": [
+    "Upper arms stay pointing at the floor.",
+    "Get a full stretch at the bottom of every rep.",
+    "Keep your head and back on the bench."
+   ],
+   "mistakes": [
+    "Swinging the elbows forward to finish the rep.",
+    "Stopping short of straight arms at the bottom.",
+    "Going too heavy and lifting the shoulders off the bench."
+   ],
+   "breathing": "Breathe out as you curl, in as you lower.",
+   "easier": "Dumbbell_Bicep_Curl",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Preacher_Curl",
+   "pattern": "biceps",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "elbow"
+   ],
+   "stabilizers": [
+    "forearms"
+   ],
+   "grip": "Underhand grip on a barbell or EZ bar, hands shoulder-width apart.",
+   "stance": "Sit at the preacher bench with the backs of your upper arms flat on the pad, armpits snug to its top edge.",
+   "steps": [
+    "Start with arms almost straight on the pad.",
+    "Curl the bar up until your forearms are near vertical.",
+    "Lower under control until your elbows are almost straight."
+   ],
+   "cues": [
+    "Upper arms stay glued to the pad.",
+    "Slow down over the last part of the lowering.",
+    "Wrists stay neutral."
+   ],
+   "mistakes": [
+    "Dropping the bar fast at the bottom, which strains the elbow.",
+    "Lifting the elbows off the pad.",
+    "Leaning back to swing the weight."
+   ],
+   "breathing": "Breathe out as you curl, in as you lower.",
+   "easier": "Machine_Preacher_Curls",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Machine_Preacher_Curls",
+   "pattern": "biceps",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "elbow"
+   ],
+   "stabilizers": [
+    "forearms"
+   ],
+   "grip": "Underhand grip on the machine handles.",
+   "stance": "Adjust the seat so your armpits sit at the top of the pad and your elbows line up with the machine's pivot.",
+   "steps": [
+    "Start with your arms almost straight.",
+    "Curl the handles towards your shoulders.",
+    "Lower slowly back to almost straight arms."
+   ],
+   "cues": [
+    "Elbows in line with the machine's pivot.",
+    "Full range on every rep.",
+    "Control the way down."
+   ],
+   "mistakes": [
+    "Seat set so the elbows sit off the pivot.",
+    "Cutting the bottom half of the rep.",
+    "Lifting the hips off the seat."
+   ],
+   "breathing": "Breathe out as you curl, in as you lower.",
+   "easier": null,
+   "harder": "Preacher_Curl",
+   "reviewed": false
+  },
+  {
+   "id": "Barbell_Curl",
+   "pattern": "biceps",
+   "tier": "A",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "barbell"
+   ],
+   "loads": [
+    "elbow"
+   ],
+   "stabilizers": [
+    "forearms"
+   ],
+   "grip": "Underhand grip on the bar, hands about shoulder-width apart.",
+   "stance": "Stand tall, feet hip-width apart, knees soft.",
+   "steps": [
+    "Hold the bar at arm's length against your thighs.",
+    "Curl it up keeping your elbows at your sides.",
+    "Squeeze at the top, then lower all the way down."
+   ],
+   "cues": [
+    "Elbows stay pinned to your sides.",
+    "Stand still: no hip swing.",
+    "Straighten your arms fully at the bottom."
+   ],
+   "mistakes": [
+    "Swinging the body to move the bar.",
+    "Elbows drifting forward at the top.",
+    "Half reps."
+   ],
+   "breathing": "Breathe out as you curl, in as you lower.",
+   "easier": "Dumbbell_Bicep_Curl",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Triceps_Overhead_Extension_with_Rope",
+   "pattern": "triceps",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "elbow",
+    "shoulder"
+   ],
+   "stabilizers": [
+    "abdominals"
+   ],
+   "grip": "Rope attachment on a cable, one end in each hand, palms facing each other.",
+   "stance": "Face away from the cable, one foot in front of the other, leaning slightly forward.",
+   "steps": [
+    "Start with your hands behind your head and elbows bent, pointing forward.",
+    "Straighten your arms forward and up until your elbows are locked out.",
+    "Let your hands come back behind your head for a deep stretch."
+   ],
+   "cues": [
+    "Elbows stay close to your head.",
+    "Go for a deep stretch at the back of the arm.",
+    "Brace your stomach so your back stays still."
+   ],
+   "mistakes": [
+    "Flaring the elbows wide.",
+    "Arching the lower back.",
+    "Cutting the stretch short."
+   ],
+   "breathing": "Breathe out as you straighten your arms, in as they bend.",
+   "easier": "Triceps_Pushdown",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "EZ-Bar_Skullcrusher",
+   "pattern": "triceps",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "barbell",
+    "bench"
+   ],
+   "loads": [
+    "elbow"
+   ],
+   "stabilizers": [
+    "forearms"
+   ],
+   "grip": "Narrow grip on an EZ bar or straight bar, about a hand-width inside the shoulders.",
+   "stance": "Lie on a flat bench, feet flat on the floor.",
+   "steps": [
+    "Hold the bar over your chest with straight arms, then tilt the arms slightly back towards your head.",
+    "Bend only the elbows to lower the bar behind the top of your head.",
+    "Straighten your arms back to the start."
+   ],
+   "cues": [
+    "Upper arms stay still and slightly angled back.",
+    "Lower behind the head, not to the forehead.",
+    "Control every rep."
+   ],
+   "mistakes": [
+    "Elbows flaring out.",
+    "Turning it into a press by moving the upper arms.",
+    "Dropping the bar fast."
+   ],
+   "breathing": "Breathe in as you lower, out as you straighten.",
+   "easier": "Standing_Dumbbell_Triceps_Extension",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Barbell_Incline_Bench_Press_-_Medium_Grip",
+   "pattern": "push_horizontal",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "barbell",
+    "bench"
+   ],
+   "loads": [
+    "shoulder",
+    "elbow",
+    "wrist"
+   ],
+   "stabilizers": [
+    "triceps",
+    "abdominals"
+   ],
+   "grip": "Overhand grip a little wider than the shoulders, thumbs around the bar.",
+   "stance": "Lie on a bench set to 30 degrees, feet flat, shoulder blades pulled back and down.",
+   "steps": [
+    "Unrack the bar over your upper chest.",
+    "Lower it to just below your collarbones, elbows at about 45 degrees.",
+    "Press back up over your upper chest."
+   ],
+   "cues": [
+    "Shoulder blades stay squeezed together.",
+    "Touch the upper chest every rep.",
+    "Use a spotter or safety arms."
+   ],
+   "mistakes": [
+    "Bench set too steep, turning it into a shoulder press.",
+    "Bouncing the bar off the chest.",
+    "Lifting the hips off the bench."
+   ],
+   "breathing": "Breathe in as you lower, out as you press.",
+   "easier": "Incline_Dumbbell_Press",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Smith_Machine_Incline_Bench_Press",
+   "pattern": "push_horizontal",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "shoulder",
+    "elbow",
+    "wrist"
+   ],
+   "stabilizers": [
+    "triceps"
+   ],
+   "grip": "Overhand grip a little wider than the shoulders.",
+   "stance": "Bench at 30 degrees under the Smith bar so it lines up with your upper chest.",
+   "steps": [
+    "Twist the bar to unhook it.",
+    "Lower to your upper chest, elbows at about 45 degrees.",
+    "Press up and re-hook it at the end of the set."
+   ],
+   "cues": [
+    "Set the bench so the bar touches just below the collarbones.",
+    "Shoulder blades back and down.",
+    "Set the safety stops just above your chest."
+   ],
+   "mistakes": [
+    "Bench in the wrong spot, so the bar lands on the neck or the stomach.",
+    "Bouncing off the chest.",
+    "Flaring the elbows straight out."
+   ],
+   "breathing": "Breathe in as you lower, out as you press.",
+   "easier": "Machine_Bench_Press",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Machine_Bench_Press",
+   "pattern": "push_horizontal",
+   "tier": "A",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "shoulder",
+    "elbow"
+   ],
+   "stabilizers": [
+    "triceps"
+   ],
+   "grip": "Handles at mid-chest height, full grip.",
+   "stance": "Sit with your back flat on the pad and feet planted.",
+   "steps": [
+    "Set the seat so the handles line up with the middle of your chest.",
+    "Press forward until your arms are straight.",
+    "Return slowly until you feel a stretch across the chest."
+   ],
+   "cues": [
+    "Shoulder blades stay against the pad.",
+    "Full stretch on every rep.",
+    "Control the way back."
+   ],
+   "mistakes": [
+    "Shoulders rolling forward off the pad.",
+    "Cutting the range short.",
+    "Letting the weight stack slam."
+   ],
+   "breathing": "Breathe out as you press, in as you return.",
+   "easier": null,
+   "harder": "Smith_Machine_Incline_Bench_Press",
+   "reviewed": false
+  },
+  {
+   "id": "Butterfly",
+   "pattern": "chest_fly",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "shoulder"
+   ],
+   "stabilizers": [],
+   "grip": "Hold the handles with a neutral grip, elbows slightly bent.",
+   "stance": "Sit tall with your back on the pad; set the seat so the handles are at chest height.",
+   "steps": [
+    "Start with arms open wide and a stretch across the chest.",
+    "Bring the handles together in front of you in an arc.",
+    "Open back slowly to the stretch."
+   ],
+   "cues": [
+    "Keep the same small bend in the elbows throughout.",
+    "Chest up, shoulders down.",
+    "The slow stretch is the most important part."
+   ],
+   "mistakes": [
+    "Turning it into a press by bending the elbows.",
+    "Letting the shoulders roll forward.",
+    "Going so wide the front of the shoulder hurts."
+   ],
+   "breathing": "Breathe in as you open, out as you squeeze.",
+   "easier": null,
+   "harder": "Cable_Crossover",
+   "reviewed": false
+  },
+  {
+   "id": "Cable_Crossover",
+   "pattern": "chest_fly",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "shoulder"
+   ],
+   "stabilizers": [
+    "abdominals"
+   ],
+   "grip": "A handle in each hand from cables set at shoulder height or a little higher.",
+   "stance": "Stand in the middle with one foot forward, leaning slightly forward.",
+   "steps": [
+    "Start with the arms open and a slight bend at the elbows.",
+    "Bring the hands together in a hugging arc in front of your chest.",
+    "Let them go back slowly until you feel the stretch."
+   ],
+   "cues": [
+    "Elbow bend stays the same throughout.",
+    "Move only at the shoulders.",
+    "Control the stretch."
+   ],
+   "mistakes": [
+    "Pressing instead of hugging.",
+    "Standing too far forward and losing the stretch.",
+    "Shrugging the shoulders."
+   ],
+   "breathing": "Breathe in as you open, out as you bring the hands together.",
+   "easier": "Butterfly",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Dumbbell_Flyes",
+   "pattern": "chest_fly",
+   "tier": "A",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "dumbbells",
+    "bench"
+   ],
+   "loads": [
+    "shoulder"
+   ],
+   "stabilizers": [],
+   "grip": "A dumbbell in each hand, palms facing each other.",
+   "stance": "Lie on a flat bench, feet flat on the floor.",
+   "steps": [
+    "Press the dumbbells over your chest, elbows slightly bent.",
+    "Open the arms out to the sides until you feel a stretch across the chest.",
+    "Bring them back up over your chest in the same arc."
+   ],
+   "cues": [
+    "Keep the elbow bend fixed.",
+    "Stop at a stretch, not at pain.",
+    "Squeeze the chest on the way up."
+   ],
+   "mistakes": [
+    "Going too heavy and bending the elbows into a press.",
+    "Dropping the weights too low.",
+    "Clanging the dumbbells at the top."
+   ],
+   "breathing": "Breathe in as you open, out as you close.",
+   "easier": null,
+   "harder": "Cable_Crossover",
+   "reviewed": false
+  },
+  {
+   "id": "Machine_Shoulder_Military_Press",
+   "pattern": "push_vertical",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "shoulder",
+    "elbow"
+   ],
+   "stabilizers": [
+    "triceps"
+   ],
+   "grip": "Full grip on the handles, hands just outside the shoulders.",
+   "stance": "Sit with your back flat on the pad; set the seat so the handles start at shoulder height.",
+   "steps": [
+    "Press the handles up until your arms are straight.",
+    "Lower until your hands are at shoulder height.",
+    "Repeat without resting at the bottom."
+   ],
+   "cues": [
+    "Back stays against the pad.",
+    "Forearms vertical under the handles.",
+    "Control the way down."
+   ],
+   "mistakes": [
+    "Arching the lower back off the pad.",
+    "Seat set too low or high.",
+    "Half reps."
+   ],
+   "breathing": "Breathe out as you press, in as you lower.",
+   "easier": null,
+   "harder": "Dumbbell_Shoulder_Press",
+   "reviewed": false
+  },
+  {
+   "id": "Lying_T-Bar_Row",
+   "pattern": "pull_horizontal",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "shoulder",
+    "elbow"
+   ],
+   "stabilizers": [
+    "biceps",
+    "forearms"
+   ],
+   "fixes": {
+    "level": "beginner"
+   },
+   "grip": "Grip the handles, wide grip for upper back or close grip for lats.",
+   "stance": "Lie face down on the chest pad, feet on the platform.",
+   "steps": [
+    "Lift the bar off the rack with straight arms.",
+    "Row it towards your lower chest, squeezing your shoulder blades.",
+    "Lower until your arms are straight and your shoulder blades spread."
+   ],
+   "cues": [
+    "Chest stays on the pad.",
+    "Lead with your elbows.",
+    "Full stretch at the bottom."
+   ],
+   "mistakes": [
+    "Lifting the chest off the pad to heave the weight.",
+    "Shrugging up to the ears.",
+    "Cutting the stretch."
+   ],
+   "breathing": "Breathe out as you row, in as you lower.",
+   "easier": "Seated_Cable_Rows",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Standing_Low-Pulley_Deltoid_Raise",
+   "pattern": "shoulder_isolation",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "shoulder"
+   ],
+   "stabilizers": [
+    "traps"
+   ],
+   "grip": "One D-handle from the low pulley, held in the hand furthest from the machine.",
+   "stance": "Stand side-on to the cable, the cable running across the front of your body.",
+   "steps": [
+    "Start with your hand in front of the opposite hip.",
+    "Raise your arm out to the side to shoulder height.",
+    "Lower slowly back across your body."
+   ],
+   "cues": [
+    "Lead with the elbow, not the hand.",
+    "Stop at shoulder height.",
+    "Slow on the way down."
+   ],
+   "mistakes": [
+    "Leaning far away from the cable.",
+    "Shrugging the shoulder up.",
+    "Swinging the weight."
+   ],
+   "breathing": "Breathe out as you raise, in as you lower.",
+   "easier": "Side_Lateral_Raise",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Reverse_Machine_Flyes",
+   "pattern": "rear_delt",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "shoulder"
+   ],
+   "stabilizers": [
+    "traps",
+    "middle back"
+   ],
+   "grip": "Hold the handles of the pec deck with a neutral or overhand grip.",
+   "stance": "Sit facing the pad, chest against it; set the handles back to their furthest position.",
+   "steps": [
+    "Start with arms straight out in front.",
+    "Sweep the arms out and back until they line up with your body.",
+    "Return slowly to the front."
+   ],
+   "cues": [
+    "Lead with the backs of the hands.",
+    "Chest stays on the pad.",
+    "Keep the shoulders down."
+   ],
+   "mistakes": [
+    "Squeezing the shoulder blades hard and turning it into a back exercise.",
+    "Swinging the weight.",
+    "Bending the elbows a lot."
+   ],
+   "breathing": "Breathe out as you open, in as you return.",
+   "easier": "Reverse_Flyes",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Cable_Rear_Delt_Fly",
+   "pattern": "rear_delt",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "shoulder"
+   ],
+   "stabilizers": [
+    "traps",
+    "middle back"
+   ],
+   "grip": "Take the cable ends without handles, crossed: left cable in the right hand, right cable in the left.",
+   "stance": "Stand in the middle of two pulleys set at shoulder height.",
+   "steps": [
+    "Start with arms crossed in front of you.",
+    "Pull your arms out and back in a wide arc, arms almost straight.",
+    "Return slowly to crossed arms."
+   ],
+   "cues": [
+    "Move only at the shoulders.",
+    "Keep the arms at shoulder height.",
+    "Slow on the return."
+   ],
+   "mistakes": [
+    "Bending the elbows into a row.",
+    "Leaning back.",
+    "Shrugging."
+   ],
+   "breathing": "Breathe out as you open, in as you return.",
+   "easier": "Reverse_Flyes",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Hack_Squat",
+   "pattern": "squat",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "knee",
+    "hip"
+   ],
+   "stabilizers": [
+    "abdominals",
+    "adductors"
+   ],
+   "grip": "Hands on the machine's handles, shoulders under the pads.",
+   "stance": "Back flat against the pad, feet shoulder-width apart in the middle of the platform.",
+   "steps": [
+    "Release the safety handles.",
+    "Lower until your thighs are at least parallel to the platform.",
+    "Drive up through the whole foot without locking the knees hard."
+   ],
+   "cues": [
+    "Back and hips stay on the pad.",
+    "Knees follow the toes.",
+    "Go as deep as you can control."
+   ],
+   "mistakes": [
+    "Heels lifting.",
+    "Knees caving in.",
+    "Half reps with too much weight."
+   ],
+   "breathing": "Breathe in on the way down, out on the way up.",
+   "easier": "Leg_Press",
+   "harder": "Barbell_Squat",
+   "reviewed": false
+  },
+  {
+   "id": "Seated_Leg_Curl",
+   "pattern": "knee_flexion",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "knee"
+   ],
+   "stabilizers": [
+    "calves"
+   ],
+   "grip": "Hold the side handles.",
+   "stance": "Sit with your knees lined up with the machine's pivot, the lap pad snug on your thighs and the leg pad above your heels.",
+   "steps": [
+    "Start with your legs almost straight.",
+    "Curl your heels down and back as far as you can.",
+    "Return slowly to almost straight."
+   ],
+   "cues": [
+    "Lean your chest slightly forward for a bigger hamstring stretch.",
+    "Keep the lap pad tight.",
+    "Control the way back up."
+   ],
+   "mistakes": [
+    "Knees out of line with the pivot.",
+    "Letting the weight snap back.",
+    "Lifting the hips."
+   ],
+   "breathing": "Breathe out as you curl, in as you return.",
+   "easier": "Lying_Leg_Curls",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Natural_Glute_Ham_Raise",
+   "pattern": "knee_flexion",
+   "tier": "A",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [],
+   "loads": [
+    "knee"
+   ],
+   "stabilizers": [
+    "glutes",
+    "lower back",
+    "calves"
+   ],
+   "grip": "No grip. Hands ready in front of your chest to catch yourself.",
+   "stance": "Kneel on a cushion with your ankles hooked under something solid (a heavy sofa, a bed frame) or held by a partner.",
+   "steps": [
+    "Keep a straight line from knees to head.",
+    "Lower your body forward as slowly as you can.",
+    "Catch yourself with your hands, push off lightly and pull back up with your hamstrings."
+   ],
+   "cues": [
+    "Hips stay straight; don't bend at the waist.",
+    "The slow lowering is the main work.",
+    "Start with only the lowering; add the pull-up later."
+   ],
+   "mistakes": [
+    "Bending at the hips to make it easier.",
+    "Dropping fast instead of fighting the fall.",
+    "Doing them on a hard floor without padding."
+   ],
+   "breathing": "Breathe steadily; don't hold your breath through the lowering.",
+   "easier": "Single_Leg_Glute_Bridge",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Barbell_Hip_Thrust",
+   "pattern": "glute",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "barbell",
+    "bench"
+   ],
+   "loads": [
+    "hip"
+   ],
+   "stabilizers": [
+    "hamstrings",
+    "abdominals"
+   ],
+   "fixes": {
+    "level": "beginner"
+   },
+   "grip": "Hands on the bar outside the hips; a pad or towel around the bar.",
+   "stance": "Upper back against the edge of a bench, feet flat and hip-width apart, bar over the hip crease.",
+   "steps": [
+    "Drive through your heels to lift the hips until your body is flat from knees to shoulders.",
+    "Squeeze your glutes hard at the top for a second.",
+    "Lower your hips until they're just above the floor."
+   ],
+   "cues": [
+    "Chin tucked, eyes forward.",
+    "Shins vertical at the top.",
+    "Ribs down: don't arch the back."
+   ],
+   "mistakes": [
+    "Arching the lower back to get higher.",
+    "Feet too far out, so the hamstrings take over.",
+    "No pad on the bar."
+   ],
+   "breathing": "Breathe in at the bottom, out as you drive up.",
+   "easier": "Single_Leg_Glute_Bridge",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Smith_Machine_Calf_Raise",
+   "pattern": "calf",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "ankle"
+   ],
+   "stabilizers": [],
+   "grip": "Bar across your upper back, hands just outside the shoulders.",
+   "stance": "Balls of your feet on a raised plate or step under the bar, heels hanging off.",
+   "steps": [
+    "Lower your heels as far as they go for a deep stretch.",
+    "Pause a second in the stretch.",
+    "Rise as high as you can onto your toes."
+   ],
+   "cues": [
+    "Pause in the bottom stretch: it is where most growth comes from.",
+    "Knees straight but not locked.",
+    "Full range every rep."
+   ],
+   "mistakes": [
+    "Bouncing out of the bottom.",
+    "Bending the knees to help.",
+    "Tiny half reps."
+   ],
+   "breathing": "Breathe out as you rise, in as you lower.",
+   "easier": "Standing_Calf_Raises",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Standing_Dumbbell_Calf_Raise",
+   "pattern": "calf",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": true,
+   "needs": [
+    "dumbbells"
+   ],
+   "loads": [
+    "ankle"
+   ],
+   "stabilizers": [],
+   "fixes": {
+    "level": "beginner"
+   },
+   "grip": "A dumbbell in one hand, the other hand on a wall for balance.",
+   "stance": "Ball of one foot on a step, the other foot hooked behind it, heel hanging off.",
+   "steps": [
+    "Lower the heel as far as it goes and pause.",
+    "Rise as high as you can onto your toes.",
+    "Finish all reps, then switch sides."
+   ],
+   "cues": [
+    "Pause in the bottom stretch.",
+    "Hold the dumbbell on the same side as the working leg.",
+    "Use the wall only for balance."
+   ],
+   "mistakes": [
+    "Bouncing.",
+    "Bending the knee.",
+    "Rushing the reps."
+   ],
+   "breathing": "Breathe out as you rise, in as you lower.",
+   "easier": "Standing_Calf_Raises",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Cable_Crunch",
+   "pattern": "core",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "lower_back"
+   ],
+   "stabilizers": [],
+   "grip": "Rope attachment on a high cable, ends held beside your head.",
+   "stance": "Kneel facing the cable, hips over your knees.",
+   "steps": [
+    "Hold the rope by your head; keep your hips still.",
+    "Curl your ribs towards your hips, rounding your back.",
+    "Uncurl slowly until you feel a stretch in your stomach."
+   ],
+   "cues": [
+    "Hips stay still: the spine does the curling.",
+    "Think ribs to hips.",
+    "Slow on the way up."
+   ],
+   "mistakes": [
+    "Sitting the hips back and pulling with the arms.",
+    "Not rounding the back at all.",
+    "Going too heavy."
+   ],
+   "breathing": "Breathe out hard as you crunch, in as you uncurl.",
+   "easier": "Crunches",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Ab_Roller",
+   "pattern": "core",
+   "tier": "S",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [
+    "full_gym"
+   ],
+   "loads": [
+    "lower_back",
+    "shoulder"
+   ],
+   "stabilizers": [
+    "lats",
+    "shoulders"
+   ],
+   "grip": "Hands on the wheel's handles.",
+   "stance": "Kneel on a mat with the wheel under your shoulders.",
+   "steps": [
+    "Brace your stomach and tuck your hips slightly.",
+    "Roll forward as far as you can without your lower back sagging.",
+    "Pull the wheel back to your knees using your stomach."
+   ],
+   "cues": [
+    "Hips tucked, ribs down the whole time.",
+    "Only go as far as you can keep your back flat.",
+    "Slow and controlled."
+   ],
+   "mistakes": [
+    "Lower back sagging.",
+    "Hips staying high and piking.",
+    "Rolling out too far too soon."
+   ],
+   "breathing": "Breathe in as you roll out, out as you return.",
+   "easier": "Plank",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Pike_Push-Up",
+   "pattern": "push_vertical",
+   "tier": "A",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [],
+   "loads": [
+    "shoulder",
+    "wrist",
+    "elbow"
+   ],
+   "stabilizers": [
+    "triceps",
+    "abdominals"
+   ],
+   "grip": "Hands slightly wider than the shoulders, fingers spread.",
+   "stance": "Feet hip-width apart, hips high so your body forms an upside-down V.",
+   "steps": [
+    "Walk your feet in until your hips are high over your shoulders.",
+    "Bend your elbows to lower your head towards the floor just in front of your hands.",
+    "Press back up until your arms are straight."
+   ],
+   "cues": [
+    "Head travels forward of the hands, making a triangle.",
+    "Elbows point back, not out.",
+    "Raise your feet on a step or bed to make it harder."
+   ],
+   "mistakes": [
+    "Hips dropping so it turns into a push-up.",
+    "Elbows flaring wide.",
+    "Landing on the top of the head."
+   ],
+   "breathing": "Breathe in as you lower, out as you press.",
+   "easier": "Pushups",
+   "harder": "Handstand_Push-Ups",
+   "reviewed": false
+  },
+  {
+   "id": "Handstand_Push-Ups",
+   "pattern": "push_vertical",
+   "tier": "A",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [],
+   "loads": [
+    "shoulder",
+    "wrist",
+    "elbow",
+    "neck"
+   ],
+   "stabilizers": [
+    "triceps",
+    "abdominals"
+   ],
+   "fixes": {
+    "level": "expert"
+   },
+   "grip": "Hands shoulder-width apart, about a hand-length from the wall.",
+   "stance": "Kick up into a handstand with your heels resting on the wall.",
+   "steps": [
+    "Brace your stomach and squeeze your legs together.",
+    "Lower slowly until your head lightly touches a folded mat.",
+    "Press back up to straight arms."
+   ],
+   "cues": [
+    "Hands, head and elbows make a triangle.",
+    "Ribs down; don't over-arch.",
+    "Use a folded mat under your head."
+   ],
+   "mistakes": [
+    "Dropping onto the head.",
+    "Elbows flaring wide.",
+    "Trying it before you can do 10 strict pike push-ups."
+   ],
+   "breathing": "Breathe in as you lower, out as you press.",
+   "easier": "Pike_Push-Up",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Decline_Push-Up",
+   "pattern": "push_horizontal",
+   "tier": "A",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [],
+   "loads": [
+    "shoulder",
+    "wrist",
+    "elbow"
+   ],
+   "stabilizers": [
+    "abdominals",
+    "triceps"
+   ],
+   "fixes": {
+    "equipment": "body only",
+    "level": "intermediate"
+   },
+   "grip": "Hands a little wider than the shoulders, fingers spread.",
+   "stance": "Feet up on a bed, chair or step behind you, body in a straight line.",
+   "steps": [
+    "Brace your stomach and squeeze your glutes.",
+    "Lower your chest to the floor, elbows at about 45 degrees.",
+    "Push the floor away back to straight arms."
+   ],
+   "cues": [
+    "Body stays in one straight line.",
+    "Chest touches the floor every rep.",
+    "The higher the feet, the harder it gets."
+   ],
+   "mistakes": [
+    "Hips sagging.",
+    "Elbows flaring straight out.",
+    "Half reps."
+   ],
+   "breathing": "Breathe in as you lower, out as you push.",
+   "easier": "Pushups",
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Push-Ups_-_Close_Triceps_Position",
+   "pattern": "triceps",
+   "tier": "A",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [],
+   "loads": [
+    "shoulder",
+    "wrist",
+    "elbow"
+   ],
+   "stabilizers": [
+    "chest",
+    "abdominals"
+   ],
+   "grip": "Hands under your chest, a little closer than shoulder-width.",
+   "stance": "Push-up position, body straight from head to heels.",
+   "steps": [
+    "Lower your chest towards your hands, elbows brushing your sides.",
+    "Touch your chest near your hands.",
+    "Press back up by straightening your arms."
+   ],
+   "cues": [
+    "Elbows point back, not out.",
+    "Body stays in a straight line.",
+    "Drop to your knees to make it easier."
+   ],
+   "mistakes": [
+    "Elbows flaring wide.",
+    "Hips sagging.",
+    "Hands so close that the wrists hurt."
+   ],
+   "breathing": "Breathe in as you lower, out as you press.",
+   "easier": null,
+   "harder": null,
+   "reviewed": false
+  },
+  {
+   "id": "Backpack_Squat",
+   "pattern": "squat",
+   "tier": "A",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [],
+   "loads": [
+    "knee",
+    "hip"
+   ],
+   "stabilizers": [
+    "abdominals",
+    "middle back"
+   ],
+   "grip": "Hug a backpack filled with books against your chest, or wear it on your front.",
+   "stance": "Feet shoulder-width apart, toes turned slightly out.",
+   "steps": [
+    "Brace your stomach with the bag held high on your chest.",
+    "Sit down between your heels as deep as you can with heels down.",
+    "Pause a second at the bottom, then drive up."
+   ],
+   "cues": [
+    "Bag stays tight to the chest.",
+    "Knees follow the toes.",
+    "Add books week by week, or slow the way down to 3 seconds."
+   ],
+   "mistakes": [
+    "Letting the bag pull you forward.",
+    "Heels lifting.",
+    "Bouncing out of the bottom."
+   ],
+   "breathing": "Breathe in on the way down, out as you stand.",
+   "easier": "Bodyweight_Squat",
+   "harder": "Goblet_Squat",
+   "photos_from": "Goblet_Squat",
    "reviewed": false
   }
  ]

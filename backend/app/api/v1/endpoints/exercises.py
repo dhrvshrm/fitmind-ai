@@ -16,11 +16,12 @@ async def search_exercises(
     muscle: Optional[str] = Query(None, max_length=30),
     equipment: Optional[str] = Query(None, max_length=30),
     curated: bool = Query(False, description="Only exercises with FitMind coaching notes"),
+    tier: Optional[str] = Query(None, pattern="^[SAB]$", description="Only exercises of this quality tier"),
     limit: int = Query(40, ge=1, le=100),
     current_user: User = Depends(get_current_user),
 ) -> dict:
     """Search the exercise library (free-exercise-db), curated exercises first."""
-    results = catalog.search(q, muscle, equipment, curated, limit)
+    results = catalog.search(q, muscle, equipment, curated, limit, tier)
     return {
         "success": True,
         "message": "Exercises",

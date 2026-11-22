@@ -17,6 +17,7 @@ from app.health import extraction
 from app.models import audit
 from app.models import lab_report as model
 from app.models.user import User
+from app.nutrition.targets import canonical_goal
 from app.services import consent_service
 from app.services.consent_service import SCOPE_HEALTH_REPORTS
 from app.utils.time import local_today, local_today_iso
@@ -159,8 +160,13 @@ async def list_scans(user_id: str) -> List[dict]:
     """Every scan, newest first, each with its analysis and what changed since the one before."""
     await consent_service.require(user_id, SCOPE_HEALTH_REPORTS)
     docs = await model.list_scans(user_id)
-    sex = await _sex(user_id)
+    user = await User.get_by_id(user_id)
+    sex = user.gender if user else None
     out = [_present(doc, docs[i - 1] if i else None, sex) for i, doc in enumerate(docs)]
+    if out:
+        # Only the newest scan speaks to the goal the person has now.
+        goal = canonical_goal(user.fitness_goal) if user else None
+        out[-1]["goal_advice"] = bc.goal_advice(out[-1]["analysis"], goal)
     return list(reversed(out))
 
 

@@ -56,8 +56,8 @@ export const QUERY_KEYS = {
   },
   exercises: {
     all: ['exercises'] as const,
-    search: (query: string, muscle: string, curated: boolean) =>
-      ['exercises', 'search', query, muscle, curated] as const,
+    search: (query: string, muscle: string, curated: boolean, tier: string) =>
+      ['exercises', 'search', query, muscle, curated, tier] as const,
     detail: (id: string) => ['exercises', 'detail', id] as const,
   },
   recovery: {
