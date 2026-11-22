@@ -16,6 +16,8 @@ export type Exercise = {
   video_url?: string | null;
   exercise_id?: string;
   pattern?: string;
+  /** Quality for its muscle: S (best-evidenced), A (solid), B (stand-in). */
+  tier?: 'S' | 'A' | 'B' | null;
   primary_muscles?: MuscleGroup[];
   secondary_muscles?: MuscleGroup[];
   equipment?: string | null;

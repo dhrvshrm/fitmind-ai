@@ -11,6 +11,7 @@ export const exerciseService = {
         q: params.q || undefined,
         muscle: params.muscle || undefined,
         curated: params.curated || undefined,
+        tier: params.tier || undefined,
       },
     });
     return data.data;

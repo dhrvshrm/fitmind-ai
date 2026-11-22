@@ -42,4 +42,14 @@ export const exerciseDemoStyles = {
   video: {
     justifySelf: 'start',
   },
+  note: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 0.75,
+  },
+  noteIcon: {
+    fontSize: 16,
+    mt: '2px',
+    color: 'text.secondary',
+  },
 } satisfies Record<string, SxProps<Theme> | ((visible: boolean) => SxProps<Theme>)>;

@@ -1,5 +1,5 @@
 {
- "_about": "RepEat additions where free-exercise-db has no entry for a standard exercise people need at home or with bands: a band curl and row, and backpack-loaded curls, rows and triceps extensions for training with no equipment (a school bag filled with books is the usual Indian home weight). Same shape as exercises.json; no photos.",
+ "_about": "RepEat additions where free-exercise-db has no entry for a standard exercise people need at home or with bands: a band curl and row, and backpack-loaded curls, rows and triceps extensions for training with no equipment, and the pike push-up and a backpack squat for home (a school bag filled with books is the usual Indian home weight). Same shape as exercises.json. They borrow the photos of the same movement done with other equipment (see 'photos_from' in curated.json); the pike push-up uses two frames (start and bottom, resized) of a Wikimedia Commons photo under CC BY-SA 4.0, credited in 'photo_credit' and served by the app.",
  "exercises": [
   {
    "id": "Band_Biceps_Curl",
@@ -186,6 +186,59 @@
     "Lift the upper arm parallel to the floor, elbow bent at 90 degrees.",
     "Straighten the elbow to push the bag back, then bend it slowly. Finish every rep on one side, then switch."
    ]
+  },
+  {
+   "id": "Pike_Push-Up",
+   "name": "Pike Push-Up",
+   "force": "push",
+   "level": "beginner",
+   "mechanic": "compound",
+   "equipment": "body only",
+   "category": "strength",
+   "primary_muscles": [
+    "shoulders"
+   ],
+   "secondary_muscles": [
+    "triceps",
+    "chest"
+   ],
+   "instructions": [
+    "Start in a push-up position, then walk your feet in and lift your hips high so your body makes an upside-down V.",
+    "Bend your elbows to lower the top of your head towards the floor between your hands.",
+    "Press back up to straight arms."
+   ],
+   "images": [
+    "/exercises/Pike_Push-Up/0.jpg",
+    "/exercises/Pike_Push-Up/1.jpg"
+   ],
+   "photo_credit": {
+    "author": "Danielflefil",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Pike_Push_Ups.gif"
+   }
+  },
+  {
+   "id": "Backpack_Squat",
+   "name": "Backpack Squat",
+   "force": "push",
+   "level": "beginner",
+   "mechanic": "compound",
+   "equipment": "body only",
+   "category": "strength",
+   "primary_muscles": [
+    "quadriceps"
+   ],
+   "secondary_muscles": [
+    "glutes",
+    "hamstrings"
+   ],
+   "instructions": [
+    "Hold a backpack filled with books against your chest.",
+    "Squat down between your heels as deep as you comfortably can.",
+    "Drive back up to standing."
+   ],
+   "images": []
   }
  ]
 }

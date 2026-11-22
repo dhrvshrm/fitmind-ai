@@ -264,7 +264,12 @@ export function ExerciseDetailDialog({ exerciseId, onClose, onOpenExercise }: Ex
             <FactTiles exercise={exercise} />
 
             <Box sx={styles.topGrid}>
-              <ExerciseDemo name={exercise.name} images={exercise.images} videoUrl={coaching?.video_url ?? null} />
+              <ExerciseDemo
+                name={exercise.name}
+                images={exercise.images}
+                videoUrl={coaching?.video_url ?? null}
+                photoNote={exercise.photo_note}
+              />
               <Paper variant="outlined" sx={styles.panel}>
                 <SectionTitle>{D.muscles}</SectionTitle>
                 <MuscleMap

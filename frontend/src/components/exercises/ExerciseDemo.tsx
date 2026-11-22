@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, IconButton, Tooltip } from '@mui/material';
-import { OndemandVideoRounded, PauseRounded, PlayArrowRounded } from '@mui/icons-material';
+import { Box, Button, IconButton, Link, Tooltip, Typography } from '@mui/material';
+import { InfoOutlined, OndemandVideoRounded, PauseRounded, PlayArrowRounded } from '@mui/icons-material';
 import { STRINGS } from '../../constants/strings';
 import { DEMO_FRAME_MS } from '../../constants/exercises';
+import type { PhotoNote } from '../../types/exercise';
 import { exerciseDemoStyles as styles } from './ExerciseDemo.styles';
 
 const S = STRINGS.exercises.detail;
@@ -11,6 +12,8 @@ type ExerciseDemoProps = {
   name: string;
   images: string[];
   videoUrl: string | null;
+  /** Set when the pictures show a stand-in exercise or an illustration. */
+  photoNote?: PhotoNote | null;
 };
 
 function prefersReducedMotion(): boolean {
@@ -21,7 +24,7 @@ function prefersReducedMotion(): boolean {
  * The movement shown by alternating the start and end photos. Pauses for
  * people who prefer reduced motion; a video link appears when one exists.
  */
-export function ExerciseDemo({ name, images, videoUrl }: ExerciseDemoProps) {
+export function ExerciseDemo({ name, images, videoUrl, photoNote }: ExerciseDemoProps) {
   const [frame, setFrame] = useState(0);
   const [playing, setPlaying] = useState(() => !prefersReducedMotion());
 
@@ -61,6 +64,28 @@ export function ExerciseDemo({ name, images, videoUrl }: ExerciseDemoProps) {
           </Tooltip>
         )}
       </Box>
+      {photoNote && (
+        <Box sx={styles.note}>
+          <InfoOutlined sx={styles.noteIcon} />
+          <Typography variant="caption" color="text.secondary">
+            {photoNote.kind === 'stand_in' ? (
+              S.photoStandIn(photoNote.name)
+            ) : (
+              <>
+                {S.photoBy} {photoNote.author},{' '}
+                <Link href={photoNote.license_url} target="_blank" rel="noopener noreferrer">
+                  {photoNote.license}
+                </Link>{' '}
+                (
+                <Link href={photoNote.source_url} target="_blank" rel="noopener noreferrer">
+                  {S.photoSource}
+                </Link>
+                )
+              </>
+            )}
+          </Typography>
+        </Box>
+      )}
       {videoUrl && (
         <Button
           size="small"

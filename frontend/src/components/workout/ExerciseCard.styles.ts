@@ -47,6 +47,12 @@ export const exerciseCardStyles = {
   level: {
     textTransform: 'capitalize',
   },
+  topPick: {
+    height: 20,
+    fontSize: '0.7rem',
+    fontWeight: 600,
+    alignSelf: 'center',
+  },
   stats: {
     flexDirection: 'row',
     alignItems: 'center',

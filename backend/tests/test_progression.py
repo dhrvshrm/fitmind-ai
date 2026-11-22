@@ -285,13 +285,16 @@ def test_a_harder_variation_is_only_offered_with_the_equipment_for_it():
 
     from app.workouts import catalog
 
-    squat = catalog.get("Bodyweight_Squat")  # harder: Goblet Squat (needs a dumbbell or kettlebell)
+    squat = catalog.get("Bodyweight_Squat")  # harder: Backpack Squat, then Goblet Squat (needs a dumbbell)
     at_home = SimpleNamespace(available_equipment=["bodyweight"], injuries=[])
     with_dumbbells = SimpleNamespace(available_equipment=["dumbbells"], injuries=[])
     sore_knee = SimpleNamespace(available_equipment=["dumbbells"], injuries=["knee pain"])
-    assert _harder_for(squat, at_home) is None
+    assert _harder_for(squat, at_home).id == "Backpack_Squat"
+    # With weights, the step that can be loaded beats the backpack.
     assert _harder_for(squat, with_dumbbells).id == "Goblet_Squat"
     assert _harder_for(squat, sore_knee) is None
+    goblet = catalog.get("Goblet_Squat")  # harder: Barbell Squat (needs a gym)
+    assert _harder_for(goblet, at_home) is None
 
 
 def test_a_new_gym_user_is_judged_on_lifts_not_bodyweight_reps(client):

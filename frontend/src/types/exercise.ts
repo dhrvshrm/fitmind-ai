@@ -35,6 +35,8 @@ export type ExerciseSummary = {
   /** Has FitMind coaching notes and can appear in plans. */
   curated: boolean;
   pattern: string | null;
+  /** Quality for its muscle (curated only): S best-evidenced, A solid, B stand-in. */
+  tier: ExerciseTier | null;
 };
 
 export type ExerciseCoaching = {
@@ -53,8 +55,14 @@ export type ExerciseCoaching = {
 };
 
 /** `GET /exercises/{id}`. */
+/** What the pictures show when they aren't photos of this exact exercise. */
+export type PhotoNote =
+  | { kind: 'stand_in'; id: string; name: string }
+  | { kind: 'credit'; author: string; license: string; license_url: string; source_url: string };
+
 export type ExerciseDetail = ExerciseSummary & {
   images: string[];
+  photo_note?: PhotoNote | null;
   instructions: string[];
   stabilizers: MuscleGroup[];
   coaching: ExerciseCoaching | null;
@@ -63,10 +71,13 @@ export type ExerciseDetail = ExerciseSummary & {
   source: string;
 };
 
+export type ExerciseTier = 'S' | 'A' | 'B';
+
 export type ExerciseSearchParams = {
   q?: string;
   muscle?: MuscleGroup;
   curated?: boolean;
+  tier?: ExerciseTier;
 };
 
 export type ExerciseSearchResult = {

@@ -28,7 +28,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 # lifts; small single-joint moves use the smallest dumbbell steps.
 LOWER_BODY_PATTERNS = {"squat", "hinge", "lunge", "glute"}
 ISOLATION_PATTERNS = {
-    "calf", "knee_flexion", "knee_extension", "shoulder_isolation", "rear_delt", "biceps", "triceps",
+    "calf", "knee_flexion", "knee_extension", "chest_fly", "shoulder_isolation", "rear_delt", "biceps", "triceps",
 }
 INCREMENT_LOWER_KG = 5.0
 INCREMENT_UPPER_KG = 2.5
