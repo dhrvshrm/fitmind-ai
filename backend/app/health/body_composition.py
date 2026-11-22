@@ -284,6 +284,27 @@ def analyse(scan: BodyScan, sex: Optional[str]) -> dict:
     }
 
 
+def goal_advice(analysis: dict, goal: Optional[str]) -> Optional[dict]:
+    """A better-suited goal when the scan and the chosen goal pull apart, else None.
+
+    - Building muscle (a calorie surplus) with high body fat or visceral fat:
+      recomposition builds muscle on a small deficit while the fat comes down,
+      instead of adding more fat first.
+    - Losing fat or recomposing when body fat is already in the essential range:
+      a deficit then mostly costs muscle and recovery, so building muscle on a
+      small surplus fits better.
+
+    Only a suggestion: the person decides, and the plan follows their goal.
+    """
+    category = analysis.get("body_fat_category")
+    visceral_high = any(f["code"] == "visceral_high" for f in analysis.get("findings", []))
+    if goal == "muscle_gain" and (category == "high" or visceral_high):
+        return {"goal": goal, "suggested": "recomposition", "reason": "surplus_with_high_fat"}
+    if goal in ("fat_loss", "recomposition") and category == "essential":
+        return {"goal": goal, "suggested": "muscle_gain", "reason": "deficit_when_very_lean"}
+    return None
+
+
 def changes(current: BodyScan, previous: Optional[BodyScan]) -> Dict[str, float]:
     """How the main numbers moved since the previous scan."""
     if previous is None:

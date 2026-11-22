@@ -230,3 +230,33 @@ def test_focus_never_compromises_the_plan(owned, injuries):
                     assert e["per_side"], f"{where}: {e['name']}"
             lost = Counter(e["pattern"] for e in p_day["exercises"]) - Counter(e["pattern"] for e in f_day["exercises"])
             assert not lost, f"{where}: lost {dict(lost)}"
+
+
+# --- Goal advice -----------------------------------------------------------------
+def test_scan_suggests_a_better_goal_only_when_they_pull_apart():
+    high = bc.analyse(bc.BodyScan(weight_kg=90, body_fat_percent=30), "male")
+    assert bc.goal_advice(high, "muscle_gain") == {
+        "goal": "muscle_gain", "suggested": "recomposition", "reason": "surplus_with_high_fat"}
+    # Recomposition and fat loss already suit high body fat.
+    assert bc.goal_advice(high, "recomposition") is None
+    assert bc.goal_advice(high, "fat_loss") is None
+    visceral = bc.analyse(bc.BodyScan(weight_kg=80, body_fat_percent=20, visceral_fat_level=12), "male")
+    assert bc.goal_advice(visceral, "muscle_gain")["suggested"] == "recomposition"
+    very_lean = bc.analyse(bc.BodyScan(weight_kg=60, body_fat_percent=4), "male")
+    assert bc.goal_advice(very_lean, "fat_loss")["suggested"] == "muscle_gain"
+    assert bc.goal_advice(very_lean, "muscle_gain") is None
+    fit = bc.analyse(bc.BodyScan(weight_kg=75, body_fat_percent=15), "male")
+    assert all(bc.goal_advice(fit, g) is None for g in ("muscle_gain", "fat_loss", "recomposition"))
+
+
+def test_only_the_newest_scan_carries_goal_advice(client):
+    headers, _ = _user(client, "scan-goal@example.com", fitness_goal="muscle_gain")
+    for day, fat in (("2026-08-01", 18.0), ("2026-11-01", 30.0)):
+        client.post(f"{API}/body-scans", headers=headers, json={"use_for_profile": False, "scan": {
+            "measured_at": day, "weight_kg": 90.0, "body_fat_percent": fat}})
+    scans = client.get(f"{API}/body-scans", headers=headers).json()["data"]
+    assert scans[0]["goal_advice"]["suggested"] == "recomposition"
+    assert "goal_advice" not in scans[1]
+    # Once the goal is changed, the advice goes away.
+    client.put(f"{API}/settings/profile", headers=headers, json={"fitness_goal": "recomposition"})
+    assert client.get(f"{API}/body-scans", headers=headers).json()["data"][0]["goal_advice"] is None

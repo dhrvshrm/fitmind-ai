@@ -1,3 +1,5 @@
+import type { FitnessGoal } from './onboarding';
+
 /** Body composition scans (InBody and similar), aligned with backend/app/health/body_composition.py. */
 
 export type SegmentKey = 'right_arm' | 'left_arm' | 'trunk' | 'right_leg' | 'left_leg';
@@ -56,6 +58,14 @@ export type BodyScan = BodyScanValues & {
   };
   /** Change in the main numbers since the scan before. */
   changes: Partial<Record<BodyScanFieldKey, number>>;
+  /** Newest scan only: a better-suited goal when the scan and the current goal pull apart. */
+  goal_advice?: GoalAdvice | null;
+};
+
+export type GoalAdvice = {
+  goal: FitnessGoal;
+  suggested: FitnessGoal;
+  reason: 'surplus_with_high_fat' | 'deficit_when_very_lean';
 };
 
 export type BodyScanRequest = { scan: BodyScanValues; use_for_profile: boolean };
