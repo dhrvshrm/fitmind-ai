@@ -43,6 +43,7 @@ Your daily plan is made of real Indian dishes that fit your targets, diet (veg, 
 - **Grocery list:** the week's shopping, built from your plan and grouped by section of the shop.
 - **Fasting and festival modes:** Navratri, Ramadan (sehri and iftar), Ekadashi and Jain Paryushan, each with the right food rules and meal times.
 - **Night and rotating shifts:** meal times follow your shift, not a 9 to 5.
+- **Food that fits your region and season:** switch on seasonal eating and add your city or state, and the plan prefers what is in season there and leaves out what is hard to find fresh. A Kashmir winter brings haak, nadru and shalgam, not bhindi. Left off, plans use everyday foods found almost anywhere. Staples stay on all year, each season gets simple habits (water and chaach in summer, warm food in winter), and following thandi and garam taseer is an option you can switch on.
 - **Healthy treat meals:** craving something sweet, a cake, pizza, a burger, tikka or street food? Pick it and get lighter versions like a chocolate protein mug cake, a grilled chicken burger or a paneer roti pizza. Each one fits your diet, allergies and health profile, and once you log it the rest of the day makes room. Two a week is the suggestion.
 
 ### PG and hostel mess mode
@@ -92,8 +93,8 @@ The chat coach sees your plan, targets, workouts and recovery. Ask it to log a m
 These are planned and not built yet.
 
 - **A first-time walkthrough.** Right after sign-up, a short guided tour that shows what each part of the app does and what to do first, second and third: log food, follow the meal plan, do the workout, talk to the coach, set up supplements. A new user should never feel lost.
+- **Training for your sport.** Pick football, cricket, running, weightlifting or another sport, and workouts and meals follow what it needs: speed and agility, injury prevention, match-day food.
 - **Simple recipes on request.** Ask how to cook anything, from dal or pulao to roasted paneer or a treat meal, and get the simplest recipe for your portion, with amounts in grams, katori and spoons, and little oil.
-- **Food that fits your region and season.** The plan will prefer vegetables and fruits that are actually in season where you live. In a Kashmir winter that means haak, nadru and turnip, not bhindi. Staples like dal, potato and onion stay available all year. In summer the focus is on water and chaach; in winter, warm food and soups. Following "thandi/garam taseer" will be an option you can switch on.
 - **Vitamins and minerals.** See more than calories and protein: iron, calcium, magnesium, zinc, B12, vitamins A, C and D, both for each food and as a daily total against your targets.
 - **Demo readiness.** End-to-end tests for the main journeys, demo data and error monitoring.
 

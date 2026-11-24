@@ -28,6 +28,7 @@ from app.nutrition.diet_rules import (
 )
 from app.nutrition.fasting import FAST_STAPLES
 from app.nutrition.food_db import Food, Nutrients
+from app.nutrition.seasons import SeasonContext
 from app.nutrition.text import normalize, tokens
 from app.nutrition.units import is_piece_unit
 
@@ -268,7 +269,8 @@ CORE_SOURCES = frozenset({"USDA"})
 
 
 def food_pool(
-    rules: DietRules, prefs: Optional[dict], user_foods: Sequence[Food] = ()
+    rules: DietRules, prefs: Optional[dict], user_foods: Sequence[Food] = (),
+    season: Optional[SeasonContext] = None,
 ) -> List[Food]:
     """Foods the person can be offered, best first, trimmed to ``POOL_LIMIT``.
 
@@ -287,7 +289,7 @@ def food_pool(
     scored = []
     for entry in food_db._index():
         food = entry.food
-        if food.id in food_db.UNRELIABLE_IDS or food.id in food_db.LOG_ONLY_IDS:
+        if food.id in food_db.UNRELIABLE_IDS or food.id in food_db.LOG_ONLY_IDS or food.id in MESS_ONLY_IDS:
             continue
         if not suitable_for_plans(food) or not rules.allows(food):
             continue
@@ -298,10 +300,13 @@ def food_pool(
             + (3 if food.id in CORE_FOOD_IDS or food.source in CORE_SOURCES else 0)
             + (2 if found & liked else 0)
             + (1 if found & STAPLE_WORDS else 0)
+            + (season.score(found) if season else 0)
         )
-        scored.append((-score, len(food.name), food.id, food))
-    scored.sort(key=lambda s: s[:3])
-    return own + [s[3] for s in scored[: max(POOL_LIMIT - len(own), 0)]]
+        # Out of season where they live: kept, but behind everything in season.
+        late = bool(season and season.is_out_of_season(found))
+        scored.append((late, -score, len(food.name), food.id, food))
+    scored.sort(key=lambda s: s[:4])
+    return own + [s[4] for s in scored[: max(POOL_LIMIT - len(own), 0)]]
 
 
 def _serving_line(food: Food) -> str:
@@ -834,17 +839,24 @@ def enforce_meal_fit(
 ) -> int:
     """Take out foods that don't suit their meal (in place); returns how many.
 
-    A meal left empty gets the lightest suitable fruit (a banana before a workout).
+    A meal never has two of the same kind of dish (two raitas, two parathas): the
+    first stays. A meal left empty gets the lightest suitable fruit (a banana before a workout).
     """
     removed = 0
     for meal in meals:
         if meal["id"] in fixed:
             continue
-        kept = [
-            i
-            for i in meal["items"]
-            if i["food_id"] not in foods or suits_meal(foods[i["food_id"]], meal)
-        ]
+        kept = []
+        kinds_in_meal: set = set()
+        for i in meal["items"]:
+            food = foods.get(i["food_id"])
+            if food is not None and not suits_meal(food, meal):
+                continue
+            kinds = {ONE_PER_MEAL_GROUPS[t] for t in food_tokens(food) & ONE_PER_MEAL_WORDS} if food else set()
+            if kinds & kinds_in_meal:
+                continue
+            kinds_in_meal |= kinds
+            kept.append(i)
         removed += len(meal["items"]) - len(kept)
         if not kept and meal["items"]:
             fruit = [f for f in pool if food_role(f) == "fruit" and suits_meal(f, meal)]
@@ -892,8 +904,19 @@ def _fits_slot(food: Food, meal: dict) -> bool:
 # Light before bed; roasted chana is the option for people who skip dairy.
 BEDTIME_PROTEIN_WORDS = frozenset({"milk", "curd", "paneer", "roasted"})
 SAME_KIND_WORDS = frozenset(
-    {"curd", "paneer", "egg", "milk", "tofu", "soya", "chicken", "chana", "chickpeas"}
+    {"curd", "paneer", "egg", "milk", "tofu", "soya", "soyabean", "chicken", "chana", "chickpeas", "raita"}
 )
+# Dishes a meal has one of at most: a second raita, paratha or soya dish is a repeat,
+# not variety. Word -> its group (soyabean curry and soya chunk curry are both soya).
+_ONE_PER_MEAL = {
+    "raita": "raita", "salad": "salad", "soup": "soup", "pulao": "rice_dish", "biryani": "rice_dish",
+    "khichdi": "rice_dish", "paratha": "paratha", "parantha": "paratha", "dosa": "dosa",
+    "uttapam": "dosa", "soya": "soya", "soyabean": "soya",
+}
+ONE_PER_MEAL_GROUPS = {t: group for word, group in _ONE_PER_MEAL.items() for t in tokens(word)}
+ONE_PER_MEAL_WORDS = frozenset(ONE_PER_MEAL_GROUPS)
+# Placeholders for mess mode only (the mess's sabzi or dal), never in an everyday plan.
+MESS_ONLY_IDS = frozenset({"est:mess_sabzi"})
 # An addition is undone if it pushes the day past these (portions couldn't absorb it).
 MAX_KCAL_OVER = 1.04
 # Protein comes first: fat may run a little over its target (a quarter) to reach it.

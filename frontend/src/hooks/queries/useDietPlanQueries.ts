@@ -149,3 +149,22 @@ export function useLogTreat() {
       ),
   });
 }
+
+/** The season where the user lives, from the city or state they gave. */
+export function useSeason() {
+  return useQuery({ queryKey: QUERY_KEYS.dietPlan.season, queryFn: dietPlanService.season });
+}
+
+/** Saves the place (food access) or the taseer choice; the season and plan staleness refresh. */
+export function useUpdateSeasonSettings() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: ({ region, ...prefs }: { region?: string; follow_season?: boolean; follow_taseer?: boolean }) =>
+      userService.updatePersonalisation({
+        ...(region !== undefined ? { food_access: { region } } : {}),
+        ...(Object.keys(prefs).length ? { food_preferences: prefs } : {}),
+      }),
+    onSuccess: () =>
+      invalidate(QUERY_KEYS.dietPlan.season, QUERY_KEYS.dietPlan.current, QUERY_KEYS.profile.user),
+  });
+}

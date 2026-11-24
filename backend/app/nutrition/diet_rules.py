@@ -110,6 +110,7 @@ NOT_FOR_PLANS = frozenset({
     "eclair", "scone", "waffle", "sugar", "honey", "butter", "ghee", "oil",
     "rabri", "rabdi", "basundi", "payasam", "malpua", "ghevar", "imarti", "chocolate", "bar",
     "vada", "bonda", "poori", "cutlet", "nugget", "nuggets", "kabab", "kebab", "tikki", "powder",
+    "gateau", "snowball", "snowballs",
 })
 
 # Everyday Indian staples, preferred when the food list has to be trimmed.

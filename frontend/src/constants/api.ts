@@ -163,6 +163,7 @@ export const DIET_PLAN_ENDPOINTS = {
   FASTING_MODES: "/diet-plans/fasting-modes",
   fastingMode: (id: string) => `/diet-plans/fasting-modes/${encodeURIComponent(id)}`,
   TREATS: "/diet-plans/treats",
+  SEASON: "/diet-plans/season",
   logTreat: (id: string) => `/diet-plans/treats/${encodeURIComponent(id)}/log`,
 } as const;
 

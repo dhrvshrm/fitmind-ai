@@ -18,6 +18,7 @@ from app.nutrition.diet_rules import DietRules
 from app.nutrition.food_db import Food
 from app.services import nutrition_service, user_service
 from app.nutrition import fasting, grocery  # Phase 8: fasting modes and grocery list
+from app.nutrition import seasons
 from app.services import fasting_service
 from app.services import workout_service
 from app.services import analytics_service
@@ -28,7 +29,10 @@ logger = logging.getLogger(__name__)
 
 TARGET_KEYS = ("calories", "protein", "carbs", "fats", "fiber")
 # Answers that change which foods are allowed; a plan made before they changed is out of date.
-PREFERENCE_KEYS = ("diet_type", "eats_eggs", "eats_dairy", "allergies", "intolerances", "excluded", "dislikes")
+PREFERENCE_KEYS = (
+    "diet_type", "eats_eggs", "eats_dairy", "allergies", "intolerances", "excluded", "dislikes",
+    "follow_season", "follow_taseer",
+)
 # A plan is out of date when today's targets differ from the plan's by more than this.
 STALE_CALORIE_FRACTION = 0.03
 STALE_PROTEIN_FRACTION = 0.05
@@ -71,13 +75,16 @@ async def _context(user_id: str) -> _Context:
     fasting_mode = await fasting_service.active_mode(user_id)
     rules = rules.with_fasting_mode((fasting_mode or {}).get("mode"))
     own = await nutrition_service.user_foods_as_foods(user_id)
-    pool = meal_planner.food_pool(rules, user.food_preferences, own)
+    # What's in season where they live (none when the region isn't a known place).
+    season = season_of(user)
+    pool = meal_planner.food_pool(rules, user.food_preferences, own, season)
     # Health profile rules (app/health/plan_rules.py), from consented data only.
     targets, pool, health_notes = await plan_rules.apply_to_plan(user_id, targets, pool, user.weight_kg)
     ctx = _Context(user, targets, pool, rules)
     ctx.health_notes = health_notes
     ctx.health_flags = await _health_flags(user_id)
     ctx.fasting_mode = fasting_mode
+    ctx.season = season
     # Mess mode: shelf foods can be planned and swapped in even when they aren't
     # everyday plan foods (a whey shake).
     ctx.shelf = mess.shelf_foods(ctx.access, rules) if mess.is_on(ctx.access) else []
@@ -114,6 +121,10 @@ def _notes(meals: List[dict], plan_targets: Dict[str, int], ctx: _Context,
         notes.append({"code": "medical_advice", "values": {}})
     notes += [n for n in getattr(ctx, "health_notes", []) if n["code"] not in {x["code"] for x in notes}]
     notes += [n for n in _mode_notes(getattr(ctx, "fasting_mode", None)) if n["code"] not in {x["code"] for x in notes}]
+    season = getattr(ctx, "season", None)
+    if season and season.season != seasons.SEASON_MILD:
+        # Plain, evidence-based habits for the weather (water in summer, warm food in winter).
+        notes.append({"code": "season_tip", "values": {"season": season.season}})
     if mess_plan:
         notes += _mess_notes(meals, plan_targets, ctx, short)
     return notes
@@ -216,6 +227,59 @@ def _mode_lines(mode: Optional[dict]) -> List[str]:
     return [spec.prompt] if spec and spec.prompt else []
 
 
+def _local_season(user: User) -> Optional[seasons.SeasonContext]:
+    """The season where the user lives today, from the city or state they gave."""
+    region = (user.food_access or {}).get("region")
+    taseer = bool((user.food_preferences or {}).get("follow_taseer"))
+    return seasons.context_for(region, local_today(), taseer)
+
+
+def season_of(user: Optional[User]) -> Optional[seasons.SeasonContext]:
+    """The season a plan follows: only when the user switched seasonal eating on.
+    Off, plans use everyday foods found almost everywhere."""
+    if user is None or not (user.food_preferences or {}).get("follow_season"):
+        return None
+    return _local_season(user)
+
+
+def _season_lines(ctx: "_Context") -> List[str]:
+    season = getattr(ctx, "season", None)
+    return season.prompt_lines() if season else []
+
+
+def _season_summary(season: Optional[seasons.SeasonContext]) -> Optional[dict]:
+    return season.summary() if season else None
+
+
+def season_view(season: Optional[seasons.SeasonContext]) -> Optional[dict]:
+    """What the meal plan screen shows about the season where they live."""
+    if season is None:
+        return None
+    return {
+        "region": season.region,
+        "zone": season.zone,
+        "season": season.season,
+        "in_season": [p.name for p in season.in_season],
+        "out_of_season": [p.name for p in season.out_of_season],
+        "follow_taseer": bool(season.taseer_avoid) or None,
+    }
+
+
+async def season_status(user_id: str) -> dict:
+    """The season where the user lives, or why there isn't one (no or unknown place)."""
+    user = await User.get_by_id(user_id)
+    if user is None:
+        raise DietPlanError("User not found", "not_found")
+    prefs = user.food_preferences or {}
+    return {
+        "region": (user.food_access or {}).get("region"),
+        "follow_season": bool(prefs.get("follow_season")),
+        "follow_taseer": bool(prefs.get("follow_taseer")),
+        # Shown even while off, so people can see what turning it on would do.
+        "season": season_view(_local_season(user)),
+    }
+
+
 def _mode_key(mode: Optional[dict]) -> Optional[str]:
     return (mode or {}).get("mode")
 
@@ -268,6 +332,12 @@ async def _save(user_id: str, meals: List[dict], plan_targets: Dict[str, int], c
             _mode_summary(getattr(ctx, "fasting_mode", None))
             if previous is None or change in ("created", "regenerated")
             else previous.get("fasting_mode")
+        ),
+        # The season and place the plan was made for: a new season or a move flags it.
+        "season": (
+            _season_summary(getattr(ctx, "season", None))
+            if previous is None or change in ("created", "regenerated")
+            else previous.get("season")
         ),
     }
     # The health rules the plan was made with: a new lab report that changes them
@@ -349,7 +419,11 @@ async def _present(plan: dict, user: Optional[User] = None) -> dict:
             if cost:
                 meal["cost_inr"] = cost
         data["extras_cost_inr"] = sum(m.get("cost_inr", 0) for m in data["meals"])
-    data["stale"] = data["stale"] or data["mode_changed"] or (bool(user) and times is None)
+    # Season where they live now, and whether the plan was made for it.
+    current_season = season_of(user)
+    data["season"] = season_view(current_season)
+    data["season_changed"] = bool(user) and _season_summary(current_season) != plan.get("season")
+    data["stale"] = data["stale"] or data["mode_changed"] or data["season_changed"] or (bool(user) and times is None)
     data["shift_aware"] = bool(user) and routine.is_shift_schedule(user.lifestyle)
     # Today's food log laid over the plan: hand-logged meals fill their slots,
     # and the meals still to come get a portion hint.
@@ -499,7 +573,7 @@ async def create_plan(user_id: str) -> dict:
     try:
         pick = await meal_planner.pick_meals(
             plan_targets, slots, ctx.pool, ctx.prefs, ctx.access, user_id, avoid_names=avoid,
-            extra_lines=_mode_lines(mode),
+            extra_lines=_mode_lines(mode) + _season_lines(ctx),
         )
     except AIError as e:
         # A plan is always made: without AI, from the same allowed foods by meal templates.
@@ -550,7 +624,7 @@ async def regenerate_meal(user_id: str, meal_id: str) -> dict:
         pick = await meal_planner.pick_meals(
             plan["targets"], [slot], pool, ctx.prefs, ctx.access, user_id,
             avoid_names=[i["name"] for i in current["items"]], keep=others,
-            extra_lines=_mode_lines(getattr(ctx, "fasting_mode", None)),
+            extra_lines=_mode_lines(getattr(ctx, "fasting_mode", None)) + _season_lines(ctx),
         )
     except AIError as e:
         logger.info("AI meal option unavailable for %s, using rules: %s", user_id, e)

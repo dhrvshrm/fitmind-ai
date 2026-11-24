@@ -219,6 +219,10 @@ export const LANDING_STRINGS = {
         a: 'Yes. Upload a PDF or a photo of a blood test from any lab: a full body checkup, lipid profile, thyroid profile, HbA1c, vitamin D or B12. RepEat reads values like HbA1c, cholesterol, TSH, haemoglobin and vitamin D, and you check every one before it is saved. Saved results shape your meal plan and supplement suggestions, and you can see them over time. Files are private and you can delete them any time.',
       },
       {
+        q: 'Will my plan suit where I live and the season?',
+        a: 'If you want it to. Switch on seasonal eating and add your city or state, and the plan picks fruits and vegetables in season there. Left off, plans use everyday foods found almost anywhere. In a Kashmir winter that means haak, nadru, shalgam and gajar, not bhindi or lauki; a Delhi summer brings lauki, torai and mango. Dal, rice, roti, potato, onion and tomato stay on all year. Each season also gets simple habits, like more water and chaach in summer and warm dals and soups in winter. If you follow taseer (thanda and garam foods), switch it on and winter plans skip cooling foods like cucumber and chaas.',
+      },
+      {
         q: 'Can I have a cheat meal?',
         a: 'Yes, a healthier one. Pick what you are craving, from something sweet or a cake to pizza, a burger, tikka or street food, and RepEat shows lighter versions you can make or order: a chocolate protein mug cake, a grilled chicken burger, a paneer roti pizza, shakarkandi chaat. Every option fits your diet, allergies and health profile, and once you log it the rest of the day makes room. Two a week is the suggestion, never a rule.',
       },

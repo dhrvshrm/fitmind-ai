@@ -1,0 +1,177 @@
+[
+ {
+  "id": "est:haak",
+  "name": "Haak",
+  "full_name": "Haak saag, Kashmiri collard greens, home style",
+  "aliases": [
+   "haak saag",
+   "kashmiri haak",
+   "monji haak",
+   "collard greens"
+  ],
+  "source": "estimate",
+  "basis": "Per 100 g of the cooked sabzi: vegetable values from IFCT 2017 with onion, tomato and about 4 g of oil. Haak is a winter staple in Kashmir.",
+  "per_100g": {
+   "kcal": 76,
+   "protein": 3,
+   "carbs": 6,
+   "fat": 4.5,
+   "fiber": 3
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:shalgam_sabzi",
+  "name": "Shalgam sabzi",
+  "full_name": "Turnip sabzi (shalgam or gogji), home style",
+  "aliases": [
+   "shalgam",
+   "gogji",
+   "turnip sabzi",
+   "shalgam ki sabzi",
+   "gogji aal"
+  ],
+  "source": "estimate",
+  "basis": "Per 100 g of the cooked sabzi: vegetable values from IFCT 2017 with onion, tomato and about 3 g of oil.",
+  "per_100g": {
+   "kcal": 70,
+   "protein": 1.5,
+   "carbs": 8,
+   "fat": 3.5,
+   "fiber": 2.5
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:mooli_sabzi",
+  "name": "Mooli sabzi",
+  "full_name": "Radish and radish greens sabzi, home style",
+  "aliases": [
+   "mooli",
+   "mooli ki sabzi",
+   "radish sabzi",
+   "mooli bhurji"
+  ],
+  "source": "estimate",
+  "basis": "Per 100 g of the cooked sabzi: vegetable values from IFCT 2017 with onion, tomato and about 3 g of oil.",
+  "per_100g": {
+   "kcal": 60,
+   "protein": 1.5,
+   "carbs": 6,
+   "fat": 3.3,
+   "fiber": 2
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:gajar_matar",
+  "name": "Gajar matar",
+  "full_name": "Carrot and green peas sabzi, home style",
+  "aliases": [
+   "gajar matar ki sabzi",
+   "carrot peas sabzi",
+   "matar gajar"
+  ],
+  "source": "estimate",
+  "basis": "Per 100 g of the cooked sabzi: vegetable values from IFCT 2017 with onion, tomato and about 4 g of oil.",
+  "per_100g": {
+   "kcal": 92,
+   "protein": 3,
+   "carbs": 11,
+   "fat": 4,
+   "fiber": 4
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:lauki_sabzi",
+  "name": "Lauki sabzi",
+  "full_name": "Bottle gourd sabzi (lauki, ghiya or dudhi), home style",
+  "aliases": [
+   "lauki",
+   "ghiya",
+   "dudhi",
+   "lauki ki sabzi",
+   "bottle gourd sabzi"
+  ],
+  "source": "estimate",
+  "basis": "Per 100 g of the cooked sabzi: vegetable values from IFCT 2017 with onion, tomato and about 3 g of oil.",
+  "per_100g": {
+   "kcal": 56,
+   "protein": 1.2,
+   "carbs": 6,
+   "fat": 3,
+   "fiber": 1.5
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:torai_sabzi",
+  "name": "Torai sabzi",
+  "full_name": "Ridge gourd sabzi (torai or turai), home style",
+  "aliases": [
+   "torai",
+   "turai",
+   "ridge gourd sabzi",
+   "torai ki sabzi"
+  ],
+  "source": "estimate",
+  "basis": "Per 100 g of the cooked sabzi: vegetable values from IFCT 2017 with onion, tomato and about 3 g of oil.",
+  "per_100g": {
+   "kcal": 58,
+   "protein": 1.3,
+   "carbs": 6.5,
+   "fat": 3,
+   "fiber": 2
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ },
+ {
+  "id": "est:karela_sabzi",
+  "name": "Karela sabzi",
+  "full_name": "Bitter gourd sabzi with onion, home style",
+  "aliases": [
+   "karela",
+   "karela ki sabzi",
+   "bitter gourd sabzi"
+  ],
+  "source": "estimate",
+  "basis": "Per 100 g of the cooked sabzi: vegetable values from IFCT 2017 with onion, tomato and about 5 g of oil.",
+  "per_100g": {
+   "kcal": 90,
+   "protein": 2,
+   "carbs": 8.5,
+   "fat": 5.5,
+   "fiber": 3
+  },
+  "serving": {
+   "unit": "bowl",
+   "grams": 150,
+   "from_source": false
+  }
+ }
+]

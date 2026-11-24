@@ -1,4 +1,4 @@
-import type { MessMeal, ShelfKey } from './mess';
+import type { MessMeal, ShelfKey } from "./mess";
 /** Onboarding domain types, aligned with the backend `UserOnboarding` schema. */
 
 export type Gender = "male" | "female" | "other";
@@ -15,13 +15,43 @@ export type ExperienceLevel =
   | "intermediate"
   | "advanced"
   | "Ultra-advanced";
-export type ActivityLevel = "sedentary" | "light" | "moderate" | "active" | "very_active";
-export type ReproductiveStatus = "none" | "pregnant" | "breastfeeding" | "unknown";
-export type WorkoutTime = "early_morning" | "morning" | "afternoon" | "evening" | "night" | "varies";
-export type DietType = "vegetarian" | "eggetarian" | "non_vegetarian" | "vegan" | "jain";
+export type ActivityLevel =
+  | "sedentary"
+  | "light"
+  | "moderate"
+  | "active"
+  | "very_active";
+export type ReproductiveStatus =
+  | "none"
+  | "pregnant"
+  | "breastfeeding"
+  | "unknown";
+export type WorkoutTime =
+  | "early_morning"
+  | "morning"
+  | "afternoon"
+  | "evening"
+  | "night"
+  | "varies";
+export type DietType =
+  | "vegetarian"
+  | "eggetarian"
+  | "non_vegetarian"
+  | "vegan"
+  | "jain";
 export type Cook = "self" | "family" | "cook" | "mess_or_canteen" | "mixed";
-export type EatOutFrequency = "rarely" | "weekly" | "few_times_a_week" | "daily";
-export type WorkSchedule = "day" | "night_shift" | "rotating_shifts" | "student" | "at_home" | "other";
+export type EatOutFrequency =
+  | "rarely"
+  | "weekly"
+  | "few_times_a_week"
+  | "daily";
+export type WorkSchedule =
+  | "day"
+  | "night_shift"
+  | "rotating_shifts"
+  | "student"
+  | "at_home"
+  | "other";
 
 /** Food preferences. Every field optional: missing means "not answered". */
 export type FoodPreferences = {
@@ -34,6 +64,10 @@ export type FoodPreferences = {
   dislikes?: string[];
   excluded?: string[];
   cuisines?: string[];
+  /** Opt-in: plan with what is in season where they live. */
+  follow_season?: boolean;
+  /** Opt-in: follow traditional thanda and garam (taseer) foods by season. */
+  follow_taseer?: boolean;
 };
 
 export type FoodAccess = {

@@ -168,6 +168,20 @@ async def delete_fasting_mode(mode_id: str, current_user: User = Depends(get_cur
 
 
 # ---------------------------------------------------------------------------
+# Season where the user lives
+# ---------------------------------------------------------------------------
+@router.get("/season", response_model=SuccessResponse)
+async def get_season(current_user: User = Depends(get_current_user)) -> dict:
+    """The season where the user lives (from their city or state), what is in and out
+    of season there, and whether they follow taseer. ``season`` is null for an unknown place."""
+    try:
+        data = await diet_plan_service.season_status(current_user.id)
+    except DietPlanError as exc:
+        raise _http(exc) from exc
+    return {"success": True, "message": "Season", "data": data}
+
+
+# ---------------------------------------------------------------------------
 # Healthy treats
 # ---------------------------------------------------------------------------
 @router.get("/treats", response_model=SuccessResponse)

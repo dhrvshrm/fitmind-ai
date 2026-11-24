@@ -94,5 +94,6 @@ export type ShiftTimesPayload = {
 /** A partial update of the personalisation sections (shift times, mess mode...). */
 export type PersonalisationPayload = {
   lifestyle?: ShiftTimesPayload['lifestyle'];
-  food_access?: { mess_meals?: string[]; shelf?: string[]; who_cooks?: string };
+  food_access?: { mess_meals?: string[]; shelf?: string[]; who_cooks?: string; region?: string };
+  food_preferences?: { follow_season?: boolean; follow_taseer?: boolean };
 };

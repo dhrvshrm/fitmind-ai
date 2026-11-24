@@ -1,45 +1,54 @@
-import type { ItemSource, Meal, MealType, Nutrients } from './nutrition';
-import type { FastingMode, FastingWarning } from './indiaFirst';
+import type { SeasonView } from "./season";
+import type { ItemSource, Meal, MealType, Nutrients } from "./nutrition";
+import type { FastingMode, FastingWarning } from "./indiaFirst";
 
 /** Which meal of the day a planned meal is (sets its label and calorie share). */
 export type PlanSlot =
-  | 'pre_workout'
-  | 'breakfast'
-  | 'mid_morning'
-  | 'lunch'
-  | 'evening_snack'
-  | 'dinner'
-  | 'bedtime'
+  | "pre_workout"
+  | "breakfast"
+  | "mid_morning"
+  | "lunch"
+  | "evening_snack"
+  | "dinner"
+  | "bedtime"
   // Ramadan: before dawn, at sunset, and a light meal later.
-  | 'sehri'
-  | 'iftar'
-  | 'post_iftar';
+  | "sehri"
+  | "iftar"
+  | "post_iftar";
 
 /** How the current version of a plan came about. */
-export type PlanChange = 'created' | 'regenerated' | 'meal_regenerated' | 'item_swapped';
+export type PlanChange =
+  | "created"
+  | "regenerated"
+  | "meal_regenerated"
+  | "item_swapped";
 
 export type PlanNoteCode =
-  | 'protein_short'
-  | 'check_ingredients'
-  | 'medical_advice'
-  | 'rule_based'
-  | 'health_adjusted'
-  | 'mess_mode';
+  | "protein_short"
+  | "check_ingredients"
+  | "medical_advice"
+  | "rule_based"
+  | "health_adjusted"
+  | "mess_mode";
 
 /** Notes added while a fasting or festival mode is on (values hold text, not only numbers). */
 export type FastingNoteCode =
-  | 'fasting_mode'
-  | 'fasting_salt'
-  | 'paryushan_practice'
-  | 'ramadan_timings'
-  | 'shelf_suggestion';
+  | "fasting_mode"
+  | "fasting_salt"
+  | "paryushan_practice"
+  | "ramadan_timings"
+  | "shelf_suggestion"
+  | "season_tip";
 
 export type PlanNote =
   | { code: PlanNoteCode; values: Record<string, number> }
-  | { code: FastingNoteCode; values: Record<string, string | number | boolean | null> };
+  | {
+      code: FastingNoteCode;
+      values: Record<string, string | number | boolean | null>;
+    };
 
 /** One food in a planned meal; numbers always come from the food database. */
-export type CookingFatKind = 'oil' | 'ghee' | 'butter';
+export type CookingFatKind = "oil" | "ghee" | "butter";
 
 /** Oil, ghee or butter a dish's calories assume (already counted in them). */
 export type CookingFat = {
@@ -76,15 +85,20 @@ export type PlanMeal = {
   time: string;
   share: number;
   /** Set when the meal is placed around the workout. */
-  workout_role?: 'pre' | 'post';
+  workout_role?: "pre" | "post";
   items: PlanItem[];
   totals: Nutrients;
   /** The meal's cooking fat in teaspoons, by kind. */
   cooking_fat?: { kind: CookingFatKind; tsp: number; estimated?: boolean }[];
   /** Mess mode: a typical mess plate, or foods from the person's shelf. */
-  source?: 'mess' | 'shelf';
+  source?: "mess" | "shelf";
   /** Supplements without calories taken with this meal (creatine, vitamins). */
-  supplements?: { id: string; name: string; dose: string; taken_today?: boolean }[];
+  supplements?: {
+    id: string;
+    name: string;
+    dose: string;
+    taken_today?: boolean;
+  }[];
   /** Mess mode: rough cost of a shelf meal, in rupees. */
   cost_inr?: number;
 };
@@ -97,7 +111,7 @@ export type PlanTargets = {
   fiber: number;
 };
 
-export type PlanMealStatus = 'planned' | 'logged' | 'eaten';
+export type PlanMealStatus = "planned" | "logged" | "eaten";
 
 /** A meal from today's food log, shown in the plan slot it was matched to. */
 export type EatenLog = {
@@ -123,7 +137,12 @@ export type PlanMealToday = {
   adjust: PortionAdjust | null;
 };
 
-export type PlanDayState = 'not_started' | 'on_track' | 'ahead' | 'behind' | 'over';
+export type PlanDayState =
+  | "not_started"
+  | "on_track"
+  | "ahead"
+  | "behind"
+  | "over";
 
 export type PlanDay = {
   eaten_kcal: number;
@@ -148,9 +167,9 @@ export type PlanToday = {
 export type DietPlan = {
   id: string;
   version: number;
-  status: 'active' | 'archived';
+  status: "active" | "archived";
   change: PlanChange;
-  created_by: 'ai' | 'user';
+  created_by: "ai" | "user";
   created_at: string;
   targets: PlanTargets;
   meals: PlanMeal[];
@@ -179,12 +198,23 @@ export type DietPlan = {
   active_fasting_mode?: FastingMode | null;
   /** True when today's fasting mode differs from the plan's. */
   mode_changed?: boolean;
+  /** The season where they live now (null without a known place). */
+  season?: SeasonView | null;
+  /** The season or place changed since the plan was made. */
+  season_changed?: boolean;
   /** Meal times follow the person's own wake and sleep times (night or rotating shifts). */
   shift_aware?: boolean;
 };
 
 /** `extra` is added by the app: something eaten today that no plan meal covers. */
-export type RoutineKind = 'wake' | 'workout' | 'meal' | 'wind_down' | 'sleep' | 'fast_begins' | 'extra';
+export type RoutineKind =
+  | "wake"
+  | "workout"
+  | "meal"
+  | "wind_down"
+  | "sleep"
+  | "fast_begins"
+  | "extra";
 
 export type RoutineEvent = {
   time: string;

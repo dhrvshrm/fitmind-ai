@@ -25,11 +25,13 @@ logger = logging.getLogger(__name__)
 DATA_DIR = Path(__file__).parent / "data"
 # fasting_estimates.json: a few fasting dishes INDB lacks (kuttu roti, samak rice...),
 # hand-built from ingredient values and labelled as estimates (source "estimate").
+# seasonal_dishes.json: everyday sabzis of seasonal vegetables INDB lacks (haak, shalgam,
+# lauki), so plans can follow the season; plan-eligible estimates.
 # common_dishes.json: street food and snacks INDB lacks (samosa, kachori, kadhi...), built
 # the same way from typical piece weights and recipes, also labelled as estimates.
 DATASET_FILES = (
     "indb_foods.json", "usda_basics.json", "fasting_estimates.json", "protein_staples.json",
-    "common_dishes.json",
+    "common_dishes.json", "seasonal_dishes.json",
 )
 # Datasets for logging only: street food and snacks are never put into a meal plan.
 LOG_ONLY_FILES = frozenset({"common_dishes.json"})
@@ -62,6 +64,9 @@ GENERIC_ALIASES: Dict[str, str] = {
     "sambar": "indb:ASC167",
     "poha": "indb:BFP045",
     "kanda poha": "indb:BFP045",
+    "nadru": "indb:ASC196",
+    "nadru sabzi": "indb:ASC196",
+    "kamal kakdi": "indb:ASC196",
     "egg curry": "indb:BFP240",
     "curd rice": "indb:ASC126",
     "veg biryani": "indb:ASC123",

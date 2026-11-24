@@ -753,3 +753,30 @@ def test_a_rest_day_has_no_pre_workout_snack_or_workout(client, ai_providers, mo
     training = _plan_on(client, headers, monkeypatch, "strength")
     assert training["meals"][0]["id"] == "pre_workout" and training["rest_day"] is None
     assert "workout" in [e["kind"] for e in training["routine"]]
+
+
+def test_a_meal_never_has_two_raitas_or_two_parathas():
+    rules = DietRules.from_preferences({"diet_type": "vegetarian"})
+    pool = meal_planner.food_pool(rules, {"diet_type": "vegetarian"})
+    foods = {f.id: f for f in pool}
+    raitas = [f for f in pool if "raita" in food_tokens(f)][:2]
+    assert len(raitas) == 2
+    meal = {"id": "lunch", "meal_type": "lunch", "time": "13:30", "share": 0.3,
+            "items": [meal_planner.build_item(f, 1.0) for f in [foods[CHAPATI], *raitas]]}
+    meal_planner.enforce_meal_fit([meal], pool, foods)
+    assert [i["food_id"] for i in meal["items"]] == [CHAPATI, raitas[0].id]
+    assert "est:mess_sabzi" not in foods
+    for diet in ("vegetarian", "eggetarian", "non_vegetarian", "jain", "vegan"):
+        rules = DietRules.from_preferences({"diet_type": diet})
+        pool = meal_planner.food_pool(rules, {"diet_type": diet})
+        foods = {f.id: f for f in pool}
+        slots = meal_planner.plan_slots({"meals_per_day": 4, "sleep_time": "23:30"}, "early_morning", True)
+        for variant in range(4):
+            meals = meal_planner.assemble(meal_planner.rule_based_pick(slots, pool, variant), slots, foods)
+            meal_planner.enforce_meal_fit(meals, pool, foods)
+            meal_planner.fit_portions(meals, PROTEIN_TARGETS, foods)
+            meal_planner.boost_protein(meals, PROTEIN_TARGETS, pool, foods)
+            for m in meals:
+                kinds = [meal_planner.ONE_PER_MEAL_GROUPS[k] for i in m["items"]
+                         for k in food_tokens(foods[i["food_id"]]) & meal_planner.ONE_PER_MEAL_WORDS]
+                assert len(kinds) == len(set(kinds)), (diet, variant, m["id"], [i["name"] for i in m["items"]])

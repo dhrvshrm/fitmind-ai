@@ -46,6 +46,7 @@ export const QUERY_KEYS = {
     fastingModes: ['diet-plan', 'fasting-modes'] as const,
     treats: (craving: string) => ['diet-plan', 'treats', craving] as const,
     treatsRoot: ['diet-plan', 'treats'] as const,
+    season: ['diet-plan', 'season'] as const,
   },
   workouts: {
     all: ['workouts'] as const,

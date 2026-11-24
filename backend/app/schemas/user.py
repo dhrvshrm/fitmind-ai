@@ -94,6 +94,10 @@ class FoodPreferences(BaseModel):
     dislikes: Optional[List[str]] = None
     excluded: Optional[List[str]] = None
     cuisines: Optional[List[str]] = None
+    # Opt-in: plan with what is in season where they live (off: foods found everywhere).
+    follow_season: Optional[bool] = None
+    # Opt-in, with the season: follow traditional thanda and garam (taseer) foods.
+    follow_taseer: Optional[bool] = None
 
     _clean = field_validator(
         "allergies", "intolerances", "likes", "dislikes", "excluded", "cuisines"

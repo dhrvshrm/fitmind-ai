@@ -4,6 +4,7 @@ import type { ApiEnvelope } from '../types/auth';
 import type { DietPlan, PlanItem, PlanMealLogResult, PlanSlot } from '../types/dietPlan';
 import type { FastingMode, FastingModePayload, FastingModesData, GroceryList } from '../types/indiaFirst';
 import type { Craving, TreatLogResult, TreatOptions } from '../types/treat';
+import type { SeasonStatus } from '../types/season';
 
 /** Meal plan API. Unwraps the backend `{ success, message, data }` envelope. */
 export const dietPlanService = {
@@ -72,6 +73,11 @@ export const dietPlanService = {
 
   async removeFastingMode(id: string): Promise<void> {
     await apiClient.delete(DIET_PLAN_ENDPOINTS.fastingMode(id));
+  },
+
+  async season(): Promise<SeasonStatus> {
+    const { data } = await apiClient.get<ApiEnvelope<SeasonStatus>>(DIET_PLAN_ENDPOINTS.SEASON);
+    return data.data;
   },
 
   async treats(craving: Craving): Promise<TreatOptions> {

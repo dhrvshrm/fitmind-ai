@@ -1,0 +1,624 @@
+{
+ "_about": "When fruits and vegetables are in season across India, by climate zone. 'seasons' is the default for the plains (north, west, east); 'south' and 'cold_hill' override it where the climate differs (Kerala grows spinach all year, a Kashmir winter has haak, nadru and turnip but no bhindi). 'soft' items are stored or frozen everywhere all year (peas, apples), so they are never pushed down, only preferred in season. Sources: ICAR and state horticulture crop calendars, and the National Horticulture Board's seasonal availability notes. 'taseer' lists follow traditional Ayurvedic 'thanda' and 'garam' food beliefs; they are not medical evidence and are only used when a person switches them on.",
+ "seasons": [
+  "summer",
+  "monsoon",
+  "winter",
+  "mild"
+ ],
+ "produce": [
+  {
+   "key": "okra",
+   "name": "Bhindi",
+   "words": [
+    "okra",
+    "bhindi"
+   ],
+   "seasons": [
+    "summer",
+    "monsoon"
+   ],
+   "cold_hill": [
+    "summer"
+   ]
+  },
+  {
+   "key": "bottle_gourd",
+   "name": "Lauki",
+   "words": [
+    "lauki",
+    "ghiya",
+    "dudhi",
+    "bottle gourd"
+   ],
+   "seasons": [
+    "summer",
+    "monsoon"
+   ],
+   "cold_hill": [
+    "summer"
+   ]
+  },
+  {
+   "key": "ridge_gourd",
+   "name": "Torai",
+   "words": [
+    "torai",
+    "turai",
+    "ridge gourd"
+   ],
+   "seasons": [
+    "summer",
+    "monsoon"
+   ],
+   "cold_hill": [
+    "summer"
+   ]
+  },
+  {
+   "key": "bitter_gourd",
+   "name": "Karela",
+   "words": [
+    "karela",
+    "bitter gourd"
+   ],
+   "seasons": [
+    "summer",
+    "monsoon"
+   ],
+   "cold_hill": [
+    "summer"
+   ]
+  },
+  {
+   "key": "round_gourd",
+   "name": "Tinda",
+   "words": [
+    "tinda",
+    "round gourd"
+   ],
+   "seasons": [
+    "summer"
+   ],
+   "cold_hill": [
+    "summer"
+   ]
+  },
+  {
+   "key": "cucumber",
+   "name": "Kheera",
+   "words": [
+    "cucumber",
+    "kheera"
+   ],
+   "seasons": [
+    "summer",
+    "monsoon"
+   ],
+   "south": [
+    "summer",
+    "monsoon",
+    "winter",
+    "mild"
+   ],
+   "cold_hill": [
+    "summer"
+   ]
+  },
+  {
+   "key": "colocasia",
+   "name": "Arbi",
+   "words": [
+    "arbi",
+    "colocasia"
+   ],
+   "seasons": [
+    "monsoon",
+    "mild"
+   ]
+  },
+  {
+   "key": "spinach",
+   "name": "Palak",
+   "words": [
+    "spinach",
+    "palak"
+   ],
+   "seasons": [
+    "winter",
+    "mild"
+   ],
+   "south": [
+    "summer",
+    "monsoon",
+    "winter",
+    "mild"
+   ],
+   "cold_hill": [
+    "summer",
+    "mild"
+   ]
+  },
+  {
+   "key": "fenugreek",
+   "name": "Methi",
+   "words": [
+    "methi",
+    "fenugreek leaves"
+   ],
+   "seasons": [
+    "winter",
+    "mild"
+   ],
+   "south": [
+    "summer",
+    "monsoon",
+    "winter",
+    "mild"
+   ],
+   "cold_hill": [
+    "summer",
+    "mild"
+   ]
+  },
+  {
+   "key": "mustard_greens",
+   "name": "Sarson ka saag",
+   "words": [
+    "sarson",
+    "mustard greens"
+   ],
+   "seasons": [
+    "winter"
+   ],
+   "cold_hill": []
+  },
+  {
+   "key": "bathua",
+   "name": "Bathua",
+   "words": [
+    "bathua"
+   ],
+   "seasons": [
+    "winter"
+   ],
+   "cold_hill": []
+  },
+  {
+   "key": "carrot",
+   "name": "Gajar",
+   "words": [
+    "carrot",
+    "gajar"
+   ],
+   "seasons": [
+    "winter",
+    "mild"
+   ],
+   "south": [
+    "summer",
+    "monsoon",
+    "winter",
+    "mild"
+   ],
+   "cold_hill": [
+    "winter",
+    "mild"
+   ],
+   "soft": true
+  },
+  {
+   "key": "radish",
+   "name": "Mooli",
+   "words": [
+    "radish",
+    "mooli"
+   ],
+   "seasons": [
+    "winter"
+   ],
+   "cold_hill": [
+    "winter",
+    "mild"
+   ]
+  },
+  {
+   "key": "turnip",
+   "name": "Shalgam",
+   "words": [
+    "turnip",
+    "shalgam",
+    "gogji"
+   ],
+   "seasons": [
+    "winter"
+   ],
+   "cold_hill": [
+    "winter",
+    "mild"
+   ]
+  },
+  {
+   "key": "cauliflower",
+   "name": "Gobhi",
+   "words": [
+    "cauliflower",
+    "gobhi",
+    "gobi"
+   ],
+   "seasons": [
+    "winter",
+    "mild"
+   ],
+   "south": [
+    "summer",
+    "monsoon",
+    "winter",
+    "mild"
+   ],
+   "cold_hill": [
+    "summer",
+    "mild"
+   ]
+  },
+  {
+   "key": "cabbage",
+   "name": "Patta gobhi",
+   "words": [
+    "cabbage",
+    "bandh gobhi"
+   ],
+   "seasons": [
+    "winter",
+    "mild"
+   ],
+   "south": [
+    "summer",
+    "monsoon",
+    "winter",
+    "mild"
+   ],
+   "cold_hill": [
+    "summer",
+    "mild",
+    "winter"
+   ],
+   "soft": true
+  },
+  {
+   "key": "peas",
+   "name": "Matar",
+   "words": [
+    "peas",
+    "matar"
+   ],
+   "seasons": [
+    "winter"
+   ],
+   "cold_hill": [
+    "summer"
+   ],
+   "soft": true
+  },
+  {
+   "key": "haak",
+   "name": "Haak",
+   "words": [
+    "haak",
+    "collard greens"
+   ],
+   "seasons": [],
+   "cold_hill": [
+    "winter",
+    "mild",
+    "summer"
+   ],
+   "local_only": true
+  },
+  {
+   "key": "lotus_stem",
+   "name": "Nadru",
+   "words": [
+    "nadru",
+    "kamal kakdi",
+    "lotus stem"
+   ],
+   "seasons": [
+    "winter"
+   ],
+   "cold_hill": [
+    "winter",
+    "mild"
+   ]
+  },
+  {
+   "key": "sweet_potato",
+   "name": "Shakarkandi",
+   "words": [
+    "shakarkandi",
+    "shakarkand",
+    "sweet potato"
+   ],
+   "seasons": [
+    "winter"
+   ],
+   "cold_hill": []
+  },
+  {
+   "key": "green_beans",
+   "name": "Beans",
+   "words": [
+    "french beans",
+    "green beans"
+   ],
+   "seasons": [
+    "winter",
+    "mild"
+   ],
+   "south": [
+    "summer",
+    "monsoon",
+    "winter",
+    "mild"
+   ],
+   "cold_hill": [
+    "summer",
+    "mild"
+   ]
+  },
+  {
+   "key": "pumpkin",
+   "name": "Kaddu",
+   "words": [
+    "pumpkin",
+    "kaddu"
+   ],
+   "seasons": [
+    "monsoon",
+    "mild",
+    "winter"
+   ],
+   "cold_hill": [
+    "mild",
+    "summer"
+   ],
+   "soft": true
+  },
+  {
+   "key": "brinjal",
+   "name": "Baingan",
+   "words": [
+    "brinjal",
+    "baingan",
+    "eggplant"
+   ],
+   "seasons": [
+    "summer",
+    "monsoon",
+    "winter",
+    "mild"
+   ],
+   "cold_hill": [
+    "summer",
+    "mild"
+   ]
+  },
+  {
+   "key": "mango",
+   "name": "Aam",
+   "words": [
+    "mango",
+    "aam"
+   ],
+   "seasons": [
+    "summer"
+   ],
+   "south": [
+    "summer"
+   ],
+   "cold_hill": [
+    "summer"
+   ]
+  },
+  {
+   "key": "watermelon",
+   "name": "Tarbooz",
+   "words": [
+    "watermelon",
+    "tarbooz"
+   ],
+   "seasons": [
+    "summer"
+   ],
+   "cold_hill": [
+    "summer"
+   ]
+  },
+  {
+   "key": "muskmelon",
+   "name": "Kharbuja",
+   "words": [
+    "muskmelon",
+    "kharbuja"
+   ],
+   "seasons": [
+    "summer"
+   ],
+   "cold_hill": [
+    "summer"
+   ]
+  },
+  {
+   "key": "litchi",
+   "name": "Litchi",
+   "words": [
+    "litchi",
+    "lychee"
+   ],
+   "seasons": [
+    "summer"
+   ]
+  },
+  {
+   "key": "jamun",
+   "name": "Jamun",
+   "words": [
+    "jamun"
+   ],
+   "seasons": [
+    "monsoon"
+   ]
+  },
+  {
+   "key": "orange",
+   "name": "Santra and kinnow",
+   "words": [
+    "orange",
+    "santra",
+    "kinnow"
+   ],
+   "seasons": [
+    "winter",
+    "mild"
+   ],
+   "cold_hill": [
+    "winter",
+    "mild"
+   ]
+  },
+  {
+   "key": "guava",
+   "name": "Amrood",
+   "words": [
+    "guava",
+    "amrood"
+   ],
+   "seasons": [
+    "monsoon",
+    "winter",
+    "mild"
+   ],
+   "cold_hill": []
+  },
+  {
+   "key": "strawberry",
+   "name": "Strawberry",
+   "words": [
+    "strawberry"
+   ],
+   "seasons": [
+    "winter",
+    "mild"
+   ],
+   "cold_hill": [
+    "summer"
+   ]
+  },
+  {
+   "key": "pineapple",
+   "name": "Ananas",
+   "words": [
+    "pineapple",
+    "ananas"
+   ],
+   "seasons": [
+    "summer",
+    "monsoon"
+   ],
+   "cold_hill": [
+    "summer"
+   ]
+  },
+  {
+   "key": "chikoo",
+   "name": "Chikoo",
+   "words": [
+    "chikoo",
+    "sapota"
+   ],
+   "seasons": [
+    "winter",
+    "mild"
+   ],
+   "cold_hill": []
+  },
+  {
+   "key": "grapes",
+   "name": "Angoor",
+   "words": [
+    "grapes",
+    "angoor"
+   ],
+   "seasons": [
+    "mild",
+    "summer"
+   ]
+  },
+  {
+   "key": "apple",
+   "name": "Seb",
+   "words": [
+    "apple",
+    "seb"
+   ],
+   "seasons": [
+    "mild",
+    "winter"
+   ],
+   "cold_hill": [
+    "mild",
+    "winter"
+   ],
+   "soft": true
+  },
+  {
+   "key": "pomegranate",
+   "name": "Anar",
+   "words": [
+    "pomegranate",
+    "anar"
+   ],
+   "seasons": [
+    "winter",
+    "mild"
+   ],
+   "soft": true
+  }
+ ],
+ "taseer": {
+  "cooling": {
+   "words": [
+    "cucumber",
+    "kheera",
+    "watermelon",
+    "muskmelon",
+    "coconut water",
+    "buttermilk",
+    "chaas",
+    "chaach",
+    "lassi",
+    "sattu",
+    "raita"
+   ],
+   "avoid_in": [
+    "winter"
+   ]
+  },
+  "heating": {
+   "words": [
+    "bajra",
+    "jaggery",
+    "gur",
+    "til",
+    "sesame",
+    "dates",
+    "khajur",
+    "gajak",
+    "chikki"
+   ],
+   "avoid_in": [
+    "summer"
+   ]
+  }
+ }
+}

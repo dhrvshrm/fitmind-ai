@@ -42,6 +42,8 @@ import { DayRoutine } from "./DayRoutine";
 import { PlanMealCard } from "./PlanMealCard";
 import { TodaySoFar } from "./TodaySoFar";
 import { TreatCard } from "./TreatCard";
+import { SeasonCard } from "./SeasonCard";
+import { SEASON_STRINGS } from "../../constants/seasonStrings";
 import { MessModeCard } from "../mess/MessModeCard";
 import { mealPlanPageStyles as styles } from "./MealPlanPage.styles";
 
@@ -185,6 +187,7 @@ export function MealPlanPage() {
       )}
       {planQuery.isSuccess && !plan && (
         <Box sx={styles.section}>
+          <SeasonCard />
           <MessModeCard />
           <FastingModesCard />
         </Box>
@@ -206,7 +209,13 @@ export function MealPlanPage() {
                 </Button>
               }
             >
-              {plan.health_changed ? S.healthChanged : plan.supplements_changed ? S.supplementsChanged : S.stale}
+              {plan.health_changed
+                ? S.healthChanged
+                : plan.supplements_changed
+                  ? S.supplementsChanged
+                  : plan.season_changed
+                    ? SEASON_STRINGS.stale
+                    : S.stale}
             </Alert>
           )}
           {plan.mode_changed && (
@@ -235,6 +244,7 @@ export function MealPlanPage() {
               page shows one set of numbers, the same as Today and Nutrition. */}
           {started && plan.today ? <TodaySoFar day={plan.today.day} /> : <PlanSummary plan={plan} />}
           <PlanNotes plan={plan} />
+          <SeasonCard />
           <TreatCard />
           <MessModeCard />
           <FastingModesCard />
