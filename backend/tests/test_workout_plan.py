@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 
 from app.services import workout_service
-from app.workouts import catalog, planner, programming
+from app.workouts import catalog, planner, programming, technique
 from tests.conftest import ONBOARDING, register_and_login
 
 API = "/api/v1"
@@ -418,9 +418,17 @@ TIER_SETUPS = [["full_gym"], ["dumbbells", "bench"], ["dumbbells"], ["resistance
 @pytest.mark.parametrize("level", ["beginner", "intermediate", "advanced"])
 @pytest.mark.parametrize("injuries", [[], ["knee pain"], ["shoulder"]])
 def test_plans_pick_the_best_exercise_the_person_can_do(owned, level, injuries):
-    """Every exercise is the highest tier allowed for its movement, given equipment, injuries and level."""
+    """Every exercise is the highest tier allowed for its movement, given equipment, injuries and level.
+
+    For a beginner, the easiest to learn comes first and the best tier among those.
+    """
     joints = catalog.injured_joints(injuries)
     lvl = planner.user_level(level)
+
+    def rank(e):
+        learning = technique.SKILL_RANK[technique.skill_of(e)] if lvl == "beginner" else 0
+        return (learning, catalog.tier_rank(e))
+
     pool = [e for e in catalog.curated() if catalog.allowed(e, owned, joints, lvl) and e.id not in planner.FOCUS_ONLY]
     for days in (3, 4, 6):
         week = planner.build_week(goal="muscle_gain", experience=level, equipment=owned, injuries=injuries,
@@ -432,9 +440,11 @@ def test_plans_pick_the_best_exercise_the_person_can_do(owned, level, injuries):
                 taken.add(exercise.id)
                 if exercise.id == planner.NO_PULL_FALLBACK:
                     continue  # Stands in for a row when there's nothing to pull against.
-                others = [e for e in pool if e.coaching.pattern == entry["pattern"] and e.id not in taken]
-                best = min([catalog.tier_rank(e) for e in others], default=9)
-                assert catalog.tier_rank(exercise) <= best, (day["focus"], exercise.id)
+                # A stand-in (floor press) is only used when its proper version can't be done.
+                others = [e for e in pool if e.coaching.pattern == entry["pattern"] and e.id not in taken
+                          and not (planner.STAND_INS.get(e.id, set()) & set(owned))]
+                best = min([rank(e) for e in others], default=(9, 9))
+                assert rank(exercise) <= best, (day["focus"], exercise.id)
 
 
 def test_a_full_gym_plan_is_all_top_tier_main_work():
@@ -465,3 +475,55 @@ def test_the_library_filters_by_tier(client):
         assert found and all(muscle in e["primary_muscles"] for e in found)
     # Cardio and stretches aren't ranked.
     assert catalog.get("Mountain_Climbers").summary()["tier"] is None
+
+
+# --- Beginner-safe picks and training terms ---------------------------------------
+def _plan_week(level, owned, days=4, goal="muscle_gain"):
+    return planner.build_week(goal=goal, experience=level, equipment=owned, injuries=[], days_per_week=days)
+
+
+def _lifts(plan):
+    return [e for d in plan["week"] for e in d["exercises"] if d["workout_type"] == "strength"]
+
+
+def test_a_beginner_in_a_full_gym_learns_on_machines_not_barbells():
+    for days in (3, 4, 6):
+        lifts = _lifts(_plan_week("beginner", ["full_gym"], days))
+        assert not [e["name"] for e in lifts if e["skill"] == "technical"], days
+        # No barbell compound lifts yet (a preacher curl on the pad is fine).
+        assert not [e["name"] for e in lifts if catalog.get(e["exercise_id"]).equipment == "barbell"
+                    and catalog.get(e["exercise_id"]).mechanic == "compound"], days
+    # Intermediate lifters still get the barbell lifts.
+    lifts = _lifts(_plan_week("intermediate", ["full_gym"]))
+    assert any(catalog.get(e["exercise_id"]).equipment == "barbell" for e in lifts)
+
+
+def test_a_beginner_with_dumbbells_squats_with_a_goblet_squat():
+    names = [e["exercise_id"] for e in _lifts(_plan_week("beginner", ["dumbbells"]))]
+    assert "Goblet_Squat" in names
+
+
+def test_every_lift_has_rir_rom_and_skill():
+    for e in _lifts(_plan_week("intermediate", ["full_gym"])):
+        assert e["skill"] in ("easy", "moderate", "technical")
+        if e["pattern"] != "core":
+            assert e["rom"] and e["rom"].startswith("Full range")
+        if e["pattern"] not in ("core",) and e["reps"][0].isdigit() and not e["reps"].endswith("s"):
+            assert isinstance(e["rir"], int)
+
+
+def test_stretch_loading_and_lengthened_partials_for_trained_lifters():
+    beginner = _lifts(_plan_week("beginner", ["full_gym"]))
+    trained = _lifts(_plan_week("intermediate", ["full_gym"]))
+    assert any(e["loads_stretch"] for e in beginner)
+    assert not any(e["technique"] for e in beginner)
+    partials = [e for e in trained if e["technique"] == "lengthened_partials"]
+    assert partials and all(e["loads_stretch"] for e in partials)
+
+
+@pytest.mark.parametrize("days, split", [(3, "full_body"), (4, "upper_lower"), (5, "upper_lower_full"), (6, "push_pull_legs")])
+def test_plans_name_their_split_and_volume_target(days, split):
+    plan = _plan_week("intermediate", ["full_gym"], days)
+    assert plan["meta"]["split"] == split
+    assert plan["meta"]["volume_target"] == [10, 20]
+    assert _plan_week("beginner", ["full_gym"], days)["meta"]["volume_target"] == [6, 12]

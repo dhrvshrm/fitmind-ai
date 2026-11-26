@@ -5,7 +5,7 @@ offer a food they've since said they're allergic to. Each change is saved
 as a new version of the plan.
 """
 import logging
-from datetime import timedelta, timezone
+from datetime import date, timedelta, timezone
 from zoneinfo import ZoneInfo
 from typing import Any, Dict, List, Optional
 
@@ -77,7 +77,9 @@ async def _context(user_id: str) -> _Context:
     own = await nutrition_service.user_foods_as_foods(user_id)
     # What's in season where they live (none when the region isn't a known place).
     season = season_of(user)
-    pool = meal_planner.food_pool(rules, user.food_preferences, own, season)
+    # Beginners start on simple, familiar home food (the targets don't change).
+    simple = is_beginner(user)
+    pool = meal_planner.food_pool(rules, user.food_preferences, own, season, simple)
     # Health profile rules (app/health/plan_rules.py), from consented data only.
     targets, pool, health_notes = await plan_rules.apply_to_plan(user_id, targets, pool, user.weight_kg)
     ctx = _Context(user, targets, pool, rules)
@@ -85,6 +87,8 @@ async def _context(user_id: str) -> _Context:
     ctx.health_flags = await _health_flags(user_id)
     ctx.fasting_mode = fasting_mode
     ctx.season = season
+    ctx.simple = simple
+    ctx.ramp = protein_ramp(user)
     # Mess mode: shelf foods can be planned and swapped in even when they aren't
     # everyday plan foods (a whey shake).
     ctx.shelf = mess.shelf_foods(ctx.access, rules) if mess.is_on(ctx.access) else []
@@ -99,6 +103,33 @@ async def _context(user_id: str) -> _Context:
 
 def _target_subset(targets: Dict[str, Any]) -> Dict[str, int]:
     return {key: targets[key] for key in TARGET_KEYS}
+
+
+# A beginner's protein builds up over the first month, so the first plans feel like
+# normal home food: (days since joining, share of the protein target). Calories stay
+# the same; the protein not eaten yet is made up with carbs.
+PROTEIN_RAMP = ((14, 0.8), (28, 0.9))
+
+
+def protein_ramp(user: Optional[User], today: Optional[date] = None) -> Optional[Dict[str, Any]]:
+    """Where a beginner is on the protein ramp, or None once they're past it (or not a beginner)."""
+    if not is_beginner(user) or user.created_at is None:
+        return None
+    joined = user.created_at.date() if hasattr(user.created_at, "date") else user.created_at
+    days = ((today or local_today()) - joined).days
+    for until, share in PROTEIN_RAMP:
+        if days < until:
+            return {"share": share, "full_on": (joined + timedelta(days=PROTEIN_RAMP[-1][0])).isoformat()}
+    return None
+
+
+def ramped_targets(targets: Dict[str, int], ramp: Optional[Dict[str, Any]]) -> Dict[str, int]:
+    """The day's targets on the protein ramp: less protein, the same calories (more carbs)."""
+    if not ramp:
+        return targets
+    protein = round(targets["protein"] * ramp["share"])
+    carbs = targets["carbs"] + round((targets["protein"] - protein) * 4 / 4)
+    return {**targets, "protein": protein, "carbs": carbs}
 
 
 def _preferences(prefs: Dict[str, Any]) -> Dict[str, Any]:
@@ -121,6 +152,10 @@ def _notes(meals: List[dict], plan_targets: Dict[str, int], ctx: _Context,
         notes.append({"code": "medical_advice", "values": {}})
     notes += [n for n in getattr(ctx, "health_notes", []) if n["code"] not in {x["code"] for x in notes}]
     notes += [n for n in _mode_notes(getattr(ctx, "fasting_mode", None)) if n["code"] not in {x["code"] for x in notes}]
+    ramp = getattr(ctx, "ramp", None)
+    if ramp:
+        # Protein builds up over the first month; the note says how far along they are.
+        notes.append({"code": "protein_ramp", "values": {"percent": round(ramp["share"] * 100), "full_on": ramp["full_on"]}})
     season = getattr(ctx, "season", None)
     if season and season.season != seasons.SEASON_MILD:
         # Plain, evidence-based habits for the weather (water in summer, warm food in winter).
@@ -243,8 +278,17 @@ def season_of(user: Optional[User]) -> Optional[seasons.SeasonContext]:
 
 
 def _season_lines(ctx: "_Context") -> List[str]:
+    """Extra planner lines: the season (when followed) and simple food for beginners."""
     season = getattr(ctx, "season", None)
-    return season.prompt_lines() if season else []
+    lines = season.prompt_lines() if season else []
+    if getattr(ctx, "simple", False):
+        lines.append(meal_planner.BEGINNER_PROMPT)
+    return lines
+
+
+def is_beginner(user: Optional[User]) -> bool:
+    """New to training (and so to eating to a plan): no answer counts as a beginner."""
+    return bool(user) and (user.experience_level or "beginner") == "beginner"
 
 
 def _season_summary(season: Optional[seasons.SeasonContext]) -> Optional[dict]:
@@ -333,6 +377,12 @@ async def _save(user_id: str, meals: List[dict], plan_targets: Dict[str, int], c
             if previous is None or change in ("created", "regenerated")
             else previous.get("fasting_mode")
         ),
+        # Where a beginner was on the protein ramp when the plan was made.
+        "protein_ramp": (
+            getattr(ctx, "ramp", None)
+            if previous is None or change in ("created", "regenerated")
+            else previous.get("protein_ramp")
+        ),
         # The season and place the plan was made for: a new season or a move flags it.
         "season": (
             _season_summary(getattr(ctx, "season", None))
@@ -383,6 +433,8 @@ async def _present(plan: dict, user: Optional[User] = None) -> dict:
     targets = await user_service.get_targets(user) if user else None
     if user:  # Compare against health-adjusted targets, as the plan was made with them.
         targets = await plan_rules.adjusted_targets(user.id, targets, user.weight_kg)
+    if targets:  # A beginner's protein builds up: compare against where they are on the ramp.
+        targets = ramped_targets(targets, protein_ramp(user))
     data = {k: v for k, v in plan.items() if k not in ("user_id", "logged", "logged_links")}
     data["stale"] = bool(user) and _is_stale(plan, user, targets)
     tracked: List[dict] = []
@@ -560,7 +612,7 @@ async def create_plan(user_id: str) -> dict:
     slots = meal_planner.plan_slots(ctx.user.lifestyle, ctx.user.workout_time, _trains(ctx.user), mode)
     # A new plan should feel new: steer away from the dishes in the last one.
     avoid = [i["name"] for m in previous["meals"] for i in m["items"]] if previous else []
-    plan_targets = _target_subset(ctx.targets)
+    plan_targets = ramped_targets(_target_subset(ctx.targets), getattr(ctx, "ramp", None))
     if mess.is_on(ctx.access) and not routine.is_ramadan(mode):
         # The mess decides the main meals; no AI is needed to fill a shelf.
         meals, skipped = _mess_day(ctx, slots, plan_targets, previous["version"] if previous else 0)

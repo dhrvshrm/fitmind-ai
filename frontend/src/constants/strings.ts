@@ -462,6 +462,29 @@ export const STRINGS = {
       statTime: "per set",
       statTimeEachSide: "each side",
       statRest: "rest",
+      rir: (rir: number) => `RIR ${rir}`,
+      rirTooltip: (rir: number) =>
+        `Reps in reserve: finish each set feeling you could still do about ${rir} more good reps. Close to failure builds muscle; going all the way to failure every set isn't needed.`,
+      stretch: "Loads the stretch",
+      stretchTooltip:
+        "Works the muscle hardest at its longest point, which research links to as much or more muscle growth. Control the bottom of every rep.",
+      lengthenedPartials:
+        "On the last set, after the full reps, add 3 to 5 half reps in the stretched bottom part of the movement.",
+    },
+    splits: {
+      full_body: "Full body split: every session trains the whole body",
+      upper_lower: "Upper/lower split: upper body and legs on alternate days",
+      upper_lower_full: "Upper/lower split with a full-body day",
+      push_pull_legs: "Push/pull/legs split: each muscle twice a week",
+    },
+    volume: {
+      title: "Weekly sets per muscle",
+      subtitle: (low: number, high: number) =>
+        `Hard sets each muscle gets in a week (a set counts half for muscles that only help). ${low} to ${high} builds muscle at your level.`,
+      sets: (sets: number) => (Math.round(sets) === 1 ? "1 set" : `${Math.round(sets)} sets`),
+      under: "Below range",
+      inRange: "In range",
+      over: "Plenty (presses and rows add to it)",
     },
     dayDialog: {
       count: (count: number) => (count === 1 ? "1 exercise" : `${count} exercises`),
@@ -981,6 +1004,8 @@ export const STRINGS = {
     swapped: "Food swapped.",
     cancel: "Cancel",
     notes: {
+      protein_ramp: (percent: number, fullOn: string) =>
+        `Starting easy: this plan uses simple home food and ${percent}% of your protein target, so the habit builds first. It steps up every couple of weeks and reaches the full target on ${fullOn}.`,
       protein_short: (values: Record<string, number>) =>
         `This plan is about ${values.grams} g short of your protein target. Swapping in protein-rich foods that fit your diet (dal, chana, curd, paneer, tofu, eggs or chicken) closes the gap.`,
       check_ingredients: () =>

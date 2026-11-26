@@ -123,6 +123,8 @@ def prescribe(exercise: Exercise, goal: str, level: str, main_lift: bool = True)
         "reps": f"{low}-{high}{side}",
         "rest": _rest(scheme.rest_seconds),
         "effort": _effort(scheme.reps_in_reserve),
+        # Reps in reserve: how many more reps you could do at the end of each set.
+        "rir": scheme.reps_in_reserve,
     }
 
 

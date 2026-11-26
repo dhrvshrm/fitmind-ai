@@ -9,7 +9,7 @@ Sets, reps and rest come from ``programming``.
 from collections import Counter
 from typing import Dict, List, Optional, Sequence
 
-from app.workouts import catalog, programming
+from app.workouts import catalog, programming, technique
 from app.workouts.catalog import Exercise
 
 DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -125,9 +125,16 @@ class _Picker:
         self.used_this_week: Counter = Counter()
 
     def _tier(self, exercise: Exercise) -> tuple:
-        """Lower is better: quality tier, weights (when there are any), compound, closest level."""
+        """Lower is better: (for beginners) easy to learn first, then quality tier, weights
+        (when there are any), compound, closest level.
+
+        A beginner learns the movement on machines, cables and dumbbells before the
+        barbell lifts; the best tier is chosen among what they can safely do.
+        """
         rank = catalog.LEVEL_RANK[self.level]
+        learning = technique.SKILL_RANK[technique.skill_of(exercise)] if self.level == "beginner" else 0
         return (
+            learning,
             catalog.tier_rank(exercise),
             self.loaded and not catalog.is_loaded(exercise),
             exercise.mechanic != "compound",
@@ -203,6 +210,10 @@ def entry_for(exercise: Exercise, goal: str, level: str, main_lift: bool = True)
         "image": summary["image"],
         "per_side": exercise.coaching.per_side,
         "main_lift": main_lift,
+        "skill": technique.skill_of(exercise),
+        "rom": technique.rom_cue(exercise),
+        "loads_stretch": technique.loads_stretch(exercise),
+        "technique": technique.technique_for(exercise, level),
     }
 
 
@@ -356,6 +367,9 @@ def build_week(
             "days_per_week": days,
             "session_minutes": budget,
             "weekly_sets": weekly_sets(week),
+            # Hard sets a week per muscle that grow it (beginners need fewer).
+            "volume_target": VOLUME_TARGET[level],
+            "split": split_name(schedule),
             "notes": notes,
             "variant": variant,
             "protected_joints": sorted(joints),
@@ -383,6 +397,23 @@ WEIGHTS = {"full_gym", "dumbbells", "barbell", "kettlebell"}
 
 def has_weights(owned: Sequence[str]) -> bool:
     return bool(WEIGHTS & set(owned))
+
+
+# Hard sets per muscle per week: about 10-20 grows muscle in trained lifters
+# (Schoenfeld et al. 2017; Pelland et al. 2024); beginners grow on fewer.
+VOLUME_TARGET = {"beginner": [6, 12], "intermediate": [10, 20], "expert": [12, 20]}
+
+
+def split_name(schedule: Dict[int, str]) -> str:
+    """The split's usual name: full_body, upper_lower, upper_lower_full or push_pull_legs."""
+    sessions = set(schedule.values())
+    if sessions <= {"full"}:
+        return "full_body"
+    if sessions == {"upper", "lower"}:
+        return "upper_lower"
+    if {"push", "pull", "legs"} <= sessions:
+        return "push_pull_legs"
+    return "upper_lower_full"
 
 
 def weekly_sets(week: List[dict]) -> Dict[str, int]:

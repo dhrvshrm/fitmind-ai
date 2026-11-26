@@ -75,9 +75,15 @@ export const exerciseCardStyles = {
     alignSelf: 'stretch',
     bgcolor: 'divider',
   },
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 0.75,
+    my: 0.5,
+  },
   effort: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 0.5,
     mt: 1,
     color: 'text.secondary',

@@ -56,6 +56,10 @@ Weekly plans follow ACSM and WHO guidelines for sets, reps and rest, and fit you
 
 Every exercise in the library is ranked S, A or B by how well it works for its muscle, and plans always pick the best one you can actually do. A beginner at home gets pike push-ups and backpack squats; someone in a full gym gets hack squats and incline curls. You can filter the library by tier and by the muscle an exercise mainly trains. Every exercise has photos, a body map of the muscles it works, setup, form tips and common mistakes.
 
+Beginners start on machines, cables and simple dumbbell moves that are easy to learn, and move to barbell lifts once the basics are solid. Every exercise shows its full range of motion and how many reps to keep in reserve (RIR), exercises that load the muscle at its stretch are marked, and trained lifters get lengthened partials. The plan names its split (full body, upper/lower, push/pull/legs) and shows the weekly hard sets per muscle against the range that builds muscle at your level. Weight goes up by double progression (more reps first, then more weight), and a deload week is suggested when lifts stall.
+
+Food starts simple for beginners too: everyday home food, and a protein target that builds up over the first month (80%, then 90%, then the full amount) with calories unchanged.
+
 The plan grows with you. Log your weight and reps and each exercise tells you what to aim for next time: more reps first, then a bit more weight, or a harder version for bodyweight moves. New personal records are celebrated, an easy week is suggested when you stop progressing, and when you're ready the app offers to move you up from beginner to intermediate to advanced. Short on time? A 10, 15 or 20 minute session fits the day.
 
 ### Built for desk jobs

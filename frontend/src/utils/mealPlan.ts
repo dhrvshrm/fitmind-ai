@@ -59,6 +59,8 @@ export function noteText(note: PlanNote, fastingMode?: string | null): string {
       const season = text(v.season) as keyof typeof SEASON_STRINGS.tips;
       return SEASON_STRINGS.tips[season] ?? "";
     }
+    case "protein_ramp":
+      return S.notes.protein_ramp(Number(v.percent) || 0, formatDateLabel(text(v.full_on)));
     case "mess_mode":
       return MESS_STRINGS.notes.mess_mode(Number(v.extras_inr) || 0);
     case "shelf_suggestion":

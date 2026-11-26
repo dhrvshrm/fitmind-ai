@@ -191,6 +191,10 @@ export const LANDING_STRINGS = {
         a: 'Workouts are built from what you have, from nothing at all to a full gym, and any exercise can be swapped.',
       },
       {
+        q: 'I have never been to a gym. Will it be too much?',
+        a: 'No. Beginners start on machines, cables and simple dumbbell moves that are easy to learn, like the leg press, chest press machine, lat pulldown and goblet squat, and move to barbell lifts once the basics feel solid. Every exercise shows how far to move (range of motion) and how hard to push (reps in reserve). Food starts simple too: everyday home food, and protein that builds up over your first month so the habit comes first.',
+      },
+      {
         q: 'Which exercises will I get?',
         a: 'The best-proven ones you can do. Every exercise is ranked for its muscle, and plans always pick the top one that fits your equipment, level and injuries: hack squats, incline curls and overhead triceps extensions at the gym; Bulgarian split squats and incline rows with dumbbells; pike push-ups and backpack squats at home. Beginners and advanced lifters both get top picks, matched to their level.',
       },

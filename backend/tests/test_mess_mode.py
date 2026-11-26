@@ -21,10 +21,11 @@ STUDENT = {
 SHELF = ["milk", "brown_bread", "peanut_butter", "dates", "almonds"]
 
 
-def _student(client, email="pg@example.com", shelf=SHELF, diet="vegetarian"):
+def _student(client, email="pg@example.com", shelf=SHELF, diet="vegetarian", level="intermediate"):
     headers, user_id = register_and_login(client, email)
+    # Past the beginner protein ramp, so the full target applies.
     client.post(f"{API}/users/onboarding", headers=headers,
-                json={**STUDENT, "food_preferences": {"diet_type": diet}})
+                json={**STUDENT, "experience_level": level, "food_preferences": {"diet_type": diet}})
     res = client.put(f"{API}/users/personalisation", headers=headers, json={
         "food_access": {"who_cooks": "mess_or_canteen", "mess_meals": ["breakfast", "lunch", "dinner"],
                         "shelf": shelf},

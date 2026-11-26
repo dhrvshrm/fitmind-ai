@@ -22,6 +22,7 @@ import { ExerciseDetailDialog } from "../exercises/ExerciseDetailDialog";
 import { STRINGS } from "../../constants/strings";
 import { getWorkoutTypeMeta } from "../../constants/workout";
 import type { PlanMeta, WorkoutDay } from "../../types/workout";
+import { WeeklyVolume } from "./WeeklyVolume";
 import { SectionCard } from "../ui/SectionCard";
 import { EmptyState } from "../ui/EmptyState";
 import { Reveal } from "../ui/Reveal";
@@ -64,7 +65,10 @@ export function WeeklyPlanView({ week, meta }: WeeklyPlanViewProps) {
     : null;
 
   return (
-    <SectionCard title={S.title}>
+    <SectionCard
+      title={S.title}
+      subtitle={meta?.split ? STRINGS.workout.splits[meta.split] : undefined}
+    >
       <Box sx={styles.grid}>
         {week.map((day, dayIndex) => {
           const meta = getWorkoutTypeMeta(day.workout_type);
@@ -198,6 +202,9 @@ export function WeeklyPlanView({ week, meta }: WeeklyPlanViewProps) {
                 {STRINGS.workout.planNotes[note]}
               </Alert>
             ))}
+            {meta.volume_target && (
+              <WeeklyVolume sets={meta.weekly_sets} target={meta.volume_target} />
+            )}
             <Typography variant="caption" color="text.secondary">
               {STRINGS.workout.basis(meta.basis)}
             </Typography>
