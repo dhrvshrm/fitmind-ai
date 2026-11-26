@@ -36,7 +36,7 @@
     "Rounding the lower back at the bottom."
    ],
    "breathing": "Breathe in on the way down, out as you stand.",
-   "easier": null,
+   "easier": "Sit_To_Stand",
    "harder": "Backpack_Squat",
    "reviewed": false
   },
@@ -733,7 +733,7 @@
     "Neck reaching forward."
    ],
    "breathing": "In as you lower, out as you push.",
-   "easier": null,
+   "easier": "Wall_Push-Up",
    "harder": "Pushups",
    "reviewed": false
   },
@@ -4987,6 +4987,81 @@
    "easier": "Bodyweight_Squat",
    "harder": "Goblet_Squat",
    "photos_from": "Goblet_Squat",
+   "reviewed": false
+  },
+  {
+   "id": "Wall_Push-Up",
+   "pattern": "push_horizontal",
+   "tier": "B",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [],
+   "loads": [
+    "shoulder",
+    "wrist"
+   ],
+   "stabilizers": [
+    "abdominals"
+   ],
+   "grip": "Hands flat on the wall at chest height, a little wider than your shoulders.",
+   "stance": "Feet together, an arm's length back from the wall; step further back to make it harder.",
+   "steps": [
+    "Brace your stomach so your body is one straight line from head to heels.",
+    "Bend your elbows and bring your chest close to the wall.",
+    "Push the wall away until your arms are straight."
+   ],
+   "cues": [
+    "Elbows angle back, not straight out to the sides.",
+    "Body moves as one piece.",
+    "Slow down: 2 seconds in, 1 second out."
+   ],
+   "mistakes": [
+    "Letting the hips sag or stick out.",
+    "Shrugging the shoulders up to the ears.",
+    "Standing so close that the rep is too short."
+   ],
+   "breathing": "Breathe in as you lean in, out as you push away.",
+   "easier": null,
+   "harder": "Incline_Push-Up",
+   "photos_from": "Incline_Push-Up",
+   "reviewed": false
+  },
+  {
+   "id": "Sit_To_Stand",
+   "pattern": "squat",
+   "tier": "B",
+   "unit": "reps",
+   "per_side": false,
+   "needs": [],
+   "loads": [
+    "knee",
+    "hip"
+   ],
+   "stabilizers": [
+    "abdominals",
+    "lower back"
+   ],
+   "grip": "Arms crossed on your chest, or held out in front for balance.",
+   "stance": "Sit on the front half of a sturdy chair against a wall, feet flat and hip-width apart, a little behind your knees.",
+   "steps": [
+    "Lean your chest forward over your knees.",
+    "Push through your whole foot and stand all the way up.",
+    "Reach your hips back and sit down slowly, without dropping into the chair."
+   ],
+   "cues": [
+    "Nose over toes as you stand.",
+    "Knees follow the line of your toes.",
+    "Take 3 seconds to sit down."
+   ],
+   "mistakes": [
+    "Pushing off with the hands.",
+    "Knees caving inward.",
+    "Flopping back into the chair."
+   ],
+   "breathing": "Breathe in as you sit, out as you stand.",
+   "easier": null,
+   "harder": "Bodyweight_Squat",
+   "photos_from": "Dumbbell_Squat_To_A_Bench",
    "reviewed": false
   }
  ]

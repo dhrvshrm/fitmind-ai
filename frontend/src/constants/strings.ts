@@ -364,6 +364,10 @@ export const STRINGS = {
         "Exercises that load your injured areas are left out, so some days are shorter (a shoulder injury takes out most pressing and pulling). Ask a physiotherapist which moves are safe for you, and check with them before training through pain.",
       bodyweight_only:
         "Your plan uses bodyweight exercises. Add dumbbells or bands in your profile to unlock more.",
+      foundation_phase:
+        "Foundation phase: for the first weeks, walking is your main workout and three short, gentle strength sessions build the base. Moves get harder as the top of each rep range starts to feel easy.",
+      doctor_check:
+        "Before you start, a quick check with your doctor is a good idea, especially if you have blood pressure, sugar or joint concerns. Walking and these gentle moves are a safe start for most people.",
       body_scan_focus:
         "Built around your body composition scan: areas that lag behind get dedicated exercises right after the main lifts, with an extra set, and they are never cut for time.",
     },
@@ -476,6 +480,15 @@ export const STRINGS = {
       upper_lower: "Upper/lower split: upper body and legs on alternate days",
       upper_lower_full: "Upper/lower split with a full-body day",
       push_pull_legs: "Push/pull/legs split: each muscle twice a week",
+      foundation: "Foundation phase: daily walks, three gentle strength days and rest",
+    },
+    foundation: {
+      title: (week: number, of: number) => `Foundation phase: week ${week} of ${of}`,
+      body: (steps: number, minutes: number) =>
+        `Walking is your main workout right now. Aim for ${steps.toLocaleString()} steps today, or at least a ${minutes}-minute brisk walk. The target grows a little every week.`,
+      strength:
+        "On Monday, Wednesday and Friday do the short strength session: 2 easy sets of each move. Stop while you could still do 3 or 4 more reps.",
+      walkDay: (minutes: number) => `Brisk walk, about ${minutes} minutes, then the stretches.`,
     },
     volume: {
       title: "Weekly sets per muscle",

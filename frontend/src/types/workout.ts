@@ -105,9 +105,26 @@ export type WorkoutDay = {
   /** Strength days only. */
   warm_up?: WarmUp | null;
   finisher?: Finisher | null;
+  /** Walk-and-mobility days: minutes of brisk walking. */
+  walk_minutes?: number;
 };
 
-export type PlanNoteCode = 'no_pull_equipment' | 'injury_adjusted' | 'bodyweight_only' | 'body_scan_focus';
+export type PlanNoteCode =
+  | 'no_pull_equipment'
+  | 'injury_adjusted'
+  | 'bodyweight_only'
+  | 'body_scan_focus'
+  | 'foundation_phase'
+  | 'doctor_check';
+
+/** Where someone is in the foundation phase and how far to walk. */
+export type FoundationInfo = {
+  week: number;
+  of: number;
+  step_target: number;
+  step_goal: number;
+  walk_minutes: number;
+};
 
 /** How the plan was built. */
 export type PlanMeta = {
@@ -120,7 +137,9 @@ export type PlanMeta = {
   /** Hard sets a week per muscle that grow it: [low, high]. */
   volume_target?: [number, number];
   /** The split's usual name. */
-  split?: 'full_body' | 'upper_lower' | 'upper_lower_full' | 'push_pull_legs';
+  split?: 'full_body' | 'upper_lower' | 'upper_lower_full' | 'push_pull_legs' | 'foundation';
+  /** The foundation phase: walking first and three gentle sessions, for the first weeks. */
+  foundation?: FoundationInfo | null;
   notes: PlanNoteCode[];
   variant: number;
   protected_joints: string[];

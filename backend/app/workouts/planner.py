@@ -9,7 +9,7 @@ Sets, reps and rest come from ``programming``.
 from collections import Counter
 from typing import Dict, List, Optional, Sequence
 
-from app.workouts import catalog, programming, technique
+from app.workouts import catalog, foundation, programming, technique
 from app.workouts.catalog import Exercise
 
 DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -52,6 +52,7 @@ SESSION_LABELS = {
     "full": "Full body", "upper": "Upper body", "lower": "Lower body",
     "push": "Push (chest, shoulders, triceps)", "pull": "Pull (back, biceps)", "legs": "Legs",
     "mobility": "Mobility", "rest": "Rest", "quick": "Quick session",
+    "walk": "Walk and mobility", "foundation": "Foundation strength",
 }
 # Back extensions stand in for rows when there's nothing to pull against.
 NO_PULL_FALLBACK = "Superman"
@@ -117,7 +118,7 @@ class _Picker:
     def __init__(self, pool: List[Exercise], level: str, variant: int, loaded: bool = False):
         # Everyday slots never get the one-side-at-a-time exercises kept for focus work.
         self.all = pool
-        self.pool = [e for e in pool if e.id not in FOCUS_ONLY]
+        self.pool = [e for e in pool if e.id not in FOCUS_ONLY and e.id not in foundation.FOUNDATION_ONLY]
         self.level = level
         self.variant = variant
         # When weights are available, loaded versions beat bodyweight ones.
@@ -225,6 +226,73 @@ def mobility_session(goal: str, level: str, joints: set, count: int = 6, offset:
     return [entry_for(e, goal, level) for e in safe[:count]]
 
 
+def walk_day(day: str, goal: str, level: str, joints: set, offset: int = 0) -> dict:
+    """A day of brisk walking and a short mobility routine (active recovery)."""
+    return {"day": day, "workout_type": "cardio", "focus": SESSION_LABELS["walk"],
+            "walk_minutes": foundation.WALK_MINUTES,
+            "exercises": mobility_session(goal, level, joints, count=4, offset=offset)}
+
+
+def foundation_plan(goal: str, experience: Optional[str], equipment: Sequence[str], injuries: Sequence[str],
+                    days_per_week: Optional[int], variant: int, week_number: int, doctor_check: bool) -> dict:
+    """The foundation phase week: 3 gentle strength days, walking days, and rest (see foundation.py)."""
+    level = user_level(experience)
+    owned = list(equipment) or ["bodyweight"]
+    joints = catalog.injured_joints(injuries)
+    days = training_days(days_per_week, experience)
+    strength_days = foundation.FOUNDATION_STRENGTH_DAYS[: min(days, len(foundation.FOUNDATION_STRENGTH_DAYS))]
+    free = [i for i in range(6) if i not in strength_days]
+    walk_days = set(free[: max(days - len(strength_days), 0)])
+    entries = []
+    for _slot, options in foundation.SLOTS:
+        exercise = next((catalog.get(i) for i in options
+                         if catalog.get(i) and catalog.allowed(catalog.get(i), owned, joints, level)), None)
+        if exercise is None:
+            continue
+        entry = entry_for(exercise, goal, level)
+        entry.update({"sets": foundation.SETS, "reps": foundation.REPS, "rest": foundation.REST,
+                      "rir": foundation.RIR, "effort": foundation.EFFORT, "technique": None})
+        entries.append(entry)
+    week = []
+    for index, day in enumerate(DAYS):
+        if index in strength_days:
+            week.append({"day": day, "workout_type": "strength", "focus": SESSION_LABELS["foundation"],
+                         "exercises": [dict(e) for e in entries]})
+        elif index in walk_days:
+            week.append(walk_day(day, goal, level, joints, variant))
+        else:
+            week.append({"day": day, "workout_type": "rest", "focus": SESSION_LABELS["rest"], "exercises": []})
+    notes = ["foundation_phase"]
+    if doctor_check:
+        notes.append("doctor_check")
+    if joints:
+        notes.append("injury_adjusted")
+    return {
+        "week": week,
+        "meta": {
+            "basis": programming.GUIDELINE_BASIS,
+            "level": level,
+            "goal": goal,
+            "days_per_week": days,
+            "session_minutes": 25,
+            "weekly_sets": weekly_sets(week),
+            "volume_target": VOLUME_TARGET[level],
+            "split": "foundation",
+            "notes": notes,
+            "variant": variant,
+            "protected_joints": sorted(joints),
+            "body_scan": None,
+            "foundation": {
+                "week": week_number,
+                "of": foundation.FOUNDATION_WEEKS,
+                "step_target": foundation.step_target(week_number),
+                "step_goal": foundation.STEP_GOAL,
+                "walk_minutes": foundation.WALK_MINUTES,
+            },
+        },
+    }
+
+
 def session_slots(session: str, areas: Sequence[str]) -> List[tuple]:
     """The session's slots as (patterns, focus area or None), focus work after the main lifts."""
     base: List[tuple] = [(patterns, None) for patterns in SESSIONS[session]]
@@ -256,6 +324,8 @@ def build_week(
     days_per_week: Optional[int],
     variant: int = 0,
     focus: Optional[dict] = None,
+    foundation_week: Optional[int] = None,
+    doctor_check: bool = False,
 ) -> dict:
     """The weekly plan: days with exercises, plus how it was built.
 
@@ -264,6 +334,10 @@ def build_week(
     Each area gets dedicated exercises in the sessions that train it, and an
     unbalanced limb is trained one side at a time, weaker side first.
     """
+    if foundation_week:
+        # Not ready for push-ups and squats yet: walking first, three gentle sessions.
+        return foundation_plan(goal, experience, equipment, injuries, days_per_week, variant,
+                               foundation_week, doctor_check)
     focus = focus or {}
     areas = [a for a in focus.get("areas", []) if a in FOCUS_SLOTS]
     weaker = focus.get("weaker") or {}
@@ -283,11 +357,21 @@ def build_week(
     # upper/lower/full twice.
     pulls = [e for e in pool if e.coaching.pattern in ("pull_horizontal", "pull_vertical")]
     schedule = dict(SPLITS[days] if len(pulls) >= MIN_PULLS_FOR_PULL_DAY or days != 6 else SIX_DAYS_WITHOUT_PULL)
+    walk_days: set = set()
+    if level == "beginner" and days > foundation.BEGINNER_MAX_STRENGTH_DAYS:
+        # A beginner recovers from four strength days at most; the extra days they
+        # picked become walking and mobility, so weekly volume stays in range.
+        schedule = dict(SPLITS[foundation.BEGINNER_MAX_STRENGTH_DAYS])
+        free = [i for i in range(6) if i not in schedule]
+        walk_days = set(free[: days - foundation.BEGINNER_MAX_STRENGTH_DAYS])
 
     week = []
     mobility_day_used = False
     for index, day in enumerate(DAYS):
         session = schedule.get(index)
+        if session is None and index in walk_days:
+            week.append(walk_day(day, goal, level, joints, variant))
+            continue
         if session is None:
             # One mobility day for desk-bound weeks; the rest are full rest days.
             if not mobility_day_used and index != 6 and index > 0 and schedule.get(index - 1):

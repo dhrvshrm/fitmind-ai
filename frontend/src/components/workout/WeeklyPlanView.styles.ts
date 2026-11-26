@@ -88,4 +88,7 @@ export const weeklyPlanViewStyles = {
     gap: 1,
     mt: 2,
   },
+  walkNote: {
+    mb: 2,
+  },
 };
