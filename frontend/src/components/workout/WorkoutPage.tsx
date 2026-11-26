@@ -7,6 +7,8 @@ import { TodayWorkout } from './TodayWorkout';
 import { WorkoutHistory } from './WorkoutHistory';
 import { QuickSessionCard } from './QuickSessionCard';
 import { TrainingCoachCard } from './TrainingCoachCard';
+import { FoundationCard } from './FoundationCard';
+import { StepsCard } from '../activity/StepsCard';
 import { ExerciseLibrary } from '../exercises/ExerciseLibrary';
 import {
   useGeneratePlan,
@@ -135,7 +137,11 @@ export function WorkoutPage() {
             {BODY_SCAN_STRINGS.workout.scanChanged}
           </Alert>
         )}
+        {plan.data?.meta?.foundation && <FoundationCard info={plan.data.meta.foundation} />}
         {plan.data && <WeeklyPlanView week={plan.data.week} meta={plan.data.meta} />}
+
+        {/* Steps are part of training: walking is the base every plan builds on. */}
+        <StepsCard />
 
         <TrainingCoachCard />
 

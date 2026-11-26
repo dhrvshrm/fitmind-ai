@@ -35,13 +35,18 @@ PULSE: Dict[str, List[tuple]] = {
         ("Walking_Treadmill", None, "3 to 5 min, brisk walk, swing your arms", set(), GYM),
         ("Bicycling_Stationary", None, "3 to 5 min, easy pace", set(), GYM),
     ],
+    # The foundation phase: no jumping, just walking or marching.
+    "foundation": [
+        ("Walking_Treadmill", None, "3 to 5 min, easy walk", set(), GYM),
+        (None, "March on the spot", "3 min, easy pace, hold a chair or wall if you need to", set(), None),
+    ],
     "home": [
         ("Fast_Skipping", None, "2 min, easy pace", {"knee", "ankle"}, None),
         (None, "March on the spot", "2 to 3 min, brisk, swing your arms", set(), None),
     ],
 }
 PULSE_FOR_KIND = {"lower": "lower", "legs": "lower", "push": "upper", "pull": "upper",
-                  "upper": "upper", "full": "upper"}
+                  "upper": "upper", "full": "upper", "foundation": "foundation"}
 
 # Phase 2 moves: id -> (dose, joints it puts load on, equipment it needs).
 MOVES: Dict[str, tuple] = {
@@ -71,6 +76,8 @@ ROUTINES: Dict[str, List[str]] = {
              "Butt_Lift_Bridge", "Bodyweight_Squat"],
 }
 ROUTINES["legs"] = ROUTINES["lower"]
+# Standing, gentle and joint-friendly: nothing on the floor, nothing loaded.
+ROUTINES["foundation"] = ["Arm_Circles", "Shoulder_Circles", "Wrist_Circles", "Standing_Hip_Circles", "Ankle_Circles"]
 
 LOWER_PATTERNS = {"squat", "hinge", "lunge", "glute", "calf", "knee_flexion", "knee_extension"}
 UPPER_PATTERNS = {"push_horizontal", "push_vertical", "chest_fly", "pull_horizontal", "pull_vertical",
@@ -109,7 +116,9 @@ def _move(exercise_id: Optional[str], name: Optional[str], dose: str) -> Optiona
 
 def _pulse(kind: str, owned: set, joints: set) -> List[dict]:
     """Phase 1: the first option the person has kit for and that spares their injuries."""
-    for exercise_id, name, dose, loads, needs in PULSE[PULSE_FOR_KIND[kind]] + PULSE["home"]:
+    group = PULSE_FOR_KIND[kind]
+    options = PULSE[group] if group == "foundation" else PULSE[group] + PULSE["home"]
+    for exercise_id, name, dose, loads, needs in options:
         if loads & joints or (needs and not needs & owned):
             continue
         move = _move(exercise_id, name, dose)

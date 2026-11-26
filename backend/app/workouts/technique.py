@@ -26,6 +26,7 @@ SKILL_OVERRIDES: Dict[str, str] = {
     # Bodyweight moves a first-timer can do with good form.
     "Bodyweight_Squat": SKILL_EASY, "Incline_Push-Up": SKILL_EASY, "Glute_Kickback": SKILL_EASY,
     "Superman": SKILL_EASY, "Scapular_Pull-Up": SKILL_EASY, "Band_Seated_Row": SKILL_EASY,
+    "Wall_Push-Up": SKILL_EASY, "Sit_To_Stand": SKILL_EASY,
     # The classic first loaded lifts: simple, stable and easy to coach.
     "Goblet_Squat": SKILL_EASY, "Dumbbell_Floor_Press": SKILL_EASY, "Dumbbell_Bench_Press": SKILL_EASY,
     "One-Arm_Dumbbell_Row": SKILL_EASY, "Incline_Dumbbell_Press": SKILL_EASY,

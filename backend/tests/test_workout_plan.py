@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 
 from app.services import workout_service
-from app.workouts import catalog, planner, programming, technique
+from app.workouts import catalog, foundation, planner, programming, technique
 from tests.conftest import ONBOARDING, register_and_login
 
 API = "/api/v1"
@@ -350,7 +350,8 @@ def test_no_pull_day_without_real_pulling_exercises():
 @pytest.mark.parametrize("equipment", [["resistance_bands"], ["pull_up_bar"]])
 def test_a_pull_day_gets_two_different_real_pulls(equipment):
     # Bands (band and backpack rows) and a bar (chin-ups and backpack rows) are enough.
-    week = _week(equipment=equipment, days_per_week=6)
+    # Six strength days (and so a pull day) are for trained lifters; beginners get four.
+    week = _week(equipment=equipment, days_per_week=6, experience="intermediate")
     pull = next(d for d in week["week"] if d["focus"] == "Pull (back, biceps)")
     pulls = {e["exercise_id"] for e in pull["exercises"] if e["pattern"] in ("pull_horizontal", "pull_vertical")}
     assert len(pulls) >= 2
@@ -429,7 +430,8 @@ def test_plans_pick_the_best_exercise_the_person_can_do(owned, level, injuries):
         learning = technique.SKILL_RANK[technique.skill_of(e)] if lvl == "beginner" else 0
         return (learning, catalog.tier_rank(e))
 
-    pool = [e for e in catalog.curated() if catalog.allowed(e, owned, joints, lvl) and e.id not in planner.FOCUS_ONLY]
+    pool = [e for e in catalog.curated() if catalog.allowed(e, owned, joints, lvl) and e.id not in planner.FOCUS_ONLY
+            and e.id not in foundation.FOUNDATION_ONLY]
     for days in (3, 4, 6):
         week = planner.build_week(goal="muscle_gain", experience=level, equipment=owned, injuries=injuries,
                                   days_per_week=days)["week"]
@@ -453,6 +455,8 @@ def test_a_full_gym_plan_is_all_top_tier_main_work():
                                   days_per_week=6)["week"]
         lifts = [catalog.get(e["exercise_id"]) for d in week for e in d["exercises"] if d["workout_type"] == "strength"]
         assert all(e.coaching.tier == "S" for e in lifts if e.coaching.pattern != "core"), level
+        if level == "beginner":
+            continue  # Beginners train four days (upper/lower), so there's no push day.
         push = next(d for d in week if d["focus"].startswith("Push"))
         # A fly after the presses: the chest gets a loaded stretch the presses don't give.
         assert "chest_fly" in [e["pattern"] for e in push["exercises"]]
@@ -527,3 +531,14 @@ def test_plans_name_their_split_and_volume_target(days, split):
     assert plan["meta"]["split"] == split
     assert plan["meta"]["volume_target"] == [10, 20]
     assert _plan_week("beginner", ["full_gym"], days)["meta"]["volume_target"] == [6, 12]
+
+
+def test_a_beginner_never_gets_more_than_four_strength_days():
+    plan = _plan_week("beginner", ["full_gym"], days=6)
+    kinds = [d["workout_type"] for d in plan["week"]]
+    assert kinds.count("strength") == 4 and kinds.count("cardio") == 2
+    walk = next(d for d in plan["week"] if d["workout_type"] == "cardio")
+    assert walk["focus"] == "Walk and mobility" and walk["walk_minutes"] > 0
+    assert max(plan["meta"]["weekly_sets"].get(m, 0) for m in ("chest", "quadriceps", "lats")) <= 16
+    # Trained lifters keep all six.
+    assert [d["workout_type"] for d in _plan_week("intermediate", ["full_gym"], days=6)["week"]].count("strength") == 6

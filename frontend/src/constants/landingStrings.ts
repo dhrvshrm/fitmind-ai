@@ -191,6 +191,10 @@ export const LANDING_STRINGS = {
         a: 'Workouts are built from what you have, from nothing at all to a full gym, and any exercise can be swapped.',
       },
       {
+        q: 'I am heavy, older, or have not exercised in years. Where do I start?',
+        a: 'With the foundation phase. For your first six weeks, walking is the main workout, with a step target that starts around 4,000 and grows a little each week. Three times a week you do a short, gentle strength session (wall push-ups, standing up from a chair, glute bridges, calf raises) at an easy effort, and the other days are walks and stretches. Moves get harder only when the easy version feels easy. If a quick check with your doctor makes sense for you, RepEat says so.',
+      },
+      {
         q: 'I have never been to a gym. Will it be too much?',
         a: 'No. Beginners start on machines, cables and simple dumbbell moves that are easy to learn, like the leg press, chest press machine, lat pulldown and goblet squat, and move to barbell lifts once the basics feel solid. Every exercise shows how far to move (range of motion) and how hard to push (reps in reserve). Food starts simple too: everyday home food, and protein that builds up over your first month so the habit comes first.',
       },

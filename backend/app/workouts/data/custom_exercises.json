@@ -239,6 +239,50 @@
     "Drive back up to standing."
    ],
    "images": []
+  },
+  {
+   "id": "Wall_Push-Up",
+   "name": "Wall Push-Up",
+   "force": "push",
+   "level": "beginner",
+   "mechanic": "compound",
+   "equipment": "body only",
+   "category": "strength",
+   "primary_muscles": [
+    "chest"
+   ],
+   "secondary_muscles": [
+    "shoulders",
+    "triceps"
+   ],
+   "instructions": [
+    "Stand an arm's length from a wall with your hands on it at chest height.",
+    "Bend your elbows to bring your chest towards the wall.",
+    "Push back to straight arms."
+   ],
+   "images": []
+  },
+  {
+   "id": "Sit_To_Stand",
+   "name": "Sit-to-Stand (Chair Squat)",
+   "force": "push",
+   "level": "beginner",
+   "mechanic": "compound",
+   "equipment": "body only",
+   "category": "strength",
+   "primary_muscles": [
+    "quadriceps"
+   ],
+   "secondary_muscles": [
+    "glutes",
+    "hamstrings"
+   ],
+   "instructions": [
+    "Sit on the front half of a sturdy chair, feet flat and hip-width apart.",
+    "Lean forward a little and stand up without using your hands.",
+    "Sit back down slowly and with control."
+   ],
+   "images": []
   }
  ]
 }

@@ -16,6 +16,7 @@ from app.nutrition.targets import canonical_goal
 from app.services import gamification_service
 from app.services import analytics_service
 from app.utils.time import local_today, local_today_iso
+from app.workouts import foundation
 from app.workouts import catalog, planner, programming, warm_up
 
 logger = logging.getLogger(__name__)
@@ -58,6 +59,7 @@ async def generate_workout_plan(
     from app.services import body_scan_service
 
     profile = _profile(user, fitness_goal, experience_level, equipment)
+    foundation_week = foundation.week_for(user, profile["experience"], local_today())
     previous = await WorkoutPlan.get_latest_for_user(user.id)
     variant = (previous.meta.get("variant", -1) + 1) if previous and previous.meta else 0
     built = planner.build_week(
@@ -69,6 +71,9 @@ async def generate_workout_plan(
         variant=variant,
         # The newest body scan: lagging areas and an unbalanced side get dedicated work.
         focus=await body_scan_service.latest_training(user.id),
+        # Not ready for push-ups and squats yet: walking first, three gentle sessions.
+        foundation_week=foundation_week,
+        doctor_check=bool(foundation_week) and foundation.needs_doctor_check(user.age, user.weight_kg, user.height_cm),
     )
     plan = WorkoutPlan(
         user_id=user.id,

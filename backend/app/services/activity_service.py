@@ -13,6 +13,7 @@ import logging
 from datetime import date, datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Union
 
+from app.workouts import foundation
 from app.activity import breaks, desk_routines
 from app.activity import steps as step_rules
 from app.models import activity as activity_model
@@ -47,6 +48,10 @@ class ActivityServiceError(Exception):
 # Settings and step target
 # ---------------------------------------------------------------------------
 def default_step_target(user: User) -> int:
+    # In the foundation phase the step target starts low and grows each week.
+    week = foundation.week_for(user, None, local_today())
+    if week:
+        return foundation.step_target(week)
     return step_rules.default_step_target(
         user.activity_level, canonical_goal(user.fitness_goal), user.age
     )

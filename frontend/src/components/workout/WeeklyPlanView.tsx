@@ -153,6 +153,11 @@ export function WeeklyPlanView({ week, meta }: WeeklyPlanViewProps) {
                 />
               ) : (
                 <>
+                  {selected.walk_minutes ? (
+                    <Alert severity="success" variant="outlined" sx={styles.walkNote}>
+                      {STRINGS.workout.foundation.walkDay(selected.walk_minutes)}
+                    </Alert>
+                  ) : null}
                   {selected.warm_up && selected.warm_up.mobility.length > 0 && (
                     <WarmUpList
                       warmUp={selected.warm_up}
