@@ -9,10 +9,10 @@ export const LANDING_STRINGS = {
   home: 'RepEat AI home',
 
   nav: {
-    day: 'A day with your AI coach',
+    day: 'Your day',
+    levels: 'Any level',
+    reports: 'Reports',
     pg: 'PG & hostel',
-    supplements: 'Supplements',
-    promises: 'Promises',
     faq: 'Questions',
     login: 'Log in',
     start: 'Start free',
@@ -21,18 +21,18 @@ export const LANDING_STRINGS = {
   },
 
   hero: {
-    note: 'an AI coach for the 9-to-6 crowd who still lift',
-    lines: ['Work all day.', 'Train anyway.'],
-    lastLine: 'Eat ghar ka khana.',
+    note: 'the AI coach fluent in dal and deadlifts',
+    lines: ['Ghar ka khana.', 'Real training.'],
+    lastLine: 'One coach for both.',
     body:
-      'RepEat is an AI fitness coach that plans your training and your plate as one. Say "dal chawal aur ek roti" and it logs the calories and protein. Finish a set and it tells you what to lift next time, and what to eat to recover. All of it built around office hours, or a college day and a PG mess, not the other way round.',
+      'RepEat plans your workouts and your thali as one, around your office hours, your mess, your festivals and your reports. Say "dal chawal aur ek roti" and the calories are logged. Finish a set and it tells you what to lift next time. Never trained in your life? It starts you on walks and chair squats. Already lifting? You get the best-proven exercises in the gym.',
     primary: 'Start free',
     secondary: 'Walk through a day',
     freeNote: 'Free while in early access. Two minutes to set up.',
     facts: [
-      { value: 'AI', label: 'that understands your meals in Hinglish' },
-      { value: '1 plan', label: 'for your workouts and your food, together' },
-      { value: 'Real data', label: 'INDB food data and ACSM training rules behind every number' },
+      { value: '1 line', label: 'of Hinglish logs a whole day of meals' },
+      { value: 'S-tier', label: 'exercises only, matched to your level and your kit' },
+      { value: 'Your labs', label: 'blood tests and InBody scans that actually change the plan' },
     ],
   },
 
@@ -90,8 +90,8 @@ export const LANDING_STRINGS = {
       time: '8:30',
       period: 'pm',
       title: 'Dinner, whatever the week looks like',
-      caption: 'Fasting, festivals and shifts change your meals and your workout timing together, so neither plan falls apart.',
-      tags: ['Navratri mode', 'Jain', 'Night shift', 'Ramadan timings', 'Ekadashi'],
+      caption: 'Fasting, festivals, shifts, a craving or a Kashmir winter: the plan bends, your goal does not. A pizza night becomes a paneer roti pizza, and the rest of the day makes room.',
+      tags: ['Navratri mode', 'Jain', 'Night shift', 'Treat night', 'Winter in Srinagar'],
       plan: 'tonight: rajgira roti, aloo sabzi, curd',
     },
     night: {
@@ -102,6 +102,95 @@ export const LANDING_STRINGS = {
       postcardTitle: '4 weeks in',
       postcardLines: ['Waist: 1.5 cm down', 'Dumbbell press: 18 to 22 kg', '5 of 6 workouts, most weeks'],
     },
+  },
+
+  levels: {
+    eyebrow: 'Never trained? Already lifting?',
+    title: 'Starts where you are.',
+    titleAccent: 'Grows with you.',
+    body:
+      'Most apps hand a first-timer the same bench press as a gym regular. RepEat reads your age, weight, experience and kit, and starts you on the right rung of the ladder. Every move only gets harder when the easy version starts to feel easy.',
+    cards: [
+      {
+        label: 'Never really exercised',
+        title: 'Foundation phase',
+        points: [
+          'Six weeks where walking is the main workout, from about 4,000 steps a day upward',
+          'Three short sessions a week: wall push-ups, chair sit-to-stands, glute bridges',
+          'A gentle nudge to see your doctor first, when it makes sense',
+        ],
+        today: 'today: 4,000 steps + 2 easy sets',
+      },
+      {
+        label: 'New to the gym',
+        title: 'Safe first lifts',
+        points: [
+          'Machines, cables and dumbbells first; barbells once the basics are solid',
+          'Simple home food, with protein that builds up over your first month',
+          'At most four training days, so you recover and come back',
+        ],
+        today: 'today: leg press 3 x 10, RIR 3',
+      },
+      {
+        label: 'Already lifting',
+        title: 'Serious programming',
+        points: [
+          'The best-proven exercise for every muscle, ranked S, A and B',
+          'RIR targets, estimated one-rep max and weekly sets per muscle',
+          'Double progression, deload weeks and lengthened partials',
+        ],
+        today: 'today: squat 100 kg x 5, top set',
+      },
+    ],
+    cta: 'Find my starting point',
+  },
+
+  reports: {
+    eyebrow: 'Got a blood test? An InBody scan?',
+    title: 'Your reports,',
+    titleAccent: 'read into your plan.',
+    body:
+      'Upload the PDF or a photo. RepEat reads the numbers, you check each one, and your meals, supplements and workouts change to match. Not a chart in a drawer: a plan that knows your HbA1c and your weaker arm.',
+    points: [
+      'Blood tests from any lab: HbA1c, cholesterol, thyroid, vitamin D, B12 and more, tracked over time',
+      'Body composition scans: muscle in each arm, leg and your trunk, body fat and visceral fat',
+      'A lagging side gets one-arm work, weaker side first. High sugar gets fewer sweets and more fibre',
+      'Never a diagnosis. Private, encrypted and deleted with your account',
+    ],
+    cta: 'Upload a report',
+    slipTitle: 'What changed after your reports',
+    rows: [
+      ['HbA1c', '6.1%', 'Sweet treats swapped, more fibre at dinner'],
+      ['Vitamin D', '14 ng/mL', 'D3 suggested, 15 min of morning sun'],
+      ['Left arm', '-0.3 kg', 'One-arm curls and rows, left side first'],
+      ['Body fat', '29%', 'Goal suggestion: recomposition, not bulking'],
+    ],
+    slipNote: 'you confirm every number',
+  },
+
+  next: {
+    eyebrow: 'Being built in the open',
+    title: 'Coming next.',
+    body: 'Early-access members get every one of these the day it ships, free.',
+    soon: 'Soon',
+    items: [
+      {
+        title: 'Train for your sport',
+        body: 'Football, cricket, running, badminton or lifting: speed, agility, injury-proofing and match-day food.',
+      },
+      {
+        title: 'Recipes on request',
+        body: 'Ask how to cook anything, from dal to a protein mug cake, scaled to your portion with little oil.',
+      },
+      {
+        title: 'Vitamins and minerals',
+        body: 'Iron, calcium, B12 and vitamin D for every food you log, against your own daily targets.',
+      },
+      {
+        title: 'A guided first day',
+        body: 'A short tour after sign-up that shows what to do first, second and third.',
+      },
+    ],
   },
 
   pg: {
@@ -258,7 +347,7 @@ export const LANDING_STRINGS = {
   },
 
   closing: {
-    line: 'Tomorrow is a workday. Your AI coach has already planned the workout and the meals.',
+    line: 'Tomorrow is a workday. Your workout, your meals and your steps are already planned, at your level.',
     note: 'see you at 7:30 am',
     primary: 'Start free',
     secondary: 'I already have an account',

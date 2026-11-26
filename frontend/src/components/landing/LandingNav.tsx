@@ -11,9 +11,9 @@ import { landingNavStyles as styles } from './LandingNav.styles';
 const N = LANDING_STRINGS.nav;
 const LINKS = [
   { id: 'day', label: N.day },
+  { id: 'levels', label: N.levels },
+  { id: 'reports', label: N.reports },
   { id: 'pg', label: N.pg },
-  { id: 'supplements', label: N.supplements },
-  { id: 'promises', label: N.promises },
   { id: 'faq', label: N.faq },
 ] as const;
 const SECTION_IDS = LINKS.map((link) => link.id);
