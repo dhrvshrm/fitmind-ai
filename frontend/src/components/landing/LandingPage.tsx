@@ -8,6 +8,9 @@ import { FaqColumns } from './FaqColumns';
 import { HeroMasthead } from './HeroMasthead';
 import { LandingFooter } from './LandingFooter';
 import { LandingNav } from './LandingNav';
+import { LevelsSection } from './LevelsSection';
+import { NextSection } from './NextSection';
+import { ReportsSection } from './ReportsSection';
 import { PgSection } from './PgSection';
 import { PromisesPage } from './PromisesPage';
 import { SupplementsSection } from './SupplementsSection';
@@ -15,8 +18,9 @@ import { landingPageStyles as styles } from './LandingPage.styles';
 
 /**
  * The public front door, read like a notebook: a masthead, one working day
- * with RepEat, life in a PG or hostel, supplements on a budget, a page of promises, questions, and
- * a closing line. Someone
+ * with RepEat, a starting point for every level, reports that change the plan, life in
+ * a PG or hostel, supplements on a budget, what is coming next, a page of promises,
+ * questions, and a closing line. Someone
  * already signed in goes straight to their day.
  */
 export function LandingPage() {
@@ -29,8 +33,11 @@ export function LandingPage() {
       <Box component="main">
         <HeroMasthead />
         <DayTimeline />
+        <LevelsSection />
+        <ReportsSection />
         <PgSection />
         <SupplementsSection />
+        <NextSection />
         <PromisesPage />
         <FaqColumns />
         <ClosingNote />
