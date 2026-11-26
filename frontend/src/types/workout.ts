@@ -25,6 +25,16 @@ export type Exercise = {
   per_side?: boolean;
   /** How hard to push, e.g. "Stop 2 reps short of failure". */
   effort?: string;
+  /** Reps in reserve: how many more reps you could do at the end of each set. */
+  rir?: number;
+  /** How much skill or base strength it needs; beginners start with easy ones. */
+  skill?: 'easy' | 'moderate' | 'technical';
+  /** The full range of motion, in one line. */
+  rom?: string | null;
+  /** Loads the muscle at its longest (the bottom of an incline curl). */
+  loads_stretch?: boolean;
+  /** An intensity technique for trained lifters. */
+  technique?: 'lengthened_partials' | null;
   /** Progressive overload: last time's sets and what to aim for today. */
   target?: ExerciseTarget;
   /** Body-scan focus work: the area it targets (gets an extra set, never cut). */
@@ -107,6 +117,10 @@ export type PlanMeta = {
   days_per_week: number;
   session_minutes: number;
   weekly_sets: Record<string, number>;
+  /** Hard sets a week per muscle that grow it: [low, high]. */
+  volume_target?: [number, number];
+  /** The split's usual name. */
+  split?: 'full_body' | 'upper_lower' | 'upper_lower_full' | 'push_pull_legs';
   notes: PlanNoteCode[];
   variant: number;
   protected_joints: string[];

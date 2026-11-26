@@ -268,9 +268,39 @@ PROTEIN_STAPLE_IDS = frozenset(
 CORE_SOURCES = frozenset({"USDA"})
 
 
+# The first plan someone follows should look like their usual home food.
+BEGINNER_PROMPT = (
+    "They are new to eating to a plan: keep every meal simple and familiar, the everyday home-style "
+    "food they already know (dal, roti, rice, sabzi, curd, eggs, paneer, fruit), 2 to 4 foods per "
+    "meal, quick to cook, nothing unusual or fancy. Hit the targets with portions, not exotic foods."
+)
+
+
+# Dishes that read as foreign or fussy to someone just starting out.
+UNFAMILIAR_WORDS = frozenset(
+    t for w in ("spanish", "mexican", "hawaiian", "hawain", "chinese", "kale", "pasta", "whey", "puree",
+                "iced", "stewed", "souffle", "kofta", "korma", "gatte", "mixture")
+    for t in tokens(w)
+)
+# Keep this many familiar foods before dropping unfamiliar ones from a beginner's list.
+MIN_FAMILIAR_FOODS = 120
+
+
+def is_familiar(food: Food, found: Optional[frozenset] = None) -> bool:
+    """Everyday food a beginner already knows: a core dish, a plain staple or protein food, or a
+    short-named everyday dish (dal, roti, raita), never a foreign or fussy one."""
+    name = tokens(food.name)
+    if name & UNFAMILIAR_WORDS:
+        return False
+    if food.id in CORE_FOOD_IDS or _is_simple(food) or food.source == "estimate":
+        return True
+    return len(name) <= 2 and bool(name & STAPLE_WORDS)
+
+
 def food_pool(
     rules: DietRules, prefs: Optional[dict], user_foods: Sequence[Food] = (),
     season: Optional[SeasonContext] = None,
+    simple: bool = False,
 ) -> List[Food]:
     """Foods the person can be offered, best first, trimmed to ``POOL_LIMIT``.
 
@@ -304,8 +334,15 @@ def food_pool(
         )
         # Out of season where they live: kept, but behind everything in season.
         late = bool(season and season.is_out_of_season(found))
+        # A beginner starts on familiar everyday food: unfamiliar dishes go to the back.
+        late = late or (simple and not is_familiar(food))
         scored.append((late, -score, len(food.name), food.id, food))
     scored.sort(key=lambda s: s[:4])
+    if simple:
+        # Enough everyday food to fill a plan: leave the unfamiliar dishes out entirely.
+        familiar = [s for s in scored if not s[0]]
+        if len(familiar) >= MIN_FAMILIAR_FOODS:
+            scored = familiar
     return own + [s[4] for s in scored[: max(POOL_LIMIT - len(own), 0)]]
 
 
@@ -915,6 +952,13 @@ _ONE_PER_MEAL = {
 }
 ONE_PER_MEAL_GROUPS = {t: group for word, group in _ONE_PER_MEAL.items() for t in tokens(word)}
 ONE_PER_MEAL_WORDS = frozenset(ONE_PER_MEAL_GROUPS)
+
+
+def same_kinds(food: Food) -> frozenset:
+    """The protein kinds a food counts as (soyabean curry and soya chunk curry are both soya)."""
+    return frozenset(ONE_PER_MEAL_GROUPS.get(t, t) for t in food_tokens(food) & SAME_KIND_WORDS)
+
+
 # Placeholders for mess mode only (the mess's sabzi or dal), never in an everyday plan.
 MESS_ONLY_IDS = frozenset({"est:mess_sabzi"})
 # An addition is undone if it pushes the day past these (portions couldn't absorb it).
@@ -1039,7 +1083,7 @@ def boost_protein(
             # No second curd next to curd, or egg next to egg, in one meal.
             meal_kinds = set().union(
                 *(
-                    food_tokens(foods[i["food_id"]]) & SAME_KIND_WORDS
+                    same_kinds(foods[i["food_id"]])
                     for i in meal["items"]
                     if i["food_id"] in foods
                 )
@@ -1049,7 +1093,7 @@ def boost_protein(
                     food.id in in_meal
                     or (meal["id"], food.id, replace) in rejected
                     or times_in_day[food.id] >= _day_limit(food)
-                    or food_tokens(food) & SAME_KIND_WORDS & meal_kinds
+                    or same_kinds(food) & meal_kinds
                     or not _fits_slot(food, meal)
                 ):
                     continue

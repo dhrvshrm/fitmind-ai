@@ -38,7 +38,8 @@ export type FastingNoteCode =
   | "paryushan_practice"
   | "ramadan_timings"
   | "shelf_suggestion"
-  | "season_tip";
+  | "season_tip"
+  | "protein_ramp";
 
 export type PlanNote =
   | { code: PlanNoteCode; values: Record<string, number> }

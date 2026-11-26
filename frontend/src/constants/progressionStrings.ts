@@ -1,6 +1,6 @@
 /**
  * Copy for progressive overload: set logging, today's targets, records,
- * easy weeks, level changes and strength progress.
+ * deload weeks, level changes and strength progress.
  */
 const kg = (n: number) => `${Number.isInteger(n) ? n : n.toFixed(1)} kg`;
 const setsList = (sets: { weight_kg: number; reps: number }[], loaded: boolean) =>
@@ -21,14 +21,18 @@ export const PROGRESSION_STRINGS = {
     last: (sets: { weight_kg: number; reps: number }[], loaded: boolean) => `Last time: ${setsList(sets, loaded)}`,
     first_time: 'First time logging this one. Pick a weight you can lift with good form.',
     first_time_bodyweight: 'First time logging this one. Stop a couple of reps before your form breaks.',
-    add_weight: (weight: number) => `You hit the top of the range. Today try ${kg(weight)}.`,
+    add_weight: (weight: number) =>
+      `Double progression: you hit the top of the range, so the weight goes up. Today try ${kg(weight)}.`,
     add_reps: (weight: number | null, low: number, high: number) =>
-      weight ? `Stay at ${kg(weight)} and add a rep or two (aim for ${low} to ${high}).` : `Add a rep or two (aim for ${low} to ${high}).`,
+      weight
+        ? `Double progression: stay at ${kg(weight)} and add a rep or two (aim for ${low} to ${high}); the weight goes up once you reach ${high}.`
+        : `Add a rep or two (aim for ${low} to ${high}).`,
     hold: (weight: number) => `Stay at ${kg(weight)} and own every rep today.`,
     reduce: (weight: number) => `Two tough sessions in a row. Drop to ${kg(weight)} and build back up.`,
     harder_variation: (name: string) => `You've outgrown this one. Try ${name} next time.`,
     add_set: 'You hit the top of the range. Add an extra set next time.',
-    deload: (weight: number | null) => (weight ? `Easy week: keep ${kg(weight)}, fewer sets, no grinding.` : 'Easy week: fewer sets, no grinding.'),
+    deload: (weight: number | null) =>
+      weight ? `Deload week: keep ${kg(weight)}, fewer sets, no grinding.` : 'Deload week: fewer sets, no grinding.',
   },
   chips: {
     add_weight: 'Add weight',
@@ -37,7 +41,7 @@ export const PROGRESSION_STRINGS = {
     reduce: 'Ease off',
     harder_variation: 'Level up the move',
     add_set: 'Add a set',
-    deload: 'Easy week',
+    deload: 'Deload week',
     first_time: 'First time',
   },
   records: {
@@ -50,12 +54,13 @@ export const PROGRESSION_STRINGS = {
   coach: {
     title: 'Your training',
     subtitle: 'Suggestions from what you log. Nothing changes until you say so.',
-    deloadActive: (until: string) => `Easy week until ${until}. Fewer sets, same weights. Come back fresh.`,
-    endDeload: 'End easy week',
-    deloadTitle: 'Time for an easy week?',
+    deloadActive: (until: string) =>
+      `Deload week until ${until}: fewer sets, same weights, so your body recovers and comes back stronger.`,
+    endDeload: 'End deload week',
+    deloadTitle: 'Time for a deload week?',
     deloadBody: (lifts: string[]) =>
       `${lifts.join(' and ')} haven't moved in about three weeks. A lighter week usually gets them going again.`,
-    startDeload: 'Start easy week',
+    startDeload: 'Start deload week',
     reasonsTitle: 'Worth fixing first',
     reasons: {
       protein: (percent: number, days: number) =>
@@ -76,7 +81,7 @@ export const PROGRESSION_STRINGS = {
     noLiftsYet: 'Log your weights to track strength: your main lifts are compared with your body weight.',
     liftRow: (pattern: string, ratio: number, needed: number) => `${pattern}: ${ratio}x body weight (aim ${needed}x)`,
     levelUpDone: (level: string) => `You're now ${level}. Your new plan is ready.`,
-    deloadStarted: 'Easy week started',
+    deloadStarted: 'Deload week started',
     deloadEnded: 'Back to normal training',
     error: "Couldn't update that. Try again.",
     levels: { beginner: 'beginner', intermediate: 'intermediate', advanced: 'advanced' } as Record<string, string>,

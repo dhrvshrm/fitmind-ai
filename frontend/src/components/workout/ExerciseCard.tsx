@@ -15,7 +15,9 @@ import {
   InfoOutlined,
   PlayCircleOutlineRounded,
   SpeedRounded,
+  StraightenRounded,
   SwapHorizRounded,
+  UnfoldMoreRounded,
   WorkspacePremiumRounded,
 } from "@mui/icons-material";
 import { STRINGS } from "../../constants/strings";
@@ -123,6 +125,26 @@ export function ExerciseCard({
             </Tooltip>
           )}
         </Stack>
+        {(exercise.rir !== undefined || exercise.loads_stretch) && (
+          <Stack sx={styles.chips}>
+            {exercise.rir !== undefined && (
+              <Tooltip title={S.rirTooltip(exercise.rir)}>
+                <Chip size="small" variant="outlined" label={S.rir(exercise.rir)} />
+              </Tooltip>
+            )}
+            {exercise.loads_stretch && (
+              <Tooltip title={S.stretchTooltip}>
+                <Chip
+                  size="small"
+                  variant="outlined"
+                  color="info"
+                  icon={<UnfoldMoreRounded />}
+                  label={S.stretch}
+                />
+              </Tooltip>
+            )}
+          </Stack>
+        )}
         <FocusChip exercise={exercise} />
         {muscles && (
           <Typography variant="body2" color="text.secondary" noWrap>
@@ -146,6 +168,17 @@ export function ExerciseCard({
             <SpeedRounded fontSize="inherit" />
             <Typography variant="caption">{exercise.effort}</Typography>
           </Stack>
+        )}
+        {exercise.rom && (
+          <Stack sx={styles.effort}>
+            <StraightenRounded fontSize="inherit" />
+            <Typography variant="caption">{exercise.rom}</Typography>
+          </Stack>
+        )}
+        {exercise.technique === "lengthened_partials" && (
+          <Typography variant="caption" color="info.main">
+            {S.lengthenedPartials}
+          </Typography>
         )}
       </Box>
 
