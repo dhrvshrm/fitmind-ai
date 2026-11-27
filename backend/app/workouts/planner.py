@@ -9,7 +9,7 @@ Sets, reps and rest come from ``programming``.
 from collections import Counter
 from typing import Dict, List, Optional, Sequence
 
-from app.workouts import catalog, foundation, programming, technique
+from app.workouts import catalog, foundation, programming, sports, technique
 from app.workouts.catalog import Exercise
 
 DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -53,6 +53,8 @@ SESSION_LABELS = {
     "push": "Push (chest, shoulders, triceps)", "pull": "Pull (back, biceps)", "legs": "Legs",
     "mobility": "Mobility", "rest": "Rest", "quick": "Quick session",
     "walk": "Walk and mobility", "foundation": "Foundation strength",
+    "sport": "Sport conditioning", "match": "Match day", "pre_match": "Light day before the match",
+    "post_match": "Recovery after the match",
 }
 # Back extensions stand in for rows when there's nothing to pull against.
 NO_PULL_FALLBACK = "Superman"
@@ -326,6 +328,7 @@ def build_week(
     focus: Optional[dict] = None,
     foundation_week: Optional[int] = None,
     doctor_check: bool = False,
+    sport: Optional[dict] = None,
 ) -> dict:
     """The weekly plan: days with exercises, plus how it was built.
 
@@ -336,8 +339,11 @@ def build_week(
     """
     if foundation_week:
         # Not ready for push-ups and squats yet: walking first, three gentle sessions.
-        return foundation_plan(goal, experience, equipment, injuries, days_per_week, variant,
+        plan = foundation_plan(goal, experience, equipment, injuries, days_per_week, variant,
                                foundation_week, doctor_check)
+        # The base comes first; the sport is remembered so the plan isn't flagged as out of date.
+        plan["meta"]["sport"] = sports.setup_of(sport)
+        return plan
     focus = focus or {}
     areas = [a for a in focus.get("areas", []) if a in FOCUS_SLOTS]
     weaker = focus.get("weaker") or {}
@@ -364,11 +370,23 @@ def build_week(
         schedule = dict(SPLITS[foundation.BEGINNER_MAX_STRENGTH_DAYS])
         free = [i for i in range(6) if i not in schedule]
         walk_days = set(free[: days - foundation.BEGINNER_MAX_STRENGTH_DAYS])
+    setup = sports.setup_of(sport)
+    special: Dict[int, str] = {}
+    sport_days: set = set()
+    if setup:
+        schedule, walk_days, special, sport_days = _sport_week(setup, days, level)
 
     week = []
     mobility_day_used = False
     for index, day in enumerate(DAYS):
         session = schedule.get(index)
+        if session is None and index in special:
+            week.append(_match_week_day(day, special[index], goal, level, joints, variant))
+            continue
+        if session is None and index in sport_days:
+            week.append({"day": day, "workout_type": "cardio", "focus": SESSION_LABELS["sport"],
+                         "sport": setup["sport"], "exercises": sports.drills(setup)})
+            continue
         if session is None and index in walk_days:
             week.append(walk_day(day, goal, level, joints, variant))
             continue
@@ -383,7 +401,14 @@ def build_week(
             continue
         entries: List[dict] = []
         taken: set = set()
-        for patterns, area in session_slots(session, areas):
+        slots = session_slots(session, areas)
+        if setup:
+            # What the sport demands, when the session doesn't already train it.
+            # They come right after the main lifts, so a short session never cuts them.
+            present = {p[0] for p, _ in slots}
+            extra = [(patterns, None) for patterns in sports.extra_slots(setup, session) if patterns[0] not in present]
+            slots = slots[:LEAD_SLOTS] + extra + slots[LEAD_SLOTS:]
+        for patterns, area in slots:
             side = weaker.get(FOCUS_LIMB.get(area, "")) if area else None
             # An unbalanced limb is trained one side at a time; otherwise the usual best pick.
             if area:
@@ -431,6 +456,9 @@ def build_week(
             if own and _minutes(own + [entry]) > budget:
                 break
             entries.append(entry)
+        if setup and setup["phase"] == "in_season":
+            # In season, strength stays short so legs are fresh for practice and matches.
+            entries = [{**e, "sets": max(sports.MIN_SETS, e["sets"] - sports.IN_SEASON_SET_CUT)} for e in entries]
         day_plan = {"day": day, "workout_type": "strength", "focus": SESSION_LABELS[session], "exercises": entries}
         if focus.get("conditioning"):
             day_plan["finisher"] = {"minutes": FINISHER_MINUTES, "gym": "full_gym" in owned}
@@ -442,6 +470,8 @@ def build_week(
         notes.append("bodyweight_only")
     if areas or focus.get("conditioning"):
         notes.append("body_scan_focus")
+    if setup:
+        notes.append("sport_training")
     return {
         "week": week,
         "meta": {
@@ -452,7 +482,8 @@ def build_week(
             "session_minutes": budget,
             "weekly_sets": weekly_sets(week),
             # Hard sets a week per muscle that grow it (beginners need fewer).
-            "volume_target": VOLUME_TARGET[level],
+            # In season the gym keeps strength, so the target is the lower maintenance range.
+            "volume_target": sports.MAINTENANCE_VOLUME if setup and setup["phase"] == "in_season" else VOLUME_TARGET[level],
             "split": split_name(schedule),
             "notes": notes,
             "variant": variant,
@@ -462,8 +493,52 @@ def build_week(
                 "id": focus.get("scan_id"), "measured_at": focus.get("measured_at"), "areas": areas,
                 "weaker": weaker, "conditioning": bool(focus.get("conditioning")),
             } if focus.get("scan_id") else None,
+            # The sport the plan was built for (a change flags the plan).
+            "sport": setup,
         },
     }
+
+
+def _sport_week(setup: dict, days: int, level: str) -> tuple:
+    """Lay out a sport week: strength days by phase, away from the match and the day before,
+    sport conditioning on the other days they picked, and the match week's own days.
+
+    Returns (schedule, walk_days, special_days, sport_days).
+    """
+    count = sports.strength_days(setup, days)
+    if level == "beginner":
+        count = min(count, foundation.BEGINNER_MAX_STRENGTH_DAYS)
+    blocked = sports.blocked_days(setup)
+    match = setup.get("match_day")
+    special: Dict[int, str] = {}
+    if match is not None:
+        special[match] = "match"
+        special[(match - 1) % 7] = "pre_match"
+        special[(match + 1) % 7] = "post_match"
+    # Strength days spread evenly over the days that are free of the match week.
+    available = [d for d in range(7) if d not in blocked and d not in special]
+    if match is None or 6 not in special:
+        # Sunday stays a rest day unless the match week needs it.
+        available = [d for d in available if d != 6] or available
+    sessions = [session for _, session in SPLITS[count]]
+    count = min(count, len(available))
+    if count == 1:
+        picked = [available[0]]
+    else:
+        picked = [available[round(i * (len(available) - 1) / (count - 1))] for i in range(count)]
+    schedule: Dict[int, str] = dict(zip(picked, sessions))
+    free = [i for i in range(7) if i not in schedule and i not in special and i != 6]
+    sport_days = set(free[: max(days - len(schedule) - (1 if match is not None else 0), 0)])
+    return schedule, set(), special, sport_days
+
+
+def _match_week_day(day: str, kind: str, goal: str, level: str, joints: set, offset: int) -> dict:
+    """The match itself, the light day before, and the recovery day after."""
+    if kind == "match":
+        return {"day": day, "workout_type": "rest", "focus": SESSION_LABELS["match"], "match": True, "exercises": []}
+    return {"day": day, "workout_type": "flexibility", "focus": SESSION_LABELS[kind],
+            "walk_minutes": foundation.WALK_MINUTES,
+            "exercises": mobility_session(goal, level, joints, count=4, offset=offset)}
 
 
 # Exercises that stand in for a better one when equipment is missing: a floor
@@ -509,7 +584,7 @@ def weekly_sets(week: List[dict]) -> Dict[str, int]:
     totals: Counter = Counter()
     for day in week:
         for entry in day["exercises"]:
-            if entry.get("pattern") == "mobility":
+            if entry.get("pattern") in ("mobility", "conditioning") or not entry.get("primary_muscles"):
                 continue
             for muscle in entry["primary_muscles"]:
                 totals[muscle] += entry["sets"]

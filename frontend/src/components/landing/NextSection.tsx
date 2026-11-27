@@ -1,10 +1,5 @@
 import { Box, Chip, Typography } from '@mui/material';
-import {
-  ExploreRounded,
-  MenuBookRounded,
-  ScienceRounded,
-  SportsSoccerRounded,
-} from '@mui/icons-material';
+import { ExploreRounded, MenuBookRounded, ScienceRounded } from '@mui/icons-material';
 import type { SvgIconComponent } from '@mui/icons-material';
 import { LANDING_STRINGS } from '../../constants/landingStrings';
 import { IconBadge } from '../ui/IconBadge';
@@ -13,7 +8,7 @@ import { nextSectionStyles as styles } from './NextSection.styles';
 
 const N = LANDING_STRINGS.next;
 
-const ICONS: SvgIconComponent[] = [SportsSoccerRounded, MenuBookRounded, ScienceRounded, ExploreRounded];
+const ICONS: SvgIconComponent[] = [MenuBookRounded, ScienceRounded, ExploreRounded];
 
 /** What is being built next, so early users know where the product is going. */
 export function NextSection() {

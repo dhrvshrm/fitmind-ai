@@ -58,6 +58,8 @@ Every exercise in the library is ranked S, A or B by how well it works for its m
 
 Beginners start on machines, cables and simple dumbbell moves that are easy to learn, and move to barbell lifts once the basics are solid. Every exercise shows its full range of motion and how many reps to keep in reserve (RIR), exercises that load the muscle at its stretch are marked, and trained lifters get lengthened partials. The plan names its split (full body, upper/lower, push/pull/legs) and shows the weekly hard sets per muscle against the range that builds muscle at your level. Weight goes up by double progression (more reps first, then more weight), and a deload week is suggested when lifts stall. Beginners train at most four days; extra days they pick become walking and mobility days.
 
+Play a sport? Pick football, cricket, running, badminton, basketball, kabaddi, tennis or swimming, your season and your match day. Gym days add what the sport needs, the other days carry sprints, agility and injury-prevention drills, in season the gym stays short, there is no gym the day before a match and a recovery day after, and match-day meals put the carbs where you need them.
+
 Someone heavier, older or inactive starts with a six-week foundation phase: walking is the main workout with a daily step target that starts low and grows each week, three short gentle strength sessions (wall push-ups, sit-to-stands from a chair, glute bridges) on non-consecutive days, and moves that get harder only when the easy version feels easy. Steps show on the workout page for everyone, because walking is part of training.
 
 Food starts simple for beginners too: everyday home food, and a protein target that builds up over the first month (80%, then 90%, then the full amount) with calories unchanged.
@@ -99,7 +101,6 @@ The chat coach sees your plan, targets, workouts and recovery. Ask it to log a m
 These are planned and not built yet.
 
 - **A first-time walkthrough.** Right after sign-up, a short guided tour that shows what each part of the app does and what to do first, second and third: log food, follow the meal plan, do the workout, talk to the coach, set up supplements. A new user should never feel lost.
-- **Training for your sport.** Pick football, cricket, running, weightlifting or another sport, and workouts and meals follow what it needs: speed and agility, injury prevention, match-day food.
 - **Simple recipes on request.** Ask how to cook anything, from dal or pulao to roasted paneer or a treat meal, and get the simplest recipe for your portion, with amounts in grams, katori and spoons, and little oil.
 - **Vitamins and minerals.** See more than calories and protein: iron, calcium, magnesium, zinc, B12, vitamins A, C and D, both for each food and as a daily total against your targets.
 - **Demo readiness.** End-to-end tests for the main journeys, demo data and error monitoring.

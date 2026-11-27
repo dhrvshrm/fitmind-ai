@@ -23,6 +23,8 @@ import { STRINGS } from "../../constants/strings";
 import { getWorkoutTypeMeta } from "../../constants/workout";
 import type { PlanMeta, WorkoutDay } from "../../types/workout";
 import { WeeklyVolume } from "./WeeklyVolume";
+import { DrillCard } from "./DrillCard";
+import { SPORT_STRINGS } from "../../constants/sportStrings";
 import { SectionCard } from "../ui/SectionCard";
 import { EmptyState } from "../ui/EmptyState";
 import { Reveal } from "../ui/Reveal";
@@ -147,8 +149,8 @@ export function WeeklyPlanView({ week, meta }: WeeklyPlanViewProps) {
               {selected.exercises.length === 0 ? (
                 <EmptyState
                   icon={HotelRounded}
-                  title={STRINGS.workout.today.restDayTitle}
-                  description={STRINGS.workout.today.restDay}
+                  title={selected.match ? selected.focus ?? STRINGS.workout.today.restDayTitle : STRINGS.workout.today.restDayTitle}
+                  description={selected.match ? SPORT_STRINGS.matchDay : STRINGS.workout.today.restDay}
                   compact
                 />
               ) : (
@@ -167,6 +169,9 @@ export function WeeklyPlanView({ week, meta }: WeeklyPlanViewProps) {
                   <Box sx={styles.dialogList}>
                   {selected.exercises.map((exercise, index) => (
                     <Reveal key={`${exercise.name}-${index}`} index={index}>
+                      {exercise.pattern === "conditioning" ? (
+                        <DrillCard drill={exercise} />
+                      ) : (
                       <ExerciseCard
                         exercise={exercise}
                         onDetails={
@@ -186,6 +191,7 @@ export function WeeklyPlanView({ week, meta }: WeeklyPlanViewProps) {
                             : undefined
                         }
                       />
+                      )}
                     </Reveal>
                   ))}
                   </Box>

@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEYS } from '../../constants/queryKeys';
 import { workoutService } from '../../services/workoutService';
+import { userService } from '../../services/userService';
+import type { SportPayload } from '../../types/sport';
 import type {
   GeneratePlanPayload,
   QuickSessionPayload,
@@ -119,4 +121,13 @@ export function useLevelUp() {
 
 export function useStrength() {
   return useQuery({ queryKey: QUERY_KEYS.workouts.strength, queryFn: workoutService.getStrength });
+}
+
+/** Saves the sport setup; the plan then shows it was made for something else. */
+export function useUpdateSport() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: (sport: SportPayload) => userService.updatePersonalisation({ sport }),
+    onSuccess: () => invalidate(QUERY_KEYS.profile.user, QUERY_KEYS.workouts.plan),
+  });
 }

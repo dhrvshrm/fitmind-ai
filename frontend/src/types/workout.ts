@@ -1,6 +1,7 @@
 /** Workout types, aligned with the backend workout schemas. */
 
 import type { MuscleGroup } from './exercise';
+import type { SportSetup } from './sport';
 
 /**
  * A single exercise within a day. `reps`/`rest` are display strings
@@ -107,6 +108,8 @@ export type WorkoutDay = {
   finisher?: Finisher | null;
   /** Walk-and-mobility days: minutes of brisk walking. */
   walk_minutes?: number;
+  /** The match itself (a sport week). */
+  match?: boolean;
 };
 
 export type PlanNoteCode =
@@ -115,7 +118,8 @@ export type PlanNoteCode =
   | 'bodyweight_only'
   | 'body_scan_focus'
   | 'foundation_phase'
-  | 'doctor_check';
+  | 'doctor_check'
+  | 'sport_training';
 
 /** Where someone is in the foundation phase and how far to walk. */
 export type FoundationInfo = {
@@ -140,6 +144,8 @@ export type PlanMeta = {
   split?: 'full_body' | 'upper_lower' | 'upper_lower_full' | 'push_pull_legs' | 'foundation';
   /** The foundation phase: walking first and three gentle sessions, for the first weeks. */
   foundation?: FoundationInfo | null;
+  /** The sport the plan was built for. */
+  sport?: SportSetup | null;
   notes: PlanNoteCode[];
   variant: number;
   protected_joints: string[];
@@ -152,6 +158,8 @@ export type WeeklyPlan = {
   meta?: PlanMeta | null;
   /** A body scan was saved after this plan was made. */
   scan_changed?: boolean;
+  /** The sport, season phase or match day changed since the plan was made. */
+  sport_changed?: boolean;
 };
 
 /** normal, light (fewer sets after poor recovery) or rest (mobility instead). */

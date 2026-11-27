@@ -19,6 +19,7 @@ import {
 } from '@mui/icons-material';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ExerciseLogger } from './ExerciseLogger';
+import { DrillCard } from './DrillCard';
 import { ExerciseDetailDialog } from '../exercises/ExerciseDetailDialog';
 import { WarmUpList } from './WarmUpList';
 import { FinisherNote } from './FinisherNote';
@@ -264,7 +265,10 @@ export function TodayWorkout({
               <WarmUpList warmUp={today.warm_up} onDetails={setDetailId} />
             )}
             <Box sx={styles.list}>
-              {exercises.map((exercise) => (
+              {exercises.map((exercise) =>
+                exercise.pattern === 'conditioning' ? (
+                  <DrillCard key={exercise.name} drill={exercise} />
+                ) : (
                 <ExerciseLogger
                   key={exercise.name}
                   exercise={exercise}
@@ -274,7 +278,8 @@ export function TodayWorkout({
                   onFelt={(value) => setFelt((prev) => ({ ...prev, [exercise.name]: value }))}
                   onDetails={exercise.exercise_id ? () => setDetailId(exercise.exercise_id ?? null) : undefined}
                 />
-              ))}
+                ),
+              )}
             </Box>
             {today?.finisher && <FinisherNote finisher={today.finisher} />}
 

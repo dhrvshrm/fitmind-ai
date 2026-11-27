@@ -8,6 +8,8 @@ import { WorkoutHistory } from './WorkoutHistory';
 import { QuickSessionCard } from './QuickSessionCard';
 import { TrainingCoachCard } from './TrainingCoachCard';
 import { FoundationCard } from './FoundationCard';
+import { SportCard } from './SportCard';
+import { SPORT_STRINGS } from '../../constants/sportStrings';
 import { StepsCard } from '../activity/StepsCard';
 import { ExerciseLibrary } from '../exercises/ExerciseLibrary';
 import {
@@ -137,11 +139,25 @@ export function WorkoutPage() {
             {BODY_SCAN_STRINGS.workout.scanChanged}
           </Alert>
         )}
+        {plan.data?.sport_changed && (
+          <Alert
+            severity="info"
+            action={
+              <Button color="inherit" size="small" onClick={handleGenerate} disabled={isGenerating}>
+                {S.generate}
+              </Button>
+            }
+          >
+            {SPORT_STRINGS.changed}
+          </Alert>
+        )}
         {plan.data?.meta?.foundation && <FoundationCard info={plan.data.meta.foundation} />}
         {plan.data && <WeeklyPlanView week={plan.data.week} meta={plan.data.meta} />}
 
         {/* Steps are part of training: walking is the base every plan builds on. */}
         <StepsCard />
+
+        <SportCard />
 
         <TrainingCoachCard />
 

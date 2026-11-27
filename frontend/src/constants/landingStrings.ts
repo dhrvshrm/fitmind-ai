@@ -175,10 +175,6 @@ export const LANDING_STRINGS = {
     soon: 'Soon',
     items: [
       {
-        title: 'Train for your sport',
-        body: 'Football, cricket, running, badminton or lifting: speed, agility, injury-proofing and match-day food.',
-      },
-      {
         title: 'Recipes on request',
         body: 'Ask how to cook anything, from dal to a protein mug cake, scaled to your portion with little oil.',
       },
@@ -282,6 +278,10 @@ export const LANDING_STRINGS = {
       {
         q: 'I am heavy, older, or have not exercised in years. Where do I start?',
         a: 'With the foundation phase. For your first six weeks, walking is the main workout, with a step target that starts around 4,000 and grows a little each week. Three times a week you do a short, gentle strength session (wall push-ups, standing up from a chair, glute bridges, calf raises) at an easy effort, and the other days are walks and stretches. Moves get harder only when the easy version feels easy. If a quick check with your doctor makes sense for you, RepEat says so.',
+      },
+      {
+        q: 'I play football, cricket or another sport. Can it train me for that?',
+        a: 'Yes. Pick your sport, your season and your match day. Gym days add what the sport needs (hamstrings and calves for football, rotation and shoulders for cricket, calves and single-leg strength for running), the other days carry sprints, agility and injury-prevention drills like the Copenhagen plank, and in season the gym stays short so your legs are fresh. No gym the day before a match, a recovery day after, and match-day meals that put the carbs where you need them.',
       },
       {
         q: 'I have never been to a gym. Will it be too much?',

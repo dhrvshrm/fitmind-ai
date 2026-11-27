@@ -58,6 +58,8 @@ PERSONALISATION_FIELDS = (
     "food_preferences",
     "food_access",
     "lifestyle",
+    # The sport they train for: {sport, phase, match_day}.
+    "sport",
     "targets",
     "targets_updated_at",
     # Activity level supported by logged steps (None = use the self-reported one).

@@ -16,7 +16,7 @@ from app.nutrition.targets import canonical_goal
 from app.services import gamification_service
 from app.services import analytics_service
 from app.utils.time import local_today, local_today_iso
-from app.workouts import foundation
+from app.workouts import foundation, sports
 from app.workouts import catalog, planner, programming, warm_up
 
 logger = logging.getLogger(__name__)
@@ -73,6 +73,8 @@ async def generate_workout_plan(
         focus=await body_scan_service.latest_training(user.id),
         # Not ready for push-ups and squats yet: walking first, three gentle sessions.
         foundation_week=foundation_week,
+        # Training for a sport: its strength needs, drills, season phase and match day.
+        sport=getattr(user, "sport", None),
         doctor_check=bool(foundation_week) and foundation.needs_doctor_check(user.age, user.weight_kg, user.height_cm),
     )
     plan = WorkoutPlan(
@@ -103,6 +105,12 @@ def _today_entry(plan: Optional[WorkoutPlan]) -> Optional[Dict[str, Any]]:
         return None
     today = DAYS[local_today().weekday()]
     return next((d for d in plan.week if str(d.get("day", "")).lower() == today.lower()), None)
+
+
+def sport_changed(plan: WorkoutPlan, user: User) -> bool:
+    """True when the sport setup moved on since the plan was made (a new sport, phase or match day)."""
+    made_for = (plan.meta or {}).get("sport")
+    return sports.setup_of(getattr(user, "sport", None)) != made_for
 
 
 async def scan_changed(plan: WorkoutPlan, user: User) -> bool:

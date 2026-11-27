@@ -39,7 +39,9 @@ export type FastingNoteCode =
   | "ramadan_timings"
   | "shelf_suggestion"
   | "season_tip"
-  | "protein_ramp";
+  | "protein_ramp"
+  | "match_day"
+  | "pre_match";
 
 export type PlanNote =
   | { code: PlanNoteCode; values: Record<string, number> }
