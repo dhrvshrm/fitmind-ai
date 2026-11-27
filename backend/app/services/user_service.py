@@ -12,7 +12,7 @@ from app.activity.steps import effective_level as effective_activity_level
 logger = logging.getLogger(__name__)
 
 # Nested personalisation sections, merged field by field on update.
-SECTIONS = ("food_preferences", "food_access", "lifestyle")
+SECTIONS = ("food_preferences", "food_access", "lifestyle", "sport")
 # Goal and body fields kept at the top level of the user document.
 GOAL_DETAIL_FIELDS = (
     "goal_pace",

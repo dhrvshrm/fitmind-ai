@@ -1,3 +1,4 @@
+import type { SportPayload } from './sport';
 /** India-first meal planning (Phase 8): fasting modes and the grocery list. */
 
 export type FastingModeKey = 'navratri' | 'ekadashi' | 'paryushan' | 'ramadan';
@@ -96,4 +97,5 @@ export type PersonalisationPayload = {
   lifestyle?: ShiftTimesPayload['lifestyle'];
   food_access?: { mess_meals?: string[]; shelf?: string[]; who_cooks?: string; region?: string };
   food_preferences?: { follow_season?: boolean; follow_taseer?: boolean };
+  sport?: SportPayload;
 };

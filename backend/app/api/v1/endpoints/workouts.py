@@ -34,6 +34,7 @@ async def _plan_data(plan, user: User) -> dict:
         "meta": plan.meta or None,
         # A body scan saved after the plan was made: a new plan would train around it.
         "scan_changed": await workout_service.scan_changed(plan, user),
+        "sport_changed": workout_service.sport_changed(plan, user),
     }
 
 

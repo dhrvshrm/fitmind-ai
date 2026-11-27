@@ -366,6 +366,8 @@ export const STRINGS = {
         "Your plan uses bodyweight exercises. Add dumbbells or bands in your profile to unlock more.",
       foundation_phase:
         "Foundation phase: for the first weeks, walking is your main workout and three short, gentle strength sessions build the base. Moves get harder as the top of each rep range starts to feel easy.",
+      sport_training:
+        "Built for your sport: the gym days add what it needs and the other days carry its conditioning and injury-prevention drills. Before a match there is no gym, and the day after is for recovery.",
       doctor_check:
         "Before you start, a quick check with your doctor is a good idea, especially if you have blood pressure, sugar or joint concerns. Walking and these gentle moves are a safe start for most people.",
       body_scan_focus:
@@ -493,7 +495,7 @@ export const STRINGS = {
     volume: {
       title: "Weekly sets per muscle",
       subtitle: (low: number, high: number) =>
-        `Hard sets each muscle gets in a week (a set counts half for muscles that only help). ${low} to ${high} builds muscle at your level.`,
+        `Hard sets each muscle gets in a week (a set counts half for muscles that only help). Aim for ${low} to ${high} at your level and stage.`,
       sets: (sets: number) => (Math.round(sets) === 1 ? "1 set" : `${Math.round(sets)} sets`),
       under: "Below range",
       inRange: "In range",

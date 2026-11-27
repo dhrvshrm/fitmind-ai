@@ -120,6 +120,18 @@ class FoodAccess(BaseModel):
     _clean = field_validator("pantry")(_clean_list)
 
 
+SportKey = Literal["none", "football", "cricket", "running", "badminton", "basketball", "kabaddi", "tennis", "swimming"]
+SportPhase = Literal["off_season", "pre_season", "in_season"]
+
+
+class SportSetup(BaseModel):
+    """The sport someone trains for; "none" switches it off. match_day: 0 = Monday ... 6 = Sunday, -1 = none."""
+
+    sport: Optional[SportKey] = None
+    phase: Optional[SportPhase] = None
+    match_day: Optional[int] = Field(None, ge=-1, le=6)
+
+
 class Lifestyle(BaseModel):
     wake_time: Optional[str] = Field(None, pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
     sleep_time: Optional[str] = Field(None, pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
@@ -166,6 +178,7 @@ class PersonalisationUpdate(GoalDetails):
     food_preferences: Optional[FoodPreferences] = None
     food_access: Optional[FoodAccess] = None
     lifestyle: Optional[Lifestyle] = None
+    sport: Optional[SportSetup] = None
 
 
 class TargetsPreviewRequest(GoalDetails):

@@ -3,6 +3,7 @@ import { INDIA_FIRST_STRINGS } from "../constants/indiaFirstStrings";
 import { HEALTH_STRINGS } from "../constants/healthStrings";
 import { MESS_STRINGS } from "../constants/messStrings";
 import { SEASON_STRINGS } from "../constants/seasonStrings";
+import { SPORT_STRINGS } from "../constants/sportStrings";
 import type { CookingFatKind, PlanNote, PlanSlot } from "../types/dietPlan";
 import type { PlanEffect } from "../types/health";
 import type { FastingModeKey, FastingWarning } from "../types/indiaFirst";
@@ -59,6 +60,10 @@ export function noteText(note: PlanNote, fastingMode?: string | null): string {
       const season = text(v.season) as keyof typeof SEASON_STRINGS.tips;
       return SEASON_STRINGS.tips[season] ?? "";
     }
+    case "match_day":
+      return SPORT_STRINGS.mealNotes.match_day;
+    case "pre_match":
+      return SPORT_STRINGS.mealNotes.pre_match;
     case "protein_ramp":
       return S.notes.protein_ramp(Number(v.percent) || 0, formatDateLabel(text(v.full_on)));
     case "mess_mode":

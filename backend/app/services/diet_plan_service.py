@@ -19,6 +19,7 @@ from app.nutrition.food_db import Food
 from app.services import nutrition_service, user_service
 from app.nutrition import fasting, grocery  # Phase 8: fasting modes and grocery list
 from app.nutrition import seasons
+from app.workouts import sports
 from app.services import fasting_service
 from app.services import workout_service
 from app.services import analytics_service
@@ -89,6 +90,8 @@ async def _context(user_id: str) -> _Context:
     ctx.season = season
     ctx.simple = simple
     ctx.ramp = protein_ramp(user)
+    # A match today or tomorrow shapes where the carbs go.
+    ctx.match = sports.match_status(sports.setup_of(getattr(user, "sport", None)), local_today().weekday())
     # Mess mode: shelf foods can be planned and swapped in even when they aren't
     # everyday plan foods (a whey shake).
     ctx.shelf = mess.shelf_foods(ctx.access, rules) if mess.is_on(ctx.access) else []
@@ -152,6 +155,9 @@ def _notes(meals: List[dict], plan_targets: Dict[str, int], ctx: _Context,
         notes.append({"code": "medical_advice", "values": {}})
     notes += [n for n in getattr(ctx, "health_notes", []) if n["code"] not in {x["code"] for x in notes}]
     notes += [n for n in _mode_notes(getattr(ctx, "fasting_mode", None)) if n["code"] not in {x["code"] for x in notes}]
+    match = getattr(ctx, "match", None)
+    if match:
+        notes.append({"code": "match_day" if match == "match" else "pre_match", "values": {}})
     ramp = getattr(ctx, "ramp", None)
     if ramp:
         # Protein builds up over the first month; the note says how far along they are.
@@ -283,6 +289,11 @@ def _season_lines(ctx: "_Context") -> List[str]:
     lines = season.prompt_lines() if season else []
     if getattr(ctx, "simple", False):
         lines.append(meal_planner.BEGINNER_PROMPT)
+    match = getattr(ctx, "match", None)
+    if match == "match":
+        lines.append(sports.MATCH_DAY_PROMPT)
+    elif match == "pre_match":
+        lines.append(sports.PRE_MATCH_PROMPT)
     return lines
 
 

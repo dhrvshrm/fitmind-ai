@@ -1,3 +1,4 @@
+import type { SportKey, SportPhase } from './sport';
 import type { MessMeal, ShelfKey } from "./mess";
 /** Onboarding domain types, aligned with the backend `UserOnboarding` schema. */
 
@@ -178,6 +179,8 @@ export type UserProfile = Partial<Omit<OnboardingPayload, "fitness_goal">> & {
   fitness_goal?: FitnessGoal | null;
   onboarding_completed?: boolean;
   targets?: Targets | null;
+  /** The sport they train for, if any. */
+  sport?: { sport?: SportKey | 'none'; phase?: SportPhase; match_day?: number | null } | null;
 };
 
 /** Field-level validation errors for a single step. */
